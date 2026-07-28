@@ -1,0 +1,42 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  background: oklch(99% 0.003 260);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: oklch(45% 0.16 265 / 0.2);
+}
+
+a {
+  color: oklch(45% 0.16 265);
+  text-decoration: none;
+}
+
+a:hover {
+  color: oklch(38% 0.17 265);
+  text-decoration: underline;
+}
+
+button {
+  font: inherit;
+}
+
+.pb-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.pb-scroll::-webkit-scrollbar-thumb {
+  background: oklch(88% 0.006 260);
+  border-radius: 3px;
+}
