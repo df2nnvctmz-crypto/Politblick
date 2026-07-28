@@ -13,6 +13,7 @@ import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealM
 import { computeAllAlignments, computeDivergences, computeMemberAlignment, useAllPolls, useMandateVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult } from './polls';
 import { useSidejobs } from './sidejobs';
 import { useOnScreen, usePortrait } from './portraits';
+import { useSnapshot } from './snapshot';
 
 type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'impressum' | 'disclaimer';
 type ProfileTab = 'overview' | 'votes' | 'lobby' | 'finance';
@@ -28,6 +29,17 @@ const voteBg: Record<string, string> = {
 function formatWeekRange(range: { start: Date; end: Date }, lang: Lang): string {
   const fmt = new Intl.DateTimeFormat(lang === 'de' ? 'de-DE' : 'en-US', { day: 'numeric', month: 'short' });
   return `${fmt.format(range.start)} – ${fmt.format(range.end)}`;
+}
+
+function formatDateTime(iso: string, lang: Lang): string {
+  const fmt = new Intl.DateTimeFormat(lang === 'de' ? 'de-DE' : 'en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  return fmt.format(new Date(iso));
 }
 
 /**
@@ -118,6 +130,7 @@ function App() {
   const [topicFilter, setTopicFilter] = useState<string | null>(null);
   const [following, setFollowing] = useState<Record<string, boolean>>({});
 
+  const { snapshot } = useSnapshot();
   const roster = useBundestagRoster();
   const pollsState = useAllPolls();
   const weekly = useWeeklyResults(pollsState.polls);
@@ -216,10 +229,12 @@ function App() {
   // fabricated votes/lobby/donations are ever attached to a real person).
   const demoMatch = demoMps.find((m) => m.id === selectedMpId);
   const realMatch = roster.members.find((m) => String(m.id) === selectedMpId);
-  const debouncedMandateId = useDebounced(realMatch ? realMatch.mandateId : null, 350);
+  // Votes/sidejobs are now pure in-memory lookups in the static snapshot (no debounce needed).
+  // Portraits still call out live (Wikidata + a small abgeordnetenwatch lookup), so that one
+  // still debounces to avoid firing a lookup for every profile flicked past while browsing.
   const debouncedPoliticianId = useDebounced(realMatch ? realMatch.id : null, 350);
-  const mandateVotes = useMandateVotes(debouncedMandateId, pollsState.polls);
-  const sidejobs = useSidejobs(debouncedMandateId);
+  const mandateVotes = useMandateVotes(realMatch ? realMatch.mandateId : null);
+  const sidejobs = useSidejobs(realMatch ? realMatch.mandateId : null);
   const portrait = usePortrait(debouncedPoliticianId);
   // Real, cheaply-derivable stats for a real profile's Overview tab. Bills-voted/attendance cover
   // the full term (cheap — already fetched for the Votes tab); party-alignment is derived (no
@@ -285,8 +300,7 @@ function App() {
   const demoBillMatch = billsWithBreakdown.find((b) => b.id === selectedBillId);
   const currentBill = demoBillMatch ? buildBreakdown(demoBillMatch) : null;
   const realPollId = typeof selectedBillId === 'number' ? selectedBillId : null;
-  const debouncedPollId = useDebounced(realPollId, 350);
-  const pollDetail = usePollResult(debouncedPollId, pollsState.polls);
+  const pollDetail = usePollResult(realPollId);
 
   const crossrefRows = demoMps
     .filter((m) => m.donations.length > 0)
@@ -1278,28 +1292,47 @@ function App() {
         </main>
       )}
 
-      <footer
-        style={{
-          borderTop: '1px solid oklch(90% 0.006 260)',
-          padding: '24px 32px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 16,
-          fontSize: 12,
-          color: 'oklch(52% 0.01 260)',
-        }}
-      >
-        <span>{t.footerNote}</span>
-        <div style={{ display: 'flex', gap: 16 }}>
-          <a href="#" onClick={stop(goDisclaimer)} style={{ color: 'oklch(52% 0.01 260)' }}>
-            {t.disclaimerTitle}
-          </a>
-          <a href="#" onClick={stop(goImpressum)} style={{ color: 'oklch(52% 0.01 260)' }}>
-            {t.impressumTitle}
-          </a>
+      <footer style={{ borderTop: '1px solid oklch(90% 0.006 260)' }}>
+        {(snapshot?.meta.coreGeneratedAt || snapshot?.meta.sidejobsGeneratedAt) && (
+          <div
+            style={{
+              padding: '10px 32px',
+              display: 'flex',
+              gap: 16,
+              flexWrap: 'wrap',
+              fontSize: 11,
+              color: 'oklch(55% 0.01 260)',
+              background: 'oklch(97% 0.006 260)',
+            }}
+          >
+            {snapshot.meta.coreGeneratedAt && <span>{t.dataAsOfTemplate.replace('{date}', formatDateTime(snapshot.meta.coreGeneratedAt, lang))}</span>}
+            {snapshot.meta.sidejobsGeneratedAt && (
+              <span>{t.sidejobsAsOfTemplate.replace('{date}', formatDateTime(snapshot.meta.sidejobsGeneratedAt, lang))}</span>
+            )}
+          </div>
+        )}
+        <div
+          style={{
+            padding: '14px 32px 24px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 16,
+            fontSize: 12,
+            color: 'oklch(52% 0.01 260)',
+          }}
+        >
+          <span>{t.footerNote}</span>
+          <div style={{ display: 'flex', gap: 16 }}>
+            <a href="#" onClick={stop(goDisclaimer)} style={{ color: 'oklch(52% 0.01 260)' }}>
+              {t.disclaimerTitle}
+            </a>
+            <a href="#" onClick={stop(goImpressum)} style={{ color: 'oklch(52% 0.01 260)' }}>
+              {t.impressumTitle}
+            </a>
+          </div>
+          <span>{t.footerSources}</span>
         </div>
-        <span>{t.footerSources}</span>
       </footer>
     </div>
   );

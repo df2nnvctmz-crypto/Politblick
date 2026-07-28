@@ -215,6 +215,7 @@ export interface Translation {
   tabSidejobs: string; sidejobOnce: string; sidejobMonthly: string; sidejobAnnual: string; sidejobsSourceNote: string;
   sidejobIncomeLevelPrefix: string;
   alignmentTrendRealTemplate: string; photoCredit: string;
+  dataAsOfTemplate: string; sidejobsAsOfTemplate: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -246,7 +247,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     impressumTitle: 'Impressum',
     impressumBody: 'Angaben gemäß § 5 TMG\n\n[Name / Organisation]\n[Straße, Hausnummer]\n[PLZ, Ort]\n\nKontakt:\nE-Mail: [kontakt@politblick.de]\n\nVerantwortlich für den Inhalt nach § 55 Abs. 2 RStV:\n[Name, Anschrift]\n\nPolitblick ist ein privates, nicht-kommerzielles Projekt zur Aggregation öffentlich zugänglicher Daten. Es besteht keine Verbindung zu Parteien, Fraktionen oder staatlichen Stellen.',
     disclaimerTitle: 'Hinweis zu den Daten',
-    disclaimerBody: 'Alle auf Politblick dargestellten Informationen stammen aus öffentlich zugänglichen Quellen (u. a. Abgeordnetenwatch, Bundestag-Open-Data, Lobbyregister, Rechenschaftsberichte der Parteien) und werden automatisiert zusammengeführt.\n\nTrotz sorgfältiger Aufbereitung übernehmen wir keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität der Angaben. Insbesondere die als "Auffälligkeit" gekennzeichneten Verknüpfungen zwischen Abstimmungen, Lobbykontakten und Spenden stellen statistische Beobachtungen dar, keine Tatsachenbehauptungen über Absicht oder Fehlverhalten einzelner Personen.\n\nFür verbindliche Aussagen konsultieren Sie bitte die genannten Primärquellen. Politblick übernimmt keine Haftung für Entscheidungen, die auf Basis dieser Daten getroffen werden.',
+    disclaimerBody: 'Alle auf Politblick dargestellten Informationen stammen aus öffentlich zugänglichen Quellen (u. a. Abgeordnetenwatch, Bundestag-Open-Data, Lobbyregister, Rechenschaftsberichte der Parteien) und werden automatisiert zusammengeführt.\n\nDie Daten zu Abgeordneten, Abstimmungen und Parteitreue werden alle paar Stunden automatisch aktualisiert; die Nebeneinkünfte einmal täglich. Politblick zeigt also nicht den Stand in Echtzeit, sondern den Stand der letzten automatischen Aktualisierung — den genauen Zeitpunkt sehen Sie am Seitenende.\n\nTrotz sorgfältiger Aufbereitung übernehmen wir keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität der Angaben. Insbesondere die als "Auffälligkeit" gekennzeichneten Verknüpfungen zwischen Abstimmungen, Lobbykontakten und Spenden stellen statistische Beobachtungen dar, keine Tatsachenbehauptungen über Absicht oder Fehlverhalten einzelner Personen.\n\nFür verbindliche Aussagen konsultieren Sie bitte die genannten Primärquellen. Politblick übernimmt keine Haftung für Entscheidungen, die auf Basis dieser Daten getroffen werden.',
     rosterLoading: 'Abgeordnetenliste wird geladen…', rosterUpdated: 'Aktualisiert', rosterError: 'Abgeordnetenliste konnte nicht geladen werden.', rosterRetry: 'Erneut versuchen',
     viewOnAbgeordnetenwatch: 'Vollständiges Profil auf abgeordnetenwatch.de ansehen',
     loadingProfile: 'Profil wird geladen…', profileNotFound: 'Profil nicht gefunden.',
@@ -257,6 +258,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     sidejobIncomeLevelPrefix: 'Stufe',
     alignmentTrendRealTemplate: 'Parteitreue der letzten {n} Abstimmungen',
     photoCredit: 'Foto: Wikimedia Commons',
+    dataAsOfTemplate: 'Abgeordnete, Abstimmungen: Stand {date}',
+    sidejobsAsOfTemplate: 'Nebeneinkünfte: Stand {date}',
     weekOf: 'Sitzungswoche', noPollsThisWeek: 'Für die aktuelle Sitzungswoche liegen noch keine namentlichen Abstimmungen vor.',
     pollsLoading: 'Abstimmungen werden geladen…', pollsError: 'Abstimmungsdaten konnten nicht geladen werden.',
     sidejobsError: 'Nebeneinkünfte konnten nicht geladen werden.',
@@ -293,7 +296,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     impressumTitle: 'Legal notice',
     impressumBody: 'Information per § 5 TMG (German Telemedia Act)\n\n[Name / Organization]\n[Street, number]\n[Postal code, city]\n\nContact:\nEmail: [contact@politblick.de]\n\nResponsible for content per § 55 (2) RStV:\n[Name, address]\n\nPolitblick is a private, non-commercial project that aggregates publicly available data. It has no affiliation with any party, parliamentary group, or government body.',
     disclaimerTitle: 'Data disclaimer',
-    disclaimerBody: 'All information shown on Politblick comes from publicly available sources (including Abgeordnetenwatch, Bundestag open data, the lobby register, and parties’ financial disclosure reports) and is aggregated automatically.\n\nDespite careful processing, we make no guarantee as to the accuracy, completeness, or currency of the information. In particular, links labeled as "flags" between votes, lobby contacts, and donations represent statistical observations, not factual claims about any individual’s intent or wrongdoing.\n\nFor authoritative information, please consult the primary sources listed. Politblick accepts no liability for decisions made based on this data.',
+    disclaimerBody: 'All information shown on Politblick comes from publicly available sources (including Abgeordnetenwatch, Bundestag open data, the lobby register, and parties’ financial disclosure reports) and is aggregated automatically.\n\nMP, voting, and party-alignment data refresh automatically every few hours; outside-income data refreshes once daily. Politblick therefore does not show a live, real-time state — it shows the state as of the last automatic update, timestamped at the bottom of the page.\n\nDespite careful processing, we make no guarantee as to the accuracy, completeness, or currency of the information. In particular, links labeled as "flags" between votes, lobby contacts, and donations represent statistical observations, not factual claims about any individual’s intent or wrongdoing.\n\nFor authoritative information, please consult the primary sources listed. Politblick accepts no liability for decisions made based on this data.',
     rosterLoading: 'Loading MP roster…', rosterUpdated: 'Updated', rosterError: 'Could not load the MP roster.', rosterRetry: 'Retry',
     viewOnAbgeordnetenwatch: 'View full profile on abgeordnetenwatch.de',
     loadingProfile: 'Loading profile…', profileNotFound: 'Profile not found.',
@@ -304,6 +307,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     sidejobIncomeLevelPrefix: 'Level',
     alignmentTrendRealTemplate: 'Party alignment over the last {n} votes',
     photoCredit: 'Photo: Wikimedia Commons',
+    dataAsOfTemplate: 'MPs, votes: as of {date}',
+    sidejobsAsOfTemplate: 'Outside income: as of {date}',
     weekOf: 'Sitting week', noPollsThisWeek: 'No roll-call votes are available yet for the current sitting week.',
     pollsLoading: 'Loading votes…', pollsError: 'Could not load voting data.',
     sidejobsError: 'Could not load outside income data.',

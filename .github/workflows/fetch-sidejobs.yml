@@ -1,0 +1,41 @@
+name: Fetch sidejobs data (Nebeneinkünfte)
+
+on:
+  schedule:
+    # Once daily, off-peak (per abgeordnetenwatch's own fair-use guidance to run bulk
+    # queries outside 22-6 CET). ~630 requests, paced at 2.5s apart, so this one run takes
+    # roughly 25 minutes — that's why it's separate from fetch-core's faster, more frequent run.
+    - cron: '0 3 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-sidejobs
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch sidejobs for every member
+        run: node scripts/fetch-sidejobs.mjs
+
+      - name: Commit and push if data changed
+        run: |
+          git config user.name "politblick-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/data/sidejobs.json public/data/meta.json
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "Update sidejobs data"
+            git push
+          fi

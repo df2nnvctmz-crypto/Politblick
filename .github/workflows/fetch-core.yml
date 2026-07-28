@@ -1,0 +1,40 @@
+name: Fetch core data (roster, polls, votes)
+
+on:
+  schedule:
+    # Every 4 hours. ~70 requests per run, paced at 1.5s apart — comfortably under
+    # abgeordnetenwatch's 30 req/min fair-use limit.
+    - cron: '0 */4 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-core
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch roster, polls, and vote breakdowns
+        run: node scripts/fetch-core.mjs
+
+      - name: Commit and push if data changed
+        run: |
+          git config user.name "politblick-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/data/roster.json public/data/polls.json public/data/poll-results.json public/data/meta.json
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "Update roster/polls/votes data"
+            git push
+          fi
