@@ -1,0 +1,27 @@
+{
+  "_readme": [
+    "Hand-curated stances. This is the ONLY place the site is allowed to claim that a lobby",
+    "organisation was for or against a specific bill.",
+    "",
+    "The Lobbyregister records WHICH Drucksache an organisation lobbied on, but never whether",
+    "it wanted the bill passed or stopped. That direction cannot be derived from the data, and",
+    "guessing it from the wording of a demand would turn a statistical observation into an",
+    "unsourced allegation about how an MP voted. So it is curated by hand, with a source, and",
+    "reviewed in git history like any other change.",
+    "",
+    "Every entry needs a source URL that a reader can check — normally the organisation's own",
+    "position paper (the register links these under 'statements' / 'Stellungnahmen').",
+    "",
+    "Entry format:",
+    "  org        register number, e.g. 'R001326' (see data/lobby-register.json)",
+    "  drucksache printed matter the stance refers to, e.g. '21/6130'",
+    "  position   'pro'    = wanted it adopted",
+    "             'contra' = wanted it stopped or substantially weakened",
+    "  note       one line, in German, quoting or closely paraphrasing the stated position",
+    "  source     URL of the position paper or statement the stance is taken from",
+    "",
+    "Anything not listed here simply has no direction on the site: the organisation's own",
+    "headline demand is shown verbatim instead, and the reader draws their own conclusion."
+  ],
+  "positions": []
+}

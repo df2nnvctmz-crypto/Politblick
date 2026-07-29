@@ -6,6 +6,16 @@ import path from 'node:path';
 export const API_BASE = 'https://www.abgeordnetenwatch.de/api/v2';
 export const BUNDESTAG_PARLIAMENT_ID = 5;
 
+export const LOBBY_API_BASE = 'https://api.lobbyregister.bundestag.de/rest/v2';
+export const LOBBY_OPEN_DATA_PAGE =
+  'https://www.lobbyregister.bundestag.de/informationen-und-hilfe/open-data-1049716';
+/**
+ * The Lobbyregister publishes one shared API key openly on its open-data page. It is not a
+ * secret, but it *is* rotatable — so this constant is only the first guess. See
+ * resolveLobbyApiKey() for how a rotation is recovered from automatically.
+ */
+export const SHARED_LOBBY_API_KEY = '5bHB2zrUuHR6YdPoZygQhWfg2CBrjUOi';
+
 export const REAL_PARTY_COLORS = {
   SPD: 'oklch(52% 0.16 25)',
   'CDU/CSU': 'oklch(25% 0.01 90)',
@@ -124,6 +134,115 @@ export async function fetchAllPaginated(urlBuilder, pace) {
   return all;
 }
 
+/**
+ * Works out a usable Lobbyregister API key, in order of preference:
+ *   1. LOBBY_API_KEY (an individual key requested from lobbyregister@bundestag.de, set as an
+ *      Actions secret) — preferred, because it is ours and won't be rotated out from under us.
+ *   2. The shared key baked in above.
+ *   3. The shared key scraped fresh off the open-data page.
+ *
+ * Each candidate is probed against the real endpoint before being accepted, so a rotation of
+ * the shared key self-heals on the next scheduled run instead of failing the workflow: the
+ * page states it as "Der aktuell gültige API-Key lautet: <32 chars>", and it is the only
+ * 32-character token on that page.
+ */
+export async function resolveLobbyApiKey() {
+  const candidates = [];
+  if (process.env.LOBBY_API_KEY) candidates.push(['LOBBY_API_KEY secret', process.env.LOBBY_API_KEY.trim()]);
+  candidates.push(['built-in shared key', SHARED_LOBBY_API_KEY]);
+
+  const tried = new Set();
+  for (const [source, key] of candidates) {
+    if (tried.has(key)) continue;
+    tried.add(key);
+    if (await lobbyKeyWorks(key)) {
+      console.log(`  using Lobbyregister API key from ${source}`);
+      return key;
+    }
+    console.warn(`  ${source} was rejected by the API — trying the next candidate…`);
+  }
+
+  const scraped = await scrapeLobbyApiKey();
+  if (scraped && !tried.has(scraped) && (await lobbyKeyWorks(scraped))) {
+    console.log('  using Lobbyregister API key freshly scraped from the open-data page');
+    console.log(`  NOTE: the shared key appears to have rotated to ${scraped} — update SHARED_LOBBY_API_KEY.`);
+    return scraped;
+  }
+
+  throw new Error(
+    'No working Lobbyregister API key. The shared key has likely rotated and could not be ' +
+      `re-read from ${LOBBY_OPEN_DATA_PAGE}. Set the LOBBY_API_KEY secret to an individual key ` +
+      '(request one from lobbyregister@bundestag.de).',
+  );
+}
+
+async function lobbyKeyWorks(key) {
+  try {
+    const res = await fetch(`${LOBBY_API_BASE}/registerentries`, {
+      headers: { Authorization: `ApiKey ${key}` },
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function scrapeLobbyApiKey() {
+  try {
+    const res = await fetch(LOBBY_OPEN_DATA_PAGE, { headers: { 'User-Agent': 'politblick-bot' } });
+    if (!res.ok) return null;
+    const text = stripHtml(await res.text());
+    // Prefer a token that directly follows the sentence announcing the key; fall back to the
+    // only 32-char token on the page.
+    const labelled = text.match(/API-Key lautet:?\s*([A-Za-z0-9]{32})\b/);
+    if (labelled) return labelled[1];
+    const all = [...new Set([...text.matchAll(/\b([A-Za-z0-9]{32})\b/g)].map((m) => m[1]))];
+    return all.length === 1 ? all[0] : null;
+  } catch {
+    return null;
+  }
+}
+
+/** One page of register entries. The API is cursor-paginated at a fixed 50 per page. */
+export async function fetchLobbyPage(apiKey, cursor) {
+  const url = cursor
+    ? `${LOBBY_API_BASE}/registerentries?cursor=${encodeURIComponent(cursor)}`
+    : `${LOBBY_API_BASE}/registerentries`;
+  const res = await fetch(url, { headers: { Authorization: `ApiKey ${apiKey}` } });
+  if (!res.ok) throw new Error(`Lobbyregister HTTP ${res.status} for ${url}`);
+  return res.json();
+}
+
+/**
+ * Bundestag printed-matter ("Drucksache") numbers referenced in a chunk of HTML, normalised to
+ * the `21/5921` form the Lobbyregister uses in printedMatters[].printingNumber. The document
+ * URLs look like .../btd/21/059/2105921.pdf, where the filename encodes term (21) + a
+ * five-digit, zero-padded number (05921).
+ */
+export function extractDrucksachen(html) {
+  const out = new Set();
+  for (const m of String(html || '').matchAll(/dserver\.bundestag\.de\/btd\/(\d+)\/\d+\/(\d+)\.pdf/g)) {
+    const term = m[1];
+    const number = Number(m[2].slice(term.length));
+    if (Number.isFinite(number) && number > 0) out.add(`${term}/${number}`);
+  }
+  return [...out];
+}
+
+/**
+ * Aggressive normalisation for matching organisation names across sources that spell them
+ * differently (a member's declared sidejob employer vs. the same body's register entry vs. a
+ * donor line on bundestag.de). Drops legal-form suffixes and every non-alphanumeric character,
+ * so "Stiftung Lesen e. V." and "Stiftung Lesen e.V." collapse to the same key.
+ */
+export function normalizeOrgName(raw) {
+  return String(raw || '')
+    .toLowerCase()
+    .replace(/[.,()/&+-]/g, ' ')
+    .replace(/\b(e\s?v|gmbh|mbh|ggmbh|ag|kgaa|kg|ohg|se|eg|mbb|partg|gbr)\b/g, ' ')
+    .replace(/[^a-z0-9äöüß]/g, '');
+}
+
 export function transformMandate(raw) {
   const politician = raw.politician;
   if (!politician?.label) return null;
@@ -152,6 +271,10 @@ export function transformPoll(raw) {
     topic: raw.field_topics?.[0]?.label ?? '',
     accepted: !!raw.field_accepted,
     url: raw.abgeordnetenwatch_url,
+    // The Drucksachen the poll's intro links to. This is the join key to the Lobbyregister,
+    // which records the printed matter each interest group declares it lobbied on. Free —
+    // field_intro already comes back with the polls list, so this costs no extra request.
+    drucksachen: extractDrucksachen(raw.field_intro),
   };
 }
 
@@ -223,19 +346,47 @@ export function transformSidejob(raw) {
   };
 }
 
-const DATA_DIR = path.resolve(import.meta.dirname, '..', '..', 'public', 'data');
+const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
+/** Served to the browser and copied into dist/ — keep only what the site actually loads. */
+const DATA_DIR = path.join(REPO_ROOT, 'public', 'data');
+/**
+ * Not served. Holds bulky fetch output that only the build-lobby-links.mjs derive step reads
+ * (the full 5 MB Lobbyregister snapshot) plus hand-curated input. Keeping it out of public/
+ * means it isn't shipped in the production bundle.
+ */
+const SOURCE_DIR = path.join(REPO_ROOT, 'data');
 
 export async function readJsonFile(name, fallback) {
+  return readFrom(DATA_DIR, name, fallback);
+}
+
+export async function writeJsonFile(name, data) {
+  // Minified — this is served to every visitor, so bytes matter more than readability.
+  await writeTo(DATA_DIR, name, data, `public/data/${name}`, 0);
+}
+
+export async function readSourceFile(name, fallback) {
+  return readFrom(SOURCE_DIR, name, fallback);
+}
+
+export async function writeSourceFile(name, data) {
+  // Pretty-printed, and not for bandwidth reasons: this file is committed on every run, and a
+  // 5 MB snapshot minified onto one line makes each weekly refresh a whole-file delta. One
+  // field per line means git only stores the entries that actually changed.
+  await writeTo(SOURCE_DIR, name, data, `data/${name}`, 1);
+}
+
+async function readFrom(dir, name, fallback) {
   try {
-    const text = await readFile(path.join(DATA_DIR, name), 'utf-8');
+    const text = await readFile(path.join(dir, name), 'utf-8');
     return JSON.parse(text);
   } catch {
     return fallback;
   }
 }
 
-export async function writeJsonFile(name, data) {
-  await mkdir(DATA_DIR, { recursive: true });
-  await writeFile(path.join(DATA_DIR, name), JSON.stringify(data), 'utf-8');
-  console.log(`  wrote public/data/${name}`);
+async function writeTo(dir, name, data, label, indent) {
+  await mkdir(dir, { recursive: true });
+  await writeFile(path.join(dir, name), JSON.stringify(data, null, indent), 'utf-8');
+  console.log(`  wrote ${label}`);
 }

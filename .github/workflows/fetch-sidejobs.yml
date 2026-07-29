@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -28,14 +30,12 @@ jobs:
       - name: Fetch sidejobs for every member
         run: node scripts/fetch-sidejobs.mjs
 
-      - name: Commit and push if data changed
-        run: |
-          git config user.name "politblick-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add public/data/sidejobs.json public/data/meta.json
-          if git diff --cached --quiet; then
-            echo "No changes."
-          else
-            git commit -m "Update sidejobs data"
-            git push
-          fi
+      # Members' declared roles are how a member is tied to a registered lobbyist, so a change
+      # here changes the cross-references.
+      - name: Rebuild lobby cross-references
+        run: node scripts/build-lobby-links.mjs
+
+      - uses: ./.github/actions/commit-data
+        with:
+          message: Update sidejobs data
+          paths: public/data/sidejobs.json public/data/lobby-links.json public/data/meta.json

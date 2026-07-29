@@ -1,0 +1,69 @@
+name: Commit data snapshot
+description: >-
+  Commits and pushes refreshed data files, retrying onto a moved main.
+
+# Four scheduled workflows write into public/data/ and all push to main. Their schedules are
+# close enough together — and GitHub's cron drifts far enough under load — that two runs can
+# finish within the same minute, in which case the second push is rejected as non-fast-forward
+# and that run's data is silently lost. Rebasing and retrying makes the writers safe to
+# interleave: each job only ever touches its own files, so replaying onto whatever landed first
+# is always the correct resolution.
+
+inputs:
+  message:
+    description: Commit message
+    required: true
+  paths:
+    description: Space-separated paths to stage
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        COMMIT_MESSAGE: ${{ inputs.message }}
+        COMMIT_PATHS: ${{ inputs.paths }}
+      run: |
+        set -euo pipefail
+
+        git config user.name "politblick-bot"
+        git config user.email "actions@users.noreply.github.com"
+
+        # Stage only files that exist. build-lobby-links.mjs deliberately no-ops until the
+        # first Lobbyregister crawl has landed, so lobby-links.json is legitimately absent on
+        # early runs and must not fail the job.
+        staged=0
+        for path in $COMMIT_PATHS; do
+          if [ -e "$path" ]; then
+            git add -- "$path"
+            staged=1
+          else
+            echo "Skipping $path (not present yet)."
+          fi
+        done
+        if [ "$staged" -eq 0 ]; then
+          echo "Nothing to stage."
+          exit 0
+        fi
+
+        if git diff --cached --quiet; then
+          echo "No changes."
+          exit 0
+        fi
+        git commit -m "$COMMIT_MESSAGE"
+
+        for attempt in 1 2 3 4 5; do
+          if git push; then
+            echo "Pushed on attempt $attempt."
+            exit 0
+          fi
+          echo "Push rejected (attempt $attempt) — another data job pushed first. Rebasing…"
+          # Our commit only touches this job's own files, so a rebase onto the newer main
+          # replays cleanly; a conflict here means something unexpected and should fail loudly.
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          sleep $((attempt * 5))
+        done
+
+        echo "Could not push after 5 attempts." >&2
+        exit 1

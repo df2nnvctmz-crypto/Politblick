@@ -14,6 +14,14 @@ import { computeAllAlignments, computeDivergences, computeMemberAlignment, useAl
 import { useSidejobs } from './sidejobs';
 import { useOnScreen, usePortrait } from './portraits';
 import { useSnapshot } from './snapshot';
+import {
+  formatEuro,
+  formatExpenseBracket,
+  useCrossrefRows,
+  useMemberLobby,
+  usePartyDonations,
+  usePollLobbying,
+} from './lobby';
 
 type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'impressum' | 'disclaimer';
 type ProfileTab = 'overview' | 'votes' | 'lobby' | 'finance';
@@ -235,6 +243,7 @@ function App() {
   const debouncedPoliticianId = useDebounced(realMatch ? realMatch.id : null, 350);
   const mandateVotes = useMandateVotes(realMatch ? realMatch.mandateId : null);
   const sidejobs = useSidejobs(realMatch ? realMatch.mandateId : null);
+  const memberLobby = useMemberLobby(realMatch ? realMatch.mandateId : null);
   const portrait = usePortrait(debouncedPoliticianId);
   // Real, cheaply-derivable stats for a real profile's Overview tab. Bills-voted/attendance cover
   // the full term (cheap — already fetched for the Votes tab); party-alignment is derived (no
@@ -302,24 +311,11 @@ function App() {
   const realPollId = typeof selectedBillId === 'number' ? selectedBillId : null;
   const pollDetail = usePollResult(realPollId);
 
-  const crossrefRows = demoMps
-    .filter((m) => m.donations.length > 0)
-    .flatMap((m) =>
-      m.donations.map((d) => {
-        const relatedVote = m.voteHistory[0];
-        const label = relatedVote.vote === 'yes' ? t.voteYes : relatedVote.vote === 'no' ? t.voteNo : t.voteAbstain;
-        return {
-          mpName: m.name,
-          donor: d.donor,
-          industry: d.industry,
-          amount: d.amount,
-          voteLabel: label,
-          bg: voteBg[relatedVote.vote],
-          flagged: m.flags.length > 0,
-          onOpen: () => openMp(m.id),
-        };
-      }),
-    );
+  // Real cross-references: a member voting on a bill that an organisation they are personally
+  // tied to registered lobbying on. Sourced from the Lobbyregister + members' own declarations.
+  const crossref = useCrossrefRows();
+  const partyDonations = usePartyDonations();
+  const pollLobbying = usePollLobbying(realPollId);
 
   return (
     <div
@@ -1007,7 +1003,107 @@ function App() {
                     <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 6 }}>{t.sourceNote}</div>
                   </div>
                 ) : (
-                  <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.noLobbyData}</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+                    <section>
+                      <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.lobbyAffiliationsTitle}</h3>
+                      <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>{t.lobbyAffiliationsSub}</p>
+                      {memberLobby.affiliations.length === 0 ? (
+                        <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.lobbyNoAffiliations}</p>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                          {memberLobby.affiliations.map(({ org, roles, categories }) => {
+                            const spend = formatExpenseBracket(org.expensesEuro);
+                            return (
+                              <div key={org.id} style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '14px 16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
+                                  <span style={{ fontWeight: 600, fontSize: 14 }}>{org.name}</span>
+                                  {org.city && <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', flexShrink: 0 }}>{org.city}</span>}
+                                </div>
+                                {roles.length > 0 && (
+                                  <div style={{ fontSize: 13, color: 'oklch(42% 0.01 260)', marginTop: 3 }}>{roles.join(' · ')}</div>
+                                )}
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                                  {categories.map((c) => (
+                                    <span key={c} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'oklch(95% 0.008 260)', color: 'oklch(40% 0.01 260)' }}>
+                                      {c}
+                                    </span>
+                                  ))}
+                                </div>
+                                {(spend || org.staffFte != null) && (
+                                  <div style={{ fontSize: 11.5, color: 'oklch(50% 0.01 260)', marginTop: 8 }}>
+                                    {spend && `${t.lobbyOrgSpend}: ${spend}`}
+                                    {spend && org.staffFte != null && ' · '}
+                                    {org.staffFte != null && `${t.lobbyOrgStaff}: ${org.staffFte}`}
+                                  </div>
+                                )}
+                                {org.url && (
+                                  <a href={org.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: 'oklch(48% 0.12 250)', display: 'inline-block', marginTop: 8 }}>
+                                    {t.viewSource} →
+                                  </a>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </section>
+
+                    {memberLobby.affiliations.length > 0 && (
+                      <section>
+                        <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 10px' }}>{t.lobbyVotesTitle}</h3>
+                        {memberLobby.conflicts.length === 0 ? (
+                          <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.lobbyNoVotes}</p>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            {memberLobby.conflicts.map((c) => {
+                              const poll = pollsState.polls.find((p) => p.id === c.pollId);
+                              const label = c.vote === 'yes' ? t.voteYes : c.vote === 'no' ? t.voteNo : t.voteAbstain;
+                              return (
+                                <div
+                                  key={`${c.pollId}-${c.orgId}`}
+                                  onClick={() => openBill(c.pollId)}
+                                  style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '14px 16px' }}
+                                >
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 600, fontSize: 14 }}>{poll?.title ?? `#${c.pollId}`}</span>
+                                    <span style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: voteBg[c.vote], color: 'white', flexShrink: 0 }}>
+                                      {label}
+                                    </span>
+                                  </div>
+                                  <div style={{ fontSize: 12.5, color: 'oklch(42% 0.01 260)', marginTop: 5 }}>{c.org.name}</div>
+                                  {c.demands.length > 0 && (
+                                    <div style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', marginTop: 6, fontStyle: 'italic' }}>
+                                      {t.lobbyDemandLabel}: „{c.demands[0]}“
+                                    </div>
+                                  )}
+                                  {c.againstPosition && (
+                                    <div style={{ fontSize: 12, fontWeight: 600, color: 'oklch(48% 0.16 40)', marginTop: 8 }}>
+                                      ⬤ {t.lobbyAgainstPosition}
+                                      {c.positionSource && (
+                                        <a href={c.positionSource} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontWeight: 500, marginLeft: 8, color: 'oklch(48% 0.12 250)' }}>
+                                          {t.lobbyPositionSource} →
+                                        </a>
+                                      )}
+                                    </div>
+                                  )}
+                                  {c.againstFraction && (
+                                    <div style={{ fontSize: 12, fontWeight: 600, color: 'oklch(48% 0.14 60)', marginTop: 6 }}>⬤ {t.lobbyAgainstFraction}</div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 10, lineHeight: 1.6 }}>{t.lobbyNoPositionNote}</p>
+                      </section>
+                    )}
+
+                    <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', lineHeight: 1.6 }}>
+                      {t.lobbyNoContactsNote}
+                      <br />
+                      {t.lobbyRegisterSource}
+                    </p>
+                  </div>
                 ))}
 
               {profileTab === 'finance' &&
@@ -1225,6 +1321,36 @@ function App() {
                       );
                     })}
                   </div>
+                  {/* Interest groups that registered lobbying on this vote's Drucksachen. The
+                      register says what each wanted, in its own words — never which way it
+                      wanted the vote to go, so no direction is shown here. */}
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>{t.pollLobbyingTitle}</div>
+                  {pollLobbying.entries.length === 0 ? (
+                    <p style={{ fontSize: 13, color: 'oklch(48% 0.01 260)', marginBottom: 20 }}>{t.pollLobbyingNone}</p>
+                  ) : (
+                    <>
+                      <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>
+                        {t.pollLobbyingCountTemplate.replace('{n}', String(pollLobbying.entries.length))}
+                      </p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+                        {pollLobbying.entries.slice(0, 25).map((e) => {
+                          const spend = formatExpenseBracket(e.org.expensesEuro);
+                          return (
+                            <div key={e.org.id} style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
+                                <span style={{ fontSize: 13.5, fontWeight: 600 }}>{e.org.name}</span>
+                                {spend && <span style={{ fontSize: 11.5, color: 'oklch(50% 0.01 260)', flexShrink: 0 }}>{spend}</span>}
+                              </div>
+                              {e.demands.length > 0 && (
+                                <div style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', marginTop: 4, fontStyle: 'italic' }}>„{e.demands[0]}“</div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+
                   <a href={pollDetail.result.poll.url} target="_blank" rel="noreferrer" style={{ fontSize: 12.5, fontWeight: 700 }}>
                     {t.viewSource} →
                   </a>
@@ -1240,11 +1366,80 @@ function App() {
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{t.navLobbyFinance}</h1>
           <p style={{ fontSize: 14, color: 'oklch(45% 0.01 260)', margin: '0 0 24px', maxWidth: 640 }}>{t.crossrefSub}</p>
 
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px' }}>{t.crossrefTitle}</h2>
+          {crossref.rows.length === 0 ? (
+            <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.crossrefEmpty}</p>
+          ) : (
+            <div className="pb-scroll" style={{ overflowX: 'auto', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
+                <thead>
+                  <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
+                    {[t.colMp, t.colOrg, t.colBill, t.colVote, t.colFlag].map((col) => (
+                      <th key={col} style={{ padding: '10px 14px', fontWeight: 700, fontSize: 11.5, textTransform: 'uppercase', letterSpacing: '0.03em', color: 'oklch(45% 0.01 260)' }}>
+                        {col}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {crossref.rows.map((r) => {
+                    const label =
+                      r.conflict.vote === 'yes' ? t.voteYes : r.conflict.vote === 'no' ? t.voteNo : t.voteAbstain;
+                    return (
+                      <tr
+                        key={`${r.mandateId}-${r.conflict.pollId}-${r.conflict.orgId}`}
+                        onClick={r.politicianId !== null ? () => openMp(String(r.politicianId)) : undefined}
+                        style={{ cursor: r.politicianId !== null ? 'pointer' : 'default', borderTop: '1px solid oklch(93% 0.006 260)' }}
+                      >
+                        <td style={{ padding: '10px 14px', fontWeight: 600 }}>
+                          {r.memberName}
+                          <div style={{ fontSize: 11.5, fontWeight: 500, color: 'oklch(48% 0.01 260)' }}>{r.party}</div>
+                        </td>
+                        <td style={{ padding: '10px 14px' }}>{r.org.name}</td>
+                        <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{r.pollTitle}</td>
+                        <td style={{ padding: '10px 14px' }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 10, background: voteBg[r.conflict.vote], color: 'white' }}>
+                            {label}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 14px' }}>
+                          {r.conflict.againstPosition && (
+                            <div style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.16 40)' }}>⬤ {t.lobbyAgainstPosition}</div>
+                          )}
+                          {r.conflict.againstFraction && (
+                            <div style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.14 60)' }}>⬤ {t.lobbyAgainstFraction}</div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 10, lineHeight: 1.6, maxWidth: 760 }}>
+            {t.lobbyNoPositionNote}
+          </p>
+
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: '34px 0 4px' }}>{t.donationsTitle}</h2>
+          <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 700 }}>{t.donationsSub}</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 18 }}>
+            {partyDonations.byFraction.map((p) => (
+              <div key={p.fraction} style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', minWidth: 150 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <span style={{ width: 9, height: 9, borderRadius: '50%', background: REAL_PARTY_COLORS[p.fraction] || FALLBACK_PARTY_COLOR, flexShrink: 0 }} />
+                  <span style={{ fontWeight: 700, fontSize: 13.5 }}>{p.fraction}</span>
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 700, marginTop: 5 }}>{formatEuro(p.total)}</div>
+                <div style={{ fontSize: 11.5, color: 'oklch(50% 0.01 260)' }}>{p.count} ×</div>
+              </div>
+            ))}
+          </div>
           <div className="pb-scroll" style={{ overflowX: 'auto', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
               <thead>
                 <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
-                  {[t.colMp, t.colDonor, t.colIndustry, t.colAmount, t.colVote, t.colFlag].map((col) => (
+                  {[t.donationsColParty, t.donationsColDonor, t.donationsColAmount, t.donationsColDate].map((col) => (
                     <th key={col} style={{ padding: '10px 14px', fontWeight: 700, fontSize: 11.5, textTransform: 'uppercase', letterSpacing: '0.03em', color: 'oklch(45% 0.01 260)' }}>
                       {col}
                     </th>
@@ -1252,23 +1447,28 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {crossrefRows.map((r, i) => (
-                  <tr key={i} onClick={r.onOpen} style={{ cursor: 'pointer', borderTop: '1px solid oklch(93% 0.006 260)' }}>
-                    <td style={{ padding: '10px 14px', fontWeight: 600 }}>{r.mpName}</td>
-                    <td style={{ padding: '10px 14px' }}>{r.donor}</td>
-                    <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{r.industry}</td>
-                    <td style={{ padding: '10px 14px' }}>{r.amount}</td>
-                    <td style={{ padding: '10px 14px' }}>
-                      <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 10, background: r.bg, color: 'white' }}>{r.voteLabel}</span>
-                    </td>
-                    <td style={{ padding: '10px 14px' }}>
-                      {r.flagged && <span style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.16 40)' }}>⬤ {t.flagged}</span>}
-                    </td>
-                  </tr>
-                ))}
+                {partyDonations.all.slice(0, 60).map((d, i) => {
+                  const lobbyOrgId = d.donor ? snapshot?.lobbyLinks.donorLinks[d.donor] : undefined;
+                  const lobbyOrg = lobbyOrgId ? snapshot?.lobbyLinks.orgs[lobbyOrgId] : undefined;
+                  return (
+                    <tr key={`${d.publishedOn}-${d.donor}-${d.party}-${i}`} style={{ borderTop: '1px solid oklch(93% 0.006 260)' }}>
+                      <td style={{ padding: '10px 14px', fontWeight: 600 }}>{d.party}</td>
+                      <td style={{ padding: '10px 14px' }}>
+                        {d.donor}
+                        {d.donorCity && <span style={{ color: 'oklch(55% 0.01 260)' }}> · {d.donorCity}</span>}
+                        {lobbyOrg && (
+                          <div style={{ fontSize: 11.5, color: 'oklch(48% 0.14 60)', fontWeight: 600 }}>⬤ {t.donationsAlsoLobbyist}</div>
+                        )}
+                      </td>
+                      <td style={{ padding: '10px 14px', fontWeight: 600 }}>{formatEuro(d.amountEuro)}</td>
+                      <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{d.receivedOn}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
+          <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 10 }}>{t.donationsSource}</p>
         </main>
       )}
 

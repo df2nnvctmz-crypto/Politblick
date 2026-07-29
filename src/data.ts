@@ -216,6 +216,17 @@ export interface Translation {
   sidejobIncomeLevelPrefix: string;
   alignmentTrendRealTemplate: string; photoCredit: string;
   dataAsOfTemplate: string; sidejobsAsOfTemplate: string;
+  lobbyAffiliationsTitle: string; lobbyAffiliationsSub: string; lobbyNoAffiliations: string;
+  lobbyVotesTitle: string; lobbyDemandLabel: string; lobbyNoVotes: string;
+  lobbyAgainstPosition: string; lobbyAgainstFraction: string; lobbyPositionSource: string;
+  lobbyNoPositionNote: string; lobbyOrgSpend: string; lobbyOrgStaff: string;
+  lobbyRegisterSource: string; lobbyNoContactsNote: string;
+  pollLobbyingTitle: string; pollLobbyingCountTemplate: string; pollLobbyingNone: string;
+  donationsTitle: string; donationsSub: string; donationsColParty: string;
+  donationsColDonor: string; donationsColAmount: string; donationsColDate: string;
+  donationsAlsoLobbyist: string; donationsSource: string;
+  lobbyAsOfTemplate: string; donationsAsOfTemplate: string;
+  crossrefTitle: string; crossrefEmpty: string; colOrg: string; colBill: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -224,11 +235,11 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     searchPlaceholder: 'Abgeordnete, Themen, Gesetze suchen…',
     heroKicker: 'Öffentliche Daten, an einem Ort',
     heroTitle: 'Jede Abstimmung. Jede Verbindung.',
-    heroSub: 'Politblick bringt Abstimmungen, Lobbykontakte und Parteispenden aus über einem Dutzend öffentlicher Quellen in eine durchsuchbare Ansicht — ohne Login, ohne Tracking.',
+    heroSub: 'Politblick bringt Abstimmungen, Lobbyregister-Einträge und Parteispenden aus öffentlichen Quellen in eine durchsuchbare Ansicht — ohne Login, ohne Tracking.',
     heroCta: 'Abgeordnete durchsuchen', heroCta2: 'Lobby & Finanzen ansehen',
     statMpsLabel: 'Abgeordnete erfasst', statFlagsLabel: 'Auffälligkeiten',
     expectationTitle: 'Gegen die Erwartung gestimmt',
-    expectationSub: 'Abgeordnete, die von der Mehrheitslinie ihrer eigenen Fraktion abgewichen sind — mit Kontext zu Lobbykontakten und Spenden.',
+    expectationSub: 'Abgeordnete, die von der Mehrheitslinie ihrer eigenen Fraktion abgewichen sind — mit Kontext zu Lobbyverflechtungen und Spenden.',
     featuredKicker: 'Im Fokus', readMore: 'Vollständige Analyse lesen',
     feedTitle: 'Aktuelle Abstimmungen', feedSub: 'Kürzlich abgeschlossene Abstimmungen im Bundestag',
     filterParty: 'Partei', filterTopic: 'Thema', results: 'Ergebnisse',
@@ -237,21 +248,21 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     flagsHeading: 'Auffälligkeiten', sourceNote: 'Quelle: Lobbyregister des Deutschen Bundestages.',
     rechenschaftsNote: 'Quelle: Rechenschaftsberichte der Parteien.',
     voteBreakdown: 'Abstimmungsergebnis nach Partei', voteYes: 'Ja', voteNo: 'Nein', voteAbstain: 'Enthaltung',
-    flaggedVotes: 'Auffällige Stimmen', crossrefSub: 'Verknüpfung von Spendendaten, Lobbykontakten und Abstimmungsverhalten.',
+    flaggedVotes: 'Auffällige Stimmen', crossrefSub: 'Abgeordnete, die über eine Funktion, Beteiligung oder Zuwendung mit einer Organisation verbunden sind, die zu genau dieser Abstimmung Interessenvertretung angemeldet hat — sowie die veröffentlichten Großspenden an die Parteien.',
     colMp: 'Abgeordnete/r', colDonor: 'Spender', colIndustry: 'Branche', colAmount: 'Betrag', colVote: 'Stimme', colFlag: 'Hinweis',
     flagged: 'Auffällig', footerNote: 'Nur öffentliche Daten. Kein Login, kein Tracking.', footerSources: 'Quellen: Abgeordnetenwatch, Bundestag, Lobbyregister',
-    tabOverview: 'Übersicht', tabVotes: 'Abstimmungen', tabLobby: 'Lobbykontakte', tabFinance: 'Parteifinanzen',
+    tabOverview: 'Übersicht', tabVotes: 'Abstimmungen', tabLobby: 'Lobbyverflechtungen', tabFinance: 'Parteifinanzen',
     follow: 'Folgen', following: 'Gefolgt',
     statBillsVoted: 'Abstimmungen', statAttendance: 'Anwesenheit', statPartyAlignment: 'Parteitreue', statFlags: 'Hinweise',
     reasonPartyLine: 'Stimmte gegen die Mehrheit der eigenen Fraktion',
     impressumTitle: 'Impressum',
     impressumBody: 'Angaben gemäß § 5 TMG\n\n[Name / Organisation]\n[Straße, Hausnummer]\n[PLZ, Ort]\n\nKontakt:\nE-Mail: [kontakt@politblick.de]\n\nVerantwortlich für den Inhalt nach § 55 Abs. 2 RStV:\n[Name, Anschrift]\n\nPolitblick ist ein privates, nicht-kommerzielles Projekt zur Aggregation öffentlich zugänglicher Daten. Es besteht keine Verbindung zu Parteien, Fraktionen oder staatlichen Stellen.',
     disclaimerTitle: 'Hinweis zu den Daten',
-    disclaimerBody: 'Alle auf Politblick dargestellten Informationen stammen aus öffentlich zugänglichen Quellen (u. a. Abgeordnetenwatch, Bundestag-Open-Data, Lobbyregister, Rechenschaftsberichte der Parteien) und werden automatisiert zusammengeführt.\n\nDie Daten zu Abgeordneten, Abstimmungen und Parteitreue werden alle paar Stunden automatisch aktualisiert; die Nebeneinkünfte einmal täglich. Politblick zeigt also nicht den Stand in Echtzeit, sondern den Stand der letzten automatischen Aktualisierung — den genauen Zeitpunkt sehen Sie am Seitenende.\n\nTrotz sorgfältiger Aufbereitung übernehmen wir keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität der Angaben. Insbesondere die als "Auffälligkeit" gekennzeichneten Verknüpfungen zwischen Abstimmungen, Lobbykontakten und Spenden stellen statistische Beobachtungen dar, keine Tatsachenbehauptungen über Absicht oder Fehlverhalten einzelner Personen.\n\nFür verbindliche Aussagen konsultieren Sie bitte die genannten Primärquellen. Politblick übernimmt keine Haftung für Entscheidungen, die auf Basis dieser Daten getroffen werden.',
+    disclaimerBody: 'Alle auf Politblick dargestellten Informationen stammen aus öffentlich zugänglichen Quellen (Abgeordnetenwatch, Bundestag-Open-Data, Lobbyregister des Deutschen Bundestages, Veröffentlichungen der Bundestagspräsidentin zu Großspenden) und werden automatisiert zusammengeführt.\n\nWichtig zum Thema Lobbyismus: In Deutschland gibt es kein öffentliches Verzeichnis von Treffen zwischen Interessenvertretern und Abgeordneten. Politblick kann und will daher nicht zeigen, wer sich mit wem getroffen hat. Dargestellt werden ausschließlich Eigenerklärungen — einerseits von Organisationen, die im Lobbyregister angeben, zu welcher Drucksache sie Interessenvertretung betreiben, andererseits von Abgeordneten, die ihre Funktionen, Beteiligungen und Zuwendungen anzeigen müssen. Wo beides dieselbe Abstimmung betrifft, wird das als Überschneidung ausgewiesen.\n\nDas Lobbyregister verzeichnet nicht, ob eine Organisation für oder gegen ein Vorhaben war. Eine Aussage wie "stimmte gegen die Position dieser Organisation" erscheint deshalb nur dort, wo eine belegte Position redaktionell erfasst und mit Quelle hinterlegt wurde. Ansonsten steht das Anliegen im Wortlaut der Organisation, ohne Richtungsangabe.\n\nDie Daten zu Abgeordneten, Abstimmungen und Parteitreue werden alle paar Stunden automatisch aktualisiert; Nebeneinkünfte und Parteispenden einmal täglich, das Lobbyregister wöchentlich. Politblick zeigt also nicht den Stand in Echtzeit, sondern den Stand der letzten automatischen Aktualisierung — den genauen Zeitpunkt sehen Sie am Seitenende.\n\nTrotz sorgfältiger Aufbereitung übernehmen wir keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität der Angaben. Insbesondere die als "Auffälligkeit" oder "Verflechtung" gekennzeichneten Verknüpfungen stellen statistische Beobachtungen dar, keine Tatsachenbehauptungen über Absicht oder Fehlverhalten einzelner Personen.\n\nFür verbindliche Aussagen konsultieren Sie bitte die genannten Primärquellen. Politblick übernimmt keine Haftung für Entscheidungen, die auf Basis dieser Daten getroffen werden.',
     rosterLoading: 'Abgeordnetenliste wird geladen…', rosterUpdated: 'Aktualisiert', rosterError: 'Abgeordnetenliste konnte nicht geladen werden.', rosterRetry: 'Erneut versuchen',
     viewOnAbgeordnetenwatch: 'Vollständiges Profil auf abgeordnetenwatch.de ansehen',
     loadingProfile: 'Profil wird geladen…', profileNotFound: 'Profil nicht gefunden.',
-    noLobbyData: 'Für dieses Mitglied sind noch keine Lobbykontakte hinterlegt.',
+    noLobbyData: 'Für dieses Mitglied sind keine Verflechtungen mit registrierten Interessenvertretungen erfasst.',
     noFinanceData: 'Für dieses Mitglied sind keine Nebeneinkünfte oder Nebentätigkeiten gemeldet.',
     tabSidejobs: 'Nebeneinkünfte', sidejobOnce: 'einmalig', sidejobMonthly: 'monatlich', sidejobAnnual: 'jährlich',
     sidejobsSourceNote: 'Quelle: Angaben gemäß den Verhaltensregeln für Mitglieder des Deutschen Bundestages. Keine Nebeneinkünfte gemeldet bedeutet nicht zwingend, dass keine bestehen — nur, dass keine meldepflichtige Tätigkeit vorliegt.',
@@ -260,6 +271,38 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     photoCredit: 'Foto: Wikimedia Commons',
     dataAsOfTemplate: 'Abgeordnete, Abstimmungen: Stand {date}',
     sidejobsAsOfTemplate: 'Nebeneinkünfte: Stand {date}',
+    lobbyAffiliationsTitle: 'Verflechtungen mit registrierten Interessenvertretungen',
+    lobbyAffiliationsSub:
+      'Organisationen im Lobbyregister des Bundestages, bei denen dieses Mitglied laut eigener Angabe eine Funktion ausübt.',
+    lobbyNoAffiliations:
+      'Dieses Mitglied übt nach eigenen Angaben keine Funktion bei einer im Lobbyregister eingetragenen Organisation aus.',
+    lobbyVotesTitle: 'Abstimmungen mit Bezug zu diesen Organisationen',
+    lobbyDemandLabel: 'Erklärtes Anliegen der Organisation',
+    lobbyNoVotes:
+      'Keine namentliche Abstimmung dieser Wahlperiode betrifft eine Drucksache, zu der eine dieser Organisationen Interessenvertretung angemeldet hat.',
+    lobbyAgainstPosition: 'Stimmte gegen die Position dieser Organisation',
+    lobbyAgainstFraction: 'Stimmte gegen die Mehrheit der eigenen Fraktion',
+    lobbyPositionSource: 'Beleg der Position',
+    lobbyNoPositionNote:
+      'Das Lobbyregister verzeichnet, zu welcher Drucksache eine Organisation Interessenvertretung angemeldet hat — nicht, ob sie dafür oder dagegen war. Wo keine belegte Position hinterlegt ist, steht hier das Anliegen im Wortlaut der Organisation; die Bewertung bleibt Ihnen überlassen.',
+    lobbyOrgSpend: 'Gemeldete Lobbyausgaben',
+    lobbyOrgStaff: 'Beschäftigte in der Interessenvertretung (VZÄ)',
+    lobbyRegisterSource: 'Quelle: Lobbyregister des Deutschen Bundestages.',
+    lobbyNoContactsNote:
+      'Hinweis: In Deutschland gibt es kein öffentliches Verzeichnis von Treffen zwischen Interessenvertretern und Abgeordneten. Alle Angaben hier beruhen auf Eigenerklärungen — der Organisationen im Lobbyregister und der Abgeordneten zu ihren Nebentätigkeiten.',
+    pollLobbyingTitle: 'Angemeldete Interessenvertretung zu dieser Abstimmung',
+    pollLobbyingCountTemplate: '{n} Organisationen haben zu den Drucksachen dieser Abstimmung Interessenvertretung angemeldet.',
+    pollLobbyingNone: 'Zu den Drucksachen dieser Abstimmung ist keine Interessenvertretung im Register angemeldet.',
+    donationsTitle: 'Großspenden an Parteien',
+    donationsSub: 'Einzelspenden über 35.000 € (bis März 2024: über 50.000 €), veröffentlicht von der Bundestagspräsidentin.',
+    donationsColParty: 'Partei', donationsColDonor: 'Spender', donationsColAmount: 'Betrag', donationsColDate: 'Eingang',
+    donationsAlsoLobbyist: 'Auch im Lobbyregister eingetragen',
+    donationsSource: 'Quelle: Veröffentlichungen der Bundestagspräsidentin nach § 25 Abs. 3 PartG.',
+    lobbyAsOfTemplate: 'Lobbyregister: Stand {date}',
+    donationsAsOfTemplate: 'Parteispenden: Stand {date}',
+    crossrefTitle: 'Abstimmung trotz eigener Verflechtung',
+    crossrefEmpty: 'Derzeit sind keine solchen Überschneidungen erfasst.',
+    colOrg: 'Organisation', colBill: 'Abstimmung',
     weekOf: 'Sitzungswoche', noPollsThisWeek: 'Für die aktuelle Sitzungswoche liegen noch keine namentlichen Abstimmungen vor.',
     pollsLoading: 'Abstimmungen werden geladen…', pollsError: 'Abstimmungsdaten konnten nicht geladen werden.',
     sidejobsError: 'Nebeneinkünfte konnten nicht geladen werden.',
@@ -277,7 +320,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     heroCta: 'Search MPs', heroCta2: 'View lobby & finance',
     statMpsLabel: 'MPs tracked', statFlagsLabel: 'Flags raised',
     expectationTitle: 'Voted against expectation',
-    expectationSub: 'MPs who broke from their own party’s majority line — with context on lobby contacts and donations.',
+    expectationSub: 'MPs who broke from their own party’s majority line — with context on lobby ties and donations.',
     featuredKicker: 'In focus', readMore: 'Read the full analysis',
     feedTitle: 'Recent votes', feedSub: 'Recently concluded roll-call votes in the Bundestag',
     filterParty: 'Party', filterTopic: 'Topic', results: 'results',
@@ -286,21 +329,21 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     flagsHeading: 'Flags', sourceNote: 'Source: German Bundestag lobby register.',
     rechenschaftsNote: 'Source: Party financial disclosure reports.',
     voteBreakdown: 'Vote breakdown by party', voteYes: 'Yes', voteNo: 'No', voteAbstain: 'Abstain',
-    flaggedVotes: 'Flagged votes', crossrefSub: 'Cross-referencing donation data, lobby contacts and voting behavior.',
+    flaggedVotes: 'Flagged votes', crossrefSub: 'MPs tied by a position, shareholding or donation to an organization that registered lobbying on that very vote — plus the published large donations to the parties.',
     colMp: 'MP', colDonor: 'Donor', colIndustry: 'Industry', colAmount: 'Amount', colVote: 'Vote', colFlag: 'Flag',
     flagged: 'Flagged', footerNote: 'Public data only. No login, no tracking.', footerSources: 'Sources: Abgeordnetenwatch, Bundestag, Lobbyregister',
-    tabOverview: 'Overview', tabVotes: 'Voting record', tabLobby: 'Lobby contacts', tabFinance: 'Campaign finance',
+    tabOverview: 'Overview', tabVotes: 'Voting record', tabLobby: 'Lobby ties', tabFinance: 'Campaign finance',
     follow: 'Follow', following: 'Following',
     statBillsVoted: 'Bills voted', statAttendance: 'Attendance', statPartyAlignment: 'Party alignment', statFlags: 'Flags',
     reasonPartyLine: 'Voted against own party’s majority',
     impressumTitle: 'Legal notice',
     impressumBody: 'Information per § 5 TMG (German Telemedia Act)\n\n[Name / Organization]\n[Street, number]\n[Postal code, city]\n\nContact:\nEmail: [contact@politblick.de]\n\nResponsible for content per § 55 (2) RStV:\n[Name, address]\n\nPolitblick is a private, non-commercial project that aggregates publicly available data. It has no affiliation with any party, parliamentary group, or government body.',
     disclaimerTitle: 'Data disclaimer',
-    disclaimerBody: 'All information shown on Politblick comes from publicly available sources (including Abgeordnetenwatch, Bundestag open data, the lobby register, and parties’ financial disclosure reports) and is aggregated automatically.\n\nMP, voting, and party-alignment data refresh automatically every few hours; outside-income data refreshes once daily. Politblick therefore does not show a live, real-time state — it shows the state as of the last automatic update, timestamped at the bottom of the page.\n\nDespite careful processing, we make no guarantee as to the accuracy, completeness, or currency of the information. In particular, links labeled as "flags" between votes, lobby contacts, and donations represent statistical observations, not factual claims about any individual’s intent or wrongdoing.\n\nFor authoritative information, please consult the primary sources listed. Politblick accepts no liability for decisions made based on this data.',
+    disclaimerBody: 'All information shown on Politblick comes from publicly available sources (Abgeordnetenwatch, Bundestag open data, the German Bundestag lobby register, and the President of the Bundestag’s publications of large donations) and is aggregated automatically.\n\nImportant, on lobbying: Germany publishes no register of meetings between lobbyists and MPs. Politblick therefore cannot and does not attempt to show who met whom. What is shown are self-declarations only — by organizations, which state in the lobby register which printed matter they lobby on, and by MPs, who must declare their positions, shareholdings and donations received. Where the two concern the same vote, that is reported as an overlap.\n\nThe lobby register does not record whether an organization was for or against a proposal. A statement such as "voted against this organization’s position" therefore appears only where a sourced position has been recorded editorially. Otherwise the organization’s aim is shown in its own words, with no direction attached.\n\nMP, voting and party-alignment data refresh automatically every few hours; outside income and party donations once daily; the lobby register weekly. Politblick therefore does not show a live, real-time state — it shows the state as of the last automatic update, timestamped at the bottom of the page.\n\nDespite careful processing, we make no guarantee as to the accuracy, completeness, or currency of the information. In particular, links labeled as "flags" or "ties" represent statistical observations, not factual claims about any individual’s intent or wrongdoing.\n\nFor authoritative information, please consult the primary sources listed. Politblick accepts no liability for decisions made based on this data.',
     rosterLoading: 'Loading MP roster…', rosterUpdated: 'Updated', rosterError: 'Could not load the MP roster.', rosterRetry: 'Retry',
     viewOnAbgeordnetenwatch: 'View full profile on abgeordnetenwatch.de',
     loadingProfile: 'Loading profile…', profileNotFound: 'Profile not found.',
-    noLobbyData: 'No lobby contacts are on file for this member yet.',
+    noLobbyData: 'No ties to registered interest groups are on file for this member.',
     noFinanceData: 'No outside income or side activities are reported for this member.',
     tabSidejobs: 'Outside income', sidejobOnce: 'one-time', sidejobMonthly: 'monthly', sidejobAnnual: 'annual',
     sidejobsSourceNote: 'Source: Disclosures under the Bundestag members’ code of conduct. No reported outside income does not necessarily mean none exists — only that no disclosable activity is on file.',
@@ -309,6 +352,38 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     photoCredit: 'Photo: Wikimedia Commons',
     dataAsOfTemplate: 'MPs, votes: as of {date}',
     sidejobsAsOfTemplate: 'Outside income: as of {date}',
+    lobbyAffiliationsTitle: 'Ties to registered interest groups',
+    lobbyAffiliationsSub:
+      'Organizations in the Bundestag lobby register at which this member has declared holding a position.',
+    lobbyNoAffiliations:
+      'By their own declarations, this member holds no position at an organization listed in the lobby register.',
+    lobbyVotesTitle: 'Votes involving those organizations',
+    lobbyDemandLabel: 'The organization’s stated aim',
+    lobbyNoVotes:
+      'No roll-call vote this term concerns a printed matter that any of these organizations registered lobbying on.',
+    lobbyAgainstPosition: 'Voted against this organization’s position',
+    lobbyAgainstFraction: 'Voted against their own fraction’s majority',
+    lobbyPositionSource: 'Evidence for this position',
+    lobbyNoPositionNote:
+      'The lobby register records which printed matter an organization registered lobbying on — not whether it was for or against. Where no sourced position is on file, the organization’s aim is shown in its own words and the judgement is left to you.',
+    lobbyOrgSpend: 'Declared lobbying expenditure',
+    lobbyOrgStaff: 'Staff engaged in lobbying (FTE)',
+    lobbyRegisterSource: 'Source: German Bundestag lobby register.',
+    lobbyNoContactsNote:
+      'Note: Germany publishes no register of meetings between lobbyists and MPs. Everything shown here rests on self-declarations — by organizations in the lobby register, and by MPs about their outside roles.',
+    pollLobbyingTitle: 'Registered lobbying on this vote',
+    pollLobbyingCountTemplate: '{n} organizations registered lobbying on the printed matters behind this vote.',
+    pollLobbyingNone: 'No registered lobbying is on file for the printed matters behind this vote.',
+    donationsTitle: 'Large donations to parties',
+    donationsSub: 'Single donations above €35,000 (before March 2024: above €50,000), published by the President of the Bundestag.',
+    donationsColParty: 'Party', donationsColDonor: 'Donor', donationsColAmount: 'Amount', donationsColDate: 'Received',
+    donationsAlsoLobbyist: 'Also listed in the lobby register',
+    donationsSource: 'Source: Publications by the President of the Bundestag under § 25 (3) PartG.',
+    lobbyAsOfTemplate: 'Lobby register: as of {date}',
+    donationsAsOfTemplate: 'Party donations: as of {date}',
+    crossrefTitle: 'Voted despite their own tie',
+    crossrefEmpty: 'No such overlaps are on record at the moment.',
+    colOrg: 'Organization', colBill: 'Vote',
     weekOf: 'Sitting week', noPollsThisWeek: 'No roll-call votes are available yet for the current sitting week.',
     pollsLoading: 'Loading votes…', pollsError: 'Could not load voting data.',
     sidejobsError: 'Could not load outside income data.',

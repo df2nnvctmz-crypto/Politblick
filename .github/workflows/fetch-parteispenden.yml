@@ -1,0 +1,40 @@
+name: Fetch party donations (Parteispenden)
+
+on:
+  schedule:
+    # Daily. Large donations must be published "unverzüglich" (without undue delay) under § 25
+    # PartG, so new rows can appear on any weekday — but it's only five page fetches, so daily
+    # is cheap. Deliberately offset from the other data jobs to reduce push contention.
+    - cron: '30 5 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-parteispenden
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Scrape published large donations
+        run: node scripts/fetch-parteispenden.mjs
+
+      # Donors are matched against the register, so new donations can create new links.
+      - name: Rebuild lobby cross-references
+        run: node scripts/build-lobby-links.mjs
+
+      - uses: ./.github/actions/commit-data
+        with:
+          message: Update party donation data
+          paths: public/data/party-donations.json public/data/lobby-links.json public/data/meta.json

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { RealMp, RealParty } from './bundestag';
 import type { PartyTally, MemberVote, RealPoll, PollResult } from './polls';
 import type { SidejobRecord } from './sidejobs';
+import { EMPTY_LOBBY_LINKS, type LobbyLinks, type PartyDonation } from './lobby';
 
 /**
  * All real data (roster, polls, vote breakdowns, sidejobs) is pre-fetched by the
@@ -17,6 +18,8 @@ export interface SnapshotMeta {
   legislatureLabel: string | null;
   coreGeneratedAt: string | null;
   sidejobsGeneratedAt: string | null;
+  lobbyRegisterGeneratedAt: string | null;
+  partyDonationsGeneratedAt: string | null;
 }
 
 export interface Snapshot {
@@ -25,6 +28,8 @@ export interface Snapshot {
   polls: RealPoll[];
   pollResults: Map<number, PollResult>;
   sidejobsByMandate: Map<number, SidejobRecord[]>;
+  lobbyLinks: LobbyLinks;
+  partyDonations: PartyDonation[];
   meta: SnapshotMeta;
 }
 
@@ -45,16 +50,23 @@ async function fetchLocalJson<T>(path: string): Promise<T> {
 }
 
 async function buildSnapshot(): Promise<Snapshot> {
-  const [roster, polls, pollResultsRaw, sidejobsRaw, meta] = await Promise.all([
+  // Roster, polls and results are required — without them there is no site. Everything else
+  // degrades to empty, so a member's profile still renders fully before the first
+  // fetch-lobbyregister run has ever landed.
+  const [roster, polls, pollResultsRaw, sidejobsRaw, lobbyLinks, partyDonations, meta] = await Promise.all([
     fetchLocalJson<{ members: RealMp[]; parties: RealParty[] }>('/data/roster.json'),
     fetchLocalJson<RealPoll[]>('/data/polls.json'),
     fetchLocalJson<Record<string, RawPollResult>>('/data/poll-results.json'),
     fetchLocalJson<Record<string, SidejobRecord[]>>('/data/sidejobs.json').catch(() => ({})),
+    fetchLocalJson<LobbyLinks>('/data/lobby-links.json').catch(() => EMPTY_LOBBY_LINKS),
+    fetchLocalJson<PartyDonation[]>('/data/party-donations.json').catch(() => []),
     fetchLocalJson<SnapshotMeta>('/data/meta.json').catch(() => ({
       legislaturePeriodId: null,
       legislatureLabel: null,
       coreGeneratedAt: null,
       sidejobsGeneratedAt: null,
+      lobbyRegisterGeneratedAt: null,
+      partyDonationsGeneratedAt: null,
     })),
   ]);
 
@@ -70,7 +82,16 @@ async function buildSnapshot(): Promise<Snapshot> {
     sidejobsByMandate.set(Number(idStr), records);
   }
 
-  return { members: roster.members, parties: roster.parties, polls, pollResults, sidejobsByMandate, meta };
+  return {
+    members: roster.members,
+    parties: roster.parties,
+    polls,
+    pollResults,
+    sidejobsByMandate,
+    lobbyLinks,
+    partyDonations,
+    meta,
+  };
 }
 
 let snapshotPromise: Promise<Snapshot> | null = null;

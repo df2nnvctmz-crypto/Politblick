@@ -1,0 +1,45 @@
+name: Fetch Lobbyregister
+
+on:
+  schedule:
+    # Weekly. The register is a registration database, not a feed — entries change when an
+    # organisation updates its filing, so daily polling would mostly re-download identical data.
+    # The crawl is ~140 cursor-paginated requests and takes about three minutes.
+    - cron: '0 2 * * 0'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-lobbyregister
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch the full register
+        # LOBBY_API_KEY is optional. The Lobbyregister publishes one shared API key openly, which
+        # the script falls back to — and re-reads off the open-data page if it has been rotated.
+        # Set this secret to an individual key (request one from lobbyregister@bundestag.de) to
+        # stop depending on the shared key at all.
+        env:
+          LOBBY_API_KEY: ${{ secrets.LOBBY_API_KEY }}
+        run: node scripts/fetch-lobbyregister.mjs
+
+      - name: Rebuild lobby cross-references
+        run: node scripts/build-lobby-links.mjs
+
+      - uses: ./.github/actions/commit-data
+        with:
+          message: Update Lobbyregister data
+          paths: data/lobby-register.json public/data/lobby-links.json public/data/meta.json

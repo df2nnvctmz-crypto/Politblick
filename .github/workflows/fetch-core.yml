@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history so the rebase in commit-data can actually replay onto origin/main.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -27,14 +30,15 @@ jobs:
       - name: Fetch roster, polls, and vote breakdowns
         run: node scripts/fetch-core.mjs
 
-      - name: Commit and push if data changed
-        run: |
-          git config user.name "politblick-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add public/data/roster.json public/data/polls.json public/data/poll-results.json public/data/meta.json
-          if git diff --cached --quiet; then
-            echo "No changes."
-          else
-            git commit -m "Update roster/polls/votes data"
-            git push
-          fi
+      # Polls carry the Drucksachen that link them to the Lobbyregister, so new polls mean the
+      # lobby cross-references need rebuilding. No network — pure join over committed inputs.
+      - name: Rebuild lobby cross-references
+        run: node scripts/build-lobby-links.mjs
+
+      - uses: ./.github/actions/commit-data
+        with:
+          message: Update roster/polls/votes data
+          paths: >-
+            public/data/roster.json public/data/polls.json
+            public/data/poll-results.json public/data/lobby-links.json
+            public/data/meta.json
