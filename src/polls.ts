@@ -45,11 +45,20 @@ export interface Divergence {
   majorityVote: VoteChoice;
 }
 
-/** MPs whose vote on this poll differs from their own fraction's majority — a plain statistical fact, not an accusation. */
+/**
+ * "Fraktionslos" ("no fraction") is the bucket abgeordnetenwatch assigns to independent MPs —
+ * it groups together members with no whip and often no relation to one another at all. It is
+ * not a fraction with a line to hold, so a "majority" computed across that bucket describes
+ * nothing about any individual member's expected behaviour. Every place below that measures
+ * "voted against their own fraction" must treat Fraktionslos as unrated, never as a fraction.
+ */
+const NO_FRACTION = 'Fraktionslos';
+
+/** MPs whose vote on this poll differs from their own fraction's majority — a plain statistical fact, not an accusation. Independents (Fraktionslos) have no fraction line to diverge from, so they're excluded. */
 export function computeDivergences(result: PollResult): Divergence[] {
   const out: Divergence[] = [];
   for (const v of result.votes) {
-    if (v.vote === 'no_show') continue;
+    if (v.vote === 'no_show' || v.party === NO_FRACTION) continue;
     const partyTally = result.partyBreakdown.find((p) => p.party === v.party);
     if (!partyTally || !partyTally.majority) continue;
     if (v.vote !== partyTally.majority) {
@@ -179,14 +188,18 @@ export interface AlignmentSummary {
 
 const EMPTY_ALIGNMENT: AlignmentSummary = { points: [], alignedCount: 0, ratedCount: 0, alignmentPct: null, windowSize: 0 };
 
-/** Pure — no network. Derives one member's alignment from the shared recent-poll results. */
+/**
+ * Pure — no network. Derives one member's alignment from the shared recent-poll results.
+ * Independents (Fraktionslos) are always unrated (`aligned: null`) — see NO_FRACTION above.
+ */
 export function computeMemberAlignment(mandateId: number, recentResults: PollResult[]): AlignmentSummary {
   if (recentResults.length === 0) return EMPTY_ALIGNMENT;
   const points: AlignmentPoint[] = [];
   for (const result of recentResults) {
     const entry = result.votes.find((mv) => mv.mandateId === mandateId);
     if (!entry || entry.vote === 'no_show') continue;
-    const majority = result.partyBreakdown.find((p) => p.party === entry.party)?.majority ?? null;
+    const majority =
+      entry.party === NO_FRACTION ? null : (result.partyBreakdown.find((p) => p.party === entry.party)?.majority ?? null);
     points.push({ poll: result.poll, vote: entry.vote, party: entry.party, aligned: majority ? entry.vote === majority : null });
   }
   points.sort((a, b) => a.poll.date.localeCompare(b.poll.date));
@@ -212,7 +225,8 @@ export function computeAllAlignments(recentResults: PollResult[]): Map<number, A
   for (const result of recentResults) {
     for (const entry of result.votes) {
       if (entry.vote === 'no_show') continue;
-      const majority = result.partyBreakdown.find((p) => p.party === entry.party)?.majority ?? null;
+      const majority =
+        entry.party === NO_FRACTION ? null : (result.partyBreakdown.find((p) => p.party === entry.party)?.majority ?? null);
       const list = byMandate.get(entry.mandateId) ?? [];
       list.push({ poll: result.poll, vote: entry.vote, party: entry.party, aligned: majority ? entry.vote === majority : null });
       byMandate.set(entry.mandateId, list);

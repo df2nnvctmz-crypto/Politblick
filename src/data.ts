@@ -227,6 +227,9 @@ export interface Translation {
   donationsAlsoLobbyist: string; donationsSource: string;
   lobbyAsOfTemplate: string; donationsAsOfTemplate: string;
   crossrefTitle: string; crossrefEmpty: string; colOrg: string; colBill: string;
+  topicalTiesTitle: string; topicalTiesSub: string; topicalTiesEmpty: string;
+  topicalTieMatchedFieldTemplate: string; topicalTieNote: string; colMatchedField: string;
+  lobbyTopicalTitle: string; lobbyTopicalNote: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -303,6 +306,17 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     crossrefTitle: 'Abstimmung trotz eigener Verflechtung',
     crossrefEmpty: 'Derzeit sind keine solchen Überschneidungen erfasst.',
     colOrg: 'Organisation', colBill: 'Abstimmung',
+    topicalTiesTitle: 'Gleiches Themenfeld, keine angemeldete Interessenvertretung zu dieser Abstimmung',
+    topicalTiesSub:
+      'Diese Organisation hat nicht erklärt, zu dieser Abstimmung Interessenvertretung zu betreiben — sie ist nur im selben Themenfeld tätig. Schwächerer Hinweis als oben: kein Beleg, nur thematische Nähe.',
+    topicalTiesEmpty: 'Derzeit sind keine solchen thematischen Überschneidungen erfasst.',
+    topicalTieMatchedFieldTemplate: 'Organisation listet als Interessengebiet: „{field}“',
+    topicalTieNote:
+      'Diese Verknüpfung beruht nur auf thematischer Nähe: Die Organisation hat kein Interessengebiet angemeldet, das speziell auf diese Drucksache verweist — nur ein allgemeines Interessengebiet, das laut Politblick-Redaktion zum Thema dieser Abstimmung passt. Anders als bei den oben genannten Verflechtungen gibt es hier keinen dokumentierten Bezug zu genau diesem Gesetz.',
+    colMatchedField: 'Interessengebiet',
+    lobbyTopicalTitle: 'Gleiches Themenfeld (kein dokumentierter Bezug zu dieser Abstimmung)',
+    lobbyTopicalNote:
+      'Diese Organisationen haben nicht erklärt, zu dieser Abstimmung Interessenvertretung zu betreiben — sie sind nur allgemein im selben Themenfeld tätig, laut ihrem eigenen im Lobbyregister angegebenen Interessengebiet.',
     weekOf: 'Sitzungswoche', noPollsThisWeek: 'Für die aktuelle Sitzungswoche liegen noch keine namentlichen Abstimmungen vor.',
     pollsLoading: 'Abstimmungen werden geladen…', pollsError: 'Abstimmungsdaten konnten nicht geladen werden.',
     sidejobsError: 'Nebeneinkünfte konnten nicht geladen werden.',
@@ -384,6 +398,17 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     crossrefTitle: 'Voted despite their own tie',
     crossrefEmpty: 'No such overlaps are on record at the moment.',
     colOrg: 'Organization', colBill: 'Vote',
+    topicalTiesTitle: 'Same policy area, no registered lobbying on this vote',
+    topicalTiesSub:
+      'This organization did not register lobbying on this specific vote — it is only active in the same policy area. A weaker signal than the table above: no documented link, only topical proximity.',
+    topicalTiesEmpty: 'No such topical overlaps are on record at the moment.',
+    topicalTieMatchedFieldTemplate: 'Organization lists as a field of interest: "{field}"',
+    topicalTieNote:
+      'This tie rests on topical proximity only: the organization has not registered an interest specific to this printed matter — only a general field of interest that Politblick’s editors judged relevant to this vote’s topic. Unlike the ties listed above, there is no documented link to this specific bill.',
+    colMatchedField: 'Field of interest',
+    lobbyTopicalTitle: 'Same policy area (no documented link to this vote)',
+    lobbyTopicalNote:
+      'These organizations did not register lobbying on this specific vote — they are only generally active in the same policy area, per their own field of interest declared in the lobby register.',
     weekOf: 'Sitting week', noPollsThisWeek: 'No roll-call votes are available yet for the current sitting week.',
     pollsLoading: 'Loading votes…', pollsError: 'Could not load voting data.',
     sidejobsError: 'Could not load outside income data.',

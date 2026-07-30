@@ -9,11 +9,15 @@
 //
 // Inputs   data/lobby-register.json     full register snapshot   (fetch-lobbyregister.mjs)
 //          data/lobby-positions.json    hand-curated stances     (edited by humans)
+//          data/lobby-topic-map.json    hand-curated topic map   (edited by humans)
 //          public/data/polls.json       polls + their Drucksachen (fetch-core.mjs)
 //          public/data/poll-results.json per-mandate votes        (fetch-core.mjs)
 //          public/data/sidejobs.json    declared outside roles    (fetch-sidejobs.mjs)
 // Output   public/data/lobby-links.json
 import { normalizeOrgName, readJsonFile, readSourceFile, writeJsonFile } from './lib/common.mjs';
+
+/** 'Fraktionslos' independents share no whip, so no majority computed across them is a real fraction line. See both usages below. */
+const NO_FRACTION = 'Fraktionslos';
 
 /**
  * Declared sidejob categories that represent a *current* tie to an organisation — a position,
@@ -141,7 +145,7 @@ async function main() {
         if (!lobbied) continue;
 
         const stance = lobbied.drucksachen.map((d) => curated.get(`${link.orgId}|${d}`)).find(Boolean) ?? null;
-        const fractionMajority = majorityByParty.get(vote.party) ?? null;
+        const fractionMajority = vote.party === NO_FRACTION ? null : majorityByParty.get(vote.party) ?? null;
         conflicts.push({
           mandateId: Number(mandateId),
           pollId: poll.id,
@@ -169,6 +173,89 @@ async function main() {
       `${withCuratedStance} with a curated stance)`,
   );
 
+  // ---- topical ties: same policy area, but no declared Drucksache match ---------------------------
+  //
+  // Weaker than `conflicts` above, and it must stay visibly weaker. A `conflicts` entry means the
+  // organisation itself declared lobbying on this exact bill. A topical tie only means the member's
+  // organisation lists a field of interest that data/lobby-topic-map.json curates as genuinely
+  // on-topic for this poll — no document ties the org to this specific vote. Never merge the two;
+  // the frontend must label them differently and this array must never reuse the `conflicts` shape.
+  //
+  // The topic map is intentionally narrow (see its _readme): matching on a poll's whole topic
+  // against every field an org might list produces enormous noise. A one-topic test run (just
+  // "Energie", including generic fields like "Allgemeine Energiepolitik") produced 3,171 hits, the
+  // first several of which were a student-services union and two party economic forums flagged on
+  // a building-energy-retrofit bill — neither has any real stake in it, they'd simply ticked a
+  // generic interest box. Only specific fields belong in the topic map for exactly this reason.
+  //
+  // Even with a narrow topic map, one failure mode survives: a "generalist" org that ticks a huge
+  // spread of unrelated fields. In production this was "Wirtschaftsforum der SPD e.V." — a
+  // party-internal economic forum registered under 85 different fields of interest (nuclear
+  // energy, foreign policy, care, labour market, integration, ...), which alone produced 1,813 of
+  // 5,006 topical ties, because it also has 35 affiliated MPs. Across the full register,
+  // fieldsOfInterest length is: median 8, p75 14, p90 22, p95 28 (max 132) — so a generalist org
+  // like that sits far out in the tail, not in the normal range a genuinely specialised interest
+  // group (a banking association, a farmers' union) occupies. Excluding orgs above this breadth
+  // cuts the failure mode at its structural cause instead of denylisting specific organisations,
+  // which wouldn't generalise to the next one like it.
+  const GENERALIST_FIELD_COUNT_THRESHOLD = 25;
+  const topicMapFile = await readSourceFile('lobby-topic-map.json', { topics: {} });
+  const orgIdsByField = new Map();
+  for (const org of register) {
+    if (org.fieldsOfInterest.length > GENERALIST_FIELD_COUNT_THRESHOLD) continue;
+    for (const field of org.fieldsOfInterest) {
+      const list = orgIdsByField.get(field) ?? [];
+      list.push(org.id);
+      orgIdsByField.set(field, list);
+    }
+  }
+  // A pair already covered by a declared-Drucksache conflict must not also appear as a (weaker)
+  // topical tie — the stronger signal wins and the weaker one would just be redundant noise.
+  const conflictKeys = new Set(conflicts.map((c) => `${c.mandateId}|${c.pollId}|${c.orgId}`));
+
+  const topicalTies = [];
+  for (const poll of polls) {
+    const fields = topicMapFile.topics?.[poll.topic];
+    if (!fields || fields.length === 0) continue;
+    const result = pollResults[poll.id];
+    if (!result) continue;
+    const majorityByParty = new Map(result.partyBreakdown.map((p) => [p.party, p.majority]));
+    const voteByMandate = new Map(result.votes.map((v) => [String(v.mandateId), v]));
+
+    const matchedFieldByOrgId = new Map();
+    for (const field of fields) {
+      for (const orgId of orgIdsByField.get(field) ?? []) {
+        if (!matchedFieldByOrgId.has(orgId)) matchedFieldByOrgId.set(orgId, field);
+      }
+    }
+    if (matchedFieldByOrgId.size === 0) continue;
+
+    for (const [mandateId, orgLinks] of Object.entries(affiliations)) {
+      const vote = voteByMandate.get(mandateId);
+      if (!vote || vote.vote === 'no_show') continue;
+      for (const link of orgLinks) {
+        const matchedField = matchedFieldByOrgId.get(link.orgId);
+        if (!matchedField) continue;
+        if (conflictKeys.has(`${mandateId}|${poll.id}|${link.orgId}`)) continue;
+
+        const fractionMajority = vote.party === NO_FRACTION ? null : majorityByParty.get(vote.party) ?? null;
+        topicalTies.push({
+          mandateId: Number(mandateId),
+          pollId: poll.id,
+          orgId: link.orgId,
+          roles: link.roles,
+          categories: link.categories,
+          vote: vote.vote,
+          matchedField,
+          againstFraction: fractionMajority ? vote.vote !== fractionMajority : null,
+        });
+        referenced.add(link.orgId);
+      }
+    }
+  }
+  topicalTies.sort((a, b) => a.pollId - b.pollId || a.mandateId - b.mandateId);
+  console.log(`${topicalTies.length} member/bill topical ties (same policy area, no declared Drucksache match)`);
+
   // ---- donors that are themselves registered lobbyists -------------------------------------------
   const donorLinks = {};
   for (const donation of donations) {
@@ -193,7 +280,10 @@ async function main() {
       url: org.url,
       expensesEuro: org.expensesEuro,
       staffFte: org.staffFte,
-      fieldsOfInterest: org.fieldsOfInterest.slice(0, 8),
+      // Capped, but generously: a topical tie's matchedField must show up in the org's own
+      // fieldsOfInterest list on screen, or the UI's "matched because they list X" claim would
+      // point at a field the reader can't find on the org's card.
+      fieldsOfInterest: org.fieldsOfInterest.slice(0, 20),
     };
   }
 
@@ -202,6 +292,7 @@ async function main() {
     pollLobbying,
     affiliations,
     conflicts,
+    topicalTies,
     donorLinks,
     generatedAt: new Date().toISOString(),
     registerEntryCount: register.length,

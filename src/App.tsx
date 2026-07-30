@@ -21,6 +21,7 @@ import {
   useMemberLobby,
   usePartyDonations,
   usePollLobbying,
+  useTopicalTieRows,
 } from './lobby';
 
 type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'impressum' | 'disclaimer';
@@ -314,6 +315,7 @@ function App() {
   // Real cross-references: a member voting on a bill that an organisation they are personally
   // tied to registered lobbying on. Sourced from the Lobbyregister + members' own declarations.
   const crossref = useCrossrefRows();
+  const topicalTieRows = useTopicalTieRows();
   const partyDonations = usePartyDonations();
   const pollLobbying = usePollLobbying(realPollId);
 
@@ -1098,6 +1100,37 @@ function App() {
                       </section>
                     )}
 
+                    {memberLobby.topicalTies.length > 0 && (
+                      <section>
+                        <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.lobbyTopicalTitle}</h3>
+                        <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>{t.lobbyTopicalNote}</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                          {memberLobby.topicalTies.map((tie) => {
+                            const poll = pollsState.polls.find((p) => p.id === tie.pollId);
+                            const label = tie.vote === 'yes' ? t.voteYes : tie.vote === 'no' ? t.voteNo : t.voteAbstain;
+                            return (
+                              <div
+                                key={`${tie.pollId}-${tie.orgId}`}
+                                onClick={() => openBill(tie.pollId)}
+                                style={{ cursor: 'pointer', background: 'oklch(97% 0.008 90)', border: '1px solid oklch(88% 0.02 90)', borderRadius: 10, padding: '14px 16px' }}
+                              >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+                                  <span style={{ fontWeight: 600, fontSize: 14 }}>{poll?.title ?? `#${tie.pollId}`}</span>
+                                  <span style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: voteBg[tie.vote], color: 'white', flexShrink: 0 }}>
+                                    {label}
+                                  </span>
+                                </div>
+                                <div style={{ fontSize: 12.5, color: 'oklch(42% 0.01 260)', marginTop: 5 }}>{tie.org.name}</div>
+                                <div style={{ fontSize: 12.5, color: 'oklch(50% 0.03 90)', marginTop: 6 }}>
+                                  {t.topicalTieMatchedFieldTemplate.replace('{field}', tie.matchedField)}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </section>
+                    )}
+
                     <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', lineHeight: 1.6 }}>
                       {t.lobbyNoContactsNote}
                       <br />
@@ -1421,6 +1454,54 @@ function App() {
             {t.lobbyNoPositionNote}
           </p>
 
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: '34px 0 4px' }}>{t.topicalTiesTitle}</h2>
+          <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 760 }}>{t.topicalTiesSub}</p>
+          {topicalTieRows.rows.length === 0 ? (
+            <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.topicalTiesEmpty}</p>
+          ) : (
+            <div className="pb-scroll" style={{ overflowX: 'auto', border: '1px solid oklch(88% 0.02 90)', borderRadius: 14 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'oklch(97% 0.008 90)' }}>
+                <thead>
+                  <tr style={{ background: 'oklch(94% 0.015 90)', textAlign: 'left' }}>
+                    {[t.colMp, t.colOrg, t.colMatchedField, t.colBill, t.colVote].map((col) => (
+                      <th key={col} style={{ padding: '10px 14px', fontWeight: 700, fontSize: 11.5, textTransform: 'uppercase', letterSpacing: '0.03em', color: 'oklch(45% 0.02 90)' }}>
+                        {col}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {topicalTieRows.rows.slice(0, 60).map((r) => {
+                    const label = r.tie.vote === 'yes' ? t.voteYes : r.tie.vote === 'no' ? t.voteNo : t.voteAbstain;
+                    return (
+                      <tr
+                        key={`${r.mandateId}-${r.tie.pollId}-${r.tie.orgId}`}
+                        onClick={r.politicianId !== null ? () => openMp(String(r.politicianId)) : undefined}
+                        style={{ cursor: r.politicianId !== null ? 'pointer' : 'default', borderTop: '1px solid oklch(90% 0.015 90)' }}
+                      >
+                        <td style={{ padding: '10px 14px', fontWeight: 600 }}>
+                          {r.memberName}
+                          <div style={{ fontSize: 11.5, fontWeight: 500, color: 'oklch(48% 0.01 260)' }}>{r.party}</div>
+                        </td>
+                        <td style={{ padding: '10px 14px' }}>{r.org.name}</td>
+                        <td style={{ padding: '10px 14px', color: 'oklch(45% 0.03 90)', fontStyle: 'italic' }}>„{r.tie.matchedField}“</td>
+                        <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{r.pollTitle}</td>
+                        <td style={{ padding: '10px 14px' }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 10, background: voteBg[r.tie.vote], color: 'white' }}>
+                            {label}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 10, lineHeight: 1.6, maxWidth: 760 }}>
+            {t.topicalTieNote}
+          </p>
+
           <h2 style={{ fontSize: 18, fontWeight: 700, margin: '34px 0 4px' }}>{t.donationsTitle}</h2>
           <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 700 }}>{t.donationsSub}</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 18 }}>
@@ -1493,7 +1574,10 @@ function App() {
       )}
 
       <footer style={{ borderTop: '1px solid oklch(90% 0.006 260)' }}>
-        {(snapshot?.meta.coreGeneratedAt || snapshot?.meta.sidejobsGeneratedAt) && (
+        {(snapshot?.meta.coreGeneratedAt ||
+          snapshot?.meta.sidejobsGeneratedAt ||
+          snapshot?.meta.lobbyRegisterGeneratedAt ||
+          snapshot?.meta.partyDonationsGeneratedAt) && (
           <div
             style={{
               padding: '10px 32px',
@@ -1508,6 +1592,12 @@ function App() {
             {snapshot.meta.coreGeneratedAt && <span>{t.dataAsOfTemplate.replace('{date}', formatDateTime(snapshot.meta.coreGeneratedAt, lang))}</span>}
             {snapshot.meta.sidejobsGeneratedAt && (
               <span>{t.sidejobsAsOfTemplate.replace('{date}', formatDateTime(snapshot.meta.sidejobsGeneratedAt, lang))}</span>
+            )}
+            {snapshot.meta.lobbyRegisterGeneratedAt && (
+              <span>{t.lobbyAsOfTemplate.replace('{date}', formatDateTime(snapshot.meta.lobbyRegisterGeneratedAt, lang))}</span>
+            )}
+            {snapshot.meta.partyDonationsGeneratedAt && (
+              <span>{t.donationsAsOfTemplate.replace('{date}', formatDateTime(snapshot.meta.partyDonationsGeneratedAt, lang))}</span>
             )}
           </div>
         )}

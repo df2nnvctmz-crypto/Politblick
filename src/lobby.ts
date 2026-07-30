@@ -62,11 +62,32 @@ export interface LobbyConflict {
   positionNote: string | null;
 }
 
+/**
+ * A member voting on a poll whose topic matches a specific, curated field of interest
+ * (data/lobby-topic-map.json) of an organisation they hold a role at — WITHOUT that
+ * organisation ever declaring lobbying on this exact bill. This is deliberately a weaker,
+ * separate signal from LobbyConflict above: it means "same policy area", not "this
+ * organisation lobbied this bill". Never render it the same way as a LobbyConflict, and
+ * always show `matchedField` so the reader can judge relevance themselves — "this org lists
+ * Bank- und Finanzwesen" carries very different weight than a generic label would.
+ */
+export interface TopicalTie {
+  mandateId: number;
+  pollId: number;
+  orgId: string;
+  roles: string[];
+  categories: string[];
+  vote: VoteChoice;
+  matchedField: string;
+  againstFraction: boolean | null;
+}
+
 export interface LobbyLinks {
   orgs: Record<string, LobbyOrg>;
   pollLobbying: Record<string, PollLobbyEntry[]>;
   affiliations: Record<string, Affiliation[]>;
   conflicts: LobbyConflict[];
+  topicalTies: TopicalTie[];
   donorLinks: Record<string, string>;
   generatedAt: string | null;
   registerEntryCount: number;
@@ -77,6 +98,7 @@ export const EMPTY_LOBBY_LINKS: LobbyLinks = {
   pollLobbying: {},
   affiliations: {},
   conflicts: [],
+  topicalTies: [],
   donorLinks: {},
   generatedAt: null,
   registerEntryCount: 0,
@@ -110,6 +132,8 @@ export interface MemberLobbyState {
   affiliations: { org: LobbyOrg; roles: string[]; categories: string[] }[];
   /** Bills they voted on that one of those organisations lobbied. */
   conflicts: (LobbyConflict & { org: LobbyOrg })[];
+  /** Bills they voted on in the same policy area as one of those organisations — weaker, see TopicalTie. */
+  topicalTies: (TopicalTie & { org: LobbyOrg })[];
   loading: boolean;
   error: string | null;
 }
@@ -117,7 +141,7 @@ export interface MemberLobbyState {
 /** One member's lobbying ties — pure lookup in the snapshot, no fetching. */
 export function useMemberLobby(mandateId: number | null): MemberLobbyState {
   const { snapshot, loading, error } = useSnapshot();
-  if (mandateId === null || !snapshot) return { affiliations: [], conflicts: [], loading, error };
+  if (mandateId === null || !snapshot) return { affiliations: [], conflicts: [], topicalTies: [], loading, error };
 
   const links = snapshot.lobbyLinks;
   const affiliations = (links.affiliations[String(mandateId)] ?? [])
@@ -136,7 +160,15 @@ export function useMemberLobby(mandateId: number | null): MemberLobbyState {
     })
     .filter((c): c is LobbyConflict & { org: LobbyOrg } => c !== null);
 
-  return { affiliations, conflicts, loading, error };
+  const topicalTies = links.topicalTies
+    .filter((t) => t.mandateId === mandateId)
+    .map((t) => {
+      const org = links.orgs[t.orgId];
+      return org ? { ...t, org } : null;
+    })
+    .filter((t): t is TopicalTie & { org: LobbyOrg } => t !== null);
+
+  return { affiliations, conflicts, topicalTies, loading, error };
 }
 
 export interface PollLobbyState {
@@ -202,6 +234,44 @@ export function useCrossrefRows(): { rows: CrossrefRow[]; loading: boolean; erro
 
   const rank = (r: CrossrefRow) => (r.conflict.againstPosition ? 0 : r.conflict.againstFraction ? 1 : 2);
   rows.sort((a, b) => rank(a) - rank(b) || b.pollDate.localeCompare(a.pollDate));
+  return { rows, loading, error };
+}
+
+export interface TopicalTieRow {
+  tie: TopicalTie;
+  org: LobbyOrg;
+  memberName: string;
+  party: string;
+  mandateId: number;
+  politicianId: number | null;
+  pollTitle: string;
+  pollDate: string;
+}
+
+/** Every member/bill topical tie, ready for the Lobby & Finance page's "same policy area" table. Kept in its own list, never merged with useCrossrefRows — see TopicalTie. */
+export function useTopicalTieRows(): { rows: TopicalTieRow[]; loading: boolean; error: string | null } {
+  const { snapshot, loading, error } = useSnapshot();
+  if (!snapshot) return { rows: [], loading, error };
+
+  const memberByMandate = new Map(snapshot.members.map((m) => [m.mandateId, m]));
+  const rows: TopicalTieRow[] = [];
+  for (const tie of snapshot.lobbyLinks.topicalTies) {
+    const org = snapshot.lobbyLinks.orgs[tie.orgId];
+    const poll = snapshot.polls.find((p) => p.id === tie.pollId);
+    if (!org || !poll) continue;
+    const member = memberByMandate.get(tie.mandateId);
+    rows.push({
+      tie,
+      org,
+      memberName: member?.name ?? '—',
+      party: member?.party ?? '—',
+      mandateId: tie.mandateId,
+      politicianId: member?.id ?? null,
+      pollTitle: poll.title,
+      pollDate: poll.date,
+    });
+  }
+  rows.sort((a, b) => b.pollDate.localeCompare(a.pollDate));
   return { rows, loading, error };
 }
 

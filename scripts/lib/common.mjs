@@ -203,14 +203,29 @@ async function scrapeLobbyApiKey() {
   }
 }
 
-/** One page of register entries. The API is cursor-paginated at a fixed 50 per page. */
-export async function fetchLobbyPage(apiKey, cursor) {
+/**
+ * One page of register entries. The API is cursor-paginated at a fixed 50 per page.
+ *
+ * `fetch()` has no default timeout — a single stalled connection blocks forever with nothing
+ * thrown, which previously hung a ~140-page crawl for hours before the OS eventually tore down
+ * the socket. AbortSignal.timeout turns that into an ordinary, retryable error instead.
+ */
+export async function fetchLobbyPage(apiKey, cursor, attempts = 3) {
   const url = cursor
     ? `${LOBBY_API_BASE}/registerentries?cursor=${encodeURIComponent(cursor)}`
     : `${LOBBY_API_BASE}/registerentries`;
-  const res = await fetch(url, { headers: { Authorization: `ApiKey ${apiKey}` } });
-  if (!res.ok) throw new Error(`Lobbyregister HTTP ${res.status} for ${url}`);
-  return res.json();
+  let lastError;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    try {
+      const res = await fetch(url, { headers: { Authorization: `ApiKey ${apiKey}` }, signal: AbortSignal.timeout(20_000) });
+      if (!res.ok) throw new Error(`Lobbyregister HTTP ${res.status} for ${url}`);
+      return await res.json();
+    } catch (e) {
+      lastError = e;
+      if (attempt < attempts - 1) await sleep(1000 * 2 ** attempt);
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('Unknown fetch error');
 }
 
 /**

@@ -1,0 +1,126 @@
+{
+  "_readme": [
+    "Maps an abgeordnetenwatch poll topic to the SPECIFIC Lobbyregister field-of-interest",
+    "labels that are genuinely on-topic for it. This powers the 'same policy area' tie: a",
+    "member holds a role at an org that lists one of these fields, and votes on a poll tagged",
+    "with this topic — even though that org never declared lobbying on this exact bill.",
+    "",
+    "This is a WEAKER signal than a declared-Drucksache conflict and must never be presented",
+    "the same way (see build-lobby-links.mjs and src/lobby.ts). It only has value if it stays",
+    "precise, which means two hard rules when editing this file:",
+    "",
+    "1. Never list a field whose 'de' label is generic ('Allgemeine Energiepolitik', a bare",
+    "   topic-sector name, etc.) or a '*_OTHER' catch-all ('Sonstiges im Bereich \"X\"'). Those",
+    "   are ticked by a huge fraction of all registered orgs regardless of actual relevance —",
+    "   tested empirically: matching the whole 'Energie' topic against org fields (including",
+    "   the generic ones) produced 3,171 member/poll pairs, and the first several were",
+    "   obviously irrelevant (a student-services union and two party economic forums flagged",
+    "   on a building-energy-retrofit bill). Only list fields specific enough that an org",
+    "   listing them plausibly has an actual stake — 'Bank- und Finanzwesen', not 'Wirtschaft'.",
+    "2. Every field's global frequency across the ~6,900-entry register is noted in a comment",
+    "   next to it. As a rule of thumb, avoid adding anything above roughly 1,200 (~17% of the",
+    "   register) — a label that common carries almost no discriminating power.",
+    "",
+    "Topics with no substantive external policy content (e.g. 'Bundestag', which is mostly",
+    "MPs' own legal status and parliamentary procedure) are deliberately left unmapped.",
+    "",
+    "Format: poll topic string (must match abgeordnetenwatch's field_topics label) -> array of",
+    "Lobbyregister field-of-interest 'de' label strings."
+  ],
+  "topics": {
+    "Energie": [
+      "Atomenergie",
+      "Fossile Energien",
+      "Energienetze",
+      "Erneuerbare Energien"
+    ],
+    "Gesundheit": [
+      "Pflege",
+      "Arzneimittel",
+      "Gesundheitsförderung",
+      "Gesundheitsversorgung",
+      "Krankenversicherung",
+      "Pflegeversicherung"
+    ],
+    "Verteidigung": [
+      "Bundeswehrangelegenheiten",
+      "Verteidigungspolitik",
+      "Rüstungsangelegenheiten"
+    ],
+    "Außenpolitik und internationale Beziehungen": [
+      "Außenpolitik",
+      "Internationale Beziehungen",
+      "Menschenrechte",
+      "Auswärtige Kultur- und Bildungspolitik",
+      "Entwicklungspolitik"
+    ],
+    "Gesellschaftspolitik, soziale Gruppen": [
+      "Kinder- und Jugendpolitik",
+      "Seniorenpolitik",
+      "Familienpolitik",
+      "Geschlechterpolitik",
+      "Rechte von Menschen mit Behinderung",
+      "Diversitätspolitik",
+      "Religion/Weltanschauung"
+    ],
+    "Bildung und Erziehung": [
+      "Vorschulische Bildung",
+      "Schulische Bildung",
+      "Hochschulbildung",
+      "Berufliche Bildung"
+    ],
+    "Europapolitik und Europäische Union": [
+      "EU-Binnenmarkt",
+      "Institutionelle Fragen der EU",
+      "Polizeiliche und justizielle Zusammenarbeit in der EU",
+      "Gemeinsame Außen- und Sicherheitspolitik der EU"
+    ],
+    "Arbeit und Beschäftigung": [
+      "Arbeitsmarkt",
+      "Arbeitsrecht/Arbeitsbedingungen",
+      "Arbeitslosenversicherung"
+    ],
+    "Migration und Aufenthaltsrecht": [
+      "Asyl und Flüchtlingsschutz",
+      "Ausländer- und Aufenthaltsrecht",
+      "Migration",
+      "Integration"
+    ],
+    "Politisches Leben, Parteien": [
+      "Politisches Leben, Parteien"
+    ],
+    "Öffentliche Finanzen, Steuern und Abgaben": [
+      "Öffentliche Finanzen, Steuern und Abgaben",
+      "Bank- und Finanzwesen",
+      "Versicherungswesen"
+    ],
+    "Recht": [
+      "Strafrecht",
+      "Zivilrecht",
+      "Öffentliches Recht",
+      "Rechtspolitik"
+    ],
+    "Landwirtschaft und Ernährung": [
+      "Lebensmittelsicherheit",
+      "Lebens- und Genussmittelindustrie",
+      "Land- und Forstwirtschaft",
+      "Fischerei/Aquakultur"
+    ],
+    "Raumordnung, Bau- und Wohnungswesen": [
+      "Ländlicher Raum",
+      "Wohnen",
+      "Stadtentwicklung",
+      "Bauwesen und Bauwirtschaft"
+    ],
+    "Umwelt": [
+      "Tierschutz",
+      "Artenschutz/Biodiversität",
+      "Immissionsschutz"
+    ],
+    "Sport, Freizeit und Tourismus": [
+      "Profisport",
+      "Breitensport",
+      "Tourismus"
+    ]
+  }
+}
