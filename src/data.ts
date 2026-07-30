@@ -230,6 +230,10 @@ export interface Translation {
   topicalTiesTitle: string; topicalTiesSub: string; topicalTiesEmpty: string;
   topicalTieMatchedFieldTemplate: string; topicalTieNote: string; colMatchedField: string;
   lobbyTopicalTitle: string; lobbyTopicalNote: string;
+  lobbyIndicatorConflict: string; lobbyIndicatorTopical: string;
+  overviewLobbyPreviewTitle: string; overviewLobbyPreviewCountTemplate: string; overviewLobbyPreviewEmpty: string;
+  overviewSidejobsPreviewTitle: string; overviewSidejobsPreviewCountTemplate: string; overviewSidejobsPreviewEmpty: string;
+  seeAll: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -317,6 +321,15 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     lobbyTopicalTitle: 'Gleiches Themenfeld (kein dokumentierter Bezug zu dieser Abstimmung)',
     lobbyTopicalNote:
       'Diese Organisationen haben nicht erklärt, zu dieser Abstimmung Interessenvertretung zu betreiben — sie sind nur allgemein im selben Themenfeld tätig, laut ihrem eigenen im Lobbyregister angegebenen Interessengebiet.',
+    lobbyIndicatorConflict: 'Eine Organisation, bei der dieses Mitglied eine Funktion ausübt, hat zu dieser Abstimmung Interessenvertretung angemeldet',
+    lobbyIndicatorTopical: 'Eine Organisation, bei der dieses Mitglied eine Funktion ausübt, ist im selben Themenfeld tätig (kein dokumentierter Bezug zu dieser Abstimmung)',
+    overviewLobbyPreviewTitle: 'Lobbyverflechtungen',
+    overviewLobbyPreviewCountTemplate: '{n} Organisationen im Lobbyregister',
+    overviewLobbyPreviewEmpty: 'Keine registrierten Interessenvertretungen bekannt',
+    overviewSidejobsPreviewTitle: 'Nebeneinkünfte',
+    overviewSidejobsPreviewCountTemplate: '{n} gemeldete Nebentätigkeiten',
+    overviewSidejobsPreviewEmpty: 'Keine Nebeneinkünfte gemeldet',
+    seeAll: 'Alle ansehen',
     weekOf: 'Sitzungswoche', noPollsThisWeek: 'Für die aktuelle Sitzungswoche liegen noch keine namentlichen Abstimmungen vor.',
     pollsLoading: 'Abstimmungen werden geladen…', pollsError: 'Abstimmungsdaten konnten nicht geladen werden.',
     sidejobsError: 'Nebeneinkünfte konnten nicht geladen werden.',
@@ -409,6 +422,15 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     lobbyTopicalTitle: 'Same policy area (no documented link to this vote)',
     lobbyTopicalNote:
       'These organizations did not register lobbying on this specific vote — they are only generally active in the same policy area, per their own field of interest declared in the lobby register.',
+    lobbyIndicatorConflict: 'An organization this member holds a role at registered lobbying on this vote',
+    lobbyIndicatorTopical: 'An organization this member holds a role at is active in the same policy area (no documented link to this vote)',
+    overviewLobbyPreviewTitle: 'Lobby ties',
+    overviewLobbyPreviewCountTemplate: '{n} organizations in the lobby register',
+    overviewLobbyPreviewEmpty: 'No registered lobby ties on file',
+    overviewSidejobsPreviewTitle: 'Outside income',
+    overviewSidejobsPreviewCountTemplate: '{n} declared outside activities',
+    overviewSidejobsPreviewEmpty: 'No outside income reported',
+    seeAll: 'See all',
     weekOf: 'Sitting week', noPollsThisWeek: 'No roll-call votes are available yet for the current sitting week.',
     pollsLoading: 'Loading votes…', pollsError: 'Could not load voting data.',
     sidejobsError: 'Could not load outside income data.',

@@ -138,6 +138,7 @@ function App() {
   const [partyFilter, setPartyFilter] = useState<Record<string, boolean>>({});
   const [topicFilter, setTopicFilter] = useState<string | null>(null);
   const [following, setFollowing] = useState<Record<string, boolean>>({});
+  const [hoveredAlignmentPoint, setHoveredAlignmentPoint] = useState<number | null>(null);
 
   const { snapshot } = useSnapshot();
   const roster = useBundestagRoster();
@@ -245,6 +246,19 @@ function App() {
   const mandateVotes = useMandateVotes(realMatch ? realMatch.mandateId : null);
   const sidejobs = useSidejobs(realMatch ? realMatch.mandateId : null);
   const memberLobby = useMemberLobby(realMatch ? realMatch.mandateId : null);
+  // Per-poll lookup so the Abstimmungen tab can show an inline lobby indicator on each vote
+  // row, without re-scanning memberLobby's arrays once per row.
+  const lobbyByPollId = new Map<number, { hasConflict: boolean; hasTopicalTie: boolean }>();
+  for (const c of memberLobby.conflicts) {
+    const entry = lobbyByPollId.get(c.pollId) ?? { hasConflict: false, hasTopicalTie: false };
+    entry.hasConflict = true;
+    lobbyByPollId.set(c.pollId, entry);
+  }
+  for (const tie of memberLobby.topicalTies) {
+    const entry = lobbyByPollId.get(tie.pollId) ?? { hasConflict: false, hasTopicalTie: false };
+    entry.hasTopicalTie = true;
+    lobbyByPollId.set(tie.pollId, entry);
+  }
   const portrait = usePortrait(debouncedPoliticianId);
   // Real, cheaply-derivable stats for a real profile's Overview tab. Bills-voted/attendance cover
   // the full term (cheap — already fetched for the Votes tab); party-alignment is derived (no
@@ -912,7 +926,7 @@ function App() {
                       <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.noMandateVotesYet}</p>
                     )}
                     {alignment.points.length > 0 && (
-                      <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 20, marginBottom: 20 }}>
+                      <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 20, marginBottom: 20, position: 'relative' }}>
                         <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>
                           {t.alignmentTrendRealTemplate.replace('{n}', String(alignment.windowSize))}
                         </div>
@@ -922,12 +936,69 @@ function App() {
                             const x = alignment.points.length > 1 ? 20 + (i * 360) / (alignment.points.length - 1) : 200;
                             const color = p.aligned === null ? 'oklch(80% 0.006 260)' : p.aligned ? 'oklch(50% 0.14 155)' : 'oklch(55% 0.16 40)';
                             return (
-                              <circle key={p.poll.id} cx={x} cy={30} r={6} fill={color}>
-                                <title>{`${p.poll.title} (${p.poll.date})`}</title>
-                              </circle>
+                              <circle
+                                key={p.poll.id}
+                                cx={x}
+                                cy={30}
+                                r={9}
+                                fill={color}
+                                fillOpacity={hoveredAlignmentPoint === i ? 1 : 0.001}
+                                stroke={color}
+                                strokeWidth={hoveredAlignmentPoint === i ? 0 : 0}
+                                onMouseEnter={() => setHoveredAlignmentPoint(i)}
+                                onMouseLeave={() => setHoveredAlignmentPoint((cur) => (cur === i ? null : cur))}
+                                onClick={() => openBill(p.poll.id)}
+                                style={{ cursor: 'pointer' }}
+                              />
                             );
                           })}
+                          {alignment.points.map((p, i) => {
+                            const x = alignment.points.length > 1 ? 20 + (i * 360) / (alignment.points.length - 1) : 200;
+                            const color = p.aligned === null ? 'oklch(80% 0.006 260)' : p.aligned ? 'oklch(50% 0.14 155)' : 'oklch(55% 0.16 40)';
+                            return <circle key={p.poll.id} cx={x} cy={30} r={6} fill={color} style={{ pointerEvents: 'none' }} />;
+                          })}
                         </svg>
+                        {hoveredAlignmentPoint !== null &&
+                          (() => {
+                            const p = alignment.points[hoveredAlignmentPoint];
+                            const x = alignment.points.length > 1 ? 20 + (hoveredAlignmentPoint * 360) / (alignment.points.length - 1) : 200;
+                            const leftPct = (x / 400) * 100;
+                            const voteLabel = p.vote === 'yes' ? t.voteYes : p.vote === 'no' ? t.voteNo : p.vote === 'abstain' ? t.voteAbstain : t.voteNoShow;
+                            const lobbyHit = lobbyByPollId.get(p.poll.id);
+                            return (
+                              <div
+                                style={{
+                                  position: 'absolute',
+                                  left: `${leftPct}%`,
+                                  top: 56,
+                                  transform: leftPct > 80 ? 'translateX(-100%)' : leftPct < 20 ? 'none' : 'translateX(-50%)',
+                                  background: 'white',
+                                  border: '1px solid oklch(88% 0.006 260)',
+                                  borderRadius: 10,
+                                  padding: '10px 14px',
+                                  boxShadow: '0 4px 16px oklch(0% 0 0 / 0.1)',
+                                  minWidth: 200,
+                                  maxWidth: 260,
+                                  zIndex: 5,
+                                  pointerEvents: 'none',
+                                }}
+                              >
+                                <div style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 2 }}>{p.poll.title}</div>
+                                <div style={{ fontSize: 11, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>
+                                  {p.poll.date} · {p.poll.topic}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: voteBg[p.vote], color: 'white' }}>{voteLabel}</span>
+                                  {p.aligned === false && <span style={{ fontSize: 11, color: 'oklch(48% 0.16 40)', fontWeight: 600 }}>{t.reasonPartyLine}</span>}
+                                </div>
+                                {(lobbyHit?.hasConflict || lobbyHit?.hasTopicalTie) && (
+                                  <div style={{ fontSize: 11, marginTop: 6, color: lobbyHit.hasConflict ? 'oklch(48% 0.16 40)' : 'oklch(55% 0.1 90)' }}>
+                                    ⬤ {lobbyHit.hasConflict ? t.lobbyIndicatorConflict : t.lobbyIndicatorTopical}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
                       </div>
                     )}
                     {realMpFlaggedVotes.length > 0 && (
@@ -940,6 +1011,44 @@ function App() {
                         ))}
                       </div>
                     )}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 14, marginBottom: 20 }}>
+                      <div
+                        onClick={() => setProfileTab('lobby')}
+                        style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: 16 }}
+                      >
+                        <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>{t.overviewLobbyPreviewTitle}</div>
+                        <div style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', marginBottom: 8 }}>
+                          {memberLobby.affiliations.length > 0
+                            ? t.overviewLobbyPreviewCountTemplate.replace('{n}', String(memberLobby.affiliations.length))
+                            : t.overviewLobbyPreviewEmpty}
+                        </div>
+                        {memberLobby.affiliations.length > 0 && (
+                          <div style={{ fontSize: 12, color: 'oklch(45% 0.01 260)', marginBottom: 8 }}>
+                            {memberLobby.affiliations.slice(0, 2).map((a) => a.org.name).join(' · ')}
+                            {memberLobby.affiliations.length > 2 ? ` +${memberLobby.affiliations.length - 2}` : ''}
+                          </div>
+                        )}
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'oklch(48% 0.12 250)' }}>{t.seeAll} →</span>
+                      </div>
+                      <div
+                        onClick={() => setProfileTab('finance')}
+                        style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: 16 }}
+                      >
+                        <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>{t.overviewSidejobsPreviewTitle}</div>
+                        <div style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', marginBottom: 8 }}>
+                          {sidejobs.records.length > 0
+                            ? t.overviewSidejobsPreviewCountTemplate.replace('{n}', String(sidejobs.records.length))
+                            : t.overviewSidejobsPreviewEmpty}
+                        </div>
+                        {sidejobs.records.length > 0 && (
+                          <div style={{ fontSize: 12, color: 'oklch(45% 0.01 260)', marginBottom: 8 }}>
+                            {sidejobs.records.slice(0, 2).map((r) => r.organization ?? r.title).join(' · ')}
+                            {sidejobs.records.length > 2 ? ` +${sidejobs.records.length - 2}` : ''}
+                          </div>
+                        )}
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'oklch(48% 0.12 250)' }}>{t.seeAll} →</span>
+                      </div>
+                    </div>
                     <a href={profile.mp.profileUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12.5, fontWeight: 700 }}>
                       {t.viewOnAbgeordnetenwatch} →
                     </a>
@@ -973,6 +1082,7 @@ function App() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {mandateVotes.votes.map((v) => {
                       const label = v.vote === 'yes' ? t.voteYes : v.vote === 'no' ? t.voteNo : v.vote === 'abstain' ? t.voteAbstain : t.voteNoShow;
+                      const lobbyHit = lobbyByPollId.get(v.poll.id);
                       return (
                         <div
                           key={v.poll.id}
@@ -980,7 +1090,19 @@ function App() {
                           style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
                         >
                           <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: 14, fontWeight: 600 }}>{v.poll.title}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: 14, fontWeight: 600 }}>{v.poll.title}</span>
+                              {lobbyHit?.hasConflict && (
+                                <span title={t.lobbyIndicatorConflict} style={{ fontSize: 11, fontWeight: 700, color: 'oklch(48% 0.16 40)', flexShrink: 0 }}>
+                                  ⬤
+                                </span>
+                              )}
+                              {!lobbyHit?.hasConflict && lobbyHit?.hasTopicalTie && (
+                                <span title={t.lobbyIndicatorTopical} style={{ fontSize: 11, fontWeight: 700, color: 'oklch(60% 0.1 90)', flexShrink: 0 }}>
+                                  ⬤
+                                </span>
+                              )}
+                            </div>
                             <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)' }}>{v.poll.date}</div>
                           </div>
                           <div style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: voteBg[v.vote], color: 'white', flexShrink: 0 }}>{label}</div>
