@@ -246,6 +246,13 @@ export interface Translation {
   partyLobbyOrgCountTemplate: string; partyLobbyMemberCountTemplate: string;
   partyLobbyTopFieldsLabel: string; partyLobbySpendLabel: string;
   lobbyOnCommitteeTemplate: string;
+  lobbyTabOverview: string; lobbyTabParties: string; lobbyTabOrgs: string;
+  lobbyTabConflicts: string; lobbyTabTopical: string; lobbyTabDonations: string;
+  lobbySectionLabel: string;
+  statOrgsReferencedLabel: string; statConflictsLabel: string;
+  statTopicalTiesLabel: string; statDonationsSumLabel: string;
+  partyDetailFieldsTitle: string; partyDetailOrgsTitle: string;
+  partyNotFound: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -364,6 +371,13 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     partyLobbyOrgCountTemplate: '{n} Organisationen', partyLobbyMemberCountTemplate: '{n} Abgeordnete mit Funktion',
     partyLobbyTopFieldsLabel: 'Häufigste Interessengebiete', partyLobbySpendLabel: 'Summe gemeldeter Lobbyausgaben (grobe Schätzung)',
     lobbyOnCommitteeTemplate: 'Mitglied im zuständigen Ausschuss: {committee}',
+    lobbyTabOverview: 'Übersicht', lobbyTabParties: 'Nach Partei', lobbyTabOrgs: 'Organisationen',
+    lobbyTabConflicts: 'Verflechtungen', lobbyTabTopical: 'Themenfeld', lobbyTabDonations: 'Parteispenden',
+    lobbySectionLabel: 'Bereich',
+    statOrgsReferencedLabel: 'Verknüpfte Organisationen', statConflictsLabel: 'Abstimmung trotz Verflechtung',
+    statTopicalTiesLabel: 'Gleiches Themenfeld', statDonationsSumLabel: 'Großspenden gesamt',
+    partyDetailFieldsTitle: 'Alle Interessengebiete', partyDetailOrgsTitle: 'Alle verflochtenen Organisationen',
+    partyNotFound: 'Für diese Partei liegen keine Lobbydaten vor.',
     weekOf: 'Sitzungswoche', noPollsThisWeek: 'Für die aktuelle Sitzungswoche liegen noch keine namentlichen Abstimmungen vor.',
     pollsLoading: 'Abstimmungen werden geladen…', pollsError: 'Abstimmungsdaten konnten nicht geladen werden.',
     sidejobsError: 'Nebeneinkünfte konnten nicht geladen werden.',
@@ -487,6 +501,13 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     partyLobbyOrgCountTemplate: '{n} organizations', partyLobbyMemberCountTemplate: '{n} MPs with a role',
     partyLobbyTopFieldsLabel: 'Most common fields of interest', partyLobbySpendLabel: 'Sum of declared lobbying expenditure (rough estimate)',
     lobbyOnCommitteeTemplate: 'Sits on the responsible committee: {committee}',
+    lobbyTabOverview: 'Overview', lobbyTabParties: 'By party', lobbyTabOrgs: 'Organizations',
+    lobbyTabConflicts: 'Conflicts', lobbyTabTopical: 'Policy area', lobbyTabDonations: 'Party donations',
+    lobbySectionLabel: 'Section',
+    statOrgsReferencedLabel: 'Linked organizations', statConflictsLabel: 'Voted despite a tie',
+    statTopicalTiesLabel: 'Same policy area', statDonationsSumLabel: 'Large donations, total',
+    partyDetailFieldsTitle: 'All fields of interest', partyDetailOrgsTitle: 'All tied organizations',
+    partyNotFound: 'No lobbying data is on file for this party.',
     weekOf: 'Sitting week', noPollsThisWeek: 'No roll-call votes are available yet for the current sitting week.',
     pollsLoading: 'Loading votes…', pollsError: 'Could not load voting data.',
     sidejobsError: 'Could not load outside income data.',
