@@ -232,6 +232,7 @@ export interface CrossrefRow {
   politicianId: number | null;
   pollTitle: string;
   pollDate: string;
+  pollTopic: string;
 }
 
 /**
@@ -261,6 +262,7 @@ export function useCrossrefRows(): { rows: CrossrefRow[]; loading: boolean; erro
       politicianId: member?.id ?? null,
       pollTitle: poll.title,
       pollDate: poll.date,
+      pollTopic: poll.topic,
     });
   }
 

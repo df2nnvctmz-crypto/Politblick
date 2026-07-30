@@ -253,6 +253,8 @@ export interface Translation {
   statTopicalTiesLabel: string; statDonationsSumLabel: string;
   partyDetailFieldsTitle: string; partyDetailOrgsTitle: string;
   partyNotFound: string;
+  scrollHintText: string;
+  tieMatrixSub: string; matrixFilteredTemplate: string; matrixClearFilter: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -385,6 +387,10 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     realAgainstPartyTemplate: 'Stimmte gegen die Mehrheit der eigenen Fraktion ({party})',
     loadingPoll: 'Abstimmung wird geladen…', pollDetailMissing: 'Abstimmung nicht gefunden.', viewSource: 'Quelle ansehen',
     noMandateVotesYet: 'Für dieses Mitglied sind noch keine namentlichen Abstimmungen aus der laufenden Wahlperiode erfasst.',
+    scrollHintText: 'Wischen für weitere Spalten',
+    tieMatrixSub: 'Anzahl der Überschneidungen nach Partei und Themenfeld. Auf eine Zelle klicken, um die Tabelle unten zu filtern.',
+    matrixFilteredTemplate: 'Gefiltert: {party} · {topic}',
+    matrixClearFilter: 'Filter zurücksetzen',
   },
   en: {
     navHome: 'Home', navMps: 'MPs', navLobbyFinance: 'Lobby & Finance',
@@ -515,5 +521,9 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     realAgainstPartyTemplate: 'Voted against their own fraction majority ({party})',
     loadingPoll: 'Loading vote…', pollDetailMissing: 'Vote not found.', viewSource: 'View source',
     noMandateVotesYet: 'No roll-call votes are on file yet for this member in the current term.',
+    scrollHintText: 'Swipe for more columns',
+    tieMatrixSub: 'Count of overlaps by party and policy area. Click a cell to filter the table below.',
+    matrixFilteredTemplate: 'Filtered: {party} · {topic}',
+    matrixClearFilter: 'Clear filter',
   },
 };

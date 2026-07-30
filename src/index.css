@@ -40,3 +40,13 @@ button {
   background: oklch(88% 0.006 260);
   border-radius: 3px;
 }
+
+.pb-scroll-hint {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .pb-scroll-hint {
+    display: flex;
+  }
+}

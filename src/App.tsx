@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import {
   BILLS,
   DEMO_MPS,
@@ -25,6 +25,7 @@ import {
   usePartyLobbySummary,
   usePollLobbying,
   useTopicalTieRows,
+  type CrossrefRow,
 } from './lobby';
 
 type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'party' | 'impressum' | 'disclaimer';
@@ -132,6 +133,179 @@ function pillBtn(active: boolean): CSSProperties {
   };
 }
 
+/**
+ * Wide data tables scroll horizontally on narrow screens. A bare overflow-x:auto container
+ * gives no hint that there's more off to the side, so the right-hand columns just look
+ * missing on mobile. This adds a small "swipe" caption (mobile only, via .pb-scroll-hint's
+ * media query) plus edge shadows that fade in/out based on actual scroll position.
+ */
+function ScrollBox({ children, style, hintText }: { children: ReactNode; style: CSSProperties; hintText: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ left: false, right: false });
+
+  const updateEdges = () => {
+    const el = ref.current;
+    if (!el) return;
+    const left = el.scrollLeft > 2;
+    const right = el.scrollLeft < el.scrollWidth - el.clientWidth - 2;
+    // Bail out when nothing changed so this never becomes an infinite render loop —
+    // the ResizeObserver below fires on layout changes that don't move the edges too.
+    setEdges((prev) => (prev.left === left && prev.right === right ? prev : { left, right }));
+  };
+
+  useEffect(() => {
+    updateEdges();
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(updateEdges);
+    ro.observe(el);
+    return () => ro.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <div className="pb-scroll-hint" style={{ alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 600, color: 'oklch(50% 0.14 265)', marginBottom: 6 }}>
+        <span aria-hidden>↔</span>
+        {hintText}
+      </div>
+      <div ref={ref} onScroll={updateEdges} className="pb-scroll" style={{ overflowX: 'auto', ...style }}>
+        {children}
+      </div>
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          width: 22,
+          pointerEvents: 'none',
+          borderRadius: '14px 0 0 14px',
+          background: 'linear-gradient(to right, oklch(20% 0.02 260 / 0.14), transparent)',
+          opacity: edges.left ? 1 : 0,
+          transition: 'opacity 150ms',
+        }}
+      />
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          right: 0,
+          width: 22,
+          pointerEvents: 'none',
+          borderRadius: '0 14px 14px 0',
+          background: 'linear-gradient(to left, oklch(20% 0.02 260 / 0.14), transparent)',
+          opacity: edges.right ? 1 : 0,
+          transition: 'opacity 150ms',
+        }}
+      />
+    </div>
+  );
+}
+
+type MatrixCell = { party: string; topic: string };
+
+/**
+ * The "voted despite own tie" table is real signal, but as 34 rows of text it takes reading
+ * every row to notice where it clusters. This turns party × policy-area into a small heatmap
+ * so a concentration (e.g. one party, one topic, several rows) is visible at a glance — and
+ * clicking a cell filters the table below to just that slice.
+ */
+function TieMatrix({
+  rows,
+  partyOrder,
+  selected,
+  onSelect,
+  scrollHintText,
+}: {
+  rows: CrossrefRow[];
+  partyOrder: { name: string; color: string }[];
+  selected: MatrixCell | null;
+  onSelect: (cell: MatrixCell | null) => void;
+  scrollHintText: string;
+}) {
+  const counts = new Map<string, number>();
+  const topicTotals = new Map<string, number>();
+  for (const r of rows) {
+    const key = `${r.party}|${r.pollTopic}`;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+    topicTotals.set(r.pollTopic, (topicTotals.get(r.pollTopic) ?? 0) + 1);
+  }
+  const topics = [...topicTotals.entries()].sort((a, b) => b[1] - a[1]).map(([topic]) => topic);
+  const activeParties = partyOrder.filter((p) => rows.some((r) => r.party === p.name));
+  const max = Math.max(1, ...counts.values());
+
+  if (activeParties.length === 0 || topics.length === 0) return null;
+
+  const heat = (n: number): { bg: string; fg: string } => {
+    if (n === 0) return { bg: 'oklch(97% 0.006 260)', fg: 'oklch(78% 0.006 260)' };
+    const t = Math.min(1, n / max);
+    return {
+      bg: `oklch(${(88 - t * 46).toFixed(0)}% ${(0.05 + t * 0.15).toFixed(3)} 40)`,
+      fg: t > 0.5 ? 'white' : 'oklch(30% 0.06 40)',
+    };
+  };
+
+  return (
+    <ScrollBox hintText={scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, marginBottom: 14 }}>
+      <table style={{ borderCollapse: 'collapse', fontSize: 12.5, background: 'white' }}>
+        <thead>
+          <tr>
+            <th style={{ padding: '8px 12px' }} />
+            {topics.map((topic) => (
+              <th
+                key={topic}
+                style={{ padding: '8px 8px', fontSize: 10, fontWeight: 700, color: 'oklch(45% 0.01 260)', textTransform: 'uppercase', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}
+              >
+                {topic}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {activeParties.map((p) => (
+            <tr key={p.name}>
+              <td style={{ padding: '6px 12px', fontWeight: 700, whiteSpace: 'nowrap', borderTop: '1px solid oklch(93% 0.006 260)' }}>
+                <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: p.color, marginRight: 6 }} />
+                {p.name}
+              </td>
+              {topics.map((topic) => {
+                const n = counts.get(`${p.name}|${topic}`) ?? 0;
+                const { bg, fg } = heat(n);
+                const isSelected = selected?.party === p.name && selected?.topic === topic;
+                return (
+                  <td key={topic} style={{ padding: 4, borderTop: '1px solid oklch(93% 0.006 260)', textAlign: 'center' }}>
+                    <button
+                      disabled={n === 0}
+                      onClick={() => onSelect(isSelected ? null : { party: p.name, topic })}
+                      style={{
+                        width: 34,
+                        height: 28,
+                        border: isSelected ? '2px solid oklch(45% 0.16 265)' : '1px solid transparent',
+                        borderRadius: 7,
+                        background: bg,
+                        color: fg,
+                        fontWeight: 700,
+                        fontSize: 12,
+                        cursor: n === 0 ? 'default' : 'pointer',
+                      }}
+                    >
+                      {n || ''}
+                    </button>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </ScrollBox>
+  );
+}
+
 function App() {
   const [view, setView] = useState<View>('home');
   const [lang, setLang] = useState<Lang>('de');
@@ -147,6 +321,7 @@ function App() {
   const [topicFilter, setTopicFilter] = useState<string | null>(null);
   const [following, setFollowing] = useState<Record<string, boolean>>({});
   const [hoveredAlignmentPoint, setHoveredAlignmentPoint] = useState<number | null>(null);
+  const [tieMatrixFilter, setTieMatrixFilter] = useState<MatrixCell | null>(null);
 
   const { snapshot } = useSnapshot();
   const roster = useBundestagRoster();
@@ -1687,7 +1862,7 @@ function App() {
               {filteredOrgs.length === 0 ? (
                 <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.orgsNoResults}</p>
               ) : (
-                <div className="pb-scroll" style={{ overflowX: 'auto', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
+                <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                     <thead>
                       <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
@@ -1709,7 +1884,7 @@ function App() {
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </ScrollBox>
               )}
             </>
           )}
@@ -1720,7 +1895,29 @@ function App() {
               {crossref.rows.length === 0 ? (
                 <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.crossrefEmpty}</p>
               ) : (
-                <div className="pb-scroll" style={{ overflowX: 'auto', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
+                <>
+                  <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 10px', maxWidth: 640 }}>{t.tieMatrixSub}</p>
+                  <TieMatrix
+                    rows={crossref.rows}
+                    partyOrder={parties}
+                    selected={tieMatrixFilter}
+                    onSelect={setTieMatrixFilter}
+                    scrollHintText={t.scrollHintText}
+                  />
+                  {tieMatrixFilter && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, fontSize: 12.5 }}>
+                      <span style={{ padding: '4px 10px', borderRadius: 20, background: 'oklch(95% 0.06 40)', color: 'oklch(35% 0.1 40)', fontWeight: 600 }}>
+                        {t.matrixFilteredTemplate.replace('{party}', tieMatrixFilter.party).replace('{topic}', tieMatrixFilter.topic)}
+                      </span>
+                      <button
+                        onClick={() => setTieMatrixFilter(null)}
+                        style={{ border: 'none', background: 'none', color: 'oklch(45% 0.16 265)', fontWeight: 600, cursor: 'pointer', fontSize: 12.5, padding: 0 }}
+                      >
+                        {t.matrixClearFilter}
+                      </button>
+                    </div>
+                  )}
+                <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                     <thead>
                       <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
@@ -1732,7 +1929,10 @@ function App() {
                       </tr>
                     </thead>
                     <tbody>
-                      {crossref.rows.map((r) => {
+                      {(tieMatrixFilter
+                        ? crossref.rows.filter((r) => r.party === tieMatrixFilter.party && r.pollTopic === tieMatrixFilter.topic)
+                        : crossref.rows
+                      ).map((r) => {
                         const label =
                           r.conflict.vote === 'yes' ? t.voteYes : r.conflict.vote === 'no' ? t.voteNo : t.voteAbstain;
                         return (
@@ -1773,7 +1973,8 @@ function App() {
                       })}
                     </tbody>
                   </table>
-                </div>
+                </ScrollBox>
+                </>
               )}
               <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 10, lineHeight: 1.6, maxWidth: 760 }}>
                 {t.lobbyNoPositionNote}
@@ -1788,7 +1989,7 @@ function App() {
               {topicalTieRows.rows.length === 0 ? (
                 <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.topicalTiesEmpty}</p>
               ) : (
-                <div className="pb-scroll" style={{ overflowX: 'auto', border: '1px solid oklch(88% 0.02 90)', borderRadius: 14 }}>
+                <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(88% 0.02 90)', borderRadius: 14 }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'oklch(97% 0.008 90)' }}>
                     <thead>
                       <tr style={{ background: 'oklch(94% 0.015 90)', textAlign: 'left' }}>
@@ -1840,7 +2041,7 @@ function App() {
                       })}
                     </tbody>
                   </table>
-                </div>
+                </ScrollBox>
               )}
               <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 10, lineHeight: 1.6, maxWidth: 760 }}>
                 {t.topicalTieNote}
@@ -1864,7 +2065,7 @@ function App() {
                   </div>
                 ))}
               </div>
-              <div className="pb-scroll" style={{ overflowX: 'auto', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
+              <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                   <thead>
                     <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
@@ -1904,7 +2105,7 @@ function App() {
                     })}
                   </tbody>
                 </table>
-              </div>
+              </ScrollBox>
               <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 10 }}>{t.donationsSource}</p>
             </>
           )}
@@ -2115,7 +2316,7 @@ function App() {
                 </div>
 
                 <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 10px' }}>{t.partyDetailOrgsTitle}</h2>
-                <div className="pb-scroll" style={{ overflowX: 'auto', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, marginBottom: 26 }}>
+                <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, marginBottom: 26 }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                     <thead>
                       <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
@@ -2140,7 +2341,7 @@ function App() {
                       })}
                     </tbody>
                   </table>
-                </div>
+                </ScrollBox>
 
                 {partyCrossrefRows.length > 0 && (
                   <>
