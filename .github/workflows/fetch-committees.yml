@@ -1,0 +1,40 @@
+name: Fetch committee assignments
+
+on:
+  schedule:
+    # Weekly, offset from the other data jobs. Committee assignments barely change mid-term
+    # (a handful of reshuffles a year) — the crawl is ~80 requests and takes a couple of minutes.
+    - cron: '0 4 * * 0'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-committees
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch committees and their memberships
+        run: node scripts/fetch-committees.mjs
+
+      # Committee membership sharpens the topical-tie signal (see build-lobby-links.mjs), so a
+      # change here means the cross-references need rebuilding.
+      - name: Rebuild lobby cross-references
+        run: node scripts/build-lobby-links.mjs
+
+      - uses: ./.github/actions/commit-data
+        with:
+          message: Update committee assignment data
+          paths: public/data/committees.json public/data/lobby-links.json public/data/meta.json

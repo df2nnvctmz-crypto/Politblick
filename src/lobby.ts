@@ -1,5 +1,6 @@
 import { useSnapshot } from './snapshot';
 import type { VoteChoice } from './polls';
+import type { RealMp } from './bundestag';
 
 /**
  * Lobbying data, joined offline by scripts/build-lobby-links.mjs from the Bundestag
@@ -80,6 +81,35 @@ export interface TopicalTie {
   vote: VoteChoice;
   matchedField: string;
   againstFraction: boolean | null;
+  /**
+   * Whether the member also sits on the Bundestag committee actually responsible for this
+   * poll's topic — an official, verifiable fact (abgeordnetenwatch's own committee/topic data),
+   * never a guess. Materially stronger than the field-of-interest match alone: not just "their
+   * org is in a related industry", but "they personally sit on the body that handles bills like
+   * this one". Still not a document trail — keep it visually distinct from LobbyConflict.
+   */
+  onRelevantCommittee: boolean;
+  relevantCommitteeNames: string[];
+}
+
+export interface PartyLobbyField {
+  field: string;
+  /** Distinct organisations tied to this party's members that declare this field — an org with several members of the same party counts once, not once per member. */
+  orgCount: number;
+}
+
+export interface PartyLobbyTopOrg {
+  orgId: string;
+  memberCount: number;
+}
+
+export interface PartyLobbySummary {
+  party: string;
+  orgCount: number;
+  memberCount: number;
+  expensesEuro: { from: number; to: number };
+  byField: PartyLobbyField[];
+  topOrgs: PartyLobbyTopOrg[];
 }
 
 export interface LobbyLinks {
@@ -89,6 +119,7 @@ export interface LobbyLinks {
   conflicts: LobbyConflict[];
   topicalTies: TopicalTie[];
   donorLinks: Record<string, string>;
+  partyLobbySummary: PartyLobbySummary[];
   generatedAt: string | null;
   registerEntryCount: number;
 }
@@ -100,6 +131,7 @@ export const EMPTY_LOBBY_LINKS: LobbyLinks = {
   conflicts: [],
   topicalTies: [],
   donorLinks: {},
+  partyLobbySummary: [],
   generatedAt: null,
   registerEntryCount: 0,
 };
@@ -271,7 +303,9 @@ export function useTopicalTieRows(): { rows: TopicalTieRow[]; loading: boolean; 
       pollDate: poll.date,
     });
   }
-  rows.sort((a, b) => b.pollDate.localeCompare(a.pollDate));
+  // Committee-verified ties first — an official, verifiable fact, not just a field-of-interest
+  // guess — then newest bill first within each group.
+  rows.sort((a, b) => Number(b.tie.onRelevantCommittee) - Number(a.tie.onRelevantCommittee) || b.pollDate.localeCompare(a.pollDate));
   return { rows, loading, error };
 }
 
@@ -306,4 +340,130 @@ export function usePartyDonations(): {
     }))
     .sort((a, b) => b.total - a.total);
   return { byFraction, all: snapshot.partyDonations, loading, error };
+}
+
+export interface OrgListEntry {
+  org: LobbyOrg;
+  affiliatedMemberCount: number;
+  lobbiedPollCount: number;
+}
+
+/**
+ * Every organisation referenced by something (a member tie, a lobbied vote, or a large
+ * donation) — the browsable index for organisation-centric pages. Pure lookup, no fetching.
+ */
+export function useOrgList(): { orgs: OrgListEntry[]; loading: boolean; error: string | null } {
+  const { snapshot, loading, error } = useSnapshot();
+  if (!snapshot) return { orgs: [], loading, error };
+  const links = snapshot.lobbyLinks;
+
+  const memberCountByOrg = new Map<string, number>();
+  for (const orgLinks of Object.values(links.affiliations)) {
+    for (const link of orgLinks) memberCountByOrg.set(link.orgId, (memberCountByOrg.get(link.orgId) ?? 0) + 1);
+  }
+  const pollCountByOrg = new Map<string, number>();
+  for (const entries of Object.values(links.pollLobbying)) {
+    for (const entry of entries) pollCountByOrg.set(entry.orgId, (pollCountByOrg.get(entry.orgId) ?? 0) + 1);
+  }
+
+  const orgs = Object.values(links.orgs)
+    .map((org) => ({
+      org,
+      affiliatedMemberCount: memberCountByOrg.get(org.id) ?? 0,
+      lobbiedPollCount: pollCountByOrg.get(org.id) ?? 0,
+    }))
+    .sort((a, b) => b.affiliatedMemberCount - a.affiliatedMemberCount || b.lobbiedPollCount - a.lobbiedPollCount || a.org.name.localeCompare(b.org.name, 'de'));
+  return { orgs, loading, error };
+}
+
+export interface OrgLobbiedPoll {
+  pollId: number;
+  pollTitle: string;
+  pollDate: string;
+  demands: string[];
+}
+
+export interface OrgAffiliatedMember {
+  member: RealMp;
+  roles: string[];
+  categories: string[];
+}
+
+export interface OrgDetailState {
+  org: LobbyOrg | null;
+  lobbiedPolls: OrgLobbiedPoll[];
+  affiliatedMembers: OrgAffiliatedMember[];
+  conflicts: (LobbyConflict & { memberName: string; politicianId: number | null; pollTitle: string; pollDate: string })[];
+  topicalTies: (TopicalTie & { memberName: string; politicianId: number | null; pollTitle: string; pollDate: string })[];
+  /** Party donor names (from the >35k€ disclosures) that this organisation is itself registered under. Usually empty — most large donors are private individuals or holding companies, not registered lobbyists. */
+  donorNames: string[];
+  loading: boolean;
+  error: string | null;
+}
+
+/** Everything tied to one organisation — the reverse of the member-centric view. Pure lookup, no fetching: this is the same lobby-links.json data read from a different direction. */
+export function useOrgDetail(orgId: string | null): OrgDetailState {
+  const { snapshot, loading, error } = useSnapshot();
+  const empty: OrgDetailState = { org: null, lobbiedPolls: [], affiliatedMembers: [], conflicts: [], topicalTies: [], donorNames: [], loading, error };
+  if (orgId === null || !snapshot) return empty;
+
+  const links = snapshot.lobbyLinks;
+  const org = links.orgs[orgId] ?? null;
+  if (!org) return empty;
+
+  const memberByMandate = new Map(snapshot.members.map((m) => [m.mandateId, m]));
+  const pollById = new Map(snapshot.polls.map((p) => [p.id, p]));
+
+  const lobbiedPolls: OrgLobbiedPoll[] = [];
+  for (const [pollIdStr, entries] of Object.entries(links.pollLobbying)) {
+    const entry = entries.find((e) => e.orgId === orgId);
+    if (!entry) continue;
+    const poll = pollById.get(Number(pollIdStr));
+    if (!poll) continue;
+    lobbiedPolls.push({ pollId: poll.id, pollTitle: poll.title, pollDate: poll.date, demands: entry.demands });
+  }
+  lobbiedPolls.sort((a, b) => b.pollDate.localeCompare(a.pollDate));
+
+  const affiliatedMembers: OrgAffiliatedMember[] = [];
+  for (const [mandateIdStr, orgLinks] of Object.entries(links.affiliations)) {
+    const link = orgLinks.find((l) => l.orgId === orgId);
+    if (!link) continue;
+    const member = memberByMandate.get(Number(mandateIdStr));
+    if (!member) continue;
+    affiliatedMembers.push({ member, roles: link.roles, categories: link.categories });
+  }
+  affiliatedMembers.sort((a, b) => a.member.name.localeCompare(b.member.name, 'de'));
+
+  const conflicts = links.conflicts
+    .filter((c) => c.orgId === orgId)
+    .map((c) => {
+      const member = memberByMandate.get(c.mandateId);
+      const poll = pollById.get(c.pollId);
+      if (!poll) return null;
+      return { ...c, memberName: member?.name ?? '—', politicianId: member?.id ?? null, pollTitle: poll.title, pollDate: poll.date };
+    })
+    .filter((c): c is NonNullable<typeof c> => c !== null);
+
+  const topicalTies = links.topicalTies
+    .filter((t) => t.orgId === orgId)
+    .map((t) => {
+      const member = memberByMandate.get(t.mandateId);
+      const poll = pollById.get(t.pollId);
+      if (!poll) return null;
+      return { ...t, memberName: member?.name ?? '—', politicianId: member?.id ?? null, pollTitle: poll.title, pollDate: poll.date };
+    })
+    .filter((t): t is NonNullable<typeof t> => t !== null);
+
+  const donorNames = Object.entries(links.donorLinks)
+    .filter(([, linkedOrgId]) => linkedOrgId === orgId)
+    .map(([donorName]) => donorName);
+
+  return { org, lobbiedPolls, affiliatedMembers, conflicts, topicalTies, donorNames, loading, error };
+}
+
+/** Per-party lobbying summary — pure lookup, no fetching. Biggest tally first. */
+export function usePartyLobbySummary(): { summaries: PartyLobbySummary[]; loading: boolean; error: string | null } {
+  const { snapshot, loading, error } = useSnapshot();
+  if (!snapshot) return { summaries: [], loading, error };
+  return { summaries: snapshot.lobbyLinks.partyLobbySummary, loading, error };
 }

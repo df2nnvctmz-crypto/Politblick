@@ -11,6 +11,7 @@ this repo, and served as static JSON — so visitor traffic never reaches the up
 | `fetch-sidejobs.mjs` | abgeordnetenwatch | `public/data/sidejobs.json` | daily |
 | `fetch-lobbyregister.mjs` | Lobbyregister API v2 | `data/lobby-register.json` | weekly |
 | `fetch-parteispenden.mjs` | bundestag.de (HTML) | `public/data/party-donations.json` | daily |
+| `fetch-committees.mjs` | abgeordnetenwatch | `public/data/committees.json` | weekly |
 | `build-lobby-links.mjs` | *(no network)* | `public/data/lobby-links.json` | after every fetch |
 
 `data/` is **not** served — it holds the ~5 MB register snapshot that only the derive step
@@ -33,6 +34,19 @@ the vote record, to how each member voted.
 Members are connected to organisations through their own declared outside roles
 (`sidejobs.json`), matched on exact normalised organisation name. Exact rather than fuzzy is
 deliberate: a false positive attaches a lobbying tie to the wrong person.
+
+A weaker second tier — "same policy area", `topicalTies` in the output — catches ties where the
+organisation never cited the specific Drucksache: a member's org lists a *specific* field of
+interest (never a generic one — see `data/lobby-topic-map.json`'s own guardrails) that matches
+the poll's topic. Committee membership (`committees.json`) can promote a topical tie: if the
+member also sits on the Bundestag committee actually responsible for that topic — a fact that
+comes for free from abgeordnetenwatch's own data, since committees carry the same topic
+vocabulary as polls — that's flagged as `onRelevantCommittee`, a materially stronger, still
+non-document signal. Never conflate either tier with a declared-Drucksache conflict in the UI.
+
+`partyLobbySummary` and the organisation-centric lookups (`useOrgList`/`useOrgDetail` in
+`src/lobby.ts`) are pure re-views of the same joined data from a different angle — no new
+fetching, just aggregating `affiliations` by party or by organisation instead of by member.
 
 ### What this data cannot show
 

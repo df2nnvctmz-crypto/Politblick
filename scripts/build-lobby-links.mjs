@@ -10,9 +10,11 @@
 // Inputs   data/lobby-register.json     full register snapshot   (fetch-lobbyregister.mjs)
 //          data/lobby-positions.json    hand-curated stances     (edited by humans)
 //          data/lobby-topic-map.json    hand-curated topic map   (edited by humans)
+//          public/data/roster.json      members + party          (fetch-core.mjs)
 //          public/data/polls.json       polls + their Drucksachen (fetch-core.mjs)
 //          public/data/poll-results.json per-mandate votes        (fetch-core.mjs)
 //          public/data/sidejobs.json    declared outside roles    (fetch-sidejobs.mjs)
+//          public/data/committees.json  committee assignments     (fetch-committees.mjs)
 // Output   public/data/lobby-links.json
 import { normalizeOrgName, readJsonFile, readSourceFile, writeJsonFile } from './lib/common.mjs';
 
@@ -46,6 +48,8 @@ async function main() {
   const pollResults = await readJsonFile('poll-results.json', {});
   const sidejobs = await readJsonFile('sidejobs.json', {});
   const donations = await readJsonFile('party-donations.json', []);
+  const roster = await readJsonFile('roster.json', { members: [] });
+  const committeesFile = await readJsonFile('committees.json', { committees: [], memberships: [] });
 
   if (register.length === 0) {
     console.warn('data/lobby-register.json is empty or missing — run fetch-lobbyregister.mjs first. Nothing to derive.');
@@ -200,6 +204,28 @@ async function main() {
   // which wouldn't generalise to the next one like it.
   const GENERALIST_FIELD_COUNT_THRESHOLD = 25;
   const topicMapFile = await readSourceFile('lobby-topic-map.json', { topics: {} });
+
+  // ---- committee assignments: an official, verifiable fact that can strengthen a topical tie -----
+  //
+  // Each committee already carries abgeordnetenwatch's own field_topics — the SAME topic
+  // vocabulary used to tag polls (Finanzausschuss lists "Öffentliche Finanzen, Steuern und
+  // Abgaben" verbatim). So "is this member on the committee actually responsible for this poll's
+  // policy area" comes for free from the API, with no hand-curation, unlike the topic map above.
+  // A topical tie where the member also sits on the relevant committee is materially stronger
+  // evidence than the field-of-interest match alone — it's not just "their org is in a related
+  // industry", it's "they personally sit on the body that handles bills like this one".
+  const committeeById = new Map(committeesFile.committees.map((c) => [c.id, c]));
+  const committeesByMandate = new Map();
+  for (const m of committeesFile.memberships) {
+    const committee = committeeById.get(m.committeeId);
+    if (!committee) continue;
+    const list = committeesByMandate.get(String(m.mandateId)) ?? [];
+    list.push(committee);
+    committeesByMandate.set(String(m.mandateId), list);
+  }
+  if (committeesFile.committees.length === 0) {
+    console.warn('public/data/committees.json is empty or missing — run fetch-committees.mjs first. Topical ties will not be enriched with committee membership.');
+  }
   const orgIdsByField = new Map();
   for (const org of register) {
     if (org.fieldsOfInterest.length > GENERALIST_FIELD_COUNT_THRESHOLD) continue;
@@ -239,6 +265,8 @@ async function main() {
         if (conflictKeys.has(`${mandateId}|${poll.id}|${link.orgId}`)) continue;
 
         const fractionMajority = vote.party === NO_FRACTION ? null : majorityByParty.get(vote.party) ?? null;
+        const memberCommittees = committeesByMandate.get(mandateId) ?? [];
+        const relevantCommittees = memberCommittees.filter((c) => c.topics.includes(poll.topic));
         topicalTies.push({
           mandateId: Number(mandateId),
           pollId: poll.id,
@@ -248,13 +276,20 @@ async function main() {
           vote: vote.vote,
           matchedField,
           againstFraction: fractionMajority ? vote.vote !== fractionMajority : null,
+          // Only ever populated from abgeordnetenwatch's own committee/topic data — never guessed.
+          onRelevantCommittee: relevantCommittees.length > 0,
+          relevantCommitteeNames: relevantCommittees.map((c) => c.name),
         });
         referenced.add(link.orgId);
       }
     }
   }
   topicalTies.sort((a, b) => a.pollId - b.pollId || a.mandateId - b.mandateId);
-  console.log(`${topicalTies.length} member/bill topical ties (same policy area, no declared Drucksache match)`);
+  const committeeBoosted = topicalTies.filter((t) => t.onRelevantCommittee).length;
+  console.log(
+    `${topicalTies.length} member/bill topical ties (same policy area, no declared Drucksache match), ` +
+      `${committeeBoosted} where the member also sits on the responsible committee`,
+  );
 
   // ---- donors that are themselves registered lobbyists -------------------------------------------
   const donorLinks = {};
@@ -266,6 +301,65 @@ async function main() {
     referenced.add(org.id);
   }
   console.log(`${Object.keys(donorLinks).length} large-donation donors are themselves in the Lobbyregister`);
+
+  // ---- party-level summary: which fields of interest are the orgs tied to each party's members
+  // active in, and roughly how much declared lobbying spend sits behind them -----------------------
+  //
+  // This is a new lens on data already joined above (affiliations), not a new fetch: for each
+  // party, take every org a member of that party holds a declared role at, and group those orgs
+  // by their own declared fields of interest. An org tied to several members of the same party is
+  // counted once per field, never once per member — otherwise a party with one well-connected MP
+  // at a five-seat board would look identical to a party with five separately-tied MPs.
+  const partyByMandate = new Map(roster.members.map((m) => [String(m.mandateId), m.party]));
+  const partyOrgMemberCount = new Map(); // party -> Map<orgId, memberCount>
+  for (const [mandateId, orgLinks] of Object.entries(affiliations)) {
+    const party = partyByMandate.get(mandateId);
+    if (!party) continue;
+    const orgCounts = partyOrgMemberCount.get(party) ?? new Map();
+    for (const link of orgLinks) {
+      orgCounts.set(link.orgId, (orgCounts.get(link.orgId) ?? 0) + 1);
+    }
+    partyOrgMemberCount.set(party, orgCounts);
+  }
+
+  const partyLobbySummary = [...partyOrgMemberCount.entries()]
+    .map(([party, orgCounts]) => {
+      const orgIds = [...orgCounts.keys()];
+      const fieldOrgSets = new Map(); // field -> Set<orgId>
+      let expensesFromSum = 0;
+      let expensesToSum = 0;
+      for (const id of orgIds) {
+        const org = orgById.get(id);
+        if (!org) continue;
+        if (org.expensesEuro) {
+          expensesFromSum += org.expensesEuro.from;
+          expensesToSum += org.expensesEuro.to;
+        }
+        for (const field of org.fieldsOfInterest) {
+          const set = fieldOrgSets.get(field) ?? new Set();
+          set.add(id);
+          fieldOrgSets.set(field, set);
+        }
+      }
+      const byField = [...fieldOrgSets.entries()]
+        .map(([field, orgSet]) => ({ field, orgCount: orgSet.size }))
+        .sort((a, b) => b.orgCount - a.orgCount)
+        .slice(0, 25);
+      const topOrgs = [...orgCounts.entries()]
+        .map(([id, memberCount]) => ({ orgId: id, memberCount }))
+        .sort((a, b) => b.memberCount - a.memberCount)
+        .slice(0, 10);
+      return {
+        party,
+        orgCount: orgIds.length,
+        memberCount: Object.entries(affiliations).filter(([mid]) => partyByMandate.get(mid) === party).length,
+        expensesEuro: { from: expensesFromSum, to: expensesToSum },
+        byField,
+        topOrgs,
+      };
+    })
+    .sort((a, b) => b.orgCount - a.orgCount);
+  console.log(`Party lobbying summary computed for ${partyLobbySummary.length} parties/fractions`);
 
   // ---- ship only the orgs something actually points at ---------------------------------------------
   const orgs = {};
@@ -294,6 +388,7 @@ async function main() {
     conflicts,
     topicalTies,
     donorLinks,
+    partyLobbySummary,
     generatedAt: new Date().toISOString(),
     registerEntryCount: register.length,
   };

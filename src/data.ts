@@ -234,6 +234,18 @@ export interface Translation {
   overviewLobbyPreviewTitle: string; overviewLobbyPreviewCountTemplate: string; overviewLobbyPreviewEmpty: string;
   overviewSidejobsPreviewTitle: string; overviewSidejobsPreviewCountTemplate: string; overviewSidejobsPreviewEmpty: string;
   seeAll: string;
+  orgsSectionTitle: string; orgsSectionSub: string; orgSearchPlaceholder: string; orgsNoResults: string;
+  colOrgMembers: string; colOrgVotes: string; backToLobbyFinance: string;
+  orgSpendLabel: string; orgStaffLabel: string; orgFieldsLabel: string;
+  orgLobbiedBillsTitle: string; orgNoLobbiedBills: string;
+  orgAffiliatedMembersTitle: string; orgNoAffiliatedMembers: string;
+  orgConflictsTitle: string; orgTopicalTitle: string;
+  orgDonorTitle: string; orgDonorNote: string;
+  orgNotFound: string;
+  partyLobbyTitle: string; partyLobbySub: string;
+  partyLobbyOrgCountTemplate: string; partyLobbyMemberCountTemplate: string;
+  partyLobbyTopFieldsLabel: string; partyLobbySpendLabel: string;
+  lobbyOnCommitteeTemplate: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -330,6 +342,28 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     overviewSidejobsPreviewCountTemplate: '{n} gemeldete Nebentätigkeiten',
     overviewSidejobsPreviewEmpty: 'Keine Nebeneinkünfte gemeldet',
     seeAll: 'Alle ansehen',
+    orgsSectionTitle: 'Organisationen durchsuchen',
+    orgsSectionSub: 'Alle Organisationen aus dem Lobbyregister, die mit mindestens einem Abgeordneten, einer Abstimmung oder einer Parteispende verknüpft sind.',
+    orgSearchPlaceholder: 'Organisation suchen…',
+    orgsNoResults: 'Keine Organisationen gefunden.',
+    colOrgMembers: 'Verflochtene Abgeordnete', colOrgVotes: 'Abstimmungen mit Interessenvertretung',
+    backToLobbyFinance: 'Zurück zu Lobby & Finanzen',
+    orgSpendLabel: 'Gemeldete Lobbyausgaben', orgStaffLabel: 'Beschäftigte in der Interessenvertretung (VZÄ)',
+    orgFieldsLabel: 'Interessengebiete',
+    orgLobbiedBillsTitle: 'Abstimmungen mit angemeldeter Interessenvertretung',
+    orgNoLobbiedBills: 'Für diese Organisation ist zu keiner namentlichen Abstimmung dieser Wahlperiode Interessenvertretung angemeldet.',
+    orgAffiliatedMembersTitle: 'Abgeordnete mit Funktion bei dieser Organisation',
+    orgNoAffiliatedMembers: 'Kein Abgeordneter hat eine Funktion bei dieser Organisation angegeben.',
+    orgConflictsTitle: 'Abstimmungen von verflochtenen Abgeordneten',
+    orgTopicalTitle: 'Abstimmungen im gleichen Themenfeld',
+    orgDonorTitle: 'Als Spender an Parteien',
+    orgDonorNote: 'Diese Organisation ist unter diesem Namen auch als Großspenderin an Parteien registriert.',
+    orgNotFound: 'Organisation nicht gefunden.',
+    partyLobbyTitle: 'Lobbyverflechtungen nach Partei',
+    partyLobbySub: 'Für jede Partei: die Organisationen, bei denen ihre Abgeordneten laut eigener Angabe eine Funktion ausüben, gruppiert nach deren Interessengebiet.',
+    partyLobbyOrgCountTemplate: '{n} Organisationen', partyLobbyMemberCountTemplate: '{n} Abgeordnete mit Funktion',
+    partyLobbyTopFieldsLabel: 'Häufigste Interessengebiete', partyLobbySpendLabel: 'Summe gemeldeter Lobbyausgaben (grobe Schätzung)',
+    lobbyOnCommitteeTemplate: 'Mitglied im zuständigen Ausschuss: {committee}',
     weekOf: 'Sitzungswoche', noPollsThisWeek: 'Für die aktuelle Sitzungswoche liegen noch keine namentlichen Abstimmungen vor.',
     pollsLoading: 'Abstimmungen werden geladen…', pollsError: 'Abstimmungsdaten konnten nicht geladen werden.',
     sidejobsError: 'Nebeneinkünfte konnten nicht geladen werden.',
@@ -431,6 +465,28 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     overviewSidejobsPreviewCountTemplate: '{n} declared outside activities',
     overviewSidejobsPreviewEmpty: 'No outside income reported',
     seeAll: 'See all',
+    orgsSectionTitle: 'Search organizations',
+    orgsSectionSub: 'Every organization from the lobby register tied to at least one MP, one vote, or one party donation.',
+    orgSearchPlaceholder: 'Search an organization…',
+    orgsNoResults: 'No organizations found.',
+    colOrgMembers: 'Tied MPs', colOrgVotes: 'Votes with registered lobbying',
+    backToLobbyFinance: 'Back to Lobby & Finance',
+    orgSpendLabel: 'Declared lobbying expenditure', orgStaffLabel: 'Staff engaged in lobbying (FTE)',
+    orgFieldsLabel: 'Fields of interest',
+    orgLobbiedBillsTitle: 'Votes with registered lobbying',
+    orgNoLobbiedBills: 'This organization has no registered lobbying on file for any roll-call vote this term.',
+    orgAffiliatedMembersTitle: 'MPs holding a role at this organization',
+    orgNoAffiliatedMembers: 'No MP has declared a role at this organization.',
+    orgConflictsTitle: 'Votes by tied MPs',
+    orgTopicalTitle: 'Votes in the same policy area',
+    orgDonorTitle: 'As a party donor',
+    orgDonorNote: 'This organization is also registered under this name as a large donor to parties.',
+    orgNotFound: 'Organization not found.',
+    partyLobbyTitle: 'Lobby ties by party',
+    partyLobbySub: 'For each party: the organizations its MPs declare holding a role at, grouped by that organization’s own field of interest.',
+    partyLobbyOrgCountTemplate: '{n} organizations', partyLobbyMemberCountTemplate: '{n} MPs with a role',
+    partyLobbyTopFieldsLabel: 'Most common fields of interest', partyLobbySpendLabel: 'Sum of declared lobbying expenditure (rough estimate)',
+    lobbyOnCommitteeTemplate: 'Sits on the responsible committee: {committee}',
     weekOf: 'Sitting week', noPollsThisWeek: 'No roll-call votes are available yet for the current sitting week.',
     pollsLoading: 'Loading votes…', pollsError: 'Could not load voting data.',
     sidejobsError: 'Could not load outside income data.',
