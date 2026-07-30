@@ -338,6 +338,47 @@ function HemicycleChart({ parties, seatsLabel }: { parties: { name: string; seat
   );
 }
 
+/**
+ * Horizontal bars, not a pie/stacked-bar: donation totals here span ~190x (90K to
+ * 17M), so a part-to-whole encoding (pie or one stacked bar) would render most
+ * parties as an unreadable sliver. Independent bars stay legible at any magnitude —
+ * this is a ranking/comparison job, not a proportion-of-total one.
+ */
+function DonationBarChart({ data }: { data: { fraction: string; total: number; count: number }[] }) {
+  if (data.length === 0) return null;
+  const max = data[0].total;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+      {data.map((p) => {
+        const pct = Math.max(1, (p.total / max) * 100);
+        return (
+          <div key={p.fraction} className="donation-row" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="donation-label" style={{ width: 168, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600 }}>
+              <span style={{ width: 9, height: 9, borderRadius: '50%', background: REAL_PARTY_COLORS[p.fraction] || FALLBACK_PARTY_COLOR, flexShrink: 0 }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.fraction}</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
+              <div
+                style={{
+                  height: 18,
+                  width: `${pct}%`,
+                  minWidth: 3,
+                  background: REAL_PARTY_COLORS[p.fraction] || FALLBACK_PARTY_COLOR,
+                  borderTopRightRadius: 4,
+                  borderBottomRightRadius: 4,
+                }}
+              />
+            </div>
+            <span className="donation-value" style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', whiteSpace: 'nowrap', flexShrink: 0, width: 150 }}>
+              {formatEuro(p.total)} · {p.count}×
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function App() {
   const [view, setView] = useState<View>('home');
   const [lang, setLang] = useState<Lang>('de');
@@ -2089,17 +2130,8 @@ function App() {
             <>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t.donationsTitle}</h2>
               <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 700 }}>{t.donationsSub}</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 18 }}>
-                {partyDonations.byFraction.map((p) => (
-                  <div key={p.fraction} style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', minWidth: 150 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                      <span style={{ width: 9, height: 9, borderRadius: '50%', background: REAL_PARTY_COLORS[p.fraction] || FALLBACK_PARTY_COLOR, flexShrink: 0 }} />
-                      <span style={{ fontWeight: 700, fontSize: 13.5 }}>{p.fraction}</span>
-                    </div>
-                    <div style={{ fontSize: 18, fontWeight: 700, marginTop: 5 }}>{formatEuro(p.total)}</div>
-                    <div style={{ fontSize: 11.5, color: 'oklch(50% 0.01 260)' }}>{p.count} ×</div>
-                  </div>
-                ))}
+              <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '16px 18px', marginBottom: 18 }}>
+                <DonationBarChart data={partyDonations.byFraction} />
               </div>
               <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>

@@ -50,3 +50,31 @@ button {
     display: flex;
   }
 }
+
+/* Below this width there isn't room for name + bar + value side by side — the
+   bar itself would get squeezed to nothing. Stack the name above bar + value. */
+@media (max-width: 480px) {
+  .donation-row {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+  .donation-row .donation-label {
+    width: 100% !important;
+  }
+  .donation-row .donation-value {
+    width: auto !important;
+  }
+}
+
+/* Highlighted org↔party ties in the network graph: a travelling dash pattern
+   reads as "flow" along the edge, toward the party, instead of a static line. */
+@keyframes pb-edge-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.pb-flow-edge {
+  stroke-dasharray: 6 6;
+  animation: pb-edge-flow 0.6s linear infinite;
+}
