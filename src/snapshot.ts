@@ -44,8 +44,11 @@ interface RawPollResult {
 }
 
 async function fetchLocalJson<T>(path: string): Promise<T> {
-  const res = await fetch(path, { cache: 'no-cache' });
-  if (!res.ok) throw new Error(`Datensatz nicht gefunden: ${path} (${res.status})`);
+  // path arguments are root-absolute ('/data/...'); resolve against BASE_URL so this
+  // works both in dev (base '/') and once deployed under a GitHub Pages subpath.
+  const url = `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
+  const res = await fetch(url, { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`Datensatz nicht gefunden: ${url} (${res.status})`);
   return (await res.json()) as T;
 }
 
