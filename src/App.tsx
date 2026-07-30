@@ -8,7 +8,7 @@ import {
   TRANSLATIONS,
   type Lang,
 } from './data';
-import { initials, trendPoints } from './helpers';
+import { computeHemicycleSeats, initials, trendPoints } from './helpers';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealMp } from './bundestag';
 import { computeAllAlignments, computeDivergences, computeMemberAlignment, useAllPolls, useMandateVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult } from './polls';
 import { useSidejobs } from './sidejobs';
@@ -21,12 +21,14 @@ import {
   useMemberLobby,
   useOrgDetail,
   useOrgList,
+  useOrgPartyNetwork,
   usePartyDonations,
   usePartyLobbySummary,
   usePollLobbying,
   useTopicalTieRows,
   type CrossrefRow,
 } from './lobby';
+import { PartyOrgGraph } from './PartyOrgGraph';
 
 type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'party' | 'impressum' | 'disclaimer';
 type ProfileTab = 'overview' | 'votes' | 'lobby' | 'finance';
@@ -306,6 +308,36 @@ function TieMatrix({
   );
 }
 
+/** Classic semicircle parliament seating chart — replaces flat seat-count tiles with the standard, instantly-recognizable graphic. */
+function HemicycleChart({ parties, seatsLabel }: { parties: { name: string; seats: number; color: string }[]; seatsLabel: string }) {
+  const seats = computeHemicycleSeats(parties, { rows: 9, rMin: 55, rMax: 200, cx: 260, cy: 220 });
+  const total = parties.reduce((sum, p) => sum + p.seats, 0);
+  return (
+    <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 14, padding: '18px 18px 14px', height: '100%' }}>
+      <svg viewBox="0 0 520 250" style={{ width: '100%', height: 'auto', display: 'block' }}>
+        {seats.map((s, i) => (
+          <circle key={i} cx={s.x} cy={s.y} r={5.4} fill={s.color} />
+        ))}
+        <text x={260} y={214} textAnchor="middle" fontSize={24} fontWeight={800} fill="oklch(20% 0.01 260)">
+          {total}
+        </text>
+        <text x={260} y={233} textAnchor="middle" fontSize={11} fill="oklch(48% 0.01 260)">
+          {seatsLabel}
+        </text>
+      </svg>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '6px 16px', marginTop: 2 }}>
+        {parties.map((p) => (
+          <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+            <span style={{ width: 9, height: 9, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
+            <span style={{ fontWeight: 600 }}>{p.name}</span>
+            <span style={{ color: 'oklch(50% 0.01 260)' }}>{p.seats}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [view, setView] = useState<View>('home');
   const [lang, setLang] = useState<Lang>('de');
@@ -524,6 +556,7 @@ function App() {
   // tied to registered lobbying on. Sourced from the Lobbyregister + members' own declarations.
   const crossref = useCrossrefRows();
   const topicalTieRows = useTopicalTieRows();
+  const orgNetwork = useOrgPartyNetwork();
   const partyDonations = usePartyDonations();
   const pollLobbying = usePollLobbying(realPollId);
   const partyLobby = usePartyLobbySummary();
@@ -710,33 +743,20 @@ function App() {
             </div>
           </section>
 
-          <section
-            style={{
-              maxWidth: 1100,
-              margin: '0 auto',
-              padding: '0 32px 32px',
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))',
-              gap: 12,
-            }}
-          >
-            <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}>
-              <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statMpsLabel}</div>
-              <div style={{ fontSize: 26, fontWeight: 800 }}>{roster.loading && roster.members.length === 0 ? '…' : roster.members.length}</div>
+          <section style={{ maxWidth: 1100, margin: '0 auto', padding: '0 32px 32px', display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'stretch' }}>
+            <div style={{ flex: '2 1 380px' }}>
+              <HemicycleChart parties={parties} seatsLabel={t.seatsLabel} />
             </div>
-            <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}>
-              <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statFlagsLabel}</div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: 'oklch(55% 0.16 40)' }}>{demoFlagCount}</div>
-            </div>
-            {parties.map((p) => (
-              <div key={p.name} style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: 'oklch(48% 0.01 260)' }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color }} />
-                  {p.name}
-                </div>
-                <div style={{ fontSize: 20, fontWeight: 700 }}>{p.seats}</div>
+            <div style={{ flex: '1 1 200px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, alignContent: 'start' }}>
+              <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}>
+                <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statMpsLabel}</div>
+                <div style={{ fontSize: 26, fontWeight: 800 }}>{roster.loading && roster.members.length === 0 ? '…' : roster.members.length}</div>
               </div>
-            ))}
+              <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}>
+                <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statFlagsLabel}</div>
+                <div style={{ fontSize: 26, fontWeight: 800, color: 'oklch(55% 0.16 40)' }}>{demoFlagCount}</div>
+              </div>
+            </div>
           </section>
 
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '12px 32px 8px' }}>
@@ -1812,7 +1832,23 @@ function App() {
           {lobbyTab === 'parties' && (
             <>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t.partyLobbyTitle}</h2>
-              <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 760 }}>{t.partyLobbySub}</p>
+              <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 20px', maxWidth: 760 }}>{t.partyLobbySub}</p>
+
+              <PartyOrgGraph
+                orgs={orgNetwork.orgs}
+                parties={parties}
+                onOpenOrg={openOrg}
+                labels={{
+                  sub: t.networkSub,
+                  crossPartyToggle: t.networkToggleCrossParty,
+                  allToggle: t.networkToggleAll,
+                  orgCountTemplate: t.networkOrgCountTemplate,
+                  viewOrg: t.networkViewOrg,
+                  empty: t.networkEmpty,
+                }}
+              />
+
+              <h3 style={{ fontSize: 15, fontWeight: 700, margin: '28px 0 12px' }}>{t.partyDetailOrgsTitle}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 12 }}>
                 {partyLobby.summaries.map((p) => (
                   <div

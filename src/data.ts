@@ -255,6 +255,9 @@ export interface Translation {
   partyNotFound: string;
   scrollHintText: string;
   tieMatrixSub: string; matrixFilteredTemplate: string; matrixClearFilter: string;
+  seatsLabel: string;
+  networkSub: string; networkToggleCrossParty: string; networkToggleAll: string;
+  networkOrgCountTemplate: string; networkViewOrg: string; networkEmpty: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -391,6 +394,13 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     tieMatrixSub: 'Anzahl der Überschneidungen nach Partei und Themenfeld. Auf eine Zelle klicken, um die Tabelle unten zu filtern.',
     matrixFilteredTemplate: 'Gefiltert: {party} · {topic}',
     matrixClearFilter: 'Filter zurücksetzen',
+    seatsLabel: 'Sitze',
+    networkSub: 'Organisationen, bei denen Abgeordnete mehrerer Parteien laut eigener Angabe eine Funktion ausüben. Auf eine Partei tippen zum Hervorheben, auf eine Organisation für Details.',
+    networkToggleCrossParty: 'Nur parteiübergreifend',
+    networkToggleAll: 'Alle anzeigen',
+    networkOrgCountTemplate: '{n} Organisationen im Netzwerk',
+    networkViewOrg: 'Organisation ansehen',
+    networkEmpty: 'Für diese Auswahl sind keine Organisationen mit Parteibezug erfasst.',
   },
   en: {
     navHome: 'Home', navMps: 'MPs', navLobbyFinance: 'Lobby & Finance',
@@ -525,5 +535,12 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     tieMatrixSub: 'Count of overlaps by party and policy area. Click a cell to filter the table below.',
     matrixFilteredTemplate: 'Filtered: {party} · {topic}',
     matrixClearFilter: 'Clear filter',
+    seatsLabel: 'seats',
+    networkSub: 'Organizations where MPs from more than one party declare holding a role. Tap a party to highlight it, tap an organization for details.',
+    networkToggleCrossParty: 'Cross-party only',
+    networkToggleAll: 'Show all',
+    networkOrgCountTemplate: '{n} organizations in the network',
+    networkViewOrg: 'View organization',
+    networkEmpty: 'No organizations with a party tie are on file for this selection.',
   },
 };

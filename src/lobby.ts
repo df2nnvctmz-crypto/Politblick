@@ -469,3 +469,51 @@ export function usePartyLobbySummary(): { summaries: PartyLobbySummary[]; loadin
   if (!snapshot) return { summaries: [], loading, error };
   return { summaries: snapshot.lobbyLinks.partyLobbySummary, loading, error };
 }
+
+export interface OrgPartyTie {
+  party: string;
+  memberCount: number;
+}
+
+export interface OrgNetworkNode {
+  org: LobbyOrg;
+  /** One entry per party with at least one tied member, biggest first. */
+  ties: OrgPartyTie[];
+  totalMembers: number;
+}
+
+/**
+ * Every organisation with at least one MP affiliation, aggregated by party — powers the
+ * party↔org network graph. Built directly from `affiliations`, not from
+ * `partyLobbySummary.topOrgs` (which the fetch pipeline caps at 10 orgs per party and would
+ * silently drop most cross-party ties — the exact thing this graph exists to surface).
+ */
+export function useOrgPartyNetwork(): { orgs: OrgNetworkNode[]; loading: boolean; error: string | null } {
+  const { snapshot, loading, error } = useSnapshot();
+  if (!snapshot) return { orgs: [], loading, error };
+
+  const partyByMandate = new Map(snapshot.members.map((m) => [m.mandateId, m.party]));
+  const tieCounts = new Map<string, Map<string, number>>();
+
+  for (const [mandateIdStr, affs] of Object.entries(snapshot.lobbyLinks.affiliations)) {
+    const party = partyByMandate.get(Number(mandateIdStr));
+    if (!party) continue;
+    for (const a of affs) {
+      if (!snapshot.lobbyLinks.orgs[a.orgId]) continue;
+      let byParty = tieCounts.get(a.orgId);
+      if (!byParty) {
+        byParty = new Map();
+        tieCounts.set(a.orgId, byParty);
+      }
+      byParty.set(party, (byParty.get(party) ?? 0) + 1);
+    }
+  }
+
+  const orgs: OrgNetworkNode[] = [...tieCounts.entries()].map(([orgId, byParty]) => {
+    const ties = [...byParty.entries()].map(([party, memberCount]) => ({ party, memberCount })).sort((a, b) => b.memberCount - a.memberCount);
+    return { org: snapshot.lobbyLinks.orgs[orgId], ties, totalMembers: ties.reduce((sum, t) => sum + t.memberCount, 0) };
+  });
+  orgs.sort((a, b) => b.ties.length - a.ties.length || b.totalMembers - a.totalMembers);
+
+  return { orgs, loading, error };
+}
