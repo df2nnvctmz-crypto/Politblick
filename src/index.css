@@ -109,23 +109,3 @@ button {
   stroke-dasharray: 6 6;
   animation: pb-edge-flow 0.6s linear infinite;
 }
-
-/* A cheap, pure-CSS "plop" for the party-org network graph's card: it needs to *feel*
-   alive on load without the physics-driven jitter that used to cause it (see
-   PartyOrgGraph.tsx). Slight overshoot in the easing curve is what reads as a plop rather
-   than a plain fade. GPU-composited (opacity + transform only), so it's smooth even on the
-   105-node "show all" graph, and never fights or gets restarted by the layout logic. */
-@keyframes pb-plop-in {
-  from {
-    opacity: 0;
-    transform: scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.pb-plop-in {
-  animation: pb-plop-in 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}

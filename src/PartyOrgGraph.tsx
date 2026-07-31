@@ -394,6 +394,11 @@ export function PartyOrgGraph({
   const [activeOrgId, setActiveOrgId] = useState<string | null>(null);
   const [hoveredOrgId, setHoveredOrgId] = useState<string | null>(null);
   const [, forceRender] = useState(0);
+  // Drives a CSS transition on every node/edge for the brief "grow into place" reveal below
+  // — deliberately NOT another physics pass. A plain interpolation can't oscillate the way
+  // the force simulation did, so this is how motion comes back without the risk of it going
+  // wild again.
+  const [settling, setSettling] = useState(false);
 
   const graphRef = useRef<Graph | null>(null);
   const draggingRef = useRef<string | null>(null);
@@ -436,21 +441,55 @@ export function PartyOrgGraph({
   }
 
   useEffect(() => {
-    graphRef.current = buildGraph(orgs, parties, crossPartyOnly);
+    // buildGraph()'s deterministic seeding (arc-packed single-tie orgs, spiral-seeded
+    // multi-tie ones) plus its synchronous settleOverlaps() pass already produces a
+    // non-overlapping, reasonably spread layout on its own — no physics needed to arrive at
+    // a *correct* layout. The spring/repulsion physics in tick() is a stiff, explicit-Euler
+    // system that overshoots every frame rather than smoothly decaying (confirmed against
+    // real data: energy swung between 40 and 125 frame-to-frame for 90+ frames before it was
+    // ever forced to ease out), so animating the graph INTO that layout with real physics
+    // looked like the whole thing spinning wildly, not springing into place.
+    //
+    // What follows instead is a plain interpolation, not a simulation: every node's true
+    // resting position is already known from buildGraph(), so it's rendered once pulled
+    // partway toward the canvas center, then — a frame later — snapped to its real position
+    // with a CSS transition active, so the browser tweens it smoothly over. There's no
+    // feedback loop here for anything to destabilize; it can't "go wild" the way physics did.
+    const graph = buildGraph(orgs, parties, crossPartyOnly);
+    const cx = WIDTH / 2;
+    const cy = HEIGHT / 2;
+    const restingPositions = graph.nodes.map((n) => ({ x: n.x, y: n.y }));
+    graph.nodes.forEach((n, i) => {
+      n.x = cx + (restingPositions[i].x - cx) * 0.4;
+      n.y = cy + (restingPositions[i].y - cy) * 0.4;
+    });
+    graphRef.current = graph;
     framesRef.current = 0;
     setActiveParties(new Set());
     setActiveOrgId(null);
-    // No runSim() here, deliberately. buildGraph()'s deterministic seeding (arc-packed
-    // single-tie orgs, spiral-seeded multi-tie ones) plus its synchronous settleOverlaps()
-    // pass already produces a non-overlapping, reasonably spread layout on its own — the
-    // spring/repulsion physics in tick() is a stiff, explicit-Euler system that overshoots
-    // every frame rather than smoothly decaying (confirmed against real data: energy swung
-    // between 40 and 125 frame-to-frame for 90+ frames before the forced ease-out), so
-    // animating from the seed to the settled layout looked like the whole graph spinning
-    // wildly, not springing into place. Just render the already-good seed directly; physics
-    // stays reserved for the drag interaction below, where it only has to re-settle one
-    // perturbed node instead of animate an entire fresh layout.
+    setSettling(true);
     forceRender((v) => v + 1);
+
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        const current = graphRef.current;
+        if (current === graph) {
+          graph.nodes.forEach((n, i) => {
+            n.x = restingPositions[i].x;
+            n.y = restingPositions[i].y;
+          });
+          forceRender((v) => v + 1);
+        }
+      });
+    });
+    const settleTimer = setTimeout(() => setSettling(false), 500);
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      clearTimeout(settleTimer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgsKey, partiesKey, crossPartyOnly]);
 
@@ -472,6 +511,8 @@ export function PartyOrgGraph({
     draggingRef.current = id;
     dragStartRef.current = pointFromEvent(e);
     dragMovedRef.current = false;
+    // A drag starting mid-reveal must track the pointer 1:1, not lag behind a CSS transition.
+    setSettling(false);
     const node = graphRef.current?.nodes.find((n) => n.id === id);
     if (node) node.fixed = true;
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -561,7 +602,6 @@ export function PartyOrgGraph({
       ) : (
         <div
           key={`${orgsKey}|${partiesKey}|${crossPartyOnly}`}
-          className="pb-plop-in"
           style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', overflow: 'hidden' }}
         >
           <svg
@@ -594,6 +634,7 @@ export function PartyOrgGraph({
                     stroke={highlighted ? s.color : 'oklch(85% 0.006 260)'}
                     strokeWidth={Math.min(7, 1.2 + e.weight * 0.7)}
                     opacity={dimmed ? 0.12 : highlighted ? 0.9 : 0.55}
+                    style={settling ? { transition: 'x1 480ms cubic-bezier(0.22,1,0.36,1), y1 480ms cubic-bezier(0.22,1,0.36,1), x2 480ms cubic-bezier(0.22,1,0.36,1), y2 480ms cubic-bezier(0.22,1,0.36,1)' } : undefined}
                   />
                   {/* Tie count on the line itself — only when a single org is the focus (party-only
                       selection can highlight dozens of edges at once, where per-edge numbers would
@@ -652,7 +693,13 @@ export function PartyOrgGraph({
                   opacity={dimmed ? 0.25 : 1}
                 >
                   {/* Invisible, larger tap target — the visible dot can stay small without becoming hard to hit on a phone. */}
-                  <circle cx={n.x} cy={n.y} r={n.r + HIT_PAD} fill="transparent" />
+                  <circle
+                    cx={n.x}
+                    cy={n.y}
+                    r={n.r + HIT_PAD}
+                    fill="transparent"
+                    style={settling ? { transition: 'cx 480ms cubic-bezier(0.34,1.56,0.64,1), cy 480ms cubic-bezier(0.34,1.56,0.64,1)' } : undefined}
+                  />
                   <circle
                     cx={n.x}
                     cy={n.y}
@@ -670,10 +717,23 @@ export function PartyOrgGraph({
                             : 'oklch(65% 0.01 260)'
                     }
                     strokeWidth={n.kind === 'party' ? (isActiveParty ? 4 : 2) : isHoveredOrg ? 1.8 : 1.2}
-                    style={{ transition: 'fill 100ms, stroke 100ms' }}
+                    style={{
+                      transition: settling
+                        ? 'fill 100ms, stroke 100ms, cx 480ms cubic-bezier(0.34,1.56,0.64,1), cy 480ms cubic-bezier(0.34,1.56,0.64,1)'
+                        : 'fill 100ms, stroke 100ms',
+                    }}
                   />
                   {n.kind === 'party' && (
-                    <text x={n.x} y={n.y} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={700} fill="white">
+                    <text
+                      x={n.x}
+                      y={n.y}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fontSize={11}
+                      fontWeight={700}
+                      fill="white"
+                      style={settling ? { transition: 'x 480ms cubic-bezier(0.34,1.56,0.64,1), y 480ms cubic-bezier(0.34,1.56,0.64,1)' } : undefined}
+                    >
                       {n.label}
                     </text>
                   )}
