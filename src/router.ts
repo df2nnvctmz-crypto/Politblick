@@ -9,10 +9,10 @@
  * spa-github-pages redirect trick in public/404.html + index.html.
  */
 
-export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'party' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten';
+export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'partyList' | 'party' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten';
 export type ProfileTab = 'overview' | 'votes' | 'lobby' | 'finance';
 export type LobbyTab = 'overview' | 'parties' | 'orgs' | 'conflicts' | 'donations';
-export type PartyTab = 'overview' | 'ties' | 'donations';
+export type PartyTab = 'overview' | 'votes' | 'ties' | 'donations';
 
 export interface RouteState {
   view: View;
@@ -32,8 +32,8 @@ export const DEFAULT_ROUTE: RouteState = {
 const PROFILE_TAB_TO_SEGMENT: Record<ProfileTab, string | null> = { overview: null, votes: 'stimmen', lobby: 'lobby', finance: 'finanzen' };
 const SEGMENT_TO_PROFILE_TAB: Record<string, ProfileTab> = { stimmen: 'votes', lobby: 'lobby', finanzen: 'finance' };
 
-const PARTY_TAB_TO_SEGMENT: Record<PartyTab, string | null> = { overview: null, ties: 'verflechtungen', donations: 'spenden' };
-const SEGMENT_TO_PARTY_TAB: Record<string, PartyTab> = { verflechtungen: 'ties', spenden: 'donations' };
+const PARTY_TAB_TO_SEGMENT: Record<PartyTab, string | null> = { overview: null, votes: 'abstimmungen', ties: 'verflechtungen', donations: 'spenden' };
+const SEGMENT_TO_PARTY_TAB: Record<string, PartyTab> = { abstimmungen: 'votes', verflechtungen: 'ties', spenden: 'donations' };
 
 const LOBBY_TAB_TO_SEGMENT: Record<LobbyTab, string | null> = { overview: null, parties: 'parteien', orgs: 'organisationen', conflicts: 'verflechtungen', donations: 'spenden' };
 const SEGMENT_TO_LOBBY_TAB: Record<string, LobbyTab> = { parteien: 'parties', organisationen: 'orgs', verflechtungen: 'conflicts', spenden: 'donations' };
@@ -54,8 +54,10 @@ export function routeToPath(r: RouteState): string {
       return r.billId ? `/gesetze/${encodeURIComponent(r.billId)}` : '/';
     case 'org':
       return r.orgId ? `/organisationen/${encodeURIComponent(r.orgId)}` : '/lobby-finanzen';
+    case 'partyList':
+      return '/parteien';
     case 'party': {
-      if (!r.party) return '/';
+      if (!r.party) return '/parteien';
       const seg = PARTY_TAB_TO_SEGMENT[r.partyTab];
       return `/parteien/${encodeURIComponent(r.party)}${seg ? `/${seg}` : ''}`;
     }
@@ -86,7 +88,8 @@ export function pathToRoute(pathname: string): RouteState {
   }
   if (first === 'gesetze' && second) return { ...DEFAULT_ROUTE, view: 'bill', billId: second };
   if (first === 'organisationen' && second) return { ...DEFAULT_ROUTE, view: 'org', orgId: second };
-  if (first === 'parteien' && second) {
+  if (first === 'parteien') {
+    if (!second) return { ...DEFAULT_ROUTE, view: 'partyList' };
     return { ...DEFAULT_ROUTE, view: 'party', party: second, partyTab: third ? SEGMENT_TO_PARTY_TAB[third] ?? 'overview' : 'overview' };
   }
   if (first === 'lobby-finanzen') {

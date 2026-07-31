@@ -167,6 +167,30 @@ export function useMandateVotes(mandateId: number | null): MandateVotesState {
   return { votes, loading, error };
 }
 
+export interface PartyVoteRecord {
+  poll: RealPoll;
+  tally: PartyTally;
+}
+
+export interface PartyVotesState {
+  votes: PartyVoteRecord[];
+  loading: boolean;
+  error: string | null;
+}
+
+/** One party's full voting record across the term — its tally on every poll it appears in, derived by scanning the snapshot's poll results for that party's name. */
+export function usePartyVotes(party: string | null): PartyVotesState {
+  const { snapshot, loading, error } = useSnapshot();
+  if (party === null || !snapshot) return { votes: [], loading, error };
+  const votes: PartyVoteRecord[] = [];
+  for (const result of snapshot.pollResults.values()) {
+    const tally = result.partyBreakdown.find((p) => p.party === party);
+    if (tally) votes.push({ poll: result.poll, tally });
+  }
+  votes.sort((a, b) => b.poll.date.localeCompare(a.poll.date));
+  return { votes, loading, error };
+}
+
 /**
  * How many of the most recent legislature-wide polls to use for "Parteitreue". Now that all
  * poll results are already in the static snapshot, using the full term would be just as

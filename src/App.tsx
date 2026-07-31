@@ -8,7 +8,7 @@ import {
 } from './data';
 import { computeHemicycleSeats, fuzzyIncludes, initials, trendPoints } from './helpers';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealMp } from './bundestag';
-import { computeAllAlignments, computeDivergences, computeMemberAlignment, useAllPolls, useMandateVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult, type RealPoll } from './polls';
+import { computeAllAlignments, computeDivergences, computeMemberAlignment, useAllPolls, useMandateVotes, usePartyVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult, type RealPoll } from './polls';
 import { buildMemberIncomeScores, useSidejobs } from './sidejobs';
 import { useOnScreen, usePortrait } from './portraits';
 import { useSnapshot } from './snapshot';
@@ -30,6 +30,8 @@ import {
   type OrgListEntry,
 } from './lobby';
 import { PartyOrgGraph } from './PartyOrgGraph';
+import { DonationSankey } from './DonationSankey';
+import { ShowMoreButton } from './ShowMoreButton';
 import { pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
 
 type BillId = string | number;
@@ -213,40 +215,83 @@ function ScrollBox({ children, style, hintText }: { children: ReactNode; style: 
   );
 }
 
-function ShowMoreButton({
-  total,
-  defaultCount,
-  expanded,
-  onToggle,
-  showMoreTemplate,
-  showLessLabel,
-}: {
-  total: number;
-  defaultCount: number;
-  expanded: boolean;
-  onToggle: () => void;
-  showMoreTemplate: string;
-  showLessLabel: string;
-}) {
-  if (total <= defaultCount) return null;
+/**
+ * A small ℹ️ affordance next to jargon (Verflechtung, Auffälligkeit, …) that repeats the term's
+ * definition inline — the full explanation already exists in the disclaimer page, but almost
+ * nobody reads a footer link before they've decided whether to trust a number on the page.
+ */
+function InfoTooltip({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onOutside = (e: globalThis.MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onOutside);
+    document.addEventListener('keydown', onEscape);
+    return () => {
+      document.removeEventListener('mousedown', onOutside);
+      document.removeEventListener('keydown', onEscape);
+    };
+  }, [open]);
+
   return (
-    <button
-      onClick={onToggle}
-      style={{
-        display: 'block',
-        margin: '14px auto 0',
-        padding: '8px 18px',
-        border: '1px solid oklch(85% 0.006 260)',
-        borderRadius: 20,
-        background: 'white',
-        fontSize: 12.5,
-        fontWeight: 700,
-        color: 'oklch(45% 0.16 265)',
-        cursor: 'pointer',
-      }}
-    >
-      {expanded ? showLessLabel : showMoreTemplate.replace('{n}', String(total))}
-    </button>
+    <span ref={containerRef} style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: 5 }}>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
+        aria-label="Info"
+        style={{
+          width: 15,
+          height: 15,
+          borderRadius: '50%',
+          border: '1px solid oklch(70% 0.01 260)',
+          background: open ? 'oklch(45% 0.16 265)' : 'white',
+          color: open ? 'white' : 'oklch(50% 0.01 260)',
+          fontSize: 10,
+          fontWeight: 700,
+          fontStyle: 'italic',
+          lineHeight: '13px',
+          padding: 0,
+          cursor: 'pointer',
+          flexShrink: 0,
+        }}
+      >
+        i
+      </button>
+      {open && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            marginTop: 6,
+            width: 260,
+            background: 'white',
+            border: '1px solid oklch(88% 0.006 260)',
+            borderRadius: 10,
+            boxShadow: '0 4px 16px oklch(0% 0 0 / 0.1)',
+            padding: '10px 12px',
+            fontSize: 12.5,
+            fontWeight: 400,
+            lineHeight: 1.5,
+            color: 'oklch(30% 0.01 260)',
+            zIndex: 40,
+          }}
+        >
+          {text}
+        </div>
+      )}
+    </span>
   );
 }
 
@@ -980,6 +1025,11 @@ function App() {
   const [partyOrgsSort, setPartyOrgsSort] = useState<SortState>(null);
   const [partyDonationsSort, setPartyDonationsSort] = useState<SortState>(null);
   const [partyDonationsExpanded, setPartyDonationsExpanded] = useState(false);
+  const [partyVotesExpanded, setPartyVotesExpanded] = useState(false);
+  const [partyTopicalExpanded, setPartyTopicalExpanded] = useState(false);
+  // Where the party detail page's back link should point — set by whichever entry point opened it.
+  // Ephemeral UI state, deliberately left out of the URL (see router.ts's comment on that policy).
+  const [partyOrigin, setPartyOrigin] = useState<'partyList' | 'crossref'>('partyList');
   const [orgPartyFilter, setOrgPartyFilter] = useState<Set<string>>(new Set());
   const [orgActorTypeFilter, setOrgActorTypeFilter] = useState<Set<string>>(new Set());
   const [orgFieldFilter, setOrgFieldFilter] = useState<Set<string>>(new Set());
@@ -1024,6 +1074,7 @@ function App() {
       setProfileTab(r.profileTab);
       setLobbyTab(r.lobbyTab);
       setPartyTab(r.partyTab);
+      setPartyOrigin('partyList');
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -1069,6 +1120,7 @@ function App() {
     setView('crossref');
     setLobbyTab(tab);
   };
+  const goPartyList = () => setView('partyList');
   const goImpressum = () => setView('impressum');
   const goDisclaimer = () => setView('disclaimer');
   const goDatenschutz = () => setView('datenschutz');
@@ -1087,11 +1139,14 @@ function App() {
     setView('org');
     setSelectedOrgId(id);
   };
-  const openParty = (party: string) => {
+  const openParty = (party: string, origin: 'partyList' | 'crossref' = 'partyList') => {
     setView('party');
     setSelectedParty(party);
     setPartyTab('overview');
     setPartyDonationsExpanded(false);
+    setPartyVotesExpanded(false);
+    setPartyTopicalExpanded(false);
+    setPartyOrigin(origin);
   };
   const setLangDe = () => setLang('de');
   const setLangEn = () => setLang('en');
@@ -1178,6 +1233,7 @@ function App() {
   // still debounces to avoid firing a lookup for every profile flicked past while browsing.
   const debouncedPoliticianId = useDebounced(realMatch ? realMatch.id : null, 350);
   const mandateVotes = useMandateVotes(realMatch ? realMatch.mandateId : null);
+  const partyVotes = usePartyVotes(selectedParty);
   const sidejobs = useSidejobs(realMatch ? realMatch.mandateId : null);
   const memberLobby = useMemberLobby(realMatch ? realMatch.mandateId : null);
   // Per-poll lookup so the Abstimmungen tab can show an inline lobby indicator on each vote
@@ -1350,7 +1406,7 @@ function App() {
                 setMpsNavOpen(false);
               })}
               href="#"
-              style={{ ...navStyle(view === 'search' || view === 'party'), display: 'inline-flex', alignItems: 'center', gap: 4 }}
+              style={{ ...navStyle(view === 'search' || view === 'party' || view === 'partyList'), display: 'inline-flex', alignItems: 'center', gap: 4 }}
             >
               {t.navMps}
               <span style={{ fontSize: 8, transform: mpsNavOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>▾</span>
@@ -1394,7 +1450,7 @@ function App() {
                 <a
                   href="#"
                   onClick={stop(() => {
-                    goCrossref('parties');
+                    goPartyList();
                     setMpsNavOpen(false);
                   })}
                   style={{
@@ -1402,9 +1458,9 @@ function App() {
                     padding: '8px 12px',
                     borderRadius: 7,
                     fontSize: 13,
-                    fontWeight: view === 'party' ? 700 : 500,
-                    color: view === 'party' ? 'oklch(45% 0.16 265)' : 'oklch(30% 0.01 260)',
-                    background: view === 'party' ? 'oklch(45% 0.16 265 / 0.08)' : 'transparent',
+                    fontWeight: view === 'party' || view === 'partyList' ? 700 : 500,
+                    color: view === 'party' || view === 'partyList' ? 'oklch(45% 0.16 265)' : 'oklch(30% 0.01 260)',
+                    background: view === 'party' || view === 'partyList' ? 'oklch(45% 0.16 265 / 0.08)' : 'transparent',
                     whiteSpace: 'nowrap',
                   }}
                 >
@@ -2106,7 +2162,10 @@ function App() {
                     )}
                     {realMpFlaggedVotes.length > 0 && (
                       <div style={{ background: 'oklch(55% 0.16 40 / 0.06)', border: '1px solid oklch(55% 0.16 40 / 0.2)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: 'oklch(42% 0.16 40)', marginBottom: 8 }}>{t.flagsHeading}</div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'oklch(42% 0.16 40)', marginBottom: 8 }}>
+                          {t.flagsHeading}
+                          <InfoTooltip text={t.infoAuffaelligkeit} />
+                        </div>
                         {realMpFlaggedVotes.map((p) => (
                           <div key={p.poll.id} style={{ fontSize: 13, color: 'oklch(32% 0.14 40)', padding: '4px 0' }}>
                             · {p.poll.title}: {t.realAgainstPartyTemplate.replace('{party}', p.party)}
@@ -2711,11 +2770,17 @@ function App() {
                   <div style={{ fontSize: 24, fontWeight: 800 }}>{Object.keys(snapshot?.lobbyLinks.orgs ?? {}).length}</div>
                 </div>
                 <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
-                  <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statConflictsLabel}</div>
+                  <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>
+                    {t.statConflictsLabel}
+                    <InfoTooltip text={t.infoVerflechtung} />
+                  </div>
                   <div style={{ fontSize: 24, fontWeight: 800 }}>{crossref.rows.length}</div>
                 </div>
                 <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
-                  <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statTopicalTiesLabel}</div>
+                  <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>
+                    {t.statTopicalTiesLabel}
+                    <InfoTooltip text={t.infoThemenfeld} />
+                  </div>
                   <div style={{ fontSize: 24, fontWeight: 800 }}>{topicalTieRows.rows.length}</div>
                 </div>
                 <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
@@ -2773,7 +2838,7 @@ function App() {
                 {partyLobby.summaries.map((p) => (
                   <div
                     key={p.party}
-                    onClick={() => openParty(p.party)}
+                    onClick={() => openParty(p.party, 'crossref')}
                     style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
@@ -2895,7 +2960,7 @@ function App() {
                             </tr>
                           </thead>
                           <tbody>
-                            {sortedOrgs.slice(0, orgsExpanded ? 100 : 10).map((e) => (
+                            {sortedOrgs.slice(0, orgsExpanded ? sortedOrgs.length : 10).map((e) => (
                               <tr key={e.org.id} onClick={() => openOrg(e.org.id)} style={{ cursor: 'pointer', borderTop: '1px solid oklch(93% 0.006 260)' }}>
                                 <td style={{ padding: '10px 14px', fontWeight: 600 }}>{e.org.name}</td>
                                 <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{formatExpenseBracket(e.org.expensesEuro) ?? '—'}</td>
@@ -2907,7 +2972,7 @@ function App() {
                         </table>
                       </ScrollBox>
                       <ShowMoreButton
-                        total={Math.min(filteredOrgs.length, 100)}
+                        total={filteredOrgs.length}
                         defaultCount={10}
                         expanded={orgsExpanded}
                         onToggle={() => setOrgsExpanded((v) => !v)}
@@ -3086,7 +3151,7 @@ function App() {
                         </tr>
                       </thead>
                       <tbody>
-                        {sortedTopical.slice(0, topicalExpanded ? 60 : 10).map((r) => {
+                        {sortedTopical.slice(0, topicalExpanded ? sortedTopical.length : 10).map((r) => {
                           const label = r.tie.vote === 'yes' ? t.voteYes : r.tie.vote === 'no' ? t.voteNo : t.voteAbstain;
                           return (
                             <tr
@@ -3128,7 +3193,7 @@ function App() {
                     </table>
                   </ScrollBox>
                   <ShowMoreButton
-                    total={Math.min(topicalTieRows.rows.length, 60)}
+                    total={topicalTieRows.rows.length}
                     defaultCount={10}
                     expanded={topicalExpanded}
                     onToggle={() => setTopicalExpanded((v) => !v)}
@@ -3152,6 +3217,22 @@ function App() {
               <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '16px 18px', marginBottom: 18 }}>
                 <DonationBarChart data={partyDonations.byFraction} />
               </div>
+
+              <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.donationSankeyTitle}</h3>
+              <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.donationSankeySub}</p>
+              <div style={{ marginBottom: 18 }}>
+                <DonationSankey
+                  donations={partyDonations.all}
+                  fractionTotals={Object.fromEntries(partyDonations.byFraction.map((f) => [f.fraction, f.total]))}
+                  labels={{
+                    noteTemplate: t.donationSankeyNoteTemplate,
+                    excludedTemplate: t.donationSankeyExcludedTemplate,
+                    coverageTemplate: t.donationSankeyCoverageTemplate,
+                    sliderLabelTemplate: t.donationSankeySliderLabelTemplate,
+                  }}
+                />
+              </div>
+
               {(() => {
                 const donationValue = (d: (typeof partyDonations.all)[number], key: string): string | number | null => {
                   switch (key) {
@@ -3178,7 +3259,7 @@ function App() {
                           </tr>
                         </thead>
                         <tbody>
-                          {sortedDonations.slice(0, donationsExpanded ? 60 : 10).map((d, i) => {
+                          {sortedDonations.slice(0, donationsExpanded ? sortedDonations.length : 10).map((d, i) => {
                             const lobbyOrgId = d.donor ? snapshot?.lobbyLinks.donorLinks[d.donor] : undefined;
                             const lobbyOrg = lobbyOrgId ? snapshot?.lobbyLinks.orgs[lobbyOrgId] : undefined;
                             return (
@@ -3218,7 +3299,7 @@ function App() {
                       </table>
                     </ScrollBox>
                     <ShowMoreButton
-                      total={Math.min(partyDonations.all.length, 60)}
+                      total={partyDonations.all.length}
                       defaultCount={10}
                       expanded={donationsExpanded}
                       onToggle={() => setDonationsExpanded((v) => !v)}
@@ -3420,10 +3501,54 @@ function App() {
         </main>
       )}
 
+      {view === 'partyList' && (
+        <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', width: '100%', padding: 32 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{t.navParties}</h1>
+          <p style={{ fontSize: 14, color: 'oklch(45% 0.01 260)', margin: '0 0 28px', maxWidth: 640 }}>{t.partyListSub}</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
+            {/* Only fractions with a party detail page (see the `!p` guard below) are listed here —
+                "Fraktionslos" is a bucket of independents, not a fraction with ties/votes of its own. */}
+            {partyLobby.summaries
+              .map((lobby) => ({ lobby, roster: roster.parties.find((p) => p.name === lobby.party) }))
+              .sort((a, b) => (b.roster?.seats ?? 0) - (a.roster?.seats ?? 0))
+              .map(({ lobby, roster: rp }) => {
+                const donationSum = partyDonations.byFraction.find((f) => f.fraction === lobby.party)?.total;
+                return (
+                  <div
+                    key={lobby.party}
+                    onClick={() => openParty(lobby.party, 'partyList')}
+                    style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: '50%', background: rp?.color ?? REAL_PARTY_COLORS[lobby.party] ?? FALLBACK_PARTY_COLOR, flexShrink: 0 }} />
+                      <span style={{ fontWeight: 700, fontSize: 15 }}>{lobby.party}</span>
+                    </div>
+                    {rp && (
+                      <div style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', marginBottom: 4 }}>
+                        {rp.seats} {t.seatsLabel}
+                      </div>
+                    )}
+                    <div style={{ fontSize: 12, color: 'oklch(50% 0.01 260)', marginBottom: 4 }}>
+                      {t.partyLobbyOrgCountTemplate.replace('{n}', String(lobby.orgCount))}
+                    </div>
+                    {donationSum != null && (
+                      <div style={{ fontSize: 12, color: 'oklch(50% 0.01 260)' }}>
+                        {t.statDonationsSumLabel}: {formatEuro(donationSum)}
+                      </div>
+                    )}
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'oklch(48% 0.12 250)', display: 'inline-block', marginTop: 8 }}>{t.seeAll} →</span>
+                  </div>
+                );
+              })}
+          </div>
+        </main>
+      )}
+
       {view === 'party' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(() => goCrossref('parties'))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
-            ← {t.backToLobbyFinance}
+          <a href="#" onClick={stop(() => (partyOrigin === 'crossref' ? goCrossref('parties') : goPartyList()))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+            ← {partyOrigin === 'crossref' ? t.backToLobbyFinance : t.backToParties}
           </a>
           {(() => {
             const p = partyLobby.summaries.find((s) => s.party === selectedParty);
@@ -3435,6 +3560,7 @@ function App() {
 
             const partyTabs: { key: PartyTab; label: string }[] = [
               { key: 'overview', label: t.tabOverview },
+              { key: 'votes', label: t.tabVotes },
               { key: 'ties', label: t.tabLobby },
               { key: 'donations', label: t.partyTabDonations },
             ];
@@ -3513,6 +3639,66 @@ function App() {
                         </span>
                       ))}
                     </div>
+                  </>
+                )}
+
+                {partyTab === 'votes' && (
+                  <>
+                    {partyVotes.loading && partyVotes.votes.length === 0 ? (
+                      <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.pollsLoading}</p>
+                    ) : partyVotes.error ? (
+                      <p style={{ fontSize: 13.5, color: 'oklch(48% 0.16 40)' }}>{t.pollsError}</p>
+                    ) : partyVotes.votes.length === 0 ? (
+                      <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.partyVotesEmpty}</p>
+                    ) : (
+                      <>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                          {partyVotes.votes.slice(0, partyVotesExpanded ? partyVotes.votes.length : 10).map(({ poll, tally }) => {
+                            const majorityLabel =
+                              tally.majority === 'yes' ? t.voteYes
+                              : tally.majority === 'no' ? t.voteNo
+                              : tally.majority === 'abstain' ? t.voteAbstain
+                              : tally.majority === 'no_show' ? t.voteNoShow
+                              : t.voteSplit;
+                            return (
+                              <div
+                                key={poll.id}
+                                onClick={() => openBill(poll.id)}
+                                style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
+                              >
+                                <div style={{ minWidth: 0 }}>
+                                  <div style={{ fontSize: 14, fontWeight: 600 }}>{poll.title}</div>
+                                  <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)' }}>
+                                    {poll.date} · {tally.yes} {t.voteYes} · {tally.no} {t.voteNo} · {tally.abstain} {t.voteAbstain}
+                                  </div>
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: 11.5,
+                                    fontWeight: 600,
+                                    padding: '4px 10px',
+                                    borderRadius: 12,
+                                    background: tally.majority ? voteBg[tally.majority] : 'oklch(70% 0.008 260)',
+                                    color: 'white',
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  {majorityLabel}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <ShowMoreButton
+                          total={partyVotes.votes.length}
+                          defaultCount={10}
+                          expanded={partyVotesExpanded}
+                          onToggle={() => setPartyVotesExpanded((v) => !v)}
+                          showMoreTemplate={t.showMoreTemplate}
+                          showLessLabel={t.showLess}
+                        />
+                      </>
+                    )}
                   </>
                 )}
 
@@ -3602,7 +3788,7 @@ function App() {
                       <>
                         <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 10px' }}>{t.topicalTiesTitle}</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 10 }}>
-                          {partyTopicalRows.slice(0, 30).map((r) => {
+                          {partyTopicalRows.slice(0, partyTopicalExpanded ? partyTopicalRows.length : 10).map((r) => {
                             const label = r.tie.vote === 'yes' ? t.voteYes : r.tie.vote === 'no' ? t.voteNo : t.voteAbstain;
                             return (
                               <div
@@ -3628,6 +3814,14 @@ function App() {
                             );
                           })}
                         </div>
+                        <ShowMoreButton
+                          total={partyTopicalRows.length}
+                          defaultCount={10}
+                          expanded={partyTopicalExpanded}
+                          onToggle={() => setPartyTopicalExpanded((v) => !v)}
+                          showMoreTemplate={t.showMoreTemplate}
+                          showLessLabel={t.showLess}
+                        />
                       </>
                     )}
                   </>
@@ -3674,7 +3868,7 @@ function App() {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {sortedPartyDonations.slice(0, partyDonationsExpanded ? 100 : 10).map((d, i) => {
+                                  {sortedPartyDonations.slice(0, partyDonationsExpanded ? sortedPartyDonations.length : 10).map((d, i) => {
                                     const lobbyOrgId = d.donor ? snapshot?.lobbyLinks.donorLinks[d.donor] : undefined;
                                     const lobbyOrg = lobbyOrgId ? snapshot?.lobbyLinks.orgs[lobbyOrgId] : undefined;
                                     return (
@@ -3713,7 +3907,7 @@ function App() {
                               </table>
                             </ScrollBox>
                             <ShowMoreButton
-                              total={Math.min(partyDonationList.length, 100)}
+                              total={partyDonationList.length}
                               defaultCount={10}
                               expanded={partyDonationsExpanded}
                               onToggle={() => setPartyDonationsExpanded((v) => !v)}

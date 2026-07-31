@@ -20,16 +20,45 @@ const YEARS_TO_KEEP = 4;
 const pace = makePacer(1000);
 
 /**
- * The fraction names the roster uses, so donations can be joined to a parliamentary group.
- * The source spells smaller parties inconsistently across years (FREIE WÄHLER / Freie Wähler),
- * so matching is case-insensitive.
+ * Exact, case-insensitive party-label → fraction pairs, confirmed by hand. This is deliberately
+ * NOT a fuzzy/regex match: canonicalPartyName()'s old "any label containing BÜNDNIS is Grüne"
+ * rule once also matched BSW's own registered name ("Bündnis Sahra Wagenknecht — Vernunft und
+ * Gerechtigkeit"), silently folding ~€6.4M of BSW donations into Grüne's totals for months. A
+ * label not in this list fails the whole fetch (see fractionFor()) instead of guessing — add the
+ * new label here, deliberately, once you've confirmed the right fraction.
  */
+const KNOWN_PARTY_LABELS = new Map([
+  ['cdu', 'CDU/CSU'],
+  ['csu', 'CDU/CSU'],
+  ['spd', 'SPD'],
+  ['bündnis 90 / die grünen', 'Grüne'],
+  ['bündnis 90/ die grünen', 'Grüne'],
+  ['fdp', 'FDP'],
+  ['afd', 'AfD'],
+  ['die linke', 'Linke'],
+  ['bsw', 'BSW'],
+  ['bündnis sahra wagenknecht -vernunft und gerechtigkeit', 'BSW'],
+  ['freie wähler', 'Freie Wähler'],
+  ['volt deutschland', 'Volt'],
+  ['volt deutschland partei', 'Volt'],
+  ['ssw', 'SSW'],
+  ['mlpd', 'MLPD'],
+  ['werteunion', 'WerteUnion'],
+  ['die gerechtigkeitspartei - team todenhöfer', 'Die Gerechtigkeitspartei - Team Todenhöfer'],
+  ['dkp', 'DKP'],
+]);
+
 function fractionFor(partyLabel) {
   const label = partyLabel.trim();
-  if (/^(CDU|CSU)$/i.test(label)) return 'CDU/CSU';
-  if (/^freie\s*wähler$/i.test(label)) return 'Freie Wähler';
-  if (/^volt/i.test(label)) return 'Volt';
-  return canonicalPartyName(label);
+  const known = KNOWN_PARTY_LABELS.get(label.toLowerCase());
+  if (known) return known;
+  // Never let a regex guess decide silently — that's exactly how this bug happened. Fail loud
+  // and name the guess, so whoever's running the fetch adds a deliberate, reviewed entry above.
+  const guess = canonicalPartyName(label);
+  throw new Error(
+    `Unrecognised donor party label "${partyLabel}" (fuzzy guess: "${guess}"). ` +
+      'Add it to KNOWN_PARTY_LABELS in scripts/fetch-parteispenden.mjs after confirming the correct fraction by hand.',
+  );
 }
 
 async function fetchText(url) {

@@ -50,7 +50,11 @@ export function canonicalPartyName(rawLabel) {
     .replace(/\s*\(Bundestag[^)]*\)/, '')
     .replace(/­/g, '')
     .trim();
-  if (/GR[UÜ]NEN?/i.test(cleaned) || /B[UÜ]NDNIS/i.test(cleaned)) return 'Grüne';
+  // Matching bare "BÜNDNIS" here used to also catch BSW's official registered name
+  // ("Bündnis Sahra Wagenknecht – Vernunft und Gerechtigkeit"), mislabeling its donations as
+  // Grüne — every real "Bündnis 90/Die Grünen" variant already contains "Grünen" and is caught
+  // by the first branch, so requiring "90" here is strictly narrower, not weaker.
+  if (/GR[UÜ]NEN?/i.test(cleaned) || /B[UÜ]NDNIS\s*90/i.test(cleaned)) return 'Grüne';
   if (/^Die Linke$/i.test(cleaned)) return 'Linke';
   if (/fraktionslos/i.test(cleaned)) return 'Fraktionslos';
   return cleaned;

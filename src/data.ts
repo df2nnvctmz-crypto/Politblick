@@ -197,7 +197,7 @@ export interface Translation {
   alignmentTrend: string; partyAverage: string;
   flagsHeading: string; sourceNote: string;
   rechenschaftsNote: string;
-  voteBreakdown: string; voteYes: string; voteNo: string; voteAbstain: string;
+  voteBreakdown: string; voteYes: string; voteNo: string; voteAbstain: string; voteSplit: string;
   flaggedVotes: string; crossrefSub: string;
   colMp: string; colDonor: string; colIndustry: string; colAmount: string; colVote: string; colFlag: string;
   flagged: string; footerNote: string; footerSources: string; footerDisclaimer: string;
@@ -233,6 +233,10 @@ export interface Translation {
   lobbyNoPositionNote: string; lobbyOrgSpend: string; lobbyOrgStaff: string;
   lobbyRegisterSource: string; lobbyNoContactsNote: string;
   pollLobbyingTitle: string; pollLobbyingCountTemplate: string; pollLobbyingNone: string;
+  donationSankeyTitle: string; donationSankeySub: string;
+  donationSankeyNoteTemplate: string; donationSankeyExcludedTemplate: string;
+  donationSankeyCoverageTemplate: string;
+  donationSankeySliderLabelTemplate: string;
   donationsTitle: string; donationsSub: string; donationsColParty: string;
   donationsColDonor: string; donationsColAmount: string; donationsColDate: string;
   donationsAlsoLobbyist: string; donationsSource: string;
@@ -246,13 +250,14 @@ export interface Translation {
   overviewSidejobsPreviewTitle: string; overviewSidejobsPreviewCountTemplate: string; overviewSidejobsPreviewEmpty: string;
   seeAll: string;
   orgsSectionTitle: string; orgsSectionSub: string; orgSearchPlaceholder: string; orgsNoResults: string;
-  colOrgMembers: string; colOrgVotes: string; backToLobbyFinance: string;
+  colOrgMembers: string; colOrgVotes: string; backToLobbyFinance: string; backToParties: string;
   orgSpendLabel: string; orgStaffLabel: string; orgFieldsLabel: string;
   orgLobbiedBillsTitle: string; orgNoLobbiedBills: string;
   orgAffiliatedMembersTitle: string; orgNoAffiliatedMembers: string;
   orgConflictsTitle: string; orgTopicalTitle: string;
   orgDonorTitle: string; orgDonorNote: string;
   orgNotFound: string;
+  partyListSub: string;
   partyLobbyTitle: string; partyLobbySub: string;
   partyLobbyOrgCountTemplate: string; partyLobbyMemberCountTemplate: string;
   partyLobbyTopFieldsLabel: string; partyLobbySpendLabel: string;
@@ -265,12 +270,14 @@ export interface Translation {
   partyDetailFieldsTitle: string; partyDetailOrgsTitle: string;
   partyNotFound: string;
   partyTabDonations: string; partyDonationsEmpty: string; partyDonationsCountLabel: string;
+  partyVotesEmpty: string;
   scrollHintText: string;
   tieMatrixSub: string; matrixFilteredTemplate: string; matrixClearFilter: string;
   seatsLabel: string;
   networkSub: string; networkToggleCrossParty: string; networkToggleAll: string;
   networkOrgCountTemplate: string; networkViewOrg: string; networkEmpty: string;
   showMoreTemplate: string; showLess: string;
+  infoVerflechtung: string; infoAuffaelligkeit: string; infoThemenfeld: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -300,7 +307,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     alignmentTrend: 'Übereinstimmung mit Parteilinie über Zeit', partyAverage: 'Partei-Durchschnitt',
     flagsHeading: 'Auffälligkeiten', sourceNote: 'Quelle: Lobbyregister des Deutschen Bundestages.',
     rechenschaftsNote: 'Quelle: Rechenschaftsberichte der Parteien.',
-    voteBreakdown: 'Abstimmungsergebnis nach Partei', voteYes: 'Ja', voteNo: 'Nein', voteAbstain: 'Enthaltung',
+    voteBreakdown: 'Abstimmungsergebnis nach Partei', voteYes: 'Ja', voteNo: 'Nein', voteAbstain: 'Enthaltung', voteSplit: 'Kein Mehrheitsvotum',
     flaggedVotes: 'Auffällige Stimmen', crossrefSub: 'Abgeordnete, die über eine Funktion, Beteiligung oder Zuwendung mit einer Organisation verbunden sind, die zu genau dieser Abstimmung Interessenvertretung angemeldet hat — sowie die veröffentlichten Großspenden an die Parteien.',
     colMp: 'Abgeordnete/r', colDonor: 'Spender', colIndustry: 'Branche', colAmount: 'Betrag', colVote: 'Stimme', colFlag: 'Hinweis',
     flagged: 'Auffällig', footerNote: 'Nur öffentliche Daten. Kein Login, kein Tracking.', footerSources: 'Quellen: Abgeordnetenwatch, Bundestag, Lobbyregister',
@@ -362,6 +369,12 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     pollLobbyingTitle: 'Angemeldete Interessenvertretung zu dieser Abstimmung',
     pollLobbyingCountTemplate: '{n} Organisationen haben zu den Drucksachen dieser Abstimmung Interessenvertretung angemeldet.',
     pollLobbyingNone: 'Zu den Drucksachen dieser Abstimmung ist keine Interessenvertretung im Register angemeldet.',
+    donationSankeyTitle: 'Geldfluss der größten Spender',
+    donationSankeySub: 'Wer wie viel an welche Partei gespendet hat — Spender, die an mehrere Parteien gespendet haben, verzweigen sich auf mehrere Linien.',
+    donationSankeyNoteTemplate: 'Zeigt die {n} größten Einzelspender nach Gesamtsumme — nicht alle Spenden. Parteitotals hier können deshalb niedriger ausfallen als oben.',
+    donationSankeyExcludedTemplate: '{n} weitere Spender ({amount} insgesamt) sind hier nicht dargestellt, aber in der Tabelle unten enthalten.',
+    donationSankeyCoverageTemplate: '{pct} % der Gesamtsumme',
+    donationSankeySliderLabelTemplate: 'Top {n} Spender',
     donationsTitle: 'Großspenden an Parteien',
     donationsSub: 'Einzelspenden über 35.000 € (bis März 2024: über 50.000 €), veröffentlicht von der Bundestagspräsidentin.',
     donationsColParty: 'Partei', donationsColDonor: 'Spender', donationsColAmount: 'Betrag', donationsColDate: 'Eingang',
@@ -397,7 +410,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     orgSearchPlaceholder: 'Organisation suchen…',
     orgsNoResults: 'Keine Organisationen gefunden.',
     colOrgMembers: 'Verflochtene Abgeordnete', colOrgVotes: 'Abstimmungen mit Interessenvertretung',
-    backToLobbyFinance: 'Zurück zu Lobby & Finanzen',
+    backToLobbyFinance: 'Zurück zu Lobby & Finanzen', backToParties: 'Zurück zu Parteien',
     orgSpendLabel: 'Gemeldete Lobbyausgaben', orgStaffLabel: 'Beschäftigte in der Interessenvertretung (VZÄ)',
     orgFieldsLabel: 'Interessengebiete',
     orgLobbiedBillsTitle: 'Abstimmungen mit angemeldeter Interessenvertretung',
@@ -409,6 +422,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     orgDonorTitle: 'Als Spender an Parteien',
     orgDonorNote: 'Diese Organisation ist unter diesem Namen auch als Großspenderin an Parteien registriert.',
     orgNotFound: 'Organisation nicht gefunden.',
+    partyListSub: 'Jede Fraktion im Bundestag: Sitzverteilung, Lobbyverflechtungen, Großspenden und wie sie bei namentlichen Abstimmungen votiert hat.',
     partyLobbyTitle: 'Lobbyverflechtungen nach Partei',
     partyLobbySub: 'Für jede Partei: die Organisationen, bei denen ihre Abgeordneten laut eigener Angabe eine Funktion ausüben, gruppiert nach deren Interessengebiet.',
     partyLobbyOrgCountTemplate: '{n} Organisationen', partyLobbyMemberCountTemplate: '{n} Abgeordnete mit Funktion',
@@ -423,6 +437,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     partyNotFound: 'Für diese Partei liegen keine Lobbydaten vor.',
     partyTabDonations: 'Spenden', partyDonationsEmpty: 'Keine gemeldeten Großspenden für diese Partei.',
     partyDonationsCountLabel: 'Anzahl Großspenden',
+    partyVotesEmpty: 'Für diese Partei sind noch keine Abstimmungsergebnisse erfasst.',
     weekOf: 'Sitzungswoche', noPollsThisWeek: 'Für die aktuelle Sitzungswoche liegen noch keine namentlichen Abstimmungen vor.',
     pollsLoading: 'Abstimmungen werden geladen…', pollsError: 'Abstimmungsdaten konnten nicht geladen werden.',
     sidejobsError: 'Nebeneinkünfte konnten nicht geladen werden.',
@@ -444,6 +459,12 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     networkViewOrg: 'Organisation ansehen',
     networkEmpty: 'Für diese Auswahl sind keine Organisationen mit Parteibezug erfasst.',
     showMoreTemplate: 'Alle {n} anzeigen', showLess: 'Weniger anzeigen',
+    infoVerflechtung:
+      'Ein:e Abgeordnete:r übt eine Funktion oder Beteiligung bei einer Organisation aus — oder erhielt eine Zuwendung von ihr —, die zu genau dieser Abstimmung Interessenvertretung im Lobbyregister angemeldet hat. Eine statistische Beobachtung, keine Unterstellung von Fehlverhalten.',
+    infoAuffaelligkeit:
+      'Eine Auffälligkeit markiert eine Abstimmung, bei der ein:e Abgeordnete:r von der Mehrheitslinie der eigenen Fraktion abgewichen ist. Eine statistische Beobachtung, keine Unterstellung von Fehlverhalten.',
+    infoThemenfeld:
+      'Schwächerer Hinweis als eine Verflechtung: Die Organisation hat kein Interessengebiet angemeldet, das speziell auf diese Abstimmung verweist — nur ein allgemeines Interessengebiet, das laut Politblick-Redaktion zum Thema passt. Kein dokumentierter Bezug zu dieser Abstimmung.',
   },
   en: {
     navHome: 'Home', navMps: 'MPs', navMpsSearch: 'Search MPs', navParties: 'Parties', navLobbyFinance: 'Lobby & Finance',
@@ -471,7 +492,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     alignmentTrend: 'Alignment with party line over time', partyAverage: 'Party average',
     flagsHeading: 'Flags', sourceNote: 'Source: German Bundestag lobby register.',
     rechenschaftsNote: 'Source: Party financial disclosure reports.',
-    voteBreakdown: 'Vote breakdown by party', voteYes: 'Yes', voteNo: 'No', voteAbstain: 'Abstain',
+    voteBreakdown: 'Vote breakdown by party', voteYes: 'Yes', voteNo: 'No', voteAbstain: 'Abstain', voteSplit: 'No majority',
     flaggedVotes: 'Flagged votes', crossrefSub: 'MPs tied by a position, shareholding or donation to an organization that registered lobbying on that very vote — plus the published large donations to the parties.',
     colMp: 'MP', colDonor: 'Donor', colIndustry: 'Industry', colAmount: 'Amount', colVote: 'Vote', colFlag: 'Flag',
     flagged: 'Flagged', footerNote: 'Public data only. No login, no tracking.', footerSources: 'Sources: Abgeordnetenwatch, Bundestag, Lobbyregister',
@@ -533,6 +554,12 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     pollLobbyingTitle: 'Registered lobbying on this vote',
     pollLobbyingCountTemplate: '{n} organizations registered lobbying on the printed matters behind this vote.',
     pollLobbyingNone: 'No registered lobbying is on file for the printed matters behind this vote.',
+    donationSankeyTitle: 'Money flow of the largest donors',
+    donationSankeySub: 'Who donated how much to which party — donors who gave to more than one party branch across multiple lines.',
+    donationSankeyNoteTemplate: 'Shows the {n} largest individual donors by total amount — not every donation. Party totals here can be lower than in the chart above as a result.',
+    donationSankeyExcludedTemplate: '{n} further donors ({amount} total) are not shown here, but are included in the table below.',
+    donationSankeyCoverageTemplate: '{pct}% of party total',
+    donationSankeySliderLabelTemplate: 'Top {n} donors',
     donationsTitle: 'Large donations to parties',
     donationsSub: 'Single donations above €35,000 (before March 2024: above €50,000), published by the President of the Bundestag.',
     donationsColParty: 'Party', donationsColDonor: 'Donor', donationsColAmount: 'Amount', donationsColDate: 'Received',
@@ -568,7 +595,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     orgSearchPlaceholder: 'Search an organization…',
     orgsNoResults: 'No organizations found.',
     colOrgMembers: 'Tied MPs', colOrgVotes: 'Votes with registered lobbying',
-    backToLobbyFinance: 'Back to Lobby & Finance',
+    backToLobbyFinance: 'Back to Lobby & Finance', backToParties: 'Back to Parties',
     orgSpendLabel: 'Declared lobbying expenditure', orgStaffLabel: 'Staff engaged in lobbying (FTE)',
     orgFieldsLabel: 'Fields of interest',
     orgLobbiedBillsTitle: 'Votes with registered lobbying',
@@ -580,6 +607,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     orgDonorTitle: 'As a party donor',
     orgDonorNote: 'This organization is also registered under this name as a large donor to parties.',
     orgNotFound: 'Organization not found.',
+    partyListSub: 'Every fraction in the Bundestag: seat count, lobby ties, large donations, and how they voted on roll-call votes.',
     partyLobbyTitle: 'Lobby ties by party',
     partyLobbySub: 'For each party: the organizations its MPs declare holding a role at, grouped by that organization’s own field of interest.',
     partyLobbyOrgCountTemplate: '{n} organizations', partyLobbyMemberCountTemplate: '{n} MPs with a role',
@@ -594,6 +622,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     partyNotFound: 'No lobbying data is on file for this party.',
     partyTabDonations: 'Donations', partyDonationsEmpty: 'No reported large donations for this party.',
     partyDonationsCountLabel: 'Number of large donations',
+    partyVotesEmpty: 'No vote results are on file yet for this party.',
     weekOf: 'Sitting week', noPollsThisWeek: 'No roll-call votes are available yet for the current sitting week.',
     pollsLoading: 'Loading votes…', pollsError: 'Could not load voting data.',
     sidejobsError: 'Could not load outside income data.',
@@ -615,5 +644,11 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     networkViewOrg: 'View organization',
     networkEmpty: 'No organizations with a party tie are on file for this selection.',
     showMoreTemplate: 'Show all {n}', showLess: 'Show less',
+    infoVerflechtung:
+      'An MP holds a role or shareholding at an organization — or received a payment from it — that registered lobbying on the printed matter behind this exact vote. A statistical observation, not an accusation of wrongdoing.',
+    infoAuffaelligkeit:
+      "A flag marks a vote where an MP broke from their own fraction's majority line. A statistical observation, not an accusation of wrongdoing.",
+    infoThemenfeld:
+      "A weaker signal than a documented tie: the organization hasn't registered lobbying that specifically names this vote — only a general field of interest that Politblick's editors judged to match the topic. No documented link to this particular vote.",
   },
 };
