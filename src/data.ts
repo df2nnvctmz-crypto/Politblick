@@ -182,11 +182,12 @@ export const BILLS: Bill[] = [
 ];
 
 export interface Translation {
-  navHome: string; navMps: string; navLobbyFinance: string;
+  navHome: string; navMps: string; navMpsSearch: string; navParties: string; navLobbyFinance: string;
   searchPlaceholder: string;
   heroKicker: string; heroTitle: string; heroSub: string;
   heroCta: string; heroCta2: string;
   findMpKicker: string; findMpPlaceholder: string; findMpNoResultsTemplate: string; findMpBrowseAll: string;
+  searchGroupMps: string; searchGroupBills: string; searchGroupOrgs: string; searchSeeAllMpsTemplate: string;
   statMpsLabel: string; statFlagsLabel: string;
   expectationTitle: string; expectationSub: string;
   featuredKicker: string; readMore: string;
@@ -256,6 +257,7 @@ export interface Translation {
   statTopicalTiesLabel: string; statDonationsSumLabel: string;
   partyDetailFieldsTitle: string; partyDetailOrgsTitle: string;
   partyNotFound: string;
+  partyTabDonations: string; partyDonationsEmpty: string; partyDonationsCountLabel: string;
   scrollHintText: string;
   tieMatrixSub: string; matrixFilteredTemplate: string; matrixClearFilter: string;
   seatsLabel: string;
@@ -266,7 +268,7 @@ export interface Translation {
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
   de: {
-    navHome: 'Start', navMps: 'Abgeordnete', navLobbyFinance: 'Lobby & Finanzen',
+    navHome: 'Start', navMps: 'Abgeordnete', navMpsSearch: 'Abgeordnete durchsuchen', navParties: 'Parteien', navLobbyFinance: 'Lobby & Finanzen',
     searchPlaceholder: 'Abgeordnete, Themen, Gesetze suchen…',
     heroKicker: 'Öffentliche Daten, an einem Ort',
     heroTitle: 'Jede Abstimmung. Jede Verbindung.',
@@ -276,6 +278,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     findMpPlaceholder: 'Deine Stadt oder dein Wahlkreis…',
     findMpNoResultsTemplate: 'Keine Treffer für „{query}“.',
     findMpBrowseAll: 'Alle Abgeordneten durchsuchen',
+    searchGroupMps: 'Abgeordnete', searchGroupBills: 'Gesetze & Abstimmungen', searchGroupOrgs: 'Organisationen',
+    searchSeeAllMpsTemplate: 'Alle Abgeordneten für „{query}“ anzeigen',
     statMpsLabel: 'Abgeordnete erfasst', statFlagsLabel: 'Auffälligkeiten',
     expectationTitle: 'Gegen die Erwartung gestimmt',
     expectationSub: 'Abgeordnete, die von der Mehrheitslinie ihrer eigenen Fraktion abgewichen sind — mit Kontext zu Lobbyverflechtungen und Spenden.',
@@ -394,6 +398,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     statTopicalTiesLabel: 'Gleiches Themenfeld', statDonationsSumLabel: 'Großspenden gesamt',
     partyDetailFieldsTitle: 'Alle Interessengebiete', partyDetailOrgsTitle: 'Alle verflochtenen Organisationen',
     partyNotFound: 'Für diese Partei liegen keine Lobbydaten vor.',
+    partyTabDonations: 'Spenden', partyDonationsEmpty: 'Keine gemeldeten Großspenden für diese Partei.',
+    partyDonationsCountLabel: 'Anzahl Großspenden',
     weekOf: 'Sitzungswoche', noPollsThisWeek: 'Für die aktuelle Sitzungswoche liegen noch keine namentlichen Abstimmungen vor.',
     pollsLoading: 'Abstimmungen werden geladen…', pollsError: 'Abstimmungsdaten konnten nicht geladen werden.',
     sidejobsError: 'Nebeneinkünfte konnten nicht geladen werden.',
@@ -415,7 +421,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     showMoreTemplate: 'Alle {n} anzeigen', showLess: 'Weniger anzeigen',
   },
   en: {
-    navHome: 'Home', navMps: 'MPs', navLobbyFinance: 'Lobby & Finance',
+    navHome: 'Home', navMps: 'MPs', navMpsSearch: 'Search MPs', navParties: 'Parties', navLobbyFinance: 'Lobby & Finance',
     searchPlaceholder: 'Search MPs, topics, bills…',
     heroKicker: 'Public data, one place',
     heroTitle: 'Every vote. Every connection.',
@@ -425,6 +431,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     findMpPlaceholder: 'Your city or constituency…',
     findMpNoResultsTemplate: 'No matches for “{query}”.',
     findMpBrowseAll: 'Browse all MPs',
+    searchGroupMps: 'MPs', searchGroupBills: 'Bills & votes', searchGroupOrgs: 'Organizations',
+    searchSeeAllMpsTemplate: 'Show all MPs for “{query}”',
     statMpsLabel: 'MPs tracked', statFlagsLabel: 'Flags raised',
     expectationTitle: 'Voted against expectation',
     expectationSub: 'MPs who broke from their own party’s majority line — with context on lobby ties and donations.',
@@ -543,6 +551,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     statTopicalTiesLabel: 'Same policy area', statDonationsSumLabel: 'Large donations, total',
     partyDetailFieldsTitle: 'All fields of interest', partyDetailOrgsTitle: 'All tied organizations',
     partyNotFound: 'No lobbying data is on file for this party.',
+    partyTabDonations: 'Donations', partyDonationsEmpty: 'No reported large donations for this party.',
+    partyDonationsCountLabel: 'Number of large donations',
     weekOf: 'Sitting week', noPollsThisWeek: 'No roll-call votes are available yet for the current sitting week.',
     pollsLoading: 'Loading votes…', pollsError: 'Could not load voting data.',
     sidejobsError: 'Could not load outside income data.',

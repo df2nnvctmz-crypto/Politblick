@@ -4,6 +4,53 @@ export function initials(name: string): string {
   return name.split(' ').map((w) => w[0]).join('');
 }
 
+const COMBINING_MARKS_RE = new RegExp('[\\u0300-\\u036f]', 'g');
+
+/** Lowercase and strip diacritics (ü→u, ß→ss, é→e, …) so "Wurzburg" lines up with "Würzburg". */
+function foldDiacritics(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/ß/g, 'ss')
+    .normalize('NFD')
+    .replace(COMBINING_MARKS_RE, '');
+}
+
+function levenshtein(a: string, b: string): number {
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+  const dp = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = dp[0];
+    dp[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const temp = dp[j];
+      dp[j] = a[i - 1] === b[j - 1] ? prev : 1 + Math.min(prev, dp[j], dp[j - 1]);
+      prev = temp;
+    }
+  }
+  return dp[b.length];
+}
+
+/**
+ * Search-box matching: diacritic-insensitive substring match first (handles missing umlauts,
+ * case), falling back to a small per-word edit-distance check so a typo like "Whitaker" still
+ * finds "Whittaker". Skips the edit-distance fallback for very short queries (<4 chars) since
+ * a 1-edit tolerance there would match almost anything.
+ */
+export function fuzzyIncludes(text: string, query: string): boolean {
+  const q = foldDiacritics(query.trim());
+  if (!q) return false;
+  const t = foldDiacritics(text);
+  if (t.includes(q)) return true;
+  if (q.length < 4) return false;
+  const maxDist = q.length <= 7 ? 1 : 2;
+  for (const word of t.split(/[^\p{L}\p{N}]+/u)) {
+    if (!word || Math.abs(word.length - q.length) > maxDist) continue;
+    if (levenshtein(word, q) <= maxDist) return true;
+  }
+  return false;
+}
+
 export function trendPoints(seed: number): string {
   const pts: string[] = [];
   let v = 50 + seed * 3;
