@@ -397,6 +397,8 @@ export function PartyOrgGraph({
 
   const graphRef = useRef<Graph | null>(null);
   const draggingRef = useRef<string | null>(null);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const dragMovedRef = useRef(false);
   const svgRef = useRef<SVGSVGElement>(null);
   const rafRef = useRef<number | null>(null);
   const framesRef = useRef(0);
@@ -468,6 +470,8 @@ export function PartyOrgGraph({
 
   function handlePointerDown(id: string, e: ReactPointerEvent<SVGGElement>) {
     draggingRef.current = id;
+    dragStartRef.current = pointFromEvent(e);
+    dragMovedRef.current = false;
     const node = graphRef.current?.nodes.find((n) => n.id === id);
     if (node) node.fixed = true;
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -478,6 +482,11 @@ export function PartyOrgGraph({
     const node = graphRef.current?.nodes.find((n) => n.id === id);
     if (!node) return;
     const { x, y } = pointFromEvent(e);
+    // A plain click/tap fires pointerdown then pointerup with essentially no movement in
+    // between — only a real drag (moved more than a few px) should ever re-trigger the
+    // settle animation below. Below this threshold it's just a click and physics stays put.
+    const start = dragStartRef.current;
+    if (start && Math.hypot(x - start.x, y - start.y) > 3) dragMovedRef.current = true;
     node.x = x;
     node.y = y;
     // A drag can otherwise carry a node's *center* past the canvas edge (a pointer
@@ -496,8 +505,14 @@ export function PartyOrgGraph({
       if (node) node.fixed = false;
     }
     draggingRef.current = null;
-    framesRef.current = 0;
-    runSim();
+    dragStartRef.current = null;
+    // Only a genuine drag needs the neighbouring nodes to re-settle around the moved one —
+    // a plain click (selecting/highlighting a node) must never replay the settle animation.
+    if (dragMovedRef.current) {
+      framesRef.current = 0;
+      runSim();
+    }
+    dragMovedRef.current = false;
   }
 
   function toggleParty(name: string) {
@@ -544,7 +559,11 @@ export function PartyOrgGraph({
       {orgCount === 0 ? (
         <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{labels.empty}</p>
       ) : (
-        <div style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', overflow: 'hidden' }}>
+        <div
+          key={`${orgsKey}|${partiesKey}|${crossPartyOnly}`}
+          className="pb-plop-in"
+          style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', overflow: 'hidden' }}
+        >
           <svg
             ref={svgRef}
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
