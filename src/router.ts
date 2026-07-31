@@ -9,7 +9,7 @@
  * spa-github-pages redirect trick in public/404.html + index.html.
  */
 
-export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'party' | 'impressum' | 'disclaimer' | 'datenschutz';
+export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'party' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten';
 export type ProfileTab = 'overview' | 'votes' | 'lobby' | 'finance';
 export type LobbyTab = 'overview' | 'parties' | 'orgs' | 'conflicts' | 'donations';
 export type PartyTab = 'overview' | 'ties' | 'donations';
@@ -69,6 +69,8 @@ export function routeToPath(r: RouteState): string {
       return '/hinweis-zu-den-daten';
     case 'datenschutz':
       return '/datenschutz';
+    case 'daten':
+      return '/daten';
   }
 }
 
@@ -93,6 +95,7 @@ export function pathToRoute(pathname: string): RouteState {
   if (first === 'impressum') return { ...DEFAULT_ROUTE, view: 'impressum' };
   if (first === 'datenschutz') return { ...DEFAULT_ROUTE, view: 'datenschutz' };
   if (first === 'hinweis-zu-den-daten') return { ...DEFAULT_ROUTE, view: 'disclaimer' };
+  if (first === 'daten') return { ...DEFAULT_ROUTE, view: 'daten' };
   return { ...DEFAULT_ROUTE };
 }
 

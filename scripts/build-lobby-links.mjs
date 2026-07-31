@@ -158,6 +158,7 @@ async function main() {
           categories: link.categories,
           vote: vote.vote,
           demands: lobbied.demands,
+          drucksachen: lobbied.drucksachen,
           // Statistical fact: differs from their own fraction's majority on this poll.
           againstFraction: fractionMajority ? vote.vote !== fractionMajority : null,
           // Only ever set from a curated, sourced stance — never inferred.

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { RealMp, RealParty } from './bundestag';
 import type { PartyTally, MemberVote, RealPoll, PollResult } from './polls';
 import type { SidejobRecord } from './sidejobs';
-import { EMPTY_LOBBY_LINKS, type LobbyLinks, type PartyDonation } from './lobby';
+import { EMPTY_LOBBY_LINKS, partyDonationSourceUrl, type LobbyLinks, type PartyDonation } from './lobby';
 
 /**
  * All real data (roster, polls, vote breakdowns, sidejobs) is pre-fetched by the
@@ -20,6 +20,7 @@ export interface SnapshotMeta {
   sidejobsGeneratedAt: string | null;
   lobbyRegisterGeneratedAt: string | null;
   partyDonationsGeneratedAt: string | null;
+  committeesGeneratedAt: string | null;
 }
 
 export interface Snapshot {
@@ -62,7 +63,7 @@ async function buildSnapshot(): Promise<Snapshot> {
     fetchLocalJson<Record<string, RawPollResult>>('/data/poll-results.json'),
     fetchLocalJson<Record<string, SidejobRecord[]>>('/data/sidejobs.json').catch(() => ({})),
     fetchLocalJson<LobbyLinks>('/data/lobby-links.json').catch(() => EMPTY_LOBBY_LINKS),
-    fetchLocalJson<PartyDonation[]>('/data/party-donations.json').catch(() => []),
+    fetchLocalJson<Omit<PartyDonation, 'sourceUrl'>[]>('/data/party-donations.json').catch(() => []),
     fetchLocalJson<SnapshotMeta>('/data/meta.json').catch(() => ({
       legislaturePeriodId: null,
       legislatureLabel: null,
@@ -70,6 +71,7 @@ async function buildSnapshot(): Promise<Snapshot> {
       sidejobsGeneratedAt: null,
       lobbyRegisterGeneratedAt: null,
       partyDonationsGeneratedAt: null,
+      committeesGeneratedAt: null,
     })),
   ]);
 
@@ -92,7 +94,7 @@ async function buildSnapshot(): Promise<Snapshot> {
     pollResults,
     sidejobsByMandate,
     lobbyLinks,
-    partyDonations,
+    partyDonations: partyDonations.map((d) => ({ ...d, sourceUrl: partyDonationSourceUrl(d.year) })),
     meta,
   };
 }

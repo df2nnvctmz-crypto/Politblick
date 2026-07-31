@@ -56,6 +56,8 @@ export interface LobbyConflict {
   categories: string[];
   vote: VoteChoice;
   demands: string[];
+  /** The Drucksache(n) tying this conflict to a specific bill — see drucksacheUrl() for the source-document link. */
+  drucksachen: string[];
   /** Differs from their own fraction's majority on this poll. Statistical fact, not motive. */
   againstFraction: boolean | null;
   position: LobbyPosition | null;
@@ -147,10 +149,33 @@ export interface PartyDonation {
   donorCity: string | null;
   receivedOn: string | null;
   publishedOn: string | null;
+  /** The Bundestag President's published table this donation appears on — one page per year, not per-donation, but the reader can find the exact row there. */
+  sourceUrl: string;
+}
+
+/** The Bundestag President's page listing large party donations for a given year (§ 25 Abs. 3 PartG) — the source scripts/fetch-parteispenden.mjs scrapes. */
+export function partyDonationSourceUrl(year: number): string {
+  return `https://www.bundestag.de/parlament/praesidium/parteienfinanzierung/fundstellen50000/${year}`;
 }
 
 export function formatEuro(value: number): string {
   return `${value.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`;
+}
+
+/**
+ * Builds the official document-server URL for a Drucksache (printed matter), so a reader can
+ * open the actual bill text instead of taking the site's word for it. `printingNumber` is the
+ * "21/5921" form used throughout this app's data (term/number) — the PDF filename encodes the
+ * same two pieces as term + a 5-digit zero-padded number, e.g. 21/5921 -> .../btd/21/059/2105921.pdf.
+ * This is the exact inverse of extractDrucksachen() in scripts/lib/common.mjs.
+ */
+export function drucksacheUrl(printingNumber: string): string | null {
+  const m = /^(\d+)\/(\d+)$/.exec(printingNumber);
+  if (!m) return null;
+  const [, term, numberStr] = m;
+  const padded = numberStr.padStart(5, '0');
+  const folder = padded.slice(0, 3);
+  return `https://dserver.bundestag.de/btd/${term}/${folder}/${term}${padded}.pdf`;
 }
 
 /** The register reports spend as a bracket; a from===to bracket is an exact figure. */
@@ -400,6 +425,8 @@ export interface OrgLobbiedPoll {
   pollTitle: string;
   pollDate: string;
   demands: string[];
+  /** The Drucksache(n) this organisation declared lobbying on for this poll — a source link, via drucksacheUrl(). */
+  drucksachen: string[];
 }
 
 export interface OrgAffiliatedMember {
@@ -439,7 +466,7 @@ export function useOrgDetail(orgId: string | null): OrgDetailState {
     if (!entry) continue;
     const poll = pollById.get(Number(pollIdStr));
     if (!poll) continue;
-    lobbiedPolls.push({ pollId: poll.id, pollTitle: poll.title, pollDate: poll.date, demands: entry.demands });
+    lobbiedPolls.push({ pollId: poll.id, pollTitle: poll.title, pollDate: poll.date, demands: entry.demands, drucksachen: entry.drucksachen });
   }
   lobbiedPolls.sort((a, b) => b.pollDate.localeCompare(a.pollDate));
 

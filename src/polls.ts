@@ -9,6 +9,10 @@ export interface RealPoll {
   topic: string;
   accepted: boolean;
   url: string;
+  /** Drucksache(n) ("21/6278") this poll's own intro text links to — see drucksacheUrl() in lobby.ts for the source-document link. */
+  drucksachen: string[];
+  /** Plain-language write-up of the vote, from abgeordnetenwatch's own editorial field_intro — null if they never wrote one for this poll. */
+  summary: string | null;
 }
 
 export interface MemberVote {

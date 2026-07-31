@@ -63,8 +63,32 @@ export function stripLabelPrefix(label) {
     .trim();
 }
 
+const HTML_ENTITIES = { '&nbsp;': ' ', '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': '’', '&apos;': '’' };
+
+function decodeHtmlEntities(text) {
+  return text.replace(/&(?:nbsp|amp|lt|gt|quot|#39|apos);/g, (m) => HTML_ENTITIES[m] ?? m);
+}
+
 export function stripHtml(html) {
-  return html.replace(/<[^>]+>/g, '').trim();
+  return decodeHtmlEntities(html.replace(/<[^>]+>/g, '')).trim();
+}
+
+/**
+ * abgeordnetenwatch's editorial write-up of a poll (field_intro) — plain-language, a few short
+ * paragraphs, usually ending with the vote tally in prose. Unlike stripHtml() above, this keeps
+ * paragraph breaks: naively stripping all tags from "...fortgeführt.</p><p>Bei der..." would glue
+ * the two sentences together with no space between them.
+ */
+export function stripIntroHtml(html) {
+  if (!html) return null;
+  const withBreaks = String(html)
+    .replace(/<\/p>\s*<p[^>]*>/gi, '\n\n')
+    .replace(/<br\s*\/?>/gi, '\n');
+  const text = decodeHtmlEntities(withBreaks.replace(/<[^>]+>/g, ''))
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+  return text || null;
 }
 
 export function initialsOf(name) {
@@ -290,6 +314,10 @@ export function transformPoll(raw) {
     // which records the printed matter each interest group declares it lobbied on. Free —
     // field_intro already comes back with the polls list, so this costs no extra request.
     drucksachen: extractDrucksachen(raw.field_intro),
+    // Plain-language write-up of what the vote was actually about, from the same field_intro
+    // blob — real poll titles are dense Bundestag phrasing (e.g. "Gebäudemodernisierungsgesetz"),
+    // this is what explains it. Also free: no extra request beyond the polls list already fetched.
+    summary: stripIntroHtml(raw.field_intro),
   };
 }
 

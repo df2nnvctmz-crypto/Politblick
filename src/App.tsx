@@ -14,6 +14,7 @@ import { useOnScreen, usePortrait } from './portraits';
 import { useSnapshot } from './snapshot';
 import {
   buildMemberTieCounts,
+  drucksacheUrl,
   formatEuro,
   formatExpenseBracket,
   useCrossrefRows,
@@ -1071,6 +1072,7 @@ function App() {
   const goImpressum = () => setView('impressum');
   const goDisclaimer = () => setView('disclaimer');
   const goDatenschutz = () => setView('datenschutz');
+  const goDaten = () => setView('daten');
   const openMp = (id: string) => {
     setView('profile');
     setSelectedMpId(id);
@@ -2400,7 +2402,9 @@ function App() {
                     <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', lineHeight: 1.6 }}>
                       {t.lobbyNoContactsNote}
                       <br />
-                      {t.lobbyRegisterSource}
+                      <a href="https://www.lobbyregister.bundestag.de/" target="_blank" rel="noreferrer" style={{ color: 'oklch(48% 0.12 250)' }}>
+                        {t.lobbyRegisterSource}
+                      </a>
                     </p>
                   </div>
                 ))}
@@ -2460,7 +2464,17 @@ function App() {
                         </div>
                       );
                     })}
-                    <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 6 }}>{t.sidejobsSourceNote}</div>
+                    <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 6, lineHeight: 1.6 }}>
+                      {t.sidejobsSourceNote}
+                      {profile.kind === 'real' && (
+                        <>
+                          {' '}
+                          <a href={profile.mp.profileUrl} target="_blank" rel="noreferrer" style={{ color: 'oklch(48% 0.12 250)' }}>
+                            {t.viewSource} →
+                          </a>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))}
             </>
@@ -2549,6 +2563,12 @@ function App() {
                     </span>
                   </div>
                   <h1 style={{ fontSize: 28, fontWeight: 800, margin: '0 0 16px' }}>{pollDetail.result.poll.title}</h1>
+
+                  {pollDetail.result.poll.summary && (
+                    <p style={{ fontSize: 14.5, color: 'oklch(35% 0.01 260)', lineHeight: 1.7, whiteSpace: 'pre-line', margin: '0 0 22px', maxWidth: 640 }}>
+                      {pollDetail.result.poll.summary}
+                    </p>
+                  )}
 
                   <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 14, padding: 20, marginBottom: 24 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>{t.voteBreakdown}</div>
@@ -2657,6 +2677,20 @@ function App() {
                   <a href={pollDetail.result.poll.url} target="_blank" rel="noreferrer" style={{ fontSize: 12.5, fontWeight: 700 }}>
                     {t.viewSource} →
                   </a>
+
+                  {pollDetail.result.poll.drucksachen.length > 0 && (
+                    <div style={{ marginTop: 12, fontSize: 12.5 }}>
+                      <span style={{ color: 'oklch(55% 0.01 260)', marginRight: 8 }}>{t.viewDrucksacheLabel}</span>
+                      {pollDetail.result.poll.drucksachen.map((d) => {
+                        const url = drucksacheUrl(d);
+                        return url ? (
+                          <a key={d} href={url} target="_blank" rel="noreferrer" style={{ fontWeight: 600, color: 'oklch(48% 0.12 250)', marginRight: 12 }}>
+                            {t.viewDrucksacheTemplate.replace('{number}', d)}
+                          </a>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
                 </>
               )}
             </>
@@ -2968,7 +3002,21 @@ function App() {
                                     >
                                       {r.org.name}
                                     </td>
-                                    <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{r.pollTitle}</td>
+                                    <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>
+                                      {r.pollTitle}
+                                      {r.conflict.drucksachen.length > 0 && (
+                                        <div onClick={(e) => e.stopPropagation()}>
+                                          {r.conflict.drucksachen.map((d) => {
+                                            const url = drucksacheUrl(d);
+                                            return url ? (
+                                              <a key={d} href={url} target="_blank" rel="noreferrer" style={{ fontSize: 11, fontWeight: 600, color: 'oklch(48% 0.12 250)', marginRight: 8 }}>
+                                                {t.viewDrucksacheTemplate.replace('{number}', d)}
+                                              </a>
+                                            ) : null;
+                                          })}
+                                        </div>
+                                      )}
+                                    </td>
                                     <td style={{ padding: '10px 14px' }}>
                                       <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 10, background: voteBg[r.conflict.vote], color: 'white' }}>
                                         {label}
@@ -3152,7 +3200,17 @@ function App() {
                                   )}
                                 </td>
                                 <td style={{ padding: '10px 14px', fontWeight: 600 }}>{formatEuro(d.amountEuro)}</td>
-                                <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{d.receivedOn}</td>
+                                <td style={{ padding: '10px 14px' }}>
+                                  <a
+                                    href={d.sourceUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title={t.partyDonationSourceTemplate.replace('{year}', String(d.year))}
+                                    style={{ color: 'oklch(45% 0.01 260)' }}
+                                  >
+                                    {d.receivedOn}
+                                  </a>
+                                </td>
                               </tr>
                             );
                           })}
@@ -3267,6 +3325,18 @@ function App() {
                       {p.demands.length > 0 && (
                         <div style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', marginTop: 5, fontStyle: 'italic' }}>„{p.demands[0]}“</div>
                       )}
+                      {p.drucksachen.length > 0 && (
+                        <div style={{ marginTop: 6 }} onClick={(e) => e.stopPropagation()}>
+                          {p.drucksachen.map((d) => {
+                            const url = drucksacheUrl(d);
+                            return url ? (
+                              <a key={d} href={url} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.12 250)', marginRight: 10 }}>
+                                {t.viewDrucksacheTemplate.replace('{number}', d)}
+                              </a>
+                            ) : null;
+                          })}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -3291,6 +3361,18 @@ function App() {
                             </span>
                           </div>
                           <div style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', marginTop: 4 }}>{c.pollTitle}</div>
+                          {c.drucksachen.length > 0 && (
+                            <div style={{ marginTop: 5 }} onClick={(e) => e.stopPropagation()}>
+                              {c.drucksachen.map((d) => {
+                                const url = drucksacheUrl(d);
+                                return url ? (
+                                  <a key={d} href={url} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.12 250)', marginRight: 10 }}>
+                                    {t.viewDrucksacheTemplate.replace('{number}', d)}
+                                  </a>
+                                ) : null;
+                              })}
+                            </div>
+                          )}
                           {c.againstPosition && <div style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.16 40)', marginTop: 6 }}>⬤ {t.lobbyAgainstPosition}</div>}
                           {c.againstFraction && <div style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.14 60)', marginTop: 6 }}>⬤ {t.lobbyAgainstFraction}</div>}
                         </div>
@@ -3497,6 +3579,18 @@ function App() {
                                 <div style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', marginTop: 4 }}>
                                   {r.org.name} · {r.pollTitle}
                                 </div>
+                                {r.conflict.drucksachen.length > 0 && (
+                                  <div style={{ marginTop: 5 }} onClick={(e) => e.stopPropagation()}>
+                                    {r.conflict.drucksachen.map((d) => {
+                                      const url = drucksacheUrl(d);
+                                      return url ? (
+                                        <a key={d} href={url} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.12 250)', marginRight: 10 }}>
+                                          {t.viewDrucksacheTemplate.replace('{number}', d)}
+                                        </a>
+                                      ) : null;
+                                    })}
+                                  </div>
+                                )}
                               </div>
                             );
                           })}
@@ -3601,7 +3695,17 @@ function App() {
                                           )}
                                         </td>
                                         <td style={{ padding: '10px 14px', fontWeight: 600 }}>{formatEuro(d.amountEuro)}</td>
-                                        <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{d.receivedOn}</td>
+                                        <td style={{ padding: '10px 14px' }}>
+                                          <a
+                                            href={d.sourceUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            title={t.partyDonationSourceTemplate.replace('{year}', String(d.year))}
+                                            style={{ color: 'oklch(45% 0.01 260)' }}
+                                          >
+                                            {d.receivedOn}
+                                          </a>
+                                        </td>
                                       </tr>
                                     );
                                   })}
@@ -3656,6 +3760,51 @@ function App() {
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.datenschutzTitle}</h1>
           <p style={{ fontSize: 14, color: 'oklch(35% 0.01 260)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{t.datenschutzBody}</p>
+        </main>
+      )}
+
+      {view === 'daten' && (
+        <main style={{ flex: 1, maxWidth: 820, margin: '0 auto', width: '100%', padding: 32 }}>
+          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+            ← {t.backToHome}
+          </a>
+          <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 10px' }}>{t.datenTitle}</h1>
+          <p style={{ fontSize: 14, color: 'oklch(35% 0.01 260)', lineHeight: 1.7, maxWidth: 640 }}>{t.datenIntro}</p>
+          <p style={{ fontSize: 12.5, color: 'oklch(55% 0.01 260)', lineHeight: 1.6, maxWidth: 640, marginBottom: 26 }}>{t.datenLicenseNote}</p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {t.datasets.map((d) => {
+              const generatedAt = d.metaKey ? snapshot?.meta[d.metaKey] ?? null : null;
+              return (
+                <div key={d.file} style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '16px 18px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: 700, fontSize: 15 }}>{d.name}</span>
+                    <a
+                      href={`${import.meta.env.BASE_URL}${d.file.replace(/^\//, '')}`}
+                      download
+                      style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', flexShrink: 0 }}
+                    >
+                      {t.datenDownloadLabel} ({d.file}) ↓
+                    </a>
+                  </div>
+                  <p style={{ fontSize: 13, color: 'oklch(42% 0.01 260)', lineHeight: 1.6, margin: '6px 0 8px' }}>{d.description}</p>
+                  <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                    <span>
+                      {t.datenSourceLabel}{' '}
+                      {d.sourceUrl ? (
+                        <a href={d.sourceUrl} target="_blank" rel="noreferrer" style={{ color: 'oklch(48% 0.12 250)' }}>
+                          {d.source}
+                        </a>
+                      ) : (
+                        d.source
+                      )}
+                    </span>
+                    <span>{generatedAt ? t.datenUpdatedTemplate.replace('{date}', formatDateTime(generatedAt, lang)) : t.datenNoTimestamp}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </main>
       )}
 
@@ -3720,6 +3869,9 @@ function App() {
             </a>
             <a href="#" onClick={stop(goDatenschutz)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.datenschutzTitle}
+            </a>
+            <a href="#" onClick={stop(goDaten)} style={{ color: 'oklch(52% 0.01 260)' }}>
+              {t.datenTitle}
             </a>
           </div>
           <span>{t.footerSources}</span>
