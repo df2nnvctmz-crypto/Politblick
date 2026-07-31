@@ -602,6 +602,126 @@ function DonationBarChart({ data }: { data: { fraction: string; total: number; c
   );
 }
 
+/**
+ * Homepage entry point for "does this affect me": search by city/constituency (or an MP's
+ * name) instead of browsing 630 anonymous rows. A place can match more than one MP — the
+ * directly-elected member plus regional list-seat members from other parties — so this always
+ * shows every match rather than assuming a 1:1 place-to-MP relationship.
+ */
+function FindMyMpBox({
+  members,
+  onSelect,
+  placeholder,
+  noResultsTemplate,
+  browseAllLabel,
+  onBrowseAll,
+}: {
+  members: RealMp[];
+  onSelect: (id: string) => void;
+  placeholder: string;
+  noResultsTemplate: string;
+  browseAllLabel: string;
+  onBrowseAll: () => void;
+}) {
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onOutside = (e: globalThis.MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onOutside);
+    return () => document.removeEventListener('mousedown', onOutside);
+  }, []);
+
+  const q = query.trim().toLowerCase();
+  const matches =
+    q.length < 2 ? [] : members.filter((m) => m.constituency.toLowerCase().includes(q) || m.name.toLowerCase().includes(q)).slice(0, 8);
+
+  const select = (id: number) => {
+    onSelect(String(id));
+    setQuery('');
+    setOpen(false);
+  };
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative', maxWidth: 460, margin: '0 auto' }}>
+      <input
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        placeholder={placeholder}
+        style={{
+          width: '100%',
+          padding: '14px 18px',
+          borderRadius: 12,
+          border: '1px solid oklch(85% 0.006 260)',
+          fontSize: 15,
+          boxShadow: '0 2px 10px oklch(20% 0.02 260 / 0.06)',
+        }}
+      />
+      {open && q.length >= 2 && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: 6,
+            background: 'white',
+            border: '1px solid oklch(88% 0.006 260)',
+            borderRadius: 12,
+            boxShadow: '0 8px 24px oklch(0% 0 0 / 0.12)',
+            zIndex: 40,
+            overflow: 'hidden',
+            textAlign: 'left',
+          }}
+        >
+          {matches.length === 0 ? (
+            <div style={{ padding: '14px 16px' }}>
+              <div style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', marginBottom: 8 }}>
+                {noResultsTemplate.replace('{query}', query.trim())}
+              </div>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onBrowseAll();
+                }}
+                style={{ fontSize: 12.5, fontWeight: 700 }}
+              >
+                {browseAllLabel} →
+              </a>
+            </div>
+          ) : (
+            matches.map((m) => (
+              <div
+                key={m.id}
+                onClick={() => select(m.id)}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', cursor: 'pointer' }}
+              >
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: m.color, flexShrink: 0 }} />
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {m.name}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {m.party} · {m.constituency}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function App() {
   const [view, setView] = useState<View>('home');
   const [lang, setLang] = useState<Lang>('de');
@@ -622,6 +742,7 @@ function App() {
   const [conflictsExpanded, setConflictsExpanded] = useState(false);
   const [topicalExpanded, setTopicalExpanded] = useState(false);
   const [donationsExpanded, setDonationsExpanded] = useState(false);
+  const [votesExpanded, setVotesExpanded] = useState(false);
   const [orgsSort, setOrgsSort] = useState<SortState>(null);
   const [conflictsSort, setConflictsSort] = useState<SortState>(null);
   const [topicalSort, setTopicalSort] = useState<SortState>(null);
@@ -668,6 +789,7 @@ function App() {
     setView('profile');
     setSelectedMpId(id);
     setProfileTab('overview');
+    setVotesExpanded(false);
   };
   const openBill = (id: BillId) => {
     setView('bill');
@@ -1071,7 +1193,16 @@ function App() {
             <p style={{ fontSize: 16.5, color: 'oklch(42% 0.01 260)', maxWidth: 600, margin: '0 auto 28px', lineHeight: 1.55 }}>
               {t.heroSub}
             </p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: 'oklch(30% 0.01 260)', marginBottom: 10 }}>{t.findMpKicker}</div>
+            <FindMyMpBox
+              members={roster.members}
+              onSelect={openMp}
+              placeholder={t.findMpPlaceholder}
+              noResultsTemplate={t.findMpNoResultsTemplate}
+              browseAllLabel={t.findMpBrowseAll}
+              onBrowseAll={goSearch}
+            />
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 28 }}>
               <button
                 onClick={goSearch}
                 style={{
@@ -1443,7 +1574,17 @@ function App() {
                 </button>
               </div>
 
-              <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid oklch(90% 0.006 260)', marginBottom: 24 }}>
+              <div
+                className="pb-scroll"
+                style={{
+                  display: 'flex',
+                  gap: 8,
+                  borderBottom: '1px solid oklch(90% 0.006 260)',
+                  marginBottom: 24,
+                  overflowX: 'auto',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
                 {profileTabs.map((tab) => (
                   <button
                     key={tab.key}
@@ -1455,6 +1596,8 @@ function App() {
                       cursor: 'pointer',
                       fontSize: 13.5,
                       fontWeight: 600,
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
                       borderBottom: `2px solid ${profileTab === tab.key ? 'oklch(45% 0.16 265)' : 'transparent'}`,
                       color: profileTab === tab.key ? 'oklch(20% 0.01 260)' : 'oklch(50% 0.01 260)',
                     }}
@@ -1665,21 +1808,31 @@ function App() {
 
               {profileTab === 'votes' &&
                 (profile.kind === 'demo' ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {profile.mp.voteHistoryResolved.map((v, i) => (
-                      <div
-                        key={i}
-                        onClick={v.onOpen}
-                        style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
-                      >
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 600 }}>{v.billTitle}</div>
-                          <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)' }}>{v.date}</div>
+                  <>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {profile.mp.voteHistoryResolved.slice(0, votesExpanded ? profile.mp.voteHistoryResolved.length : 10).map((v, i) => (
+                        <div
+                          key={i}
+                          onClick={v.onOpen}
+                          style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
+                        >
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: 14, fontWeight: 600 }}>{v.billTitle}</div>
+                            <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)' }}>{v.date}</div>
+                          </div>
+                          <div style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: v.bg, color: 'white', flexShrink: 0 }}>{v.voteLabel}</div>
                         </div>
-                        <div style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: v.bg, color: 'white', flexShrink: 0 }}>{v.voteLabel}</div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                    <ShowMoreButton
+                      total={profile.mp.voteHistoryResolved.length}
+                      defaultCount={10}
+                      expanded={votesExpanded}
+                      onToggle={() => setVotesExpanded((v) => !v)}
+                      showMoreTemplate={t.showMoreTemplate}
+                      showLessLabel={t.showLess}
+                    />
+                  </>
                 ) : mandateVotes.loading && mandateVotes.votes.length === 0 ? (
                   <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.pollsLoading}</p>
                 ) : mandateVotes.error ? (
@@ -1687,37 +1840,47 @@ function App() {
                 ) : mandateVotes.votes.length === 0 ? (
                   <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.noMandateVotesYet}</p>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {mandateVotes.votes.map((v) => {
-                      const label = v.vote === 'yes' ? t.voteYes : v.vote === 'no' ? t.voteNo : v.vote === 'abstain' ? t.voteAbstain : t.voteNoShow;
-                      const lobbyHit = lobbyByPollId.get(v.poll.id);
-                      return (
-                        <div
-                          key={v.poll.id}
-                          onClick={() => openBill(v.poll.id)}
-                          style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
-                        >
-                          <div style={{ minWidth: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span style={{ fontSize: 14, fontWeight: 600 }}>{v.poll.title}</span>
-                              {lobbyHit?.hasConflict && (
-                                <span title={t.lobbyIndicatorConflict} style={{ fontSize: 11, fontWeight: 700, color: 'oklch(48% 0.16 40)', flexShrink: 0 }}>
-                                  ⬤
-                                </span>
-                              )}
-                              {!lobbyHit?.hasConflict && lobbyHit?.hasTopicalTie && (
-                                <span title={t.lobbyIndicatorTopical} style={{ fontSize: 11, fontWeight: 700, color: 'oklch(60% 0.1 90)', flexShrink: 0 }}>
-                                  ⬤
-                                </span>
-                              )}
+                  <>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {mandateVotes.votes.slice(0, votesExpanded ? mandateVotes.votes.length : 10).map((v) => {
+                        const label = v.vote === 'yes' ? t.voteYes : v.vote === 'no' ? t.voteNo : v.vote === 'abstain' ? t.voteAbstain : t.voteNoShow;
+                        const lobbyHit = lobbyByPollId.get(v.poll.id);
+                        return (
+                          <div
+                            key={v.poll.id}
+                            onClick={() => openBill(v.poll.id)}
+                            style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
+                          >
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span style={{ fontSize: 14, fontWeight: 600 }}>{v.poll.title}</span>
+                                {lobbyHit?.hasConflict && (
+                                  <span title={t.lobbyIndicatorConflict} style={{ fontSize: 11, fontWeight: 700, color: 'oklch(48% 0.16 40)', flexShrink: 0 }}>
+                                    ⬤
+                                  </span>
+                                )}
+                                {!lobbyHit?.hasConflict && lobbyHit?.hasTopicalTie && (
+                                  <span title={t.lobbyIndicatorTopical} style={{ fontSize: 11, fontWeight: 700, color: 'oklch(60% 0.1 90)', flexShrink: 0 }}>
+                                    ⬤
+                                  </span>
+                                )}
+                              </div>
+                              <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)' }}>{v.poll.date}</div>
                             </div>
-                            <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)' }}>{v.poll.date}</div>
+                            <div style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: voteBg[v.vote], color: 'white', flexShrink: 0 }}>{label}</div>
                           </div>
-                          <div style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: voteBg[v.vote], color: 'white', flexShrink: 0 }}>{label}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                    <ShowMoreButton
+                      total={mandateVotes.votes.length}
+                      defaultCount={10}
+                      expanded={votesExpanded}
+                      onToggle={() => setVotesExpanded((v) => !v)}
+                      showMoreTemplate={t.showMoreTemplate}
+                      showLessLabel={t.showLess}
+                    />
+                  </>
                 ))}
 
               {profileTab === 'lobby' &&

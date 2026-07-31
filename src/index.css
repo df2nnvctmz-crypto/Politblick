@@ -83,7 +83,11 @@ button {
 }
 
 /* Below this width there isn't room for name + bar + value side by side — the
-   bar itself would get squeezed to nothing. Stack the name above bar + value. */
+   bar itself would get squeezed to nothing. Stack the name above bar + value.
+   The value keeps a fixed (smaller) width rather than going auto: auto sizes it
+   to each row's own text, which made the bar track next to it a different width
+   per row and let the longest values spill past the card edge. A shared fixed
+   width keeps every bar the same length and every value safely inside its box. */
 @media (max-width: 480px) {
   .donation-row {
     flex-wrap: wrap;
@@ -93,7 +97,9 @@ button {
     width: 100% !important;
   }
   .donation-row .donation-value {
-    width: auto !important;
+    width: 108px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 

@@ -186,6 +186,7 @@ export interface Translation {
   searchPlaceholder: string;
   heroKicker: string; heroTitle: string; heroSub: string;
   heroCta: string; heroCta2: string;
+  findMpKicker: string; findMpPlaceholder: string; findMpNoResultsTemplate: string; findMpBrowseAll: string;
   statMpsLabel: string; statFlagsLabel: string;
   expectationTitle: string; expectationSub: string;
   featuredKicker: string; readMore: string;
@@ -271,6 +272,10 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     heroTitle: 'Jede Abstimmung. Jede Verbindung.',
     heroSub: 'Politblick bringt Abstimmungen, Lobbyregister-Einträge und Parteispenden aus öffentlichen Quellen in eine durchsuchbare Ansicht — ohne Login, ohne Tracking.',
     heroCta: 'Abgeordnete durchsuchen', heroCta2: 'Lobby & Finanzen ansehen',
+    findMpKicker: 'Wer vertritt dich im Bundestag?',
+    findMpPlaceholder: 'Deine Stadt oder dein Wahlkreis…',
+    findMpNoResultsTemplate: 'Keine Treffer für „{query}“.',
+    findMpBrowseAll: 'Alle Abgeordneten durchsuchen',
     statMpsLabel: 'Abgeordnete erfasst', statFlagsLabel: 'Auffälligkeiten',
     expectationTitle: 'Gegen die Erwartung gestimmt',
     expectationSub: 'Abgeordnete, die von der Mehrheitslinie ihrer eigenen Fraktion abgewichen sind — mit Kontext zu Lobbyverflechtungen und Spenden.',
@@ -416,6 +421,10 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     heroTitle: 'Every vote. Every connection.',
     heroSub: 'Politblick brings votes, lobbying contacts and campaign donations from a dozen public sources into one searchable view — no login, no tracking.',
     heroCta: 'Search MPs', heroCta2: 'View lobby & finance',
+    findMpKicker: 'Who represents you in the Bundestag?',
+    findMpPlaceholder: 'Your city or constituency…',
+    findMpNoResultsTemplate: 'No matches for “{query}”.',
+    findMpBrowseAll: 'Browse all MPs',
     statMpsLabel: 'MPs tracked', statFlagsLabel: 'Flags raised',
     expectationTitle: 'Voted against expectation',
     expectationSub: 'MPs who broke from their own party’s majority line — with context on lobby ties and donations.',
