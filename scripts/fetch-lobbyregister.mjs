@@ -51,6 +51,10 @@ function transformLobbyEntry(raw) {
     website: identity.contactDetails?.websites?.[0]?.website ?? null,
     url: raw.registerEntryDetails?.detailsPageUrl ?? null,
     active: raw.accountDetails?.activeLobbyist !== false,
+    // The register's own classification of what kind of interest representative this is
+    // (Unternehmen, Verband, gemeinnützige Organisation, Beratungsunternehmen, Wissenschaft,
+    // Privatperson, …) — lets the UI filter by actor type without us inventing a taxonomy.
+    actorType: raw.activitiesAndInterests?.activity?.de ?? null,
     fieldsOfInterest: (raw.activitiesAndInterests?.fieldsOfInterest ?? []).map((f) => f.de).filter(Boolean),
     // Declared annual lobbying expenditure, reported by the register as a bracket.
     expensesEuro: raw.financialExpenses?.financialExpensesEuro ?? null,

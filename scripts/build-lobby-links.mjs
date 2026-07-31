@@ -370,6 +370,7 @@ async function main() {
       id: org.id,
       name: org.name.trim(),
       legalForm: org.legalForm,
+      actorType: org.actorType,
       city: org.city,
       url: org.url,
       expensesEuro: org.expensesEuro,

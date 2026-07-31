@@ -191,6 +191,8 @@ export interface Translation {
   featuredKicker: string; readMore: string;
   feedTitle: string; feedSub: string;
   filterParty: string; filterTopic: string; results: string;
+  filterActorType: string; filterFieldOfInterest: string; filterAllLabel: string;
+  filterSelectedCountTemplate: string; clearAllFilters: string; filterSearchPlaceholder: string;
   flagsLabel: string; backToSearch: string; backToHome: string;
   alignmentTrend: string; partyAverage: string;
   flagsHeading: string; sourceNote: string;
@@ -198,7 +200,7 @@ export interface Translation {
   voteBreakdown: string; voteYes: string; voteNo: string; voteAbstain: string;
   flaggedVotes: string; crossrefSub: string;
   colMp: string; colDonor: string; colIndustry: string; colAmount: string; colVote: string; colFlag: string;
-  flagged: string; footerNote: string; footerSources: string;
+  flagged: string; footerNote: string; footerSources: string; footerDisclaimer: string;
   tabOverview: string; tabVotes: string; tabLobby: string; tabFinance: string;
   follow: string; following: string;
   statBillsVoted: string; statAttendance: string; statPartyAlignment: string; statFlags: string;
@@ -258,6 +260,7 @@ export interface Translation {
   seatsLabel: string;
   networkSub: string; networkToggleCrossParty: string; networkToggleAll: string;
   networkOrgCountTemplate: string; networkViewOrg: string; networkEmpty: string;
+  showMoreTemplate: string; showLess: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -274,6 +277,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     featuredKicker: 'Im Fokus', readMore: 'Vollständige Analyse lesen',
     feedTitle: 'Aktuelle Abstimmungen', feedSub: 'Kürzlich abgeschlossene Abstimmungen im Bundestag',
     filterParty: 'Partei', filterTopic: 'Thema', results: 'Ergebnisse',
+    filterActorType: 'Akteurstyp', filterFieldOfInterest: 'Interessengebiet', filterAllLabel: 'Alle',
+    filterSelectedCountTemplate: '{n} ausgewählt', clearAllFilters: 'Filter zurücksetzen', filterSearchPlaceholder: 'Suchen…',
     flagsLabel: 'Hinweise', backToSearch: 'Zurück zur Suche', backToHome: 'Zurück zur Startseite',
     alignmentTrend: 'Übereinstimmung mit Parteilinie über Zeit', partyAverage: 'Partei-Durchschnitt',
     flagsHeading: 'Auffälligkeiten', sourceNote: 'Quelle: Lobbyregister des Deutschen Bundestages.',
@@ -282,6 +287,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     flaggedVotes: 'Auffällige Stimmen', crossrefSub: 'Abgeordnete, die über eine Funktion, Beteiligung oder Zuwendung mit einer Organisation verbunden sind, die zu genau dieser Abstimmung Interessenvertretung angemeldet hat — sowie die veröffentlichten Großspenden an die Parteien.',
     colMp: 'Abgeordnete/r', colDonor: 'Spender', colIndustry: 'Branche', colAmount: 'Betrag', colVote: 'Stimme', colFlag: 'Hinweis',
     flagged: 'Auffällig', footerNote: 'Nur öffentliche Daten. Kein Login, kein Tracking.', footerSources: 'Quellen: Abgeordnetenwatch, Bundestag, Lobbyregister',
+    footerDisclaimer: 'Politblick ist ein privates, nicht-kommerzielles Hobbyprojekt ohne Verbindung zu Parteien, Fraktionen oder staatlichen Stellen.',
     tabOverview: 'Übersicht', tabVotes: 'Abstimmungen', tabLobby: 'Lobbyverflechtungen', tabFinance: 'Parteifinanzen',
     follow: 'Folgen', following: 'Gefolgt',
     statBillsVoted: 'Abstimmungen', statAttendance: 'Anwesenheit', statPartyAlignment: 'Parteitreue', statFlags: 'Hinweise',
@@ -401,6 +407,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     networkOrgCountTemplate: '{n} Organisationen im Netzwerk',
     networkViewOrg: 'Organisation ansehen',
     networkEmpty: 'Für diese Auswahl sind keine Organisationen mit Parteibezug erfasst.',
+    showMoreTemplate: 'Alle {n} anzeigen', showLess: 'Weniger anzeigen',
   },
   en: {
     navHome: 'Home', navMps: 'MPs', navLobbyFinance: 'Lobby & Finance',
@@ -415,6 +422,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     featuredKicker: 'In focus', readMore: 'Read the full analysis',
     feedTitle: 'Recent votes', feedSub: 'Recently concluded roll-call votes in the Bundestag',
     filterParty: 'Party', filterTopic: 'Topic', results: 'results',
+    filterActorType: 'Actor type', filterFieldOfInterest: 'Field of interest', filterAllLabel: 'All',
+    filterSelectedCountTemplate: '{n} selected', clearAllFilters: 'Clear filters', filterSearchPlaceholder: 'Search…',
     flagsLabel: 'flags', backToSearch: 'Back to search', backToHome: 'Back to home',
     alignmentTrend: 'Alignment with party line over time', partyAverage: 'Party average',
     flagsHeading: 'Flags', sourceNote: 'Source: German Bundestag lobby register.',
@@ -423,6 +432,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     flaggedVotes: 'Flagged votes', crossrefSub: 'MPs tied by a position, shareholding or donation to an organization that registered lobbying on that very vote — plus the published large donations to the parties.',
     colMp: 'MP', colDonor: 'Donor', colIndustry: 'Industry', colAmount: 'Amount', colVote: 'Vote', colFlag: 'Flag',
     flagged: 'Flagged', footerNote: 'Public data only. No login, no tracking.', footerSources: 'Sources: Abgeordnetenwatch, Bundestag, Lobbyregister',
+    footerDisclaimer: 'Politblick is a private, non-commercial hobby project with no affiliation with any party, parliamentary group, or government body.',
     tabOverview: 'Overview', tabVotes: 'Voting record', tabLobby: 'Lobby ties', tabFinance: 'Campaign finance',
     follow: 'Follow', following: 'Following',
     statBillsVoted: 'Bills voted', statAttendance: 'Attendance', statPartyAlignment: 'Party alignment', statFlags: 'Flags',
@@ -542,5 +552,6 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     networkOrgCountTemplate: '{n} organizations in the network',
     networkViewOrg: 'View organization',
     networkEmpty: 'No organizations with a party tie are on file for this selection.',
+    showMoreTemplate: 'Show all {n}', showLess: 'Show less',
   },
 };

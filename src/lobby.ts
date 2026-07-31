@@ -21,6 +21,8 @@ export interface LobbyOrg {
   id: string;
   name: string;
   legalForm: string | null;
+  /** The register's own classification of what kind of interest representative this is (Unternehmen, Verband, Beratungsunternehmen, Wissenschaft, Privatperson, …). */
+  actorType: string | null;
   city: string | null;
   url: string | null;
   /** Declared annual lobbying spend, reported by the register as a bracket. */
@@ -327,6 +329,7 @@ export function usePartyDonations(): {
 } {
   const { snapshot, loading, error } = useSnapshot();
   if (!snapshot) return { byFraction: [], all: [], loading, error };
+  const all = [...snapshot.partyDonations].sort((a, b) => b.amountEuro - a.amountEuro);
   const grouped = new Map<string, PartyDonation[]>();
   for (const d of snapshot.partyDonations) {
     const list = grouped.get(d.fraction) ?? [];
@@ -341,13 +344,15 @@ export function usePartyDonations(): {
       donations: [...donations].sort((a, b) => b.amountEuro - a.amountEuro),
     }))
     .sort((a, b) => b.total - a.total);
-  return { byFraction, all: snapshot.partyDonations, loading, error };
+  return { byFraction, all, loading, error };
 }
 
 export interface OrgListEntry {
   org: LobbyOrg;
   affiliatedMemberCount: number;
   lobbiedPollCount: number;
+  /** Distinct parties of affiliated members, biggest tie first — powers the party filter. */
+  parties: string[];
 }
 
 /**
@@ -367,12 +372,24 @@ export function useOrgList(): { orgs: OrgListEntry[]; loading: boolean; error: s
   for (const entries of Object.values(links.pollLobbying)) {
     for (const entry of entries) pollCountByOrg.set(entry.orgId, (pollCountByOrg.get(entry.orgId) ?? 0) + 1);
   }
+  const partyByMandate = new Map(snapshot.members.map((m) => [String(m.mandateId), m.party]));
+  const partyCountsByOrg = new Map<string, Map<string, number>>();
+  for (const [mandateId, orgLinks] of Object.entries(links.affiliations)) {
+    const party = partyByMandate.get(mandateId);
+    if (!party) continue;
+    for (const link of orgLinks) {
+      const counts = partyCountsByOrg.get(link.orgId) ?? new Map<string, number>();
+      counts.set(party, (counts.get(party) ?? 0) + 1);
+      partyCountsByOrg.set(link.orgId, counts);
+    }
+  }
 
   const orgs = Object.values(links.orgs)
     .map((org) => ({
       org,
       affiliatedMemberCount: memberCountByOrg.get(org.id) ?? 0,
       lobbiedPollCount: pollCountByOrg.get(org.id) ?? 0,
+      parties: [...(partyCountsByOrg.get(org.id)?.entries() ?? [])].sort((a, b) => b[1] - a[1]).map(([party]) => party),
     }))
     .sort((a, b) => b.affiliatedMemberCount - a.affiliatedMemberCount || b.lobbiedPollCount - a.lobbiedPollCount || a.org.name.localeCompare(b.org.name, 'de'));
   return { orgs, loading, error };
