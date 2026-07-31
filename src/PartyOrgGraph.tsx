@@ -43,6 +43,12 @@ const HEIGHT = 560;
 const HIT_PAD = 10;
 /** Keep every node's *circle* (not just its center) fully inside the canvas. */
 const EDGE_PAD = 4;
+/** Hard ceiling on the settle animation's length, in frames (~2.3s at 60fps) — see runSim(). */
+const MAX_FRAMES = 140;
+/** Frame at which repulsion/spring forces start easing toward zero, tapering off by MAX_FRAMES. */
+const EASE_START = 90;
+/** Realistic early-exit energy for the sparser cross-party-only graph — the old 0.01 was never reachable. */
+const STOP_ENERGY = 0.4;
 
 function clampToCanvas(n: { x: number; y: number; r: number }) {
   n.x = Math.max(n.r + EDGE_PAD, Math.min(WIDTH - n.r - EDGE_PAD, n.x));
@@ -255,8 +261,21 @@ function buildGraph(orgs: OrgNetworkNode[], parties: { name: string; color: stri
   return { nodes, edges };
 }
 
-/** One physics step. Returns the average per-node kinetic energy, used to decide when the layout has settled. */
-function tick(nodes: SimNode[], edges: SimEdge[]): number {
+/**
+ * One physics step. Returns the average per-node kinetic energy, used to decide when the
+ * layout has settled.
+ *
+ * `intensity` (1 = full strength, ramping down to ~0 near the end of the animation budget)
+ * scales only the repulsion and spring forces — the two forces that fight the hard overlap
+ * resolver below every frame and, measured against real data, keep the system oscillating
+ * indefinitely rather than ever converging (average energy was still 30–80 at frame 1000,
+ * versus the 0.01 stop threshold). Easing those two out lets the last stretch of the
+ * animation decelerate into stillness instead of being cut off mid-jitter by the frame cap.
+ * The centering pull and the overlap resolver stay at full strength throughout — the former
+ * is what keeps the graph on-canvas, the latter is what guarantees no two nodes visibly
+ * overlap even in the very first settled frame.
+ */
+function tick(nodes: SimNode[], edges: SimEdge[], intensity: number): number {
   const cx = WIDTH / 2;
   const cy = HEIGHT / 2;
   const byId = new Map(nodes.map((n) => [n.id, n]));
@@ -274,7 +293,7 @@ function tick(nodes: SimNode[], edges: SimEdge[]): number {
         distSq = 1;
       }
       const dist = Math.sqrt(distSq);
-      const force = 2600 / distSq;
+      const force = (2600 / distSq) * intensity;
       const fx = (dx / dist) * force;
       const fy = (dy / dist) * force;
       if (!a.fixed) {
@@ -300,7 +319,7 @@ function tick(nodes: SimNode[], edges: SimEdge[]): number {
     // single-tie org on a crowded party gets pulled toward the same ring and the
     // deliberately spread-out packing collapses back into one overcrowded circle.
     const idealLen = t.homeRadius ?? 210 / Math.sqrt(e.weight);
-    const force = (dist - idealLen) * 0.02;
+    const force = (dist - idealLen) * 0.02 * intensity;
     const fx = (dx / dist) * force;
     const fy = (dy / dist) * force;
     if (!s.fixed) {
@@ -318,8 +337,11 @@ function tick(nodes: SimNode[], edges: SimEdge[]): number {
     if (!n.fixed) {
       n.vx += (cx - n.x) * 0.0012;
       n.vy += (cy - n.y) * 0.0012;
-      n.vx *= 0.82;
-      n.vy *= 0.82;
+      // Damped harder than the original 0.82 — at that value the repulsion/spring
+      // forces above re-inject velocity faster than it bleeds off, which is the
+      // other half of why the simulation never reached the stop threshold.
+      n.vx *= 0.72;
+      n.vy *= 0.72;
       n.x += n.vx;
       n.y += n.vy;
       clampToCanvas(n);
@@ -391,12 +413,18 @@ export function PartyOrgGraph({
     const step = () => {
       const graph = graphRef.current;
       if (!graph) return;
-      const energy = tick(graph.nodes, graph.edges);
+      // Measured against real production data, the simulation's energy never actually
+      // drops anywhere near the old 0.01 stop threshold — it just oscillates (average
+      // energy was still 30–80 at frame 1000), so the loop always ran the full budget.
+      // MAX_FRAMES is a hard cap on how long that's ever visible; EASE_START tapers the
+      // repulsion/spring forces to zero over the last stretch so it decelerates into
+      // stillness instead of being cut off mid-jitter. STOP_ENERGY is a realistic early
+      // exit for the sparser cross-party-only graph, which can genuinely go still.
+      const intensity = framesRef.current < EASE_START ? 1 : Math.max(0, 1 - (framesRef.current - EASE_START) / (MAX_FRAMES - EASE_START));
+      const energy = tick(graph.nodes, graph.edges, intensity);
       framesRef.current++;
       forceRender((v) => v + 1);
-      // A dense "show all" graph (100+ same-angle orgs) genuinely needs longer to
-      // fan out than a small cross-party-only one — give it more frames to get there.
-      if (energy > 0.01 && framesRef.current < 1000) {
+      if (energy > STOP_ENERGY && framesRef.current < MAX_FRAMES) {
         rafRef.current = requestAnimationFrame(step);
       } else {
         rafRef.current = null;
