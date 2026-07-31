@@ -3,18 +3,17 @@ import {
   BILLS,
   DEMO_MPS,
   DEMO_PARTY_META,
-  TOPICS_DE,
-  TOPICS_EN,
   TRANSLATIONS,
   type Lang,
 } from './data';
 import { computeHemicycleSeats, fuzzyIncludes, initials, trendPoints } from './helpers';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealMp } from './bundestag';
 import { computeAllAlignments, computeDivergences, computeMemberAlignment, useAllPolls, useMandateVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult, type RealPoll } from './polls';
-import { useSidejobs } from './sidejobs';
+import { buildMemberIncomeScores, useSidejobs } from './sidejobs';
 import { useOnScreen, usePortrait } from './portraits';
 import { useSnapshot } from './snapshot';
 import {
+  buildMemberTieCounts,
   formatEuro,
   formatExpenseBracket,
   useCrossrefRows,
@@ -30,12 +29,15 @@ import {
   type OrgListEntry,
 } from './lobby';
 import { PartyOrgGraph } from './PartyOrgGraph';
+import { pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
 
-type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'party' | 'impressum' | 'disclaimer';
-type ProfileTab = 'overview' | 'votes' | 'lobby' | 'finance';
-type LobbyTab = 'overview' | 'parties' | 'orgs' | 'conflicts' | 'donations';
-type PartyTab = 'overview' | 'ties' | 'donations';
 type BillId = string | number;
+
+/** Real polls use numeric ids, demo bills use string ids like 'b1' — a URL segment is always a string, so a purely-numeric one is a real poll id. */
+function parseBillId(billId: string | null): BillId | null {
+  if (billId === null) return null;
+  return /^\d+$/.test(billId) ? Number(billId) : billId;
+}
 
 const voteBg: Record<string, string> = {
   yes: 'oklch(50% 0.14 155)',
@@ -945,19 +947,23 @@ function GlobalSearchBox({
 }
 
 function App() {
-  const [view, setView] = useState<View>('home');
+  // The single source of truth for "which page": read once from the URL on first render, then
+  // kept in sync with it by the history effects further down. Everything else in this file
+  // (filters, sort, search text, expanded tables) deliberately stays out of the URL — see router.ts.
+  const [initialRoute] = useState(() => pathToRoute(stripBase(window.location.pathname, import.meta.env.BASE_URL)));
+  const [view, setView] = useState<View>(initialRoute.view);
   const [lang, setLang] = useState<Lang>('de');
-  const [selectedMpId, setSelectedMpId] = useState<string | null>(null);
-  const [selectedBillId, setSelectedBillId] = useState<BillId | null>(null);
-  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
-  const [selectedParty, setSelectedParty] = useState<string | null>(null);
+  const [selectedMpId, setSelectedMpId] = useState<string | null>(initialRoute.mpId);
+  const [selectedBillId, setSelectedBillId] = useState<BillId | null>(parseBillId(initialRoute.billId));
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(initialRoute.orgId);
+  const [selectedParty, setSelectedParty] = useState<string | null>(initialRoute.party);
   const [orgSearchQuery, setOrgSearchQuery] = useState('');
-  const [profileTab, setProfileTab] = useState<ProfileTab>('overview');
-  const [lobbyTab, setLobbyTab] = useState<LobbyTab>('overview');
-  const [partyTab, setPartyTab] = useState<PartyTab>('overview');
+  const [profileTab, setProfileTab] = useState<ProfileTab>(initialRoute.profileTab);
+  const [lobbyTab, setLobbyTab] = useState<LobbyTab>(initialRoute.lobbyTab);
+  const [partyTab, setPartyTab] = useState<PartyTab>(initialRoute.partyTab);
   const [searchQuery, setSearchQuery] = useState('');
   const [partyFilter, setPartyFilter] = useState<Record<string, boolean>>({});
-  const [topicFilter, setTopicFilter] = useState<string | null>(null);
+  const [rosterSort, setRosterSort] = useState<'default' | 'income' | 'ties'>('default');
   const [following, setFollowing] = useState<Record<string, boolean>>({});
   const [hoveredAlignmentPoint, setHoveredAlignmentPoint] = useState<number | null>(null);
   const [tieMatrixFilter, setTieMatrixFilter] = useState<MatrixCell | null>(null);
@@ -1001,6 +1007,50 @@ function App() {
     mpsNavCloseTimer.current = setTimeout(() => setMpsNavOpen(false), 250);
   };
 
+  // Browser back/forward: re-derive route state from the URL rather than replaying setView
+  // calls. isPopStateRef suppresses the push effect below for this one render, so going back
+  // doesn't immediately push the page we just navigated away from back onto the stack.
+  const isPopStateRef = useRef(false);
+  useEffect(() => {
+    const onPopState = () => {
+      isPopStateRef.current = true;
+      const r = pathToRoute(stripBase(window.location.pathname, import.meta.env.BASE_URL));
+      setView(r.view);
+      setSelectedMpId(r.mpId);
+      setSelectedBillId(parseBillId(r.billId));
+      setSelectedOrgId(r.orgId);
+      setSelectedParty(r.party);
+      setProfileTab(r.profileTab);
+      setLobbyTab(r.lobbyTab);
+      setPartyTab(r.partyTab);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  // Keeps the address bar in sync whenever "which page" state changes — filters/sort/search
+  // text are intentionally excluded from the dependency array, so refining a list in place
+  // never pushes a history entry.
+  useEffect(() => {
+    if (isPopStateRef.current) {
+      isPopStateRef.current = false;
+      return;
+    }
+    const path = routeToPath({
+      view,
+      mpId: selectedMpId,
+      profileTab,
+      billId: selectedBillId !== null ? String(selectedBillId) : null,
+      orgId: selectedOrgId,
+      party: selectedParty,
+      partyTab,
+      lobbyTab,
+    });
+    const fullPath = withBase(path, import.meta.env.BASE_URL);
+    if (window.location.pathname !== fullPath) window.history.pushState(null, '', fullPath);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab]);
+
   const { snapshot } = useSnapshot();
   const roster = useBundestagRoster();
   const pollsState = useAllPolls();
@@ -1011,8 +1061,6 @@ function App() {
   const mandateToMember = new Map(roster.members.map((m) => [m.mandateId, m]));
 
   const t = TRANSLATIONS[lang];
-  const topics = lang === 'de' ? TOPICS_DE : TOPICS_EN;
-  const activeTopic = topicFilter || topics[0];
 
   const goHome = () => setView('home');
   const goSearch = () => setView('search');
@@ -1022,6 +1070,7 @@ function App() {
   };
   const goImpressum = () => setView('impressum');
   const goDisclaimer = () => setView('disclaimer');
+  const goDatenschutz = () => setView('datenschutz');
   const openMp = (id: string) => {
     setView('profile');
     setSelectedMpId(id);
@@ -1062,11 +1111,19 @@ function App() {
   }));
 
   const q = searchQuery.trim();
-  const filteredMps = roster.members.filter((m) => {
-    if (partyFilter[m.party] === false) return false;
-    if (q && !fuzzyIncludes(m.name, q) && !fuzzyIncludes(m.constituency, q)) return false;
-    return true;
-  });
+  const incomeScoreByMandate = snapshot ? buildMemberIncomeScores(snapshot.sidejobsByMandate) : new Map<number, number>();
+  const tieCountByMandate = snapshot ? buildMemberTieCounts(snapshot.lobbyLinks) : new Map<number, number>();
+  const filteredMps = roster.members
+    .filter((m) => {
+      if (partyFilter[m.party] === false) return false;
+      if (q && !fuzzyIncludes(m.name, q) && !fuzzyIncludes(m.constituency, q)) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (rosterSort === 'income') return (incomeScoreByMandate.get(b.mandateId) ?? 0) - (incomeScoreByMandate.get(a.mandateId) ?? 0);
+      if (rosterSort === 'ties') return (tieCountByMandate.get(b.mandateId) ?? 0) - (tieCountByMandate.get(a.mandateId) ?? 0);
+      return 0;
+    });
   const alignmentByMandate = computeAllAlignments(recentPolls.results);
 
   // Illustrative sample profiles (not real people) that power the votes/lobby/finance demo content below.
@@ -1728,17 +1785,15 @@ function App() {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'oklch(45% 0.01 260)', marginBottom: 10 }}>{t.filterTopic}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'oklch(45% 0.01 260)', marginBottom: 10 }}>{t.filterSort}</div>
               <select
-                value={activeTopic}
-                onChange={(e) => setTopicFilter(e.target.value)}
+                value={rosterSort}
+                onChange={(e) => setRosterSort(e.target.value as typeof rosterSort)}
                 style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid oklch(90% 0.006 260)', fontSize: 13.5, background: 'white' }}
               >
-                {topics.map((topic) => (
-                  <option key={topic} value={topic}>
-                    {topic}
-                  </option>
-                ))}
+                <option value="default">{t.sortDefault}</option>
+                <option value="income">{t.sortIncome}</option>
+                <option value="ties">{t.sortTies}</option>
               </select>
             </div>
           </aside>
@@ -3594,6 +3649,16 @@ function App() {
         </main>
       )}
 
+      {view === 'datenschutz' && (
+        <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', width: '100%', padding: 32 }}>
+          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+            ← {t.backToHome}
+          </a>
+          <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.datenschutzTitle}</h1>
+          <p style={{ fontSize: 14, color: 'oklch(35% 0.01 260)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{t.datenschutzBody}</p>
+        </main>
+      )}
+
       <footer style={{ borderTop: '1px solid oklch(90% 0.006 260)' }}>
         <div
           style={{
@@ -3652,6 +3717,9 @@ function App() {
             </a>
             <a href="#" onClick={stop(goImpressum)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.impressumTitle}
+            </a>
+            <a href="#" onClick={stop(goDatenschutz)} style={{ color: 'oklch(52% 0.01 260)' }}>
+              {t.datenschutzTitle}
             </a>
           </div>
           <span>{t.footerSources}</span>

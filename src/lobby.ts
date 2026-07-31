@@ -480,6 +480,17 @@ export function useOrgDetail(orgId: string | null): OrgDetailState {
   return { org, lobbiedPolls, affiliatedMembers, conflicts, topicalTies, donorNames, loading, error };
 }
 
+/** Combined tie count per member — declared org ties plus vote-level conflicts — keyed by mandate. Powers the roster "most Verflechtungen" sort. */
+export function buildMemberTieCounts(links: LobbyLinks): Map<number, number> {
+  const counts = new Map<number, number>();
+  for (const [mandateIdStr, affs] of Object.entries(links.affiliations)) {
+    const mandateId = Number(mandateIdStr);
+    counts.set(mandateId, (counts.get(mandateId) ?? 0) + affs.length);
+  }
+  for (const c of links.conflicts) counts.set(c.mandateId, (counts.get(c.mandateId) ?? 0) + 1);
+  return counts;
+}
+
 /** Per-party lobbying summary — pure lookup, no fetching. Biggest tally first. */
 export function usePartyLobbySummary(): { summaries: PartyLobbySummary[]; loading: boolean; error: string | null } {
   const { snapshot, loading, error } = useSnapshot();

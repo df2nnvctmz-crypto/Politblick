@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <title>Politblick</title>
+    <script type="text/javascript">
+      // Single Page Apps for GitHub Pages — https://github.com/rafgraph/spa-github-pages
+      // GitHub Pages serves this for any unknown deep link (e.g. /Politblick/abgeordnete/12345);
+      // it re-encodes the path into a query string and bounces to the real index.html, which
+      // decodes it back before the app boots (see the inline script in index.html).
+      var pathSegmentsToKeep = 1; // keep '/Politblick' — see vite.config.ts's `base`
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    </script>
+  </head>
+  <body></body>
+</html>
