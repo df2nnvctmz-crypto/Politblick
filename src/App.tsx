@@ -1254,7 +1254,9 @@ function App() {
                 style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}
               >
                 <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statDonationsSumLabel}</div>
-                <div style={{ fontSize: 26, fontWeight: 800 }}>{formatEuro(partyDonations.all.reduce((sum, d) => sum + d.amountEuro, 0))}</div>
+                <div style={{ fontSize: 20, fontWeight: 800, whiteSpace: 'nowrap' }}>
+                  {formatEuro(partyDonations.all.reduce((sum, d) => sum + d.amountEuro, 0))}
+                </div>
               </div>
               <div
                 onClick={() => goCrossref('orgs')}
@@ -2336,7 +2338,9 @@ function App() {
                 </div>
                 <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
                   <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statDonationsSumLabel}</div>
-                  <div style={{ fontSize: 24, fontWeight: 800 }}>{formatEuro(partyDonations.all.reduce((sum, d) => sum + d.amountEuro, 0))}</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, whiteSpace: 'nowrap' }}>
+                    {formatEuro(partyDonations.all.reduce((sum, d) => sum + d.amountEuro, 0))}
+                  </div>
                 </div>
               </div>
 
