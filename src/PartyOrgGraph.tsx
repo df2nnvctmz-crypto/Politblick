@@ -438,11 +438,17 @@ export function PartyOrgGraph({
     framesRef.current = 0;
     setActiveParties(new Set());
     setActiveOrgId(null);
-    // Reflect the rebuilt graph immediately rather than waiting for the physics loop's
-    // first requestAnimationFrame tick — that tick can lag a beat (or, in a backgrounded/
-    // throttled tab, much longer), which left the old node set on screen after toggling.
+    // No runSim() here, deliberately. buildGraph()'s deterministic seeding (arc-packed
+    // single-tie orgs, spiral-seeded multi-tie ones) plus its synchronous settleOverlaps()
+    // pass already produces a non-overlapping, reasonably spread layout on its own — the
+    // spring/repulsion physics in tick() is a stiff, explicit-Euler system that overshoots
+    // every frame rather than smoothly decaying (confirmed against real data: energy swung
+    // between 40 and 125 frame-to-frame for 90+ frames before the forced ease-out), so
+    // animating from the seed to the settled layout looked like the whole graph spinning
+    // wildly, not springing into place. Just render the already-good seed directly; physics
+    // stays reserved for the drag interaction below, where it only has to re-settle one
+    // perturbed node instead of animate an entire fresh layout.
     forceRender((v) => v + 1);
-    runSim();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgsKey, partiesKey, crossPartyOnly]);
 
