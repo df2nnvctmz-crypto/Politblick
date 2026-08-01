@@ -115,3 +115,47 @@ button {
   stroke-dasharray: 6 6;
   animation: pb-edge-flow 0.6s linear infinite;
 }
+
+/* Dual-handle range slider: two overlapping <input type="range"> elements, tracks made
+   invisible so only the thumbs show — the visible track/fill is drawn separately underneath. */
+.pb-range-dual {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.pb-range-dual::-webkit-slider-runnable-track {
+  background: transparent;
+}
+
+.pb-range-dual::-moz-range-track {
+  background: transparent;
+}
+
+.pb-range-dual::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: oklch(45% 0.16 265);
+  cursor: pointer;
+  margin-top: 0;
+}
+
+.pb-range-dual::-moz-range-thumb {
+  pointer-events: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: none;
+  background: oklch(45% 0.16 265);
+  cursor: pointer;
+}

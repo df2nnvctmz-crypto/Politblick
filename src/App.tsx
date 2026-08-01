@@ -8,7 +8,7 @@ import {
 } from './data';
 import { computeHemicycleSeats, fuzzyIncludes, initials, trendPoints } from './helpers';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealMp } from './bundestag';
-import { computeAllAlignments, computeDivergences, computeMemberAlignment, useAllPolls, useMandateVotes, usePartyVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult, type RealPoll } from './polls';
+import { computeAllAlignments, computeDivergences, computeMemberAlignment, isoWeekRange, useAllPollResults, useAllPolls, useMandateVotes, usePartyVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult, type RealPoll } from './polls';
 import { buildMemberIncomeScores, useSidejobs } from './sidejobs';
 import { useSnapshot } from './snapshot';
 import {
@@ -1056,6 +1056,7 @@ function App() {
   const [topicalExpanded, setTopicalExpanded] = useState(false);
   const [donationsExpanded, setDonationsExpanded] = useState(false);
   const [votesExpanded, setVotesExpanded] = useState(false);
+  const [flaggedVotesExpanded, setFlaggedVotesExpanded] = useState(false);
   const [orgsSort, setOrgsSort] = useState<SortState>(null);
   const [conflictsSort, setConflictsSort] = useState<SortState>(null);
   const [topicalSort, setTopicalSort] = useState<SortState>(null);
@@ -1150,6 +1151,7 @@ function App() {
   // Shared across the whole app: the search list computes every visible member's alignment
   // from this same fetch (no per-row network calls), and the profile page reuses it too.
   const recentPolls = useRecentPollResults(pollsState.polls);
+  const allPollResults = useAllPollResults(pollsState.polls);
   const mandateToMember = new Map(roster.members.map((m) => [m.mandateId, m]));
 
   const t = TRANSLATIONS[lang];
@@ -1162,6 +1164,7 @@ function App() {
   };
   const goPartyList = () => setView('partyList');
   const goCommitteeList = () => setView('committeeList');
+  const goPollList = () => setView('pollList');
   const openCommittee = (id: string) => {
     setView('committee');
     setSelectedCommitteeId(id);
@@ -1179,6 +1182,7 @@ function App() {
   const openBill = (id: BillId) => {
     setView('bill');
     setSelectedBillId(id);
+    setFlaggedVotesExpanded(false);
   };
   const openOrg = (id: string) => {
     setView('org');
@@ -1250,6 +1254,17 @@ function App() {
   // vote differed from their own fraction's majority on this specific poll) — never a claim
   // about motive, sourced live from abgeordnetenwatch.de's roll-call vote records.
   const weekLabel = weekly.weekRange ? formatWeekRange(weekly.weekRange, lang) : '';
+  // All polls grouped by sitting week (Sitzungswoche), most recent week first, for the full poll list view.
+  const pollWeekGroups = (() => {
+    const byWeek = new Map<string, { range: { start: Date; end: Date }; results: PollResult[] }>();
+    for (const r of allPollResults.results) {
+      const range = isoWeekRange(r.poll.date);
+      const key = range.start.toISOString();
+      if (!byWeek.has(key)) byWeek.set(key, { range, results: [] });
+      byWeek.get(key)!.results.push(r);
+    }
+    return Array.from(byWeek.values()).sort((a, b) => b.range.start.getTime() - a.range.start.getTime());
+  })();
   const weeklyFeedItems = weekly.results.map((r) => {
     const divergence = weekly.divergences.find((d) => d.poll.id === r.poll.id);
     return {
@@ -1363,6 +1378,7 @@ function App() {
   const currentBill = demoBillMatch ? buildBreakdown(demoBillMatch) : null;
   const realPollId = typeof selectedBillId === 'number' ? selectedBillId : null;
   const pollDetail = usePollResult(realPollId);
+  const pollDetailDivergences = pollDetail.result ? computeDivergences(pollDetail.result) : [];
 
   // Real cross-references: a member voting on a bill that an organisation they are personally
   // tied to registered lobbying on. Sourced from the Lobbyregister + members' own declarations.
@@ -1463,13 +1479,13 @@ function App() {
               })}
               href="#"
               style={{
-                ...navStyle(view === 'search' || view === 'party' || view === 'partyList' || view === 'committee' || view === 'committeeList'),
+                ...navStyle(view === 'search' || view === 'party' || view === 'partyList' || view === 'committee' || view === 'committeeList' || view === 'pollList'),
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 4,
               }}
             >
-              {t.navMps}
+              {t.navParliament}
               <span style={{ fontSize: 8, transform: mpsNavOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>▾</span>
             </a>
             {mpsNavOpen && (
@@ -1545,6 +1561,25 @@ function App() {
                   }}
                 >
                   {t.navCommittees}
+                </a>
+                <a
+                  href="#"
+                  onClick={stop(() => {
+                    goPollList();
+                    setMpsNavOpen(false);
+                  })}
+                  style={{
+                    display: 'block',
+                    padding: '8px 12px',
+                    borderRadius: 7,
+                    fontSize: 13,
+                    fontWeight: view === 'pollList' ? 700 : 500,
+                    color: view === 'pollList' ? 'oklch(45% 0.16 265)' : 'oklch(30% 0.01 260)',
+                    background: view === 'pollList' ? 'oklch(45% 0.16 265 / 0.08)' : 'transparent',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {t.navPolls}
                 </a>
               </div>
             )}
@@ -1779,7 +1814,12 @@ function App() {
           </section>
 
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '12px 32px 8px' }}>
-            <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 4px' }}>{t.expectationTitle}</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+              <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 4px' }}>{t.expectationTitle}</h2>
+              <a href="#" onClick={stop(() => goCrossref('conflicts'))} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
+                {t.seeAllConflicts} →
+              </a>
+            </div>
             <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)', margin: '0 0 18px', maxWidth: 640 }}>{t.expectationSub}</p>
             {weekly.loading && weekly.results.length === 0 ? (
               <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.pollsLoading}</p>
@@ -1854,7 +1894,12 @@ function App() {
           </section>
 
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 32px 80px' }}>
-            <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 4px' }}>{t.feedTitle}</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+              <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 4px' }}>{t.feedTitle}</h2>
+              <a href="#" onClick={stop(goPollList)} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
+                {t.seeAllPolls} →
+              </a>
+            </div>
             <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)', margin: '0 0 20px' }}>
               {t.feedSub}
               {weekLabel ? ` — ${t.weekOf} ${weekLabel}` : ''}
@@ -2806,8 +2851,12 @@ function App() {
                   </div>
 
                   <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>{t.flaggedVotes}</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-                    {computeDivergences(pollDetail.result).map((d, i) => {
+                  {pollDetailDivergences.length === 0 ? (
+                    <p style={{ fontSize: 13, color: 'oklch(48% 0.01 260)', marginBottom: 20 }}>{t.noFlaggedVotes}</p>
+                  ) : (
+                  <div style={{ marginBottom: 20 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {pollDetailDivergences.slice(0, flaggedVotesExpanded ? pollDetailDivergences.length : 10).map((d, i) => {
                       const rm = mandateToMember.get(d.member.mandateId);
                       return (
                         <div
@@ -2829,13 +2878,37 @@ function App() {
                             <span style={{ fontSize: 14, fontWeight: 600 }}>{d.member.name}</span>
                             <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{d.member.party}</span>
                           </div>
-                          <span style={{ fontSize: 12, color: 'oklch(48% 0.16 40)' }}>
-                            {t.realAgainstPartyTemplate.replace('{party}', d.member.party)}
-                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <span
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                padding: '3px 10px',
+                                borderRadius: 10,
+                                background: voteBg[d.member.vote],
+                                color: 'white',
+                              }}
+                            >
+                              {d.member.vote === 'yes' ? t.voteYes : d.member.vote === 'no' ? t.voteNo : t.voteAbstain}
+                            </span>
+                            <span style={{ fontSize: 12, color: 'oklch(48% 0.16 40)' }}>
+                              {t.realAgainstPartyTemplate.replace('{party}', d.member.party)}
+                            </span>
+                          </div>
                         </div>
                       );
                     })}
                   </div>
+                  <ShowMoreButton
+                    total={pollDetailDivergences.length}
+                    defaultCount={10}
+                    expanded={flaggedVotesExpanded}
+                    onToggle={() => setFlaggedVotesExpanded((v) => !v)}
+                    showMoreTemplate={t.showMoreTemplate}
+                    showLessLabel={t.showLess}
+                  />
+                  </div>
+                  )}
                   {/* Interest groups that registered lobbying on this vote's Drucksachen. The
                       register says what each wanted, in its own words — never which way it
                       wanted the vote to go, so no direction is shown here. */}
@@ -3368,6 +3441,8 @@ function App() {
                     excludedTemplate: t.donationTimelineExcludedTemplate,
                     empty: t.donationTimelineEmpty,
                     quarterTotalLabel: t.donationTimelineQuarterTotalLabel,
+                    rangeLabelTemplate: t.donationTimelineRangeLabelTemplate,
+                    otherDonorsLabel: t.donationTimelineOtherDonorsLabel,
                   }}
                 />
               </div>
@@ -3686,6 +3761,69 @@ function App() {
                       ))}
                     </div>
                   )}
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
+      )}
+
+      {view === 'pollList' && (
+        <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', width: '100%', padding: 32 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{t.navPolls}</h1>
+          <p style={{ fontSize: 14, color: 'oklch(45% 0.01 260)', margin: '0 0 28px', maxWidth: 640 }}>{t.pollListSub}</p>
+
+          {allPollResults.error ? (
+            <p style={{ fontSize: 13.5, color: 'oklch(48% 0.16 40)' }}>{t.pollsError}</p>
+          ) : allPollResults.loading && allPollResults.results.length === 0 ? (
+            <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.pollsLoading}</p>
+          ) : allPollResults.results.length === 0 ? (
+            <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.noPollsThisWeek}</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+              {pollWeekGroups.map((group) => (
+                <div key={group.range.start.toISOString()}>
+                  <h3 style={{ fontSize: 13, fontWeight: 700, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>
+                    {t.weekOf} {formatWeekRange(group.range, lang)}
+                  </h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px,1fr))', gap: 16 }}>
+                    {group.results.map((r) => (
+                      <div
+                        key={r.poll.id}
+                        onClick={() => openBill(r.poll.id)}
+                        style={{
+                          cursor: 'pointer',
+                          background: 'white',
+                          border: '1px solid oklch(90% 0.006 260)',
+                          borderRadius: 12,
+                          padding: 18,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 10,
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'oklch(48% 0.01 260)' }}>
+                            {r.poll.topic}
+                          </span>
+                          <span style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)' }}>{r.poll.date}</span>
+                        </div>
+                        <div style={{ fontSize: 15.5, fontWeight: 700, lineHeight: 1.3 }}>{r.poll.title}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <div style={{ flex: 1, height: 6, borderRadius: 3, overflow: 'hidden', display: 'flex', background: 'oklch(93% 0.006 260)' }}>
+                            <div style={{ width: `${r.yesPct}%`, background: 'oklch(50% 0.14 155)' }} />
+                            <div style={{ width: `${100 - r.yesPct}%`, background: 'oklch(55% 0.16 40)' }} />
+                          </div>
+                          <span style={{ fontSize: 11, color: 'oklch(48% 0.01 260)', whiteSpace: 'nowrap' }}>
+                            {r.yesPct}% {t.voteYes}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: r.poll.accepted ? 'oklch(45% 0.14 155)' : 'oklch(48% 0.16 40)' }}>
+                          {r.poll.accepted ? t.pollAccepted : t.pollRejected}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
@@ -4124,29 +4262,14 @@ function App() {
                             <div style={{ marginBottom: 22 }}>
                               <DonationTimeline
                                 donations={partyDonationList}
+                                stackBy="donor"
                                 labels={{
                                   axisMaxTemplate: t.donationTimelineAxisMaxTemplate,
                                   excludedTemplate: t.donationTimelineExcludedTemplate,
                                   empty: t.donationTimelineEmpty,
                                   quarterTotalLabel: t.donationTimelineQuarterTotalLabel,
-                                }}
-                              />
-                            </div>
-
-                            <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.donationSankeyTitle}</h3>
-                            <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.donationSankeySub}</p>
-                            <div style={{ marginBottom: 22 }}>
-                              <DonationSankey
-                                donations={partyDonationList}
-                                fractionTotals={{ [p.party]: partyDonationSummary?.total ?? 0 }}
-                                onOpenParty={() => {}}
-                                isPartyRoutable={() => false}
-                                labels={{
-                                  noteTemplate: t.donationSankeyNoteTemplate,
-                                  excludedTemplate: t.donationSankeyExcludedTemplate,
-                                  coverageTemplate: t.donationSankeyCoverageTemplate,
-                                  sliderLabelTemplate: t.donationSankeySliderLabelTemplate,
-                                  viewParty: t.networkViewParty,
+                                  rangeLabelTemplate: t.donationTimelineRangeLabelTemplate,
+                                  otherDonorsLabel: t.donationTimelineOtherDonorsLabel,
                                 }}
                               />
                             </div>

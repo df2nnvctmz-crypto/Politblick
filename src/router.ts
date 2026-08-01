@@ -9,7 +9,7 @@
  * spa-github-pages redirect trick in public/404.html + index.html.
  */
 
-export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'partyList' | 'party' | 'committeeList' | 'committee' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten';
+export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'partyList' | 'party' | 'committeeList' | 'committee' | 'pollList' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten';
 export type ProfileTab = 'overview' | 'votes' | 'lobby' | 'finance';
 export type LobbyTab = 'overview' | 'parties' | 'orgs' | 'conflicts' | 'donations';
 export type PartyTab = 'overview' | 'votes' | 'ties' | 'donations';
@@ -61,6 +61,8 @@ export function routeToPath(r: RouteState): string {
       return '/ausschuesse';
     case 'committee':
       return r.committeeId ? `/ausschuesse/${encodeURIComponent(r.committeeId)}` : '/ausschuesse';
+    case 'pollList':
+      return '/abstimmungen';
     case 'party': {
       if (!r.party) return '/parteien';
       const seg = PARTY_TAB_TO_SEGMENT[r.partyTab];
@@ -101,6 +103,7 @@ export function pathToRoute(pathname: string): RouteState {
     if (!second) return { ...DEFAULT_ROUTE, view: 'partyList' };
     return { ...DEFAULT_ROUTE, view: 'party', party: second, partyTab: third ? SEGMENT_TO_PARTY_TAB[third] ?? 'overview' : 'overview' };
   }
+  if (first === 'abstimmungen') return { ...DEFAULT_ROUTE, view: 'pollList' };
   if (first === 'lobby-finanzen') {
     return { ...DEFAULT_ROUTE, view: 'crossref', lobbyTab: second ? SEGMENT_TO_LOBBY_TAB[second] ?? 'overview' : 'overview' };
   }

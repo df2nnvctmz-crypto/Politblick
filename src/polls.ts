@@ -72,7 +72,7 @@ export function computeDivergences(result: PollResult): Divergence[] {
   return out;
 }
 
-function isoWeekRange(dateStr: string): { start: Date; end: Date } {
+export function isoWeekRange(dateStr: string): { start: Date; end: Date } {
   const d = new Date(`${dateStr}T00:00:00Z`);
   const dayIndex = (d.getUTCDay() + 6) % 7;
   const monday = new Date(d);
@@ -288,6 +288,22 @@ export function useRecentPollResults(polls: RealPoll[], count: number = RECENT_P
   if (!snapshot) return { results: [], loading, error };
   const results = polls
     .slice(0, count)
+    .map((p) => snapshot.pollResults.get(p.id))
+    .filter((r): r is PollResult => r !== undefined);
+  return { results, loading, error };
+}
+
+export interface AllPollResultsState {
+  results: PollResult[];
+  loading: boolean;
+  error: string | null;
+}
+
+/** Every poll's full vote breakdown, most recent first — pure lookup in the snapshot, no fetching. Backs the "all polls" list view. */
+export function useAllPollResults(polls: RealPoll[]): AllPollResultsState {
+  const { snapshot, loading, error } = useSnapshot();
+  if (!snapshot) return { results: [], loading, error };
+  const results = polls
     .map((p) => snapshot.pollResults.get(p.id))
     .filter((r): r is PollResult => r !== undefined);
   return { results, loading, error };

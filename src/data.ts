@@ -179,7 +179,7 @@ export const BILLS: Bill[] = [
 ];
 
 export interface Translation {
-  navHome: string; navMps: string; navMpsSearch: string; navParties: string; navCommittees: string; navLobbyFinance: string;
+  navHome: string; navParliament: string; navMps: string; navMpsSearch: string; navParties: string; navCommittees: string; navPolls: string; navLobbyFinance: string;
   searchPlaceholder: string;
   heroKicker: string; heroTitle: string; heroSub: string;
   heroCta: string; heroCta2: string;
@@ -198,7 +198,7 @@ export interface Translation {
   flagsHeading: string; sourceNote: string;
   rechenschaftsNote: string;
   voteBreakdown: string; voteYes: string; voteNo: string; voteAbstain: string; voteSplit: string;
-  flaggedVotes: string; crossrefSub: string;
+  flaggedVotes: string; noFlaggedVotes: string; crossrefSub: string;
   colMp: string; colDonor: string; colIndustry: string; colAmount: string; colVote: string; colFlag: string;
   flagged: string; footerNote: string; footerSources: string; footerDisclaimer: string;
   tabOverview: string; tabVotes: string; tabLobby: string; tabFinance: string;
@@ -239,7 +239,8 @@ export interface Translation {
   donationSankeySliderLabelTemplate: string;
   donationTimelineTitle: string; donationTimelineSub: string; donationTimelinePartySub: string;
   donationTimelineAxisMaxTemplate: string; donationTimelineExcludedTemplate: string;
-  donationTimelineEmpty: string; donationTimelineQuarterTotalLabel: string;
+  donationTimelineEmpty: string; donationTimelineQuarterTotalLabel: string; donationTimelineRangeLabelTemplate: string;
+  donationTimelineOtherDonorsLabel: string;
   donationsTitle: string; donationsSub: string; donationsColParty: string;
   donationsColDonor: string; donationsColAmount: string; donationsColDate: string;
   donationsAlsoLobbyist: string; donationsSource: string;
@@ -265,6 +266,7 @@ export interface Translation {
   committeeRoleChair: string; committeeRoleViceChair: string; committeeRoleSpokesperson: string; committeeRoleAlternate: string;
   profileCommitteesTitle: string;
   partyListSub: string;
+  pollListSub: string; seeAllPolls: string; seeAllConflicts: string;
   partyLobbyTitle: string; partyLobbySub: string;
   partyLobbyOrgCountTemplate: string; partyLobbyMemberCountTemplate: string;
   partyLobbyTopFieldsLabel: string; partyLobbySpendLabel: string;
@@ -289,7 +291,7 @@ export interface Translation {
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
   de: {
-    navHome: 'Start', navMps: 'Abgeordnete', navMpsSearch: 'Abgeordnete durchsuchen', navParties: 'Parteien', navCommittees: 'Ausschüsse', navLobbyFinance: 'Lobby & Finanzen',
+    navHome: 'Start', navParliament: 'Parlament', navMps: 'Abgeordnete', navMpsSearch: 'Abgeordnete durchsuchen', navParties: 'Parteien', navCommittees: 'Ausschüsse', navPolls: 'Abstimmungen', navLobbyFinance: 'Lobby & Finanzen',
     searchPlaceholder: 'Abgeordnete, Themen, Gesetze suchen…',
     heroKicker: 'Öffentliche Daten, an einem Ort',
     heroTitle: 'Jede Abstimmung. Jede Verbindung.',
@@ -315,7 +317,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     flagsHeading: 'Auffälligkeiten', sourceNote: 'Quelle: Lobbyregister des Deutschen Bundestages.',
     rechenschaftsNote: 'Quelle: Rechenschaftsberichte der Parteien.',
     voteBreakdown: 'Abstimmungsergebnis nach Partei', voteYes: 'Ja', voteNo: 'Nein', voteAbstain: 'Enthaltung', voteSplit: 'Kein Mehrheitsvotum',
-    flaggedVotes: 'Auffällige Stimmen', crossrefSub: 'Abgeordnete, die über eine Funktion, Beteiligung oder Zuwendung mit einer Organisation verbunden sind, die zu genau dieser Abstimmung Interessenvertretung angemeldet hat — sowie die veröffentlichten Großspenden an die Parteien.',
+    flaggedVotes: 'Auffällige Stimmen', noFlaggedVotes: 'Keine auffälligen Stimmen bei dieser Abstimmung.', crossrefSub: 'Abgeordnete, die über eine Funktion, Beteiligung oder Zuwendung mit einer Organisation verbunden sind, die zu genau dieser Abstimmung Interessenvertretung angemeldet hat — sowie die veröffentlichten Großspenden an die Parteien.',
     colMp: 'Abgeordnete/r', colDonor: 'Spender', colIndustry: 'Branche', colAmount: 'Betrag', colVote: 'Stimme', colFlag: 'Hinweis',
     flagged: 'Auffällig', footerNote: 'Nur öffentliche Daten. Kein Login, kein Tracking.', footerSources: 'Quellen: Abgeordnetenwatch, Bundestag, Lobbyregister',
     footerDisclaimer: 'Politblick ist ein privates, nicht-kommerzielles Hobbyprojekt ohne Verbindung zu Parteien, Fraktionen oder staatlichen Stellen.',
@@ -388,6 +390,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationTimelineExcludedTemplate: '{n} Spende(n) ohne Eingangsdatum sind hier nicht dargestellt, aber in Summe und Tabelle enthalten.',
     donationTimelineEmpty: 'Keine datierten Großspenden für diesen Zeitraum.',
     donationTimelineQuarterTotalLabel: 'Summe:',
+    donationTimelineRangeLabelTemplate: 'Zeitraum: {from} – {to}',
+    donationTimelineOtherDonorsLabel: 'Weitere Spender',
     donationsTitle: 'Großspenden an Parteien',
     donationsSub: 'Einzelspenden über 35.000 € (bis März 2024: über 50.000 €), veröffentlicht von der Bundestagspräsidentin.',
     donationsColParty: 'Partei', donationsColDonor: 'Spender', donationsColAmount: 'Betrag', donationsColDate: 'Eingang',
@@ -441,6 +445,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     committeeRoleChair: 'Vorsitz', committeeRoleViceChair: 'Stellv. Vorsitz', committeeRoleSpokesperson: 'Sprecher:in', committeeRoleAlternate: 'Stellv. Mitglied',
     profileCommitteesTitle: 'Ausschüsse',
     partyListSub: 'Jede Fraktion im Bundestag: Sitzverteilung, Lobbyverflechtungen, Großspenden und wie sie bei namentlichen Abstimmungen votiert hat.',
+    pollListSub: 'Alle namentlichen Abstimmungen im Bundestag dieser Wahlperiode.', seeAllPolls: 'Alle Abstimmungen ansehen', seeAllConflicts: 'Alle Verflechtungen ansehen',
     partyLobbyTitle: 'Lobbyverflechtungen nach Partei',
     partyLobbySub: 'Für jede Partei: die Organisationen, bei denen ihre Abgeordneten laut eigener Angabe eine Funktion ausüben, gruppiert nach deren Interessengebiet.',
     partyLobbyOrgCountTemplate: '{n} Organisationen', partyLobbyMemberCountTemplate: '{n} Abgeordnete mit Funktion',
@@ -485,7 +490,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       'Schwächerer Hinweis als eine Verflechtung: Die Organisation hat kein Interessengebiet angemeldet, das speziell auf diese Abstimmung verweist — nur ein allgemeines Interessengebiet, das laut Politblick-Redaktion zum Thema passt. Kein dokumentierter Bezug zu dieser Abstimmung.',
   },
   en: {
-    navHome: 'Home', navMps: 'MPs', navMpsSearch: 'Search MPs', navParties: 'Parties', navCommittees: 'Committees', navLobbyFinance: 'Lobby & Finance',
+    navHome: 'Home', navParliament: 'Parliament', navMps: 'MPs', navMpsSearch: 'Search MPs', navParties: 'Parties', navCommittees: 'Committees', navPolls: 'Votes', navLobbyFinance: 'Lobby & Finance',
     searchPlaceholder: 'Search MPs, topics, bills…',
     heroKicker: 'Public data, one place',
     heroTitle: 'Every vote. Every connection.',
@@ -511,7 +516,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     flagsHeading: 'Flags', sourceNote: 'Source: German Bundestag lobby register.',
     rechenschaftsNote: 'Source: Party financial disclosure reports.',
     voteBreakdown: 'Vote breakdown by party', voteYes: 'Yes', voteNo: 'No', voteAbstain: 'Abstain', voteSplit: 'No majority',
-    flaggedVotes: 'Flagged votes', crossrefSub: 'MPs tied by a position, shareholding or donation to an organization that registered lobbying on that very vote — plus the published large donations to the parties.',
+    flaggedVotes: 'Flagged votes', noFlaggedVotes: 'No flagged votes on this poll.', crossrefSub: 'MPs tied by a position, shareholding or donation to an organization that registered lobbying on that very vote — plus the published large donations to the parties.',
     colMp: 'MP', colDonor: 'Donor', colIndustry: 'Industry', colAmount: 'Amount', colVote: 'Vote', colFlag: 'Flag',
     flagged: 'Flagged', footerNote: 'Public data only. No login, no tracking.', footerSources: 'Sources: Abgeordnetenwatch, Bundestag, Lobbyregister',
     footerDisclaimer: 'Politblick is a private, non-commercial hobby project with no affiliation with any party, parliamentary group, or government body.',
@@ -584,6 +589,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationTimelineExcludedTemplate: '{n} donation(s) without a received date are not shown here, but are included in the total and table.',
     donationTimelineEmpty: 'No dated large donations for this period.',
     donationTimelineQuarterTotalLabel: 'Total:',
+    donationTimelineRangeLabelTemplate: 'Time range: {from} – {to}',
+    donationTimelineOtherDonorsLabel: 'Other donors',
     donationsTitle: 'Large donations to parties',
     donationsSub: 'Single donations above €35,000 (before March 2024: above €50,000), published by the President of the Bundestag.',
     donationsColParty: 'Party', donationsColDonor: 'Donor', donationsColAmount: 'Amount', donationsColDate: 'Received',
@@ -637,6 +644,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     committeeRoleChair: 'Chair', committeeRoleViceChair: 'Vice chair', committeeRoleSpokesperson: 'Spokesperson', committeeRoleAlternate: 'Alternate member',
     profileCommitteesTitle: 'Committees',
     partyListSub: 'Every fraction in the Bundestag: seat count, lobby ties, large donations, and how they voted on roll-call votes.',
+    pollListSub: 'Every roll-call vote in the Bundestag this term.', seeAllPolls: 'See all votes', seeAllConflicts: 'See all conflicts',
     partyLobbyTitle: 'Lobby ties by party',
     partyLobbySub: 'For each party: the organizations its MPs declare holding a role at, grouped by that organization’s own field of interest.',
     partyLobbyOrgCountTemplate: '{n} organizations', partyLobbyMemberCountTemplate: '{n} MPs with a role',
