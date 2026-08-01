@@ -4360,6 +4360,16 @@ function App() {
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.disclaimerTitle}</h1>
           <p style={{ fontSize: 14, color: 'oklch(35% 0.01 260)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{t.disclaimerBody}</p>
+          <h2 style={{ fontSize: 19, fontWeight: 800, margin: '28px 0 12px' }}>{t.disclaimerTechTitle}</h2>
+          <p style={{ fontSize: 14, color: 'oklch(35% 0.01 260)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{t.disclaimerTechBody}</p>
+          <a
+            href="https://github.com/df2nnvctmz-crypto/Politblick"
+            target="_blank"
+            rel="noreferrer"
+            style={{ display: 'inline-block', marginTop: 12, fontSize: 13.5, fontWeight: 700, color: 'oklch(48% 0.12 250)' }}
+          >
+            {t.disclaimerGithubLabel} →
+          </a>
         </main>
       )}
 
