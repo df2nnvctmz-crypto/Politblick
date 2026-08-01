@@ -29,8 +29,10 @@ import {
   type CrossrefRow,
   type OrgListEntry,
 } from './lobby';
+import { useCommitteeDetail, useCommitteeList, useMemberCommittees } from './committees';
 import { PartyOrgGraph } from './PartyOrgGraph';
 import { DonationSankey } from './DonationSankey';
+import { DonationTimeline } from './DonationTimeline';
 import { ShowMoreButton } from './ShowMoreButton';
 import { pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
 
@@ -582,15 +584,36 @@ function TieMatrix({
 }
 
 /** Classic semicircle parliament seating chart — replaces flat seat-count tiles with the standard, instantly-recognizable graphic. */
-function HemicycleChart({ parties, seatsLabel }: { parties: { name: string; seats: number; color: string }[]; seatsLabel: string }) {
+function HemicycleChart({
+  parties,
+  seatsLabel,
+  onOpenParty,
+  isPartyRoutable,
+}: {
+  parties: { name: string; seats: number; color: string }[];
+  seatsLabel: string;
+  onOpenParty: (party: string) => void;
+  isPartyRoutable: (party: string) => boolean;
+}) {
   const seats = computeHemicycleSeats(parties, { rows: 9, rMin: 55, rMax: 200, cx: 260, cy: 220 });
   const total = parties.reduce((sum, p) => sum + p.seats, 0);
   return (
     <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 14, padding: '18px 18px 14px', height: '100%' }}>
       <svg viewBox="0 0 520 250" style={{ width: '100%', height: 'auto', display: 'block' }}>
-        {seats.map((s, i) => (
-          <circle key={i} cx={s.x} cy={s.y} r={5.4} fill={s.color} />
-        ))}
+        {seats.map((s, i) => {
+          const routable = isPartyRoutable(s.party);
+          return (
+            <circle
+              key={i}
+              cx={s.x}
+              cy={s.y}
+              r={5.4}
+              fill={s.color}
+              style={{ cursor: routable ? 'pointer' : 'default' }}
+              onClick={routable ? () => onOpenParty(s.party) : undefined}
+            />
+          );
+        })}
         <text x={260} y={214} textAnchor="middle" fontSize={24} fontWeight={800} fill="oklch(20% 0.01 260)">
           {total}
         </text>
@@ -599,13 +622,20 @@ function HemicycleChart({ parties, seatsLabel }: { parties: { name: string; seat
         </text>
       </svg>
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '6px 16px', marginTop: 2 }}>
-        {parties.map((p) => (
-          <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
-            <span style={{ width: 9, height: 9, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
-            <span style={{ fontWeight: 600 }}>{p.name}</span>
-            <span style={{ color: 'oklch(50% 0.01 260)' }}>{p.seats}</span>
-          </div>
-        ))}
+        {parties.map((p) => {
+          const routable = isPartyRoutable(p.name);
+          return (
+            <div
+              key={p.name}
+              onClick={routable ? () => onOpenParty(p.name) : undefined}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: routable ? 'pointer' : 'default' }}
+            >
+              <span style={{ width: 9, height: 9, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
+              <span style={{ fontWeight: 600, textDecoration: routable ? 'underline' : 'none', textDecorationColor: 'oklch(85% 0.006 260)' }}>{p.name}</span>
+              <span style={{ color: 'oklch(50% 0.01 260)' }}>{p.seats}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -785,13 +815,16 @@ function GlobalSearchBox({
   members,
   polls,
   orgs,
+  parties,
   onSelectMp,
   onSelectBill,
   onSelectOrg,
+  onSelectParty,
   placeholder,
   groupMpsLabel,
   groupBillsLabel,
   groupOrgsLabel,
+  groupPartiesLabel,
   noResultsTemplate,
   seeAllMpsTemplate,
 }: {
@@ -801,13 +834,16 @@ function GlobalSearchBox({
   members: RealMp[];
   polls: RealPoll[];
   orgs: OrgListEntry[];
+  parties: { name: string; color: string; seats: number }[];
   onSelectMp: (id: number) => void;
   onSelectBill: (id: number) => void;
   onSelectOrg: (id: string) => void;
+  onSelectParty: (name: string) => void;
   placeholder: string;
   groupMpsLabel: string;
   groupBillsLabel: string;
   groupOrgsLabel: string;
+  groupPartiesLabel: string;
   noResultsTemplate: string;
   seeAllMpsTemplate: string;
 }) {
@@ -827,8 +863,9 @@ function GlobalSearchBox({
   const mpMatchesAll = showDropdown ? members.filter((m) => fuzzyIncludes(m.name, q) || fuzzyIncludes(m.constituency, q)) : [];
   const billMatches = showDropdown ? polls.filter((p) => fuzzyIncludes(p.title, q) || fuzzyIncludes(p.topic, q)).slice(0, 4) : [];
   const orgMatches = showDropdown ? orgs.filter((e) => fuzzyIncludes(e.org.name, q)).slice(0, 4) : [];
+  const partyMatches = showDropdown ? parties.filter((p) => fuzzyIncludes(p.name, q)).slice(0, 4) : [];
   const mpMatches = mpMatchesAll.slice(0, 4);
-  const hasResults = mpMatches.length + billMatches.length + orgMatches.length > 0;
+  const hasResults = mpMatches.length + billMatches.length + orgMatches.length + partyMatches.length > 0;
 
   const submit = () => {
     onSubmit();
@@ -846,6 +883,11 @@ function GlobalSearchBox({
   };
   const selectOrg = (id: string) => {
     onSelectOrg(id);
+    onQueryChange('');
+    setOpen(false);
+  };
+  const selectParty = (name: string) => {
+    onSelectParty(name);
     onQueryChange('');
     setOpen(false);
   };
@@ -966,6 +1008,19 @@ function GlobalSearchBox({
                   ))}
                 </>
               )}
+              {partyMatches.length > 0 && (
+                <>
+                  <div style={groupHeaderStyle}>{groupPartiesLabel}</div>
+                  {partyMatches.map((p) => (
+                    <div key={p.name} onClick={() => selectParty(p.name)} style={rowStyle}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={titleStyle}>{p.name}</div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
               {mpMatchesAll.length > 0 && (
                 <a
                   href="#"
@@ -1003,6 +1058,7 @@ function App() {
   const [selectedBillId, setSelectedBillId] = useState<BillId | null>(parseBillId(initialRoute.billId));
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(initialRoute.orgId);
   const [selectedParty, setSelectedParty] = useState<string | null>(initialRoute.party);
+  const [selectedCommitteeId, setSelectedCommitteeId] = useState<string | null>(initialRoute.committeeId);
   const [orgSearchQuery, setOrgSearchQuery] = useState('');
   const [profileTab, setProfileTab] = useState<ProfileTab>(initialRoute.profileTab);
   const [lobbyTab, setLobbyTab] = useState<LobbyTab>(initialRoute.lobbyTab);
@@ -1071,6 +1127,7 @@ function App() {
       setSelectedBillId(parseBillId(r.billId));
       setSelectedOrgId(r.orgId);
       setSelectedParty(r.party);
+      setSelectedCommitteeId(r.committeeId);
       setProfileTab(r.profileTab);
       setLobbyTab(r.lobbyTab);
       setPartyTab(r.partyTab);
@@ -1097,11 +1154,12 @@ function App() {
       party: selectedParty,
       partyTab,
       lobbyTab,
+      committeeId: selectedCommitteeId,
     });
     const fullPath = withBase(path, import.meta.env.BASE_URL);
     if (window.location.pathname !== fullPath) window.history.pushState(null, '', fullPath);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab]);
+  }, [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId]);
 
   const { snapshot } = useSnapshot();
   const roster = useBundestagRoster();
@@ -1121,6 +1179,11 @@ function App() {
     setLobbyTab(tab);
   };
   const goPartyList = () => setView('partyList');
+  const goCommitteeList = () => setView('committeeList');
+  const openCommittee = (id: string) => {
+    setView('committee');
+    setSelectedCommitteeId(id);
+  };
   const goImpressum = () => setView('impressum');
   const goDisclaimer = () => setView('disclaimer');
   const goDatenschutz = () => setView('datenschutz');
@@ -1147,6 +1210,13 @@ function App() {
     setPartyVotesExpanded(false);
     setPartyTopicalExpanded(false);
     setPartyOrigin(origin);
+  };
+  // Party → roster crosslink: narrows the search/browse view down to this party's own MPs
+  // instead of adding a separate "members" page, since the roster view already has everything
+  // (avatar, constituency, alignment) that a party-members list would otherwise duplicate.
+  const viewPartyMembers = (party: string) => {
+    setPartyFilter(Object.fromEntries(roster.parties.map((p) => [p.name, p.name === party])));
+    setView('search');
   };
   const setLangDe = () => setLang('de');
   const setLangEn = () => setLang('en');
@@ -1291,6 +1361,7 @@ function App() {
         ? { kind: 'loading' }
         : { kind: 'missing' };
 
+  const memberCommittees = useMemberCommittees(profile.kind === 'real' ? profile.mp.mandateId : null);
   const isFollowing = !!(selectedMpId && following[selectedMpId]);
 
   const profileTabs: { key: ProfileTab; label: string }[] = [
@@ -1324,8 +1395,16 @@ function App() {
   const partyDonations = usePartyDonations();
   const pollLobbying = usePollLobbying(realPollId);
   const partyLobby = usePartyLobbySummary();
+  // Only the sitting Bundestag fractions have their own party page (partyLobby.summaries is
+  // scoped to those) — independents ("Fraktionslos") and parties that received large donations
+  // without holding seats (e.g. FDP, BSW, Volt in some terms) don't. Crosslinks everywhere else
+  // in the app check this before rendering a party name as clickable, so they never point at a
+  // page that can only ever show "no data for this party".
+  const routablePartyNames = new Set(partyLobby.summaries.map((s) => s.party));
   const orgList = useOrgList();
   const orgDetail = useOrgDetail(selectedOrgId);
+  const committeeList = useCommitteeList();
+  const committeeDetail = useCommitteeDetail(selectedCommitteeId);
   const filteredOrgs = orgList.orgs.filter((e) => {
     if (!e.org.name.toLowerCase().includes(orgSearchQuery.trim().toLowerCase())) return false;
     if (orgPartyFilter.size > 0 && !e.parties.some((p) => orgPartyFilter.has(p))) return false;
@@ -1406,7 +1485,12 @@ function App() {
                 setMpsNavOpen(false);
               })}
               href="#"
-              style={{ ...navStyle(view === 'search' || view === 'party' || view === 'partyList'), display: 'inline-flex', alignItems: 'center', gap: 4 }}
+              style={{
+                ...navStyle(view === 'search' || view === 'party' || view === 'partyList' || view === 'committee' || view === 'committeeList'),
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
             >
               {t.navMps}
               <span style={{ fontSize: 8, transform: mpsNavOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>▾</span>
@@ -1465,6 +1549,25 @@ function App() {
                   }}
                 >
                   {t.navParties}
+                </a>
+                <a
+                  href="#"
+                  onClick={stop(() => {
+                    goCommitteeList();
+                    setMpsNavOpen(false);
+                  })}
+                  style={{
+                    display: 'block',
+                    padding: '8px 12px',
+                    borderRadius: 7,
+                    fontSize: 13,
+                    fontWeight: view === 'committee' || view === 'committeeList' ? 700 : 500,
+                    color: view === 'committee' || view === 'committeeList' ? 'oklch(45% 0.16 265)' : 'oklch(30% 0.01 260)',
+                    background: view === 'committee' || view === 'committeeList' ? 'oklch(45% 0.16 265 / 0.08)' : 'transparent',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {t.navCommittees}
                 </a>
               </div>
             )}
@@ -1546,13 +1649,16 @@ function App() {
             members={roster.members}
             polls={pollsState.polls}
             orgs={orgList.orgs}
+            parties={roster.parties.filter((p) => routablePartyNames.has(p.name))}
             onSelectMp={(id) => openMp(String(id))}
             onSelectBill={openBill}
             onSelectOrg={openOrg}
+            onSelectParty={(name) => openParty(name)}
             placeholder={t.searchPlaceholder}
             groupMpsLabel={t.searchGroupMps}
             groupBillsLabel={t.searchGroupBills}
             groupOrgsLabel={t.searchGroupOrgs}
+            groupPartiesLabel={t.searchGroupParties}
             noResultsTemplate={t.findMpNoResultsTemplate}
             seeAllMpsTemplate={t.searchSeeAllMpsTemplate}
           />
@@ -1646,7 +1752,12 @@ function App() {
 
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '0 32px 32px', display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'stretch' }}>
             <div style={{ flex: '2 1 380px' }}>
-              <HemicycleChart parties={parties} seatsLabel={t.seatsLabel} />
+              <HemicycleChart
+                parties={parties}
+                seatsLabel={t.seatsLabel}
+                onOpenParty={openParty}
+                isPartyRoutable={(party) => routablePartyNames.has(party)}
+              />
             </div>
             <div style={{ flex: '1 1 200px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, alignContent: 'start' }}>
               <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}>
@@ -1903,7 +2014,20 @@ function App() {
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: 14.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</div>
                       <div style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)' }}>
-                        {m.party} · {m.constituency}
+                        {routablePartyNames.has(m.party) ? (
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openParty(m.party);
+                            }}
+                            style={{ textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)' }}
+                          >
+                            {m.party}
+                          </span>
+                        ) : (
+                          m.party
+                        )}{' '}
+                        · {m.constituency}
                       </div>
                       {memberAlignment?.alignmentPct !== null && memberAlignment !== undefined && (
                         <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 2 }}>
@@ -1959,7 +2083,17 @@ function App() {
                 <div style={{ flex: 1, minWidth: 200 }}>
                   <h1 style={{ fontSize: 27, fontWeight: 800, margin: '0 0 4px' }}>{profile.mp.name}</h1>
                   <div style={{ fontSize: 13.5, color: 'oklch(45% 0.01 260)' }}>
-                    {profile.mp.party} · {profile.mp.constituency}
+                    {routablePartyNames.has(profile.mp.party) ? (
+                      <span
+                        onClick={() => openParty(profile.mp.party)}
+                        style={{ cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(80% 0.006 260)' }}
+                      >
+                        {profile.mp.party}
+                      </span>
+                    ) : (
+                      profile.mp.party
+                    )}{' '}
+                    · {profile.mp.constituency}
                   </div>
                   {profile.kind === 'real' && portrait.url && (
                     <div style={{ fontSize: 10.5, color: 'oklch(60% 0.006 260)', marginTop: 2 }}>{t.photoCredit}</div>
@@ -2171,6 +2305,31 @@ function App() {
                             · {p.poll.title}: {t.realAgainstPartyTemplate.replace('{party}', p.party)}
                           </div>
                         ))}
+                      </div>
+                    )}
+                    {memberCommittees.rows.length > 0 && (
+                      <div style={{ marginBottom: 20 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>{t.profileCommitteesTitle}</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                          {memberCommittees.rows.map((r) => {
+                            const roleLabel =
+                              r.role === 'chairperson' || r.role === 'foreperson' ? t.committeeRoleChair
+                              : r.role === 'vice_chairperson' ? t.committeeRoleViceChair
+                              : r.role === 'spokesperson' ? t.committeeRoleSpokesperson
+                              : r.role === 'alternate_member' ? t.committeeRoleAlternate
+                              : null;
+                            return (
+                              <div
+                                key={r.committee.id}
+                                onClick={() => openCommittee(String(r.committee.id))}
+                                style={{ cursor: 'pointer', fontSize: 12.5, padding: '7px 12px', borderRadius: 10, background: 'white', border: '1px solid oklch(90% 0.006 260)' }}
+                              >
+                                {r.committee.name}
+                                {roleLabel && <span style={{ fontWeight: 700, color: 'oklch(45% 0.16 265)' }}> · {roleLabel}</span>}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 14, marginBottom: 20 }}>
@@ -2559,7 +2718,16 @@ function App() {
                 <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>{t.voteBreakdown}</div>
                 {currentBill.partyBreakdown.map((pb) => (
                   <div key={pb.party} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                    <span style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0 }}>{pb.party}</span>
+                    {routablePartyNames.has(pb.party) ? (
+                      <span
+                        onClick={() => openParty(pb.party)}
+                        style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)' }}
+                      >
+                        {pb.party}
+                      </span>
+                    ) : (
+                      <span style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0 }}>{pb.party}</span>
+                    )}
                     <div style={{ flex: 1, height: 14, borderRadius: 7, overflow: 'hidden', display: 'flex', background: 'oklch(90% 0.006 260)' }}>
                       <div style={{ width: `${pb.y}%`, background: 'oklch(50% 0.14 155)' }} />
                       <div style={{ width: `${pb.n}%`, background: 'oklch(55% 0.16 40)' }} />
@@ -2635,7 +2803,16 @@ function App() {
                       const total = pb.yes + pb.no + pb.abstain + pb.noShow || 1;
                       return (
                         <div key={pb.party} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                          <span style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0 }}>{pb.party}</span>
+                          {routablePartyNames.has(pb.party) ? (
+                            <span
+                              onClick={() => openParty(pb.party)}
+                              style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)' }}
+                            >
+                              {pb.party}
+                            </span>
+                          ) : (
+                            <span style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0 }}>{pb.party}</span>
+                          )}
                           <div style={{ flex: 1, height: 14, borderRadius: 7, overflow: 'hidden', display: 'flex', background: 'oklch(90% 0.006 260)' }}>
                             <div style={{ width: `${(pb.yes / total) * 100}%`, background: 'oklch(50% 0.14 155)' }} />
                             <div style={{ width: `${(pb.no / total) * 100}%`, background: 'oklch(55% 0.16 40)' }} />
@@ -2823,12 +3000,15 @@ function App() {
                 orgs={orgNetwork.orgs}
                 parties={parties}
                 onOpenOrg={openOrg}
+                onOpenParty={(party) => openParty(party, 'crossref')}
+                isPartyRoutable={(party) => routablePartyNames.has(party)}
                 labels={{
                   sub: t.networkSub,
                   crossPartyToggle: t.networkToggleCrossParty,
                   allToggle: t.networkToggleAll,
                   orgCountTemplate: t.networkOrgCountTemplate,
                   viewOrg: t.networkViewOrg,
+                  viewParty: t.networkViewParty,
                   empty: t.networkEmpty,
                 }}
               />
@@ -3218,17 +3398,34 @@ function App() {
                 <DonationBarChart data={partyDonations.byFraction} />
               </div>
 
+              <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.donationTimelineTitle}</h3>
+              <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.donationTimelineSub}</p>
+              <div style={{ marginBottom: 18 }}>
+                <DonationTimeline
+                  donations={partyDonations.all}
+                  labels={{
+                    axisMaxTemplate: t.donationTimelineAxisMaxTemplate,
+                    excludedTemplate: t.donationTimelineExcludedTemplate,
+                    empty: t.donationTimelineEmpty,
+                    quarterTotalLabel: t.donationTimelineQuarterTotalLabel,
+                  }}
+                />
+              </div>
+
               <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.donationSankeyTitle}</h3>
               <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.donationSankeySub}</p>
               <div style={{ marginBottom: 18 }}>
                 <DonationSankey
                   donations={partyDonations.all}
                   fractionTotals={Object.fromEntries(partyDonations.byFraction.map((f) => [f.fraction, f.total]))}
+                  onOpenParty={(party) => openParty(party, 'crossref')}
+                  isPartyRoutable={(party) => routablePartyNames.has(party)}
                   labels={{
                     noteTemplate: t.donationSankeyNoteTemplate,
                     excludedTemplate: t.donationSankeyExcludedTemplate,
                     coverageTemplate: t.donationSankeyCoverageTemplate,
                     sliderLabelTemplate: t.donationSankeySliderLabelTemplate,
+                    viewParty: t.networkViewParty,
                   }}
                 />
               </div>
@@ -3501,6 +3698,102 @@ function App() {
         </main>
       )}
 
+      {view === 'committeeList' && (
+        <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', width: '100%', padding: 32 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{t.committeesTitle}</h1>
+          <p style={{ fontSize: 14, color: 'oklch(45% 0.01 260)', margin: '0 0 28px', maxWidth: 640 }}>{t.committeesSub}</p>
+
+          {committeeList.entries.length === 0 ? (
+            <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.committeesEmpty}</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
+              {committeeList.entries.map(({ committee, memberCount }) => (
+                <div
+                  key={committee.id}
+                  onClick={() => openCommittee(String(committee.id))}
+                  style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
+                >
+                  <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>{committee.name}</div>
+                  <div style={{ fontSize: 12, color: 'oklch(50% 0.01 260)', marginBottom: 8 }}>
+                    {memberCount} {t.committeeMembersCountLabel}
+                  </div>
+                  {committee.topics.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                      {committee.topics.map((f) => (
+                        <span key={f} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'oklch(95% 0.008 260)', color: 'oklch(40% 0.01 260)' }}>
+                          {f}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
+      )}
+
+      {view === 'committee' && (
+        <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', width: '100%', padding: 32 }}>
+          <a href="#" onClick={stop(goCommitteeList)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+            ← {t.backToCommittees}
+          </a>
+          {!committeeDetail.detail ? (
+            <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)', marginTop: 20 }}>{t.committeeNotFound}</p>
+          ) : (
+            <>
+              <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 12px' }}>{committeeDetail.detail.committee.name}</h1>
+
+              {committeeDetail.detail.committee.topics.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 22 }}>
+                  {committeeDetail.detail.committee.topics.map((f) => (
+                    <span key={f} style={{ fontSize: 11.5, padding: '3px 9px', borderRadius: 10, background: 'oklch(95% 0.008 260)', color: 'oklch(40% 0.01 260)' }}>
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 12px' }}>
+                {committeeDetail.detail.members.length} {t.committeeMembersCountLabel}
+              </h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px,1fr))', gap: 12 }}>
+                {committeeDetail.detail.members.map((row) => {
+                  const roleLabel =
+                    row.role === 'chairperson' || row.role === 'foreperson' ? t.committeeRoleChair
+                    : row.role === 'vice_chairperson' ? t.committeeRoleViceChair
+                    : row.role === 'spokesperson' ? t.committeeRoleSpokesperson
+                    : row.role === 'alternate_member' ? t.committeeRoleAlternate
+                    : null;
+                  return (
+                    <div
+                      key={row.mandateId}
+                      onClick={row.member ? () => openMp(String(row.member!.id)) : undefined}
+                      style={{
+                        cursor: row.member ? 'pointer' : 'default',
+                        background: 'white',
+                        border: '1px solid oklch(90% 0.006 260)',
+                        borderRadius: 10,
+                        padding: '12px 16px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {row.member && <span style={{ width: 8, height: 8, borderRadius: '50%', background: row.member.color, flexShrink: 0 }} />}
+                        <span style={{ fontWeight: 600, fontSize: 14 }}>{row.member?.name ?? `#${row.mandateId}`}</span>
+                      </div>
+                      <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginTop: 3 }}>
+                        {row.member?.party}
+                        {roleLabel && <span style={{ fontWeight: 700, color: 'oklch(45% 0.16 265)' }}> · {roleLabel}</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </main>
+      )}
+
       {view === 'partyList' && (
         <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', width: '100%', padding: 32 }}>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{t.navParties}</h1>
@@ -3608,6 +3901,14 @@ function App() {
                 {partyTab === 'overview' && (
                   <>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 14, marginBottom: 26 }}>
+                      <div
+                        onClick={() => viewPartyMembers(p.party)}
+                        style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}
+                      >
+                        <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.seatsLabel}</div>
+                        <div style={{ fontSize: 24, fontWeight: 800 }}>{roster.parties.find((rp) => rp.name === p.party)?.seats ?? '—'}</div>
+                        <div style={{ fontSize: 11.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', marginTop: 4 }}>{t.partyViewMembers} →</div>
+                      </div>
                       <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
                         <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.orgsSectionTitle}</div>
                         <div style={{ fontSize: 24, fontWeight: 800 }}>{p.orgCount}</div>
@@ -3858,6 +4159,38 @@ function App() {
                           : partyDonationList;
                         return (
                           <>
+                            <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.donationTimelineTitle}</h3>
+                            <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.donationTimelinePartySub}</p>
+                            <div style={{ marginBottom: 22 }}>
+                              <DonationTimeline
+                                donations={partyDonationList}
+                                labels={{
+                                  axisMaxTemplate: t.donationTimelineAxisMaxTemplate,
+                                  excludedTemplate: t.donationTimelineExcludedTemplate,
+                                  empty: t.donationTimelineEmpty,
+                                  quarterTotalLabel: t.donationTimelineQuarterTotalLabel,
+                                }}
+                              />
+                            </div>
+
+                            <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.donationSankeyTitle}</h3>
+                            <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.donationSankeySub}</p>
+                            <div style={{ marginBottom: 22 }}>
+                              <DonationSankey
+                                donations={partyDonationList}
+                                fractionTotals={{ [p.party]: partyDonationSummary?.total ?? 0 }}
+                                onOpenParty={() => {}}
+                                isPartyRoutable={() => false}
+                                labels={{
+                                  noteTemplate: t.donationSankeyNoteTemplate,
+                                  excludedTemplate: t.donationSankeyExcludedTemplate,
+                                  coverageTemplate: t.donationSankeyCoverageTemplate,
+                                  sliderLabelTemplate: t.donationSankeySliderLabelTemplate,
+                                  viewParty: t.networkViewParty,
+                                }}
+                              />
+                            </div>
+
                             <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
                               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                                 <thead>

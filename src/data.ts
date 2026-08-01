@@ -179,12 +179,12 @@ export const BILLS: Bill[] = [
 ];
 
 export interface Translation {
-  navHome: string; navMps: string; navMpsSearch: string; navParties: string; navLobbyFinance: string;
+  navHome: string; navMps: string; navMpsSearch: string; navParties: string; navCommittees: string; navLobbyFinance: string;
   searchPlaceholder: string;
   heroKicker: string; heroTitle: string; heroSub: string;
   heroCta: string; heroCta2: string;
   findMpKicker: string; findMpPlaceholder: string; findMpNoResultsTemplate: string; findMpBrowseAll: string;
-  searchGroupMps: string; searchGroupBills: string; searchGroupOrgs: string; searchSeeAllMpsTemplate: string;
+  searchGroupMps: string; searchGroupBills: string; searchGroupOrgs: string; searchGroupParties: string; searchSeeAllMpsTemplate: string;
   statMpsLabel: string; statFlagsLabel: string;
   expectationTitle: string; expectationSub: string;
   featuredKicker: string; readMore: string;
@@ -237,6 +237,9 @@ export interface Translation {
   donationSankeyNoteTemplate: string; donationSankeyExcludedTemplate: string;
   donationSankeyCoverageTemplate: string;
   donationSankeySliderLabelTemplate: string;
+  donationTimelineTitle: string; donationTimelineSub: string; donationTimelinePartySub: string;
+  donationTimelineAxisMaxTemplate: string; donationTimelineExcludedTemplate: string;
+  donationTimelineEmpty: string; donationTimelineQuarterTotalLabel: string;
   donationsTitle: string; donationsSub: string; donationsColParty: string;
   donationsColDonor: string; donationsColAmount: string; donationsColDate: string;
   donationsAlsoLobbyist: string; donationsSource: string;
@@ -257,6 +260,10 @@ export interface Translation {
   orgConflictsTitle: string; orgTopicalTitle: string;
   orgDonorTitle: string; orgDonorNote: string;
   orgNotFound: string;
+  committeesTitle: string; committeesSub: string; committeeMembersCountLabel: string; committeeTopicsLabel: string;
+  backToCommittees: string; committeeNotFound: string; committeesEmpty: string;
+  committeeRoleChair: string; committeeRoleViceChair: string; committeeRoleSpokesperson: string; committeeRoleAlternate: string;
+  profileCommitteesTitle: string;
   partyListSub: string;
   partyLobbyTitle: string; partyLobbySub: string;
   partyLobbyOrgCountTemplate: string; partyLobbyMemberCountTemplate: string;
@@ -268,21 +275,21 @@ export interface Translation {
   statOrgsReferencedLabel: string; statConflictsLabel: string;
   statTopicalTiesLabel: string; statDonationsSumLabel: string;
   partyDetailFieldsTitle: string; partyDetailOrgsTitle: string;
-  partyNotFound: string;
+  partyNotFound: string; partyViewMembers: string;
   partyTabDonations: string; partyDonationsEmpty: string; partyDonationsCountLabel: string;
   partyVotesEmpty: string;
   scrollHintText: string;
   tieMatrixSub: string; matrixFilteredTemplate: string; matrixClearFilter: string;
   seatsLabel: string;
   networkSub: string; networkToggleCrossParty: string; networkToggleAll: string;
-  networkOrgCountTemplate: string; networkViewOrg: string; networkEmpty: string;
+  networkOrgCountTemplate: string; networkViewOrg: string; networkViewParty: string; networkEmpty: string;
   showMoreTemplate: string; showLess: string;
   infoVerflechtung: string; infoAuffaelligkeit: string; infoThemenfeld: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
   de: {
-    navHome: 'Start', navMps: 'Abgeordnete', navMpsSearch: 'Abgeordnete durchsuchen', navParties: 'Parteien', navLobbyFinance: 'Lobby & Finanzen',
+    navHome: 'Start', navMps: 'Abgeordnete', navMpsSearch: 'Abgeordnete durchsuchen', navParties: 'Parteien', navCommittees: 'Ausschüsse', navLobbyFinance: 'Lobby & Finanzen',
     searchPlaceholder: 'Abgeordnete, Themen, Gesetze suchen…',
     heroKicker: 'Öffentliche Daten, an einem Ort',
     heroTitle: 'Jede Abstimmung. Jede Verbindung.',
@@ -292,7 +299,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     findMpPlaceholder: 'Deine Stadt oder dein Wahlkreis…',
     findMpNoResultsTemplate: 'Keine Treffer für „{query}“.',
     findMpBrowseAll: 'Alle Abgeordneten durchsuchen',
-    searchGroupMps: 'Abgeordnete', searchGroupBills: 'Gesetze & Abstimmungen', searchGroupOrgs: 'Organisationen',
+    searchGroupMps: 'Abgeordnete', searchGroupBills: 'Gesetze & Abstimmungen', searchGroupOrgs: 'Organisationen', searchGroupParties: 'Parteien',
     searchSeeAllMpsTemplate: 'Alle Abgeordneten für „{query}“ anzeigen',
     statMpsLabel: 'Abgeordnete erfasst', statFlagsLabel: 'Auffälligkeiten',
     expectationTitle: 'Gegen die Erwartung gestimmt',
@@ -375,6 +382,12 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationSankeyExcludedTemplate: '{n} weitere Spender ({amount} insgesamt) sind hier nicht dargestellt, aber in der Tabelle unten enthalten.',
     donationSankeyCoverageTemplate: '{pct} % der Gesamtsumme',
     donationSankeySliderLabelTemplate: 'Top {n} Spender',
+    donationTimelineTitle: 'Großspenden über Zeit', donationTimelineSub: 'Eingegangene Großspenden pro Quartal, gestapelt nach Partei.',
+    donationTimelinePartySub: 'Eingegangene Großspenden dieser Partei pro Quartal.',
+    donationTimelineAxisMaxTemplate: 'bis {amount} / Quartal',
+    donationTimelineExcludedTemplate: '{n} Spende(n) ohne Eingangsdatum sind hier nicht dargestellt, aber in Summe und Tabelle enthalten.',
+    donationTimelineEmpty: 'Keine datierten Großspenden für diesen Zeitraum.',
+    donationTimelineQuarterTotalLabel: 'Summe:',
     donationsTitle: 'Großspenden an Parteien',
     donationsSub: 'Einzelspenden über 35.000 € (bis März 2024: über 50.000 €), veröffentlicht von der Bundestagspräsidentin.',
     donationsColParty: 'Partei', donationsColDonor: 'Spender', donationsColAmount: 'Betrag', donationsColDate: 'Eingang',
@@ -422,6 +435,11 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     orgDonorTitle: 'Als Spender an Parteien',
     orgDonorNote: 'Diese Organisation ist unter diesem Namen auch als Großspenderin an Parteien registriert.',
     orgNotFound: 'Organisation nicht gefunden.',
+    committeesTitle: 'Ausschüsse', committeesSub: 'Alle Ausschüsse und Gremien des Bundestags mit ihrer aktuellen Besetzung.',
+    committeeMembersCountLabel: 'Mitglieder', committeeTopicsLabel: 'Themenfelder',
+    backToCommittees: 'Zurück zu Ausschüsse', committeeNotFound: 'Ausschuss nicht gefunden.', committeesEmpty: 'Keine Ausschüsse gefunden.',
+    committeeRoleChair: 'Vorsitz', committeeRoleViceChair: 'Stellv. Vorsitz', committeeRoleSpokesperson: 'Sprecher:in', committeeRoleAlternate: 'Stellv. Mitglied',
+    profileCommitteesTitle: 'Ausschüsse',
     partyListSub: 'Jede Fraktion im Bundestag: Sitzverteilung, Lobbyverflechtungen, Großspenden und wie sie bei namentlichen Abstimmungen votiert hat.',
     partyLobbyTitle: 'Lobbyverflechtungen nach Partei',
     partyLobbySub: 'Für jede Partei: die Organisationen, bei denen ihre Abgeordneten laut eigener Angabe eine Funktion ausüben, gruppiert nach deren Interessengebiet.',
@@ -434,7 +452,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     statOrgsReferencedLabel: 'Verknüpfte Organisationen', statConflictsLabel: 'Abstimmung trotz Verflechtung',
     statTopicalTiesLabel: 'Gleiches Themenfeld', statDonationsSumLabel: 'Großspenden gesamt',
     partyDetailFieldsTitle: 'Alle Interessengebiete', partyDetailOrgsTitle: 'Alle verflochtenen Organisationen',
-    partyNotFound: 'Für diese Partei liegen keine Lobbydaten vor.',
+    partyNotFound: 'Für diese Partei liegen keine Lobbydaten vor.', partyViewMembers: 'Alle Abgeordneten anzeigen',
     partyTabDonations: 'Spenden', partyDonationsEmpty: 'Keine gemeldeten Großspenden für diese Partei.',
     partyDonationsCountLabel: 'Anzahl Großspenden',
     partyVotesEmpty: 'Für diese Partei sind noch keine Abstimmungsergebnisse erfasst.',
@@ -456,7 +474,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     networkToggleCrossParty: 'Nur parteiübergreifend',
     networkToggleAll: 'Alle anzeigen',
     networkOrgCountTemplate: '{n} Organisationen im Netzwerk',
-    networkViewOrg: 'Organisation ansehen',
+    networkViewOrg: 'Organisation ansehen', networkViewParty: 'Partei ansehen',
     networkEmpty: 'Für diese Auswahl sind keine Organisationen mit Parteibezug erfasst.',
     showMoreTemplate: 'Alle {n} anzeigen', showLess: 'Weniger anzeigen',
     infoVerflechtung:
@@ -467,7 +485,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       'Schwächerer Hinweis als eine Verflechtung: Die Organisation hat kein Interessengebiet angemeldet, das speziell auf diese Abstimmung verweist — nur ein allgemeines Interessengebiet, das laut Politblick-Redaktion zum Thema passt. Kein dokumentierter Bezug zu dieser Abstimmung.',
   },
   en: {
-    navHome: 'Home', navMps: 'MPs', navMpsSearch: 'Search MPs', navParties: 'Parties', navLobbyFinance: 'Lobby & Finance',
+    navHome: 'Home', navMps: 'MPs', navMpsSearch: 'Search MPs', navParties: 'Parties', navCommittees: 'Committees', navLobbyFinance: 'Lobby & Finance',
     searchPlaceholder: 'Search MPs, topics, bills…',
     heroKicker: 'Public data, one place',
     heroTitle: 'Every vote. Every connection.',
@@ -477,7 +495,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     findMpPlaceholder: 'Your city or constituency…',
     findMpNoResultsTemplate: 'No matches for “{query}”.',
     findMpBrowseAll: 'Browse all MPs',
-    searchGroupMps: 'MPs', searchGroupBills: 'Bills & votes', searchGroupOrgs: 'Organizations',
+    searchGroupMps: 'MPs', searchGroupBills: 'Bills & votes', searchGroupOrgs: 'Organizations', searchGroupParties: 'Parties',
     searchSeeAllMpsTemplate: 'Show all MPs for “{query}”',
     statMpsLabel: 'MPs tracked', statFlagsLabel: 'Flags raised',
     expectationTitle: 'Voted against expectation',
@@ -560,6 +578,12 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationSankeyExcludedTemplate: '{n} further donors ({amount} total) are not shown here, but are included in the table below.',
     donationSankeyCoverageTemplate: '{pct}% of party total',
     donationSankeySliderLabelTemplate: 'Top {n} donors',
+    donationTimelineTitle: 'Large donations over time', donationTimelineSub: 'Large donations received per quarter, stacked by party.',
+    donationTimelinePartySub: 'Large donations received by this party per quarter.',
+    donationTimelineAxisMaxTemplate: 'up to {amount} / quarter',
+    donationTimelineExcludedTemplate: '{n} donation(s) without a received date are not shown here, but are included in the total and table.',
+    donationTimelineEmpty: 'No dated large donations for this period.',
+    donationTimelineQuarterTotalLabel: 'Total:',
     donationsTitle: 'Large donations to parties',
     donationsSub: 'Single donations above €35,000 (before March 2024: above €50,000), published by the President of the Bundestag.',
     donationsColParty: 'Party', donationsColDonor: 'Donor', donationsColAmount: 'Amount', donationsColDate: 'Received',
@@ -607,6 +631,11 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     orgDonorTitle: 'As a party donor',
     orgDonorNote: 'This organization is also registered under this name as a large donor to parties.',
     orgNotFound: 'Organization not found.',
+    committeesTitle: 'Committees', committeesSub: 'Every Bundestag committee and body, with its current membership.',
+    committeeMembersCountLabel: 'Members', committeeTopicsLabel: 'Topics',
+    backToCommittees: 'Back to committees', committeeNotFound: 'Committee not found.', committeesEmpty: 'No committees found.',
+    committeeRoleChair: 'Chair', committeeRoleViceChair: 'Vice chair', committeeRoleSpokesperson: 'Spokesperson', committeeRoleAlternate: 'Alternate member',
+    profileCommitteesTitle: 'Committees',
     partyListSub: 'Every fraction in the Bundestag: seat count, lobby ties, large donations, and how they voted on roll-call votes.',
     partyLobbyTitle: 'Lobby ties by party',
     partyLobbySub: 'For each party: the organizations its MPs declare holding a role at, grouped by that organization’s own field of interest.',
@@ -619,7 +648,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     statOrgsReferencedLabel: 'Linked organizations', statConflictsLabel: 'Voted despite a tie',
     statTopicalTiesLabel: 'Same policy area', statDonationsSumLabel: 'Large donations, total',
     partyDetailFieldsTitle: 'All fields of interest', partyDetailOrgsTitle: 'All tied organizations',
-    partyNotFound: 'No lobbying data is on file for this party.',
+    partyNotFound: 'No lobbying data is on file for this party.', partyViewMembers: 'View all MPs',
     partyTabDonations: 'Donations', partyDonationsEmpty: 'No reported large donations for this party.',
     partyDonationsCountLabel: 'Number of large donations',
     partyVotesEmpty: 'No vote results are on file yet for this party.',
@@ -641,7 +670,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     networkToggleCrossParty: 'Cross-party only',
     networkToggleAll: 'Show all',
     networkOrgCountTemplate: '{n} organizations in the network',
-    networkViewOrg: 'View organization',
+    networkViewOrg: 'View organization', networkViewParty: 'View party',
     networkEmpty: 'No organizations with a party tie are on file for this selection.',
     showMoreTemplate: 'Show all {n}', showLess: 'Show less',
     infoVerflechtung:

@@ -373,17 +373,23 @@ export function PartyOrgGraph({
   orgs,
   parties,
   onOpenOrg,
+  onOpenParty,
+  isPartyRoutable,
   labels,
 }: {
   orgs: OrgNetworkNode[];
   parties: { name: string; color: string; seats: number }[];
   onOpenOrg: (orgId: string) => void;
+  onOpenParty: (party: string) => void;
+  /** "Fraktionslos" (independent MPs) shows up as a node here but has no party page of its own. */
+  isPartyRoutable: (party: string) => boolean;
   labels: {
     sub: string;
     crossPartyToggle: string;
     allToggle: string;
     orgCountTemplate: string;
     viewOrg: string;
+    viewParty: string;
     empty: string;
   };
 }) {
@@ -787,8 +793,18 @@ export function PartyOrgGraph({
         })()}
 
       {activeParties.size > 0 && (
-        <div style={{ marginTop: 10, fontSize: 12, color: 'oklch(48% 0.01 260)' }}>
-          {[...activeParties].join(' + ')} → {matchedOrgIds?.size ?? 0}
+        <div style={{ marginTop: 10, fontSize: 12, color: 'oklch(48% 0.01 260)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span>
+            {[...activeParties].join(' + ')} → {matchedOrgIds?.size ?? 0}
+          </span>
+          {activeParties.size === 1 && isPartyRoutable([...activeParties][0]) && (
+            <button
+              onClick={() => onOpenParty([...activeParties][0])}
+              style={{ border: 'none', background: 'none', color: 'oklch(45% 0.16 265)', fontWeight: 700, cursor: 'pointer', fontSize: 12, padding: 0 }}
+            >
+              {labels.viewParty} →
+            </button>
+          )}
         </div>
       )}
     </div>

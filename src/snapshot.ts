@@ -3,6 +3,7 @@ import type { RealMp, RealParty } from './bundestag';
 import type { PartyTally, MemberVote, RealPoll, PollResult } from './polls';
 import type { SidejobRecord } from './sidejobs';
 import { EMPTY_LOBBY_LINKS, partyDonationSourceUrl, type LobbyLinks, type PartyDonation } from './lobby';
+import type { Committee, CommitteeMembership } from './committees';
 
 /**
  * All real data (roster, polls, vote breakdowns, sidejobs) is pre-fetched by the
@@ -31,6 +32,8 @@ export interface Snapshot {
   sidejobsByMandate: Map<number, SidejobRecord[]>;
   lobbyLinks: LobbyLinks;
   partyDonations: PartyDonation[];
+  committees: Committee[];
+  committeeMemberships: CommitteeMembership[];
   meta: SnapshotMeta;
 }
 
@@ -57,13 +60,14 @@ async function buildSnapshot(): Promise<Snapshot> {
   // Roster, polls and results are required — without them there is no site. Everything else
   // degrades to empty, so a member's profile still renders fully before the first
   // fetch-lobbyregister run has ever landed.
-  const [roster, polls, pollResultsRaw, sidejobsRaw, lobbyLinks, partyDonations, meta] = await Promise.all([
+  const [roster, polls, pollResultsRaw, sidejobsRaw, lobbyLinks, partyDonations, committeesRaw, meta] = await Promise.all([
     fetchLocalJson<{ members: RealMp[]; parties: RealParty[] }>('/data/roster.json'),
     fetchLocalJson<RealPoll[]>('/data/polls.json'),
     fetchLocalJson<Record<string, RawPollResult>>('/data/poll-results.json'),
     fetchLocalJson<Record<string, SidejobRecord[]>>('/data/sidejobs.json').catch(() => ({})),
     fetchLocalJson<LobbyLinks>('/data/lobby-links.json').catch(() => EMPTY_LOBBY_LINKS),
     fetchLocalJson<Omit<PartyDonation, 'sourceUrl'>[]>('/data/party-donations.json').catch(() => []),
+    fetchLocalJson<{ committees: Committee[]; memberships: CommitteeMembership[] }>('/data/committees.json').catch(() => ({ committees: [], memberships: [] })),
     fetchLocalJson<SnapshotMeta>('/data/meta.json').catch(() => ({
       legislaturePeriodId: null,
       legislatureLabel: null,
@@ -95,6 +99,8 @@ async function buildSnapshot(): Promise<Snapshot> {
     sidejobsByMandate,
     lobbyLinks,
     partyDonations: partyDonations.map((d) => ({ ...d, sourceUrl: partyDonationSourceUrl(d.year) })),
+    committees: committeesRaw.committees,
+    committeeMemberships: committeesRaw.memberships,
     meta,
   };
 }

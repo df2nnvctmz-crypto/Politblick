@@ -178,6 +178,8 @@ export function DonationSankey({
   defaultTopN = 10,
   minTopN = 5,
   maxTopN = 40,
+  onOpenParty,
+  isPartyRoutable,
   labels,
 }: {
   donations: DonationRow[];
@@ -188,11 +190,17 @@ export function DonationSankey({
   defaultTopN?: number;
   minTopN?: number;
   maxTopN?: number;
+  onOpenParty: (party: string) => void;
+  /** Many donation recipients (e.g. parties without Bundestag seats) have no party page of their
+   * own — this gates the "view party" link so it never points at a page that can only show
+   * "no data for this party". */
+  isPartyRoutable: (party: string) => boolean;
   labels: {
     noteTemplate: string;
     excludedTemplate: string;
     coverageTemplate: string;
     sliderLabelTemplate: string;
+    viewParty: string;
   };
 }) {
   const [hovered, setHovered] = useState<{ kind: 'donor' | 'party'; id: string } | null>(null);
@@ -325,8 +333,18 @@ export function DonationSankey({
           })}
         </svg>
         {active && activeNode && (
-          <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid oklch(93% 0.006 260)', fontSize: 12.5, color: 'oklch(35% 0.01 260)' }}>
-            <strong>{activeNode.label}</strong> · {formatEuro(activeNode.total)}
+          <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid oklch(93% 0.006 260)', fontSize: 12.5, color: 'oklch(35% 0.01 260)', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span>
+              <strong>{activeNode.label}</strong> · {formatEuro(activeNode.total)}
+            </span>
+            {active.kind === 'party' && isPartyRoutable(activeNode.id) && (
+              <button
+                onClick={() => onOpenParty(activeNode.id)}
+                style={{ border: 'none', background: 'none', color: 'oklch(45% 0.16 265)', fontWeight: 700, cursor: 'pointer', fontSize: 12.5, padding: 0 }}
+              >
+                {labels.viewParty} →
+              </button>
+            )}
           </div>
         )}
       </div>

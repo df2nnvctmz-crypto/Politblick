@@ -9,7 +9,7 @@
  * spa-github-pages redirect trick in public/404.html + index.html.
  */
 
-export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'partyList' | 'party' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten';
+export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'partyList' | 'party' | 'committeeList' | 'committee' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten';
 export type ProfileTab = 'overview' | 'votes' | 'lobby' | 'finance';
 export type LobbyTab = 'overview' | 'parties' | 'orgs' | 'conflicts' | 'donations';
 export type PartyTab = 'overview' | 'votes' | 'ties' | 'donations';
@@ -23,10 +23,11 @@ export interface RouteState {
   party: string | null;
   partyTab: PartyTab;
   lobbyTab: LobbyTab;
+  committeeId: string | null;
 }
 
 export const DEFAULT_ROUTE: RouteState = {
-  view: 'home', mpId: null, profileTab: 'overview', billId: null, orgId: null, party: null, partyTab: 'overview', lobbyTab: 'overview',
+  view: 'home', mpId: null, profileTab: 'overview', billId: null, orgId: null, party: null, partyTab: 'overview', lobbyTab: 'overview', committeeId: null,
 };
 
 const PROFILE_TAB_TO_SEGMENT: Record<ProfileTab, string | null> = { overview: null, votes: 'stimmen', lobby: 'lobby', finance: 'finanzen' };
@@ -56,6 +57,10 @@ export function routeToPath(r: RouteState): string {
       return r.orgId ? `/organisationen/${encodeURIComponent(r.orgId)}` : '/lobby-finanzen';
     case 'partyList':
       return '/parteien';
+    case 'committeeList':
+      return '/ausschuesse';
+    case 'committee':
+      return r.committeeId ? `/ausschuesse/${encodeURIComponent(r.committeeId)}` : '/ausschuesse';
     case 'party': {
       if (!r.party) return '/parteien';
       const seg = PARTY_TAB_TO_SEGMENT[r.partyTab];
@@ -88,6 +93,10 @@ export function pathToRoute(pathname: string): RouteState {
   }
   if (first === 'gesetze' && second) return { ...DEFAULT_ROUTE, view: 'bill', billId: second };
   if (first === 'organisationen' && second) return { ...DEFAULT_ROUTE, view: 'org', orgId: second };
+  if (first === 'ausschuesse') {
+    if (!second) return { ...DEFAULT_ROUTE, view: 'committeeList' };
+    return { ...DEFAULT_ROUTE, view: 'committee', committeeId: second };
+  }
   if (first === 'parteien') {
     if (!second) return { ...DEFAULT_ROUTE, view: 'partyList' };
     return { ...DEFAULT_ROUTE, view: 'party', party: second, partyTab: third ? SEGMENT_TO_PARTY_TAB[third] ?? 'overview' : 'overview' };
