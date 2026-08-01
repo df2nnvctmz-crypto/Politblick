@@ -6,12 +6,12 @@ import { EMPTY_LOBBY_LINKS, partyDonationSourceUrl, type LobbyLinks, type PartyD
 import type { Committee, CommitteeMembership } from './committees';
 
 /**
- * All real data (roster, polls, vote breakdowns, sidejobs) is pre-fetched by the
- * scripts/fetch-*.mjs jobs on a schedule (GitHub Actions) and published as static JSON
- * under public/data/ — the browser never calls abgeordnetenwatch's API directly for this.
- * That's what keeps the site from hitting their fair-use limits regardless of how many
- * visitors it has, at the cost of the data being "as of the last scheduled run" rather than
- * live. Portraits (Wikidata) are the one exception and stay live — see portraits.ts.
+ * All real data (roster, polls, vote breakdowns, sidejobs, member photos) is pre-fetched by
+ * the scripts/fetch-*.mjs jobs on a schedule (GitHub Actions) and published as static JSON
+ * under public/data/ — the browser never calls abgeordnetenwatch's or Wikidata's API directly
+ * for this. That's what keeps the site from hitting their fair-use limits regardless of how
+ * many visitors it has, at the cost of the data being "as of the last scheduled run" rather
+ * than live.
  */
 
 export interface SnapshotMeta {

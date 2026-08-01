@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-// Fetches roster + polls + every poll's full vote breakdown for the current Bundestag term
-// and writes them as static JSON under public/data/. Meant to run every few hours via
-// GitHub Actions — ~70 requests total, paced well under the 30 req/min fair-use limit.
+// Fetches roster + polls + every poll's full vote breakdown for the current Bundestag term,
+// plus each member's Wikidata photo, and writes them as static JSON under public/data/. Meant
+// to run every few hours via GitHub Actions — ~70 requests per run, paced well under the
+// 30 req/min fair-use limit, except the very first run (or when new members join), which also
+// pays for one photo lookup per not-yet-cached member.
 import {
   API_BASE,
   REAL_PARTY_COLORS,
@@ -11,6 +13,7 @@ import {
   fetchCurrentLegislaturePeriod,
   makePacer,
   readJsonFile,
+  resolvePoliticianPhotoUrl,
   transformMandate,
   transformPoll,
   writeJsonFile,
@@ -31,6 +34,30 @@ async function main() {
   );
   const members = rawMandates.map(transformMandate).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name, 'de'));
   console.log(`  ${members.length} members`);
+
+  console.log('Resolving member photos…');
+  // Cached by politician id from the previous run's roster.json, so only members new since
+  // last run (normally zero) pay for a fresh lookup — the full 630-member backfill only
+  // happens once.
+  const previousRoster = await readJsonFile('roster.json', { members: [] });
+  const photoCache = new Map(previousRoster.members.filter((m) => 'photoUrl' in m).map((m) => [m.id, m.photoUrl]));
+  let newLookups = 0;
+  for (const member of members) {
+    if (photoCache.has(member.id)) {
+      member.photoUrl = photoCache.get(member.id);
+      continue;
+    }
+    await pace();
+    try {
+      member.photoUrl = await resolvePoliticianPhotoUrl(member.id);
+    } catch (e) {
+      console.warn(`  photo lookup failed for ${member.name}: ${e.message}`);
+      member.photoUrl = null;
+    }
+    newLookups++;
+    if (newLookups % 50 === 0) console.log(`  resolved ${newLookups} new photos…`);
+  }
+  console.log(`  ${newLookups} new lookups, ${members.length - newLookups} from cache`);
 
   const partyCounts = new Map();
   for (const m of members) partyCounts.set(m.party, (partyCounts.get(m.party) || 0) + 1);

@@ -10,7 +10,6 @@ import { computeHemicycleSeats, fuzzyIncludes, initials, trendPoints } from './h
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealMp } from './bundestag';
 import { computeAllAlignments, computeDivergences, computeMemberAlignment, useAllPolls, useMandateVotes, usePartyVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult, type RealPoll } from './polls';
 import { buildMemberIncomeScores, useSidejobs } from './sidejobs';
-import { useOnScreen, usePortrait } from './portraits';
 import { useSnapshot } from './snapshot';
 import {
   buildMemberTieCounts,
@@ -67,23 +66,6 @@ function formatDateTime(iso: string, lang: Lang): string {
   return fmt.format(new Date(iso));
 }
 
-/**
- * Rapidly clicking through several profiles/bills (each of which fires votes + sidejobs +
- * a portrait lookup) means every one visited for even a few milliseconds still fires its
- * full fetch chain, none of which get cancelled when the user moves on — those stale
- * requests pile up and can starve the one the user actually stops on. Debouncing the id
- * means a profile/bill only actually triggers network calls once the user has stayed on it
- * for a beat, so flicking past several in a row costs nothing.
- */
-function useDebounced<T>(value: T, delayMs: number): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(timer);
-  }, [value, delayMs]);
-  return debounced;
-}
-
 function stop(fn: () => void) {
   return (e: MouseEvent) => {
     e.preventDefault();
@@ -99,22 +81,22 @@ function navStyle(active: boolean): CSSProperties {
   };
 }
 
-/** Lazy portrait for list rows: only resolves once scrolled near-into-view, falls back to colored initials. */
-function MpAvatar({ politicianId, name, color, initials, size }: { politicianId: number; name: string; color: string; initials: string; size: number }) {
-  const [ref, visible] = useOnScreen<HTMLDivElement>();
-  const portrait = usePortrait(visible ? politicianId : null);
-  if (portrait.url) {
+/** Photo is pre-resolved at fetch time (see fetch-core.mjs) and just a static URL now — falls back to colored initials if there's no Wikidata portrait, or if the Commons URL fails to load. */
+function MpAvatar({ photoUrl, name, color, initials, size }: { photoUrl: string | null; name: string; color: string; initials: string; size: number }) {
+  const [failed, setFailed] = useState(false);
+  if (photoUrl && !failed) {
     return (
       <img
-        src={portrait.url}
+        src={photoUrl}
         alt={name}
+        loading="lazy"
+        onError={() => setFailed(true)}
         style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: 'oklch(90% 0.006 260)' }}
       />
     );
   }
   return (
     <div
-      ref={ref}
       style={{
         width: size,
         height: size,
@@ -1298,10 +1280,6 @@ function App() {
   // fabricated votes/lobby/donations are ever attached to a real person).
   const demoMatch = demoMps.find((m) => m.id === selectedMpId);
   const realMatch = roster.members.find((m) => String(m.id) === selectedMpId);
-  // Votes/sidejobs are now pure in-memory lookups in the static snapshot (no debounce needed).
-  // Portraits still call out live (Wikidata + a small abgeordnetenwatch lookup), so that one
-  // still debounces to avoid firing a lookup for every profile flicked past while browsing.
-  const debouncedPoliticianId = useDebounced(realMatch ? realMatch.id : null, 350);
   const mandateVotes = useMandateVotes(realMatch ? realMatch.mandateId : null);
   const partyVotes = usePartyVotes(selectedParty);
   const sidejobs = useSidejobs(realMatch ? realMatch.mandateId : null);
@@ -1319,7 +1297,6 @@ function App() {
     entry.hasTopicalTie = true;
     lobbyByPollId.set(tie.pollId, entry);
   }
-  const portrait = usePortrait(debouncedPoliticianId);
   // Real, cheaply-derivable stats for a real profile's Overview tab. Bills-voted/attendance cover
   // the full term (cheap — already fetched for the Votes tab); party-alignment is derived (no
   // extra network call) from the shared `recentPolls` fetched once for the whole app.
@@ -2010,7 +1987,7 @@ function App() {
                     onClick={() => openMp(String(m.id))}
                     style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: 16, display: 'flex', gap: 12, alignItems: 'center' }}
                   >
-                    <MpAvatar politicianId={m.id} name={m.name} color={m.color} initials={m.initials} size={44} />
+                    <MpAvatar photoUrl={m.photoUrl} name={m.name} color={m.color} initials={m.initials} size={44} />
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: 14.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</div>
                       <div style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)' }}>
@@ -2055,31 +2032,14 @@ function App() {
           {(profile.kind === 'demo' || profile.kind === 'real') && (
             <>
               <div style={{ display: 'flex', gap: 20, alignItems: 'center', margin: '20px 0 24px', flexWrap: 'wrap' }}>
-                {profile.kind === 'real' && portrait.url ? (
-                  <img
-                    src={portrait.url}
-                    alt={profile.mp.name}
-                    style={{ width: 76, height: 76, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: 'oklch(90% 0.006 260)' }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      width: 76,
-                      height: 76,
-                      borderRadius: '50%',
-                      background: profile.mp.color,
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 700,
-                      fontSize: 24,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {profile.mp.initials}
-                  </div>
-                )}
+                <MpAvatar
+                  key={profile.mp.id}
+                  photoUrl={profile.kind === 'real' ? profile.mp.photoUrl : null}
+                  name={profile.mp.name}
+                  color={profile.mp.color}
+                  initials={profile.mp.initials}
+                  size={76}
+                />
                 <div style={{ flex: 1, minWidth: 200 }}>
                   <h1 style={{ fontSize: 27, fontWeight: 800, margin: '0 0 4px' }}>{profile.mp.name}</h1>
                   <div style={{ fontSize: 13.5, color: 'oklch(45% 0.01 260)' }}>
@@ -2095,7 +2055,7 @@ function App() {
                     )}{' '}
                     · {profile.mp.constituency}
                   </div>
-                  {profile.kind === 'real' && portrait.url && (
+                  {profile.kind === 'real' && profile.mp.photoUrl && (
                     <div style={{ fontSize: 10.5, color: 'oklch(60% 0.006 260)', marginTop: 2 }}>{t.photoCredit}</div>
                   )}
                 </div>

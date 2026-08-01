@@ -108,11 +108,11 @@ export function initialsOf(name) {
  * makes would otherwise hang indefinitely instead of hitting the retry loop below — the same
  * failure mode fetchLobbyPage() already guards against with AbortSignal.timeout.
  */
-export async function fetchJson(url, attempts = 5) {
+export async function fetchJson(url, attempts = 5, init = {}) {
   let lastError;
   for (let attempt = 0; attempt < attempts; attempt++) {
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+      const res = await fetch(url, { ...init, signal: AbortSignal.timeout(20_000) });
       if (res.status === 429) {
         const header = res.headers.get('retry-after');
         const waitMs = header && !Number.isNaN(Number(header)) ? Number(header) * 1000 : 60_000;
@@ -164,6 +164,25 @@ export async function fetchAllPaginated(urlBuilder, pace) {
     if (all.length >= total || json.data.length === 0) break;
   }
   return all;
+}
+
+/**
+ * Member portrait, resolved via abgeordnetenwatch's qid_wikidata → Wikidata's P18 (image)
+ * claim → a Commons Special:FilePath URL. No upload/hosting of our own. This used to run live
+ * per-visitor in the browser (throttled 4-at-a-time), which was too slow to ever resolve more
+ * than the first few rows of a 630-member roster — resolving it once here at fetch time instead
+ * means every member's photo is just a static field in roster.json.
+ */
+export async function resolvePoliticianPhotoUrl(politicianId) {
+  const politician = await fetchJson(`${API_BASE}/politicians/${politicianId}`);
+  const qid = politician.data?.qid_wikidata;
+  if (!qid) return null;
+  const entity = await fetchJson(`https://www.wikidata.org/wiki/Special:EntityData/${qid}.json`, 5, {
+    headers: { 'User-Agent': 'politblick-bot (https://github.com/df2nnvctmz-crypto/Politblick)' },
+  });
+  const filename = entity.entities?.[qid]?.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
+  if (!filename) return null;
+  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(filename)}?width=300`;
 }
 
 /**
