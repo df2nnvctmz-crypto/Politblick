@@ -103,12 +103,16 @@ export function initialsOf(name) {
  * Fetch with retry (429/5xx get a real backoff, respecting Retry-After) — this runs
  * sequentially from a single CI job, so it doesn't need the concurrency/rate-limit machinery
  * the browser app has; `paced()` below is what actually keeps us under 30 req/min.
+ *
+ * `fetch()` has no default timeout, so a single stalled connection among the ~70 calls a run
+ * makes would otherwise hang indefinitely instead of hitting the retry loop below — the same
+ * failure mode fetchLobbyPage() already guards against with AbortSignal.timeout.
  */
-export async function fetchJson(url, attempts = 4) {
+export async function fetchJson(url, attempts = 5) {
   let lastError;
   for (let attempt = 0; attempt < attempts; attempt++) {
     try {
-      const res = await fetch(url);
+      const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
       if (res.status === 429) {
         const header = res.headers.get('retry-after');
         const waitMs = header && !Number.isNaN(Number(header)) ? Number(header) * 1000 : 60_000;
