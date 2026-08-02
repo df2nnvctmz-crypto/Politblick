@@ -33,6 +33,8 @@ import { PartyOrgGraph } from './PartyOrgGraph';
 import { DonationSankey } from './DonationSankey';
 import { DonationTimeline } from './DonationTimeline';
 import { ShowMoreButton } from './ShowMoreButton';
+import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
+import type { ChartSvgExport } from './chartExport';
 import { pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
 
 type BillId = string | number;
@@ -473,18 +475,30 @@ type MatrixCell = { party: string; topic: string };
  * so a concentration (e.g. one party, one topic, several rows) is visible at a glance — and
  * clicking a cell filters the table below to just that slice.
  */
+function escapeXml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function truncateLabel(label: string, max: number): string {
+  return label.length > max ? `${label.slice(0, max - 1)}…` : label;
+}
+
 function TieMatrix({
   rows,
   partyOrder,
   selected,
   onSelect,
   scrollHintText,
+  filenameBase,
+  exportLabels,
 }: {
   rows: CrossrefRow[];
   partyOrder: { name: string; color: string }[];
   selected: MatrixCell | null;
   onSelect: (cell: MatrixCell | null) => void;
   scrollHintText: string;
+  filenameBase: string;
+  exportLabels: ChartExportLabels;
 }) {
   const counts = new Map<string, number>();
   const topicTotals = new Map<string, number>();
@@ -508,8 +522,51 @@ function TieMatrix({
     };
   };
 
+  const getCsv = () => ({
+    headers: ['Party', 'Topic', 'Count'],
+    rows: activeParties.flatMap((p) => topics.map((topic) => [p.name, topic, counts.get(`${p.name}|${topic}`) ?? 0])),
+  });
+
+  const getSvg = (): ChartSvgExport => {
+    const CELL_W = 68;
+    const CELL_H = 34;
+    const LABEL_W = 150;
+    const HEADER_H = 100;
+    const PAD = 12;
+    const width = PAD * 2 + LABEL_W + topics.length * CELL_W;
+    const height = PAD * 2 + HEADER_H + activeParties.length * CELL_H;
+    const header = topics
+      .map((topic, ci) => {
+        const x = PAD + LABEL_W + ci * CELL_W + CELL_W / 2;
+        const y = PAD + HEADER_H - 8;
+        return `<text x="${x}" y="${y}" text-anchor="start" font-size="10.5" font-weight="700" fill="#5a5f6b" transform="rotate(-40 ${x} ${y})">${escapeXml(truncateLabel(topic, 30))}</text>`;
+      })
+      .join('');
+    const body = activeParties
+      .map((p, ri) => {
+        const y = PAD + HEADER_H + ri * CELL_H;
+        const label = `<text x="${PAD}" y="${y + CELL_H / 2}" dominant-baseline="middle" font-size="12.5" font-weight="700" fill="#1a1d23">${escapeXml(p.name)}</text>`;
+        const cells = topics
+          .map((topic, ci) => {
+            const x = PAD + LABEL_W + ci * CELL_W;
+            const n = counts.get(`${p.name}|${topic}`) ?? 0;
+            const { bg, fg } = heat(n);
+            const isSelected = selected?.party === p.name && selected?.topic === topic;
+            const text = n > 0 ? `<text x="${x + CELL_W / 2}" y="${y + CELL_H / 2}" text-anchor="middle" dominant-baseline="middle" font-size="12.5" font-weight="700" fill="${fg}">${n}</text>` : '';
+            return `<rect x="${x + 3}" y="${y + 3}" width="${CELL_W - 6}" height="${CELL_H - 6}" rx="6" fill="${bg}" stroke="${isSelected ? '#284cac' : 'none'}" stroke-width="2"/>${text}`;
+          })
+          .join('');
+        return label + cells;
+      })
+      .join('');
+    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" font-family="'IBM Plex Sans', sans-serif">${header}${body}</svg>`;
+    return { svgString, width, height };
+  };
+
   return (
-    <ScrollBox hintText={scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, marginBottom: 14 }}>
+    <div style={{ position: 'relative' }}>
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
+      <ScrollBox hintText={scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, marginBottom: 14 }}>
       <table style={{ borderCollapse: 'collapse', fontSize: 12.5, background: 'white' }}>
         <thead>
           <tr>
@@ -562,6 +619,7 @@ function TieMatrix({
         </tbody>
       </table>
     </ScrollBox>
+    </div>
   );
 }
 
@@ -571,17 +629,24 @@ function HemicycleChart({
   seatsLabel,
   onOpenParty,
   isPartyRoutable,
+  filenameBase,
+  exportLabels,
 }: {
   parties: { name: string; seats: number; color: string }[];
   seatsLabel: string;
   onOpenParty: (party: string) => void;
   isPartyRoutable: (party: string) => boolean;
+  filenameBase: string;
+  exportLabels: ChartExportLabels;
 }) {
+  const svgRef = useRef<SVGSVGElement>(null);
   const seats = computeHemicycleSeats(parties, { rows: 9, rMin: 55, rMax: 200, cx: 260, cy: 220 });
   const total = parties.reduce((sum, p) => sum + p.seats, 0);
+  const getCsv = () => ({ headers: ['Party', 'Seats'], rows: parties.map((p) => [p.name, p.seats]) });
   return (
-    <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 14, padding: '18px 18px 14px', height: '100%' }}>
-      <svg viewBox="0 0 520 250" style={{ width: '100%', height: 'auto', display: 'block' }}>
+    <div style={{ position: 'relative', background: 'oklch(97% 0.006 260)', borderRadius: 14, padding: '18px 18px 14px', height: '100%' }}>
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} svgRef={svgRef} labels={exportLabels} />
+      <svg ref={svgRef} viewBox="0 0 520 250" style={{ width: '100%', height: 'auto', display: 'block' }}>
         {seats.map((s, i) => {
           const routable = isPartyRoutable(s.party);
           return (
@@ -629,11 +694,46 @@ function HemicycleChart({
  * parties as an unreadable sliver. Independent bars stay legible at any magnitude —
  * this is a ranking/comparison job, not a proportion-of-total one.
  */
-function DonationBarChart({ data }: { data: { fraction: string; total: number; count: number }[] }) {
+function DonationBarChart({
+  data,
+  filenameBase,
+  exportLabels,
+}: {
+  data: { fraction: string; total: number; count: number }[];
+  filenameBase: string;
+  exportLabels: ChartExportLabels;
+}) {
   if (data.length === 0) return null;
   const max = data[0].total;
+  const ROW_H = 30;
+  const BAR_H = 18;
+  const LABEL_W = 170;
+  const PLOT_W = 340;
+  const VALUE_W = 170;
+  const PAD = 10;
+  const getCsv = () => ({ headers: ['Party', 'Total (EUR)', 'Count'], rows: data.map((p) => [p.fraction, p.total, p.count]) });
+  const getSvg = (): ChartSvgExport => {
+    const width = PAD * 2 + LABEL_W + PLOT_W + VALUE_W;
+    const height = PAD * 2 + data.length * ROW_H;
+    const body = data
+      .map((p, i) => {
+        const y = PAD + i * ROW_H;
+        const pct = Math.max(1, (p.total / max) * 100);
+        const barW = (pct / 100) * PLOT_W;
+        const color = REAL_PARTY_COLORS[p.fraction] || FALLBACK_PARTY_COLOR;
+        return `<circle cx="${PAD + 5}" cy="${y + BAR_H / 2}" r="4.5" fill="${color}"/>
+          <text x="${PAD + 16}" y="${y + BAR_H / 2}" dominant-baseline="middle" font-size="12.5" font-weight="600" fill="#1a1d23">${escapeXml(p.fraction)}</text>
+          <rect x="${PAD + LABEL_W}" y="${y}" width="${PLOT_W}" height="${BAR_H}" rx="4" fill="#eef0f2"/>
+          <rect x="${PAD + LABEL_W}" y="${y}" width="${barW}" height="${BAR_H}" rx="4" fill="${color}"/>
+          <text x="${PAD + LABEL_W + PLOT_W + 10}" y="${y + BAR_H / 2}" dominant-baseline="middle" font-size="11.5" fill="#6b7280">${escapeXml(formatEuro(p.total))} · ${p.count}×</text>`;
+      })
+      .join('');
+    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" font-family="'IBM Plex Sans', sans-serif">${body}</svg>`;
+    return { svgString, width, height };
+  };
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 9 }}>
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
       {data.map((p) => {
         const pct = Math.max(1, (p.total / max) * 100);
         return (
@@ -657,6 +757,100 @@ function DonationBarChart({ data }: { data: { fraction: string; total: number; c
             <span className="donation-value" style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', whiteSpace: 'nowrap', flexShrink: 0, width: 150 }}>
               {formatEuro(p.total)} · {p.count}×
             </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export type SectorMetric = 'members' | 'orgs' | 'spend';
+
+/** Ranked horizontal bar chart for a category count (e.g. field-of-interest → tied MPs) — bars
+ * are clickable to drill into the filtered list they summarize. The label sits on its own line
+ * above the bar (rather than a fixed-width side column) so long field-of-interest names never
+ * get truncated. */
+function SectorBarChart({
+  data,
+  metric,
+  selected,
+  onSelect,
+  membersTemplate,
+  orgsTemplate,
+  filenameBase,
+  exportLabels,
+}: {
+  data: { field: string; memberCount: number; orgCount: number; spend: { from: number; to: number } | null }[];
+  metric: SectorMetric;
+  selected: Set<string>;
+  onSelect: (field: string) => void;
+  membersTemplate: string;
+  orgsTemplate: string;
+  filenameBase: string;
+  exportLabels: ChartExportLabels;
+}) {
+  if (data.length === 0) return null;
+  const valueFor = (d: (typeof data)[number]) => (metric === 'members' ? d.memberCount : metric === 'orgs' ? d.orgCount : ((d.spend?.from ?? 0) + (d.spend?.to ?? 0)) / 2);
+  const max = Math.max(1, ...data.map(valueFor));
+  const getCsv = () => ({
+    headers: ['Field of interest', 'Tied MPs', 'Organizations', 'Spend from (EUR)', 'Spend to (EUR)'],
+    rows: data.map((d) => [d.field, d.memberCount, d.orgCount, d.spend?.from ?? null, d.spend?.to ?? null]),
+  });
+  const getSvg = (): ChartSvgExport => {
+    const ROW_H = 48;
+    const BAR_H = 18;
+    const PLOT_W = 380;
+    const VALUE_W = 280;
+    const PAD = 10;
+    const width = PAD * 2 + PLOT_W + VALUE_W;
+    const height = PAD * 2 + data.length * ROW_H;
+    const body = data
+      .map((d, i) => {
+        const y = PAD + i * ROW_H;
+        const isSelected = selected.has(d.field);
+        const pct = Math.max(1, (valueFor(d) / max) * 100);
+        const barW = (pct / 100) * PLOT_W;
+        const color = isSelected ? '#284cac' : '#5c86d6';
+        const valueText = `${membersTemplate.replace('{n}', String(d.memberCount))} · ${orgsTemplate.replace('{n}', String(d.orgCount))}${d.spend ? ` · ${escapeXml(formatExpenseBracket(d.spend) ?? '')}` : ''}`;
+        return `<text x="${PAD}" y="${y + 12}" font-size="12.5" font-weight="${isSelected ? 700 : 600}" fill="#1a1d23">${escapeXml(d.field)}</text>
+          <rect x="${PAD}" y="${y + 18}" width="${PLOT_W}" height="${BAR_H}" rx="4" fill="#eef0f2"/>
+          <rect x="${PAD}" y="${y + 18}" width="${barW}" height="${BAR_H}" rx="4" fill="${color}"/>
+          <text x="${PAD + PLOT_W + 10}" y="${y + 18 + BAR_H / 2}" dominant-baseline="middle" font-size="11" fill="#6b7280">${valueText}</text>`;
+      })
+      .join('');
+    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" font-family="'IBM Plex Sans', sans-serif">${body}</svg>`;
+    return { svgString, width, height };
+  };
+  return (
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
+      {data.map((d) => {
+        const pct = Math.max(1, (valueFor(d) / max) * 100);
+        const isSelected = selected.has(d.field);
+        return (
+          <div key={d.field} onClick={() => onSelect(d.field)} style={{ cursor: 'pointer' }}>
+            <div style={{ fontSize: 12.5, fontWeight: isSelected ? 700 : 600, marginBottom: 5 }}>{d.field}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
+                <div
+                  style={{
+                    height: 18,
+                    width: `${pct}%`,
+                    minWidth: 3,
+                    background: isSelected ? 'oklch(45% 0.16 265)' : 'oklch(58% 0.13 265)',
+                    borderTopRightRadius: 4,
+                    borderBottomRightRadius: 4,
+                  }}
+                />
+              </div>
+              {/* Fixed width (not nowrap) so every row reserves the same trailing space —
+                  otherwise the flex:1 bar track above ends up a different length on every row,
+                  since its remaining space depends on how long that row's own value text is. */}
+              <span style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', width: 220, flexShrink: 0 }}>
+                {membersTemplate.replace('{n}', String(d.memberCount))} · {orgsTemplate.replace('{n}', String(d.orgCount))}
+                {d.spend && ` · ${formatExpenseBracket(d.spend)}`}
+              </span>
+            </div>
           </div>
         );
       })}
@@ -1042,6 +1236,7 @@ function App() {
   const [selectedParty, setSelectedParty] = useState<string | null>(initialRoute.party);
   const [selectedCommitteeId, setSelectedCommitteeId] = useState<string | null>(initialRoute.committeeId);
   const [orgSearchQuery, setOrgSearchQuery] = useState('');
+  const [sectorMetric, setSectorMetric] = useState<SectorMetric>('members');
   const [profileTab, setProfileTab] = useState<ProfileTab>(initialRoute.profileTab);
   const [lobbyTab, setLobbyTab] = useState<LobbyTab>(initialRoute.lobbyTab);
   const [partyTab, setPartyTab] = useState<PartyTab>(initialRoute.partyTab);
@@ -1050,6 +1245,7 @@ function App() {
   const [rosterSort, setRosterSort] = useState<'default' | 'income' | 'ties'>('default');
   const [following, setFollowing] = useState<Record<string, boolean>>({});
   const [hoveredAlignmentPoint, setHoveredAlignmentPoint] = useState<number | null>(null);
+  const alignmentSvgRef = useRef<SVGSVGElement>(null);
   const [tieMatrixFilter, setTieMatrixFilter] = useState<MatrixCell | null>(null);
   const [orgsExpanded, setOrgsExpanded] = useState(false);
   const [conflictsExpanded, setConflictsExpanded] = useState(false);
@@ -1066,12 +1262,17 @@ function App() {
   const [partyDonationsExpanded, setPartyDonationsExpanded] = useState(false);
   const [partyVotesExpanded, setPartyVotesExpanded] = useState(false);
   const [partyTopicalExpanded, setPartyTopicalExpanded] = useState(false);
+  const [partyTopicalSearchQuery, setPartyTopicalSearchQuery] = useState('');
+  const [partyTopicalFieldFilter, setPartyTopicalFieldFilter] = useState<Set<string>>(new Set());
   // Where the party detail page's back link should point — set by whichever entry point opened it.
   // Ephemeral UI state, deliberately left out of the URL (see router.ts's comment on that policy).
   const [partyOrigin, setPartyOrigin] = useState<'partyList' | 'crossref'>('partyList');
   const [orgPartyFilter, setOrgPartyFilter] = useState<Set<string>>(new Set());
   const [orgActorTypeFilter, setOrgActorTypeFilter] = useState<Set<string>>(new Set());
   const [orgFieldFilter, setOrgFieldFilter] = useState<Set<string>>(new Set());
+  const [topicalSearchQuery, setTopicalSearchQuery] = useState('');
+  const [topicalPartyFilter, setTopicalPartyFilter] = useState<Set<string>>(new Set());
+  const [topicalFieldFilter, setTopicalFieldFilter] = useState<Set<string>>(new Set());
   const [lobbyNavOpen, setLobbyNavOpen] = useState(false);
   const lobbyNavCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const openLobbyNav = () => {
@@ -1155,6 +1356,7 @@ function App() {
   const mandateToMember = new Map(roster.members.map((m) => [m.mandateId, m]));
 
   const t = TRANSLATIONS[lang];
+  const exportLabels: ChartExportLabels = { buttonLabel: t.chartExportLabel, csv: t.chartExportCsv, svg: t.chartExportSvg, png: t.chartExportPng };
 
   const goHome = () => setView('home');
   const goSearch = () => setView('search');
@@ -1408,6 +1610,42 @@ function App() {
   const orgPartyOptions = countOptions(orgList.orgs.flatMap((e) => e.parties));
   const orgActorTypeOptions = countOptions(orgList.orgs.map((e) => e.org.actorType).filter((v): v is string => Boolean(v)));
   const orgFieldOptions = countOptions(orgList.orgs.flatMap((e) => e.org.fieldsOfInterest));
+  // Top fields of interest by tied MP count — an org contributes its full member/spend count to
+  // every field it declares, since the register doesn't split an org's activity across its fields.
+  const sectorStats = (() => {
+    const byField = new Map<string, { orgCount: number; memberCount: number; from: number; to: number; hasSpend: boolean }>();
+    for (const e of orgList.orgs) {
+      for (const f of e.org.fieldsOfInterest) {
+        const cur = byField.get(f) ?? { orgCount: 0, memberCount: 0, from: 0, to: 0, hasSpend: false };
+        cur.orgCount += 1;
+        cur.memberCount += e.affiliatedMemberCount;
+        if (e.org.expensesEuro) {
+          cur.from += e.org.expensesEuro.from;
+          cur.to += e.org.expensesEuro.to;
+          cur.hasSpend = true;
+        }
+        byField.set(f, cur);
+      }
+    }
+    const spendMid = (v: { from: number; to: number; hasSpend: boolean }) => (v.hasSpend ? (v.from + v.to) / 2 : 0);
+    const sortValue = (v: { orgCount: number; memberCount: number; spendMid: number }) =>
+      sectorMetric === 'members' ? v.memberCount : sectorMetric === 'orgs' ? v.orgCount : v.spendMid;
+    return [...byField.entries()]
+      .map(([field, v]) => ({ field, orgCount: v.orgCount, memberCount: v.memberCount, spend: v.hasSpend ? { from: v.from, to: v.to } : null, spendMid: spendMid(v) }))
+      .sort((a, b) => sortValue(b) - sortValue(a) || b.orgCount - a.orgCount)
+      .slice(0, 8);
+  })();
+
+  const topicalPartyOptions = countOptions(topicalTieRows.rows.map((r) => r.party));
+  const topicalFieldOptions = countOptions(topicalTieRows.rows.map((r) => r.tie.matchedField));
+  const topicalSearchLower = topicalSearchQuery.trim().toLowerCase();
+  const filteredTopicalRows = topicalTieRows.rows.filter((r) => {
+    if (topicalPartyFilter.size > 0 && !topicalPartyFilter.has(r.party)) return false;
+    if (topicalFieldFilter.size > 0 && !topicalFieldFilter.has(r.tie.matchedField)) return false;
+    if (topicalSearchLower && !r.memberName.toLowerCase().includes(topicalSearchLower) && !r.org.name.toLowerCase().includes(topicalSearchLower) && !r.pollTitle.toLowerCase().includes(topicalSearchLower))
+      return false;
+    return true;
+  });
 
   return (
     <div
@@ -1769,6 +2007,8 @@ function App() {
                 seatsLabel={t.seatsLabel}
                 onOpenParty={openParty}
                 isPartyRoutable={(party) => routablePartyNames.has(party)}
+                filenameBase="politblick-sitzverteilung"
+                exportLabels={exportLabels}
               />
             </div>
             <div style={{ flex: '1 1 200px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, alignContent: 'start' }}>
@@ -2228,7 +2468,16 @@ function App() {
                         <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>
                           {t.alignmentTrendRealTemplate.replace('{n}', String(alignment.windowSize))}
                         </div>
-                        <svg viewBox="0 0 400 60" style={{ width: '100%', height: 60, display: 'block' }}>
+                        <ChartExportMenu
+                          filenameBase={`politblick-parteitreue-${profile.kind === 'real' ? profile.mp.name : selectedMpId ?? ''}`}
+                          getCsv={() => ({
+                            headers: ['Date', 'Bill', 'Vote', 'Aligned with party'],
+                            rows: alignment.points.map((p) => [p.poll.date, p.poll.title, p.vote, p.aligned === null ? 'n/a' : p.aligned ? 'yes' : 'no']),
+                          })}
+                          svgRef={alignmentSvgRef}
+                          labels={exportLabels}
+                        />
+                        <svg ref={alignmentSvgRef} viewBox="0 0 400 60" style={{ width: '100%', height: 60, display: 'block' }}>
                           <line x1={20} y1={30} x2={380} y2={30} stroke="oklch(90% 0.006 260)" strokeWidth={2} />
                           {alignment.points.map((p, i) => {
                             const x = alignment.points.length > 1 ? 20 + (i * 360) / (alignment.points.length - 1) : 200;
@@ -3035,6 +3284,8 @@ function App() {
                 onOpenOrg={openOrg}
                 onOpenParty={(party) => openParty(party, 'crossref')}
                 isPartyRoutable={(party) => routablePartyNames.has(party)}
+                filenameBase="politblick-lobby-netzwerk"
+                exportLabels={exportLabels}
                 labels={{
                   sub: t.networkSub,
                   crossPartyToggle: t.networkToggleCrossParty,
@@ -3086,6 +3337,35 @@ function App() {
             <>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t.orgsSectionTitle}</h2>
               <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.orgsSectionSub}</p>
+              {sectorStats.length > 0 && (
+                <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, padding: 16, marginBottom: 20 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 4 }}>
+                    <h3 style={{ fontSize: 14.5, fontWeight: 700, margin: 0 }}>{t.sectorChartTitle}</h3>
+                    <div style={{ display: 'flex', border: '1px solid oklch(90% 0.006 260)', borderRadius: 16, overflow: 'hidden', fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
+                      <button onClick={() => setSectorMetric('members')} style={pillBtn(sectorMetric === 'members')}>
+                        {t.sectorMetricMembers}
+                      </button>
+                      <button onClick={() => setSectorMetric('orgs')} style={pillBtn(sectorMetric === 'orgs')}>
+                        {t.sectorMetricOrgs}
+                      </button>
+                      <button onClick={() => setSectorMetric('spend')} style={pillBtn(sectorMetric === 'spend')}>
+                        {t.sectorMetricSpend}
+                      </button>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: 12, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 640 }}>{t.sectorChartSub}</p>
+                  <SectorBarChart
+                    data={sectorStats}
+                    metric={sectorMetric}
+                    selected={orgFieldFilter}
+                    onSelect={(field) => setOrgFieldFilter((prev) => toggleInSet(prev, field))}
+                    membersTemplate={t.sectorChartMembersTemplate}
+                    orgsTemplate={t.sectorChartOrgsTemplate}
+                    filenameBase="politblick-interessengebiete"
+                    exportLabels={exportLabels}
+                  />
+                </div>
+              )}
               <input
                 type="text"
                 value={orgSearchQuery}
@@ -3213,6 +3493,8 @@ function App() {
                     selected={tieMatrixFilter}
                     onSelect={setTieMatrixFilter}
                     scrollHintText={t.scrollHintText}
+                    filenameBase="politblick-verflechtungs-matrix"
+                    exportLabels={exportLabels}
                   />
                   {tieMatrixFilter && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, fontSize: 12.5 }}>
@@ -3336,8 +3618,60 @@ function App() {
               {topicalTieRows.rows.length === 0 ? (
                 <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.topicalTiesEmpty}</p>
               ) : (
+                <>
+                  <input
+                    type="text"
+                    value={topicalSearchQuery}
+                    onChange={(e) => setTopicalSearchQuery(e.target.value)}
+                    placeholder={t.topicalSearchPlaceholder}
+                    style={{ width: '100%', maxWidth: 420, padding: '9px 12px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13.5, marginBottom: 14, boxSizing: 'border-box' }}
+                  />
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                    <MultiSelectFilter
+                      label={t.filterParty}
+                      options={topicalPartyOptions}
+                      selected={topicalPartyFilter}
+                      onToggle={(v) => setTopicalPartyFilter((prev) => toggleInSet(prev, v))}
+                      onClear={() => setTopicalPartyFilter(new Set())}
+                      allLabel={t.filterAllLabel}
+                      selectedCountTemplate={t.filterSelectedCountTemplate}
+                      clearLabel={t.clearAllFilters}
+                    />
+                    <MultiSelectFilter
+                      label={t.filterFieldOfInterest}
+                      options={topicalFieldOptions}
+                      selected={topicalFieldFilter}
+                      onToggle={(v) => setTopicalFieldFilter((prev) => toggleInSet(prev, v))}
+                      onClear={() => setTopicalFieldFilter(new Set())}
+                      allLabel={t.filterAllLabel}
+                      selectedCountTemplate={t.filterSelectedCountTemplate}
+                      clearLabel={t.clearAllFilters}
+                      searchable
+                      searchPlaceholder={t.filterSearchPlaceholder}
+                    />
+                    {(topicalPartyFilter.size > 0 || topicalFieldFilter.size > 0 || topicalSearchQuery.trim().length > 0) && (
+                      <>
+                        <span style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)' }}>
+                          {filteredTopicalRows.length} {t.results}
+                        </span>
+                        <button
+                          onClick={() => {
+                            setTopicalPartyFilter(new Set());
+                            setTopicalFieldFilter(new Set());
+                            setTopicalSearchQuery('');
+                          }}
+                          style={{ border: 'none', background: 'none', color: 'oklch(45% 0.16 265)', fontWeight: 600, cursor: 'pointer', fontSize: 12.5, padding: 0 }}
+                        >
+                          {t.clearAllFilters}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  {filteredTopicalRows.length === 0 ? (
+                    <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.topicalNoResults}</p>
+                  ) : (
                 (() => {
-                  const topicalValue = (r: (typeof topicalTieRows.rows)[number], key: string): string | number | null => {
+                  const topicalValue = (r: (typeof filteredTopicalRows)[number], key: string): string | number | null => {
                     switch (key) {
                       case 'mp': return r.memberName;
                       case 'org': return r.org.name;
@@ -3348,8 +3682,8 @@ function App() {
                     }
                   };
                   const sortedTopical = topicalSort
-                    ? [...topicalTieRows.rows].sort((a, b) => compareSortValues(topicalValue(a, topicalSort.key), topicalValue(b, topicalSort.key), topicalSort.dir))
-                    : topicalTieRows.rows;
+                    ? [...filteredTopicalRows].sort((a, b) => compareSortValues(topicalValue(a, topicalSort.key), topicalValue(b, topicalSort.key), topicalSort.dir))
+                    : filteredTopicalRows;
                   return (
                 <>
                   <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(88% 0.02 90)', borderRadius: 14 }}>
@@ -3406,7 +3740,7 @@ function App() {
                     </table>
                   </ScrollBox>
                   <ShowMoreButton
-                    total={topicalTieRows.rows.length}
+                    total={filteredTopicalRows.length}
                     defaultCount={10}
                     expanded={topicalExpanded}
                     onToggle={() => setTopicalExpanded((v) => !v)}
@@ -3416,6 +3750,8 @@ function App() {
                 </>
                   );
                 })()
+                  )}
+                </>
               )}
               <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 10, lineHeight: 1.6, maxWidth: 760 }}>
                 {t.topicalTieNote}
@@ -3428,7 +3764,7 @@ function App() {
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t.donationsTitle}</h2>
               <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 700 }}>{t.donationsSub}</p>
               <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '16px 18px', marginBottom: 18 }}>
-                <DonationBarChart data={partyDonations.byFraction} />
+                <DonationBarChart data={partyDonations.byFraction} filenameBase="politblick-grossspenden-nach-partei" exportLabels={exportLabels} />
               </div>
 
               <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.donationTimelineTitle}</h3>
@@ -3436,6 +3772,8 @@ function App() {
               <div style={{ marginBottom: 18 }}>
                 <DonationTimeline
                   donations={partyDonations.all}
+                  filenameBase="politblick-grossspenden-alle-parteien"
+                  exportLabels={exportLabels}
                   labels={{
                     axisMaxTemplate: t.donationTimelineAxisMaxTemplate,
                     excludedTemplate: t.donationTimelineExcludedTemplate,
@@ -3455,6 +3793,8 @@ function App() {
                   fractionTotals={Object.fromEntries(partyDonations.byFraction.map((f) => [f.fraction, f.total]))}
                   onOpenParty={(party) => openParty(party, 'crossref')}
                   isPartyRoutable={(party) => routablePartyNames.has(party)}
+                  filenameBase="politblick-spenden-nach-partei-und-spender"
+                  exportLabels={exportLabels}
                   labels={{
                     noteTemplate: t.donationSankeyNoteTemplate,
                     excludedTemplate: t.donationSankeyExcludedTemplate,
@@ -3946,6 +4286,14 @@ function App() {
             if (!p) return <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)', marginTop: 20 }}>{t.partyNotFound}</p>;
             const partyCrossrefRows = crossref.rows.filter((r) => r.party === p.party);
             const partyTopicalRows = topicalTieRows.rows.filter((r) => r.party === p.party);
+            const partyTopicalFieldOptions = countOptions(partyTopicalRows.map((r) => r.tie.matchedField));
+            const partyTopicalSearchLower = partyTopicalSearchQuery.trim().toLowerCase();
+            const filteredPartyTopicalRows = partyTopicalRows.filter((r) => {
+              if (partyTopicalFieldFilter.size > 0 && !partyTopicalFieldFilter.has(r.tie.matchedField)) return false;
+              if (partyTopicalSearchLower && !r.memberName.toLowerCase().includes(partyTopicalSearchLower) && !r.org.name.toLowerCase().includes(partyTopicalSearchLower) && !r.pollTitle.toLowerCase().includes(partyTopicalSearchLower))
+                return false;
+              return true;
+            });
             const partyDonationSummary = partyDonations.byFraction.find((f) => f.fraction === p.party);
             const partyDonationList = partyDonations.all.filter((d) => d.fraction === p.party);
 
@@ -4185,9 +4533,63 @@ function App() {
 
                     {partyTopicalRows.length > 0 && (
                       <>
-                        <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 10px' }}>{t.topicalTiesTitle}</h2>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                          <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>{t.topicalTiesTitle}</h2>
+                          <button
+                            onClick={() => {
+                              setTopicalPartyFilter(new Set([p.party]));
+                              setTopicalFieldFilter(new Set());
+                              setTopicalSearchQuery('');
+                              goCrossref('conflicts');
+                            }}
+                            style={{ border: 'none', background: 'none', color: 'oklch(45% 0.16 265)', fontWeight: 700, cursor: 'pointer', fontSize: 12.5, padding: 0, whiteSpace: 'nowrap' }}
+                          >
+                            {t.seeAll} →
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={partyTopicalSearchQuery}
+                          onChange={(e) => setPartyTopicalSearchQuery(e.target.value)}
+                          placeholder={t.topicalSearchPlaceholder}
+                          style={{ width: '100%', maxWidth: 420, padding: '9px 12px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13.5, marginBottom: 10, boxSizing: 'border-box' }}
+                        />
+                        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                          <MultiSelectFilter
+                            label={t.filterFieldOfInterest}
+                            options={partyTopicalFieldOptions}
+                            selected={partyTopicalFieldFilter}
+                            onToggle={(v) => setPartyTopicalFieldFilter((prev) => toggleInSet(prev, v))}
+                            onClear={() => setPartyTopicalFieldFilter(new Set())}
+                            allLabel={t.filterAllLabel}
+                            selectedCountTemplate={t.filterSelectedCountTemplate}
+                            clearLabel={t.clearAllFilters}
+                            searchable
+                            searchPlaceholder={t.filterSearchPlaceholder}
+                          />
+                          {(partyTopicalFieldFilter.size > 0 || partyTopicalSearchQuery.trim().length > 0) && (
+                            <>
+                              <span style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)' }}>
+                                {filteredPartyTopicalRows.length} {t.results}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  setPartyTopicalFieldFilter(new Set());
+                                  setPartyTopicalSearchQuery('');
+                                }}
+                                style={{ border: 'none', background: 'none', color: 'oklch(45% 0.16 265)', fontWeight: 600, cursor: 'pointer', fontSize: 12.5, padding: 0 }}
+                              >
+                                {t.clearAllFilters}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                        {filteredPartyTopicalRows.length === 0 ? (
+                          <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.topicalNoResults}</p>
+                        ) : (
+                        <>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 10 }}>
-                          {partyTopicalRows.slice(0, partyTopicalExpanded ? partyTopicalRows.length : 10).map((r) => {
+                          {filteredPartyTopicalRows.slice(0, partyTopicalExpanded ? filteredPartyTopicalRows.length : 10).map((r) => {
                             const label = r.tie.vote === 'yes' ? t.voteYes : r.tie.vote === 'no' ? t.voteNo : t.voteAbstain;
                             return (
                               <div
@@ -4214,13 +4616,15 @@ function App() {
                           })}
                         </div>
                         <ShowMoreButton
-                          total={partyTopicalRows.length}
+                          total={filteredPartyTopicalRows.length}
                           defaultCount={10}
                           expanded={partyTopicalExpanded}
                           onToggle={() => setPartyTopicalExpanded((v) => !v)}
                           showMoreTemplate={t.showMoreTemplate}
                           showLessLabel={t.showLess}
                         />
+                        </>
+                        )}
                       </>
                     )}
                   </>
@@ -4263,6 +4667,8 @@ function App() {
                               <DonationTimeline
                                 donations={partyDonationList}
                                 stackBy="donor"
+                                filenameBase={`politblick-grossspenden-${p.party}`}
+                                exportLabels={exportLabels}
                                 labels={{
                                   axisMaxTemplate: t.donationTimelineAxisMaxTemplate,
                                   excludedTemplate: t.donationTimelineExcludedTemplate,

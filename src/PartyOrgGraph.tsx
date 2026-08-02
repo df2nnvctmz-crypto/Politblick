@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import type { OrgNetworkNode } from './lobby';
+import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
 
 interface SimNode {
   id: string;
@@ -376,6 +377,8 @@ export function PartyOrgGraph({
   onOpenParty,
   isPartyRoutable,
   labels,
+  filenameBase,
+  exportLabels,
 }: {
   orgs: OrgNetworkNode[];
   parties: { name: string; color: string; seats: number }[];
@@ -392,6 +395,8 @@ export function PartyOrgGraph({
     viewParty: string;
     empty: string;
   };
+  filenameBase: string;
+  exportLabels: ChartExportLabels;
 }) {
   const [crossPartyOnly, setCrossPartyOnly] = useState(true);
   // A Set, not a single string: clicking a second party narrows the highlight to
@@ -575,6 +580,10 @@ export function PartyOrgGraph({
   const graph = graphRef.current;
   const byId = new Map(graph.nodes.map((n) => [n.id, n]));
   const orgCount = graph.nodes.filter((n) => n.kind === 'org').length;
+  const getCsv = () => ({
+    headers: ['Organization', 'Party', 'Tied MPs'],
+    rows: graph.edges.map((e) => [byId.get(e.target)?.label ?? e.target, e.party, e.weight]),
+  });
 
   // An org "matches" the current party selection when it's tied to EVERY selected
   // party, not just any one of them — that intersection is the whole point of
@@ -608,8 +617,9 @@ export function PartyOrgGraph({
       ) : (
         <div
           key={`${orgsKey}|${partiesKey}|${crossPartyOnly}`}
-          style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', overflow: 'hidden' }}
+          style={{ position: 'relative', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', overflow: 'hidden' }}
         >
+          <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} svgRef={svgRef} labels={exportLabels} />
           <svg
             ref={svgRef}
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}

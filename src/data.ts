@@ -242,6 +242,7 @@ export interface Translation {
   donationTimelineAxisMaxTemplate: string; donationTimelineExcludedTemplate: string;
   donationTimelineEmpty: string; donationTimelineQuarterTotalLabel: string; donationTimelineRangeLabelTemplate: string;
   donationTimelineOtherDonorsLabel: string;
+  chartExportLabel: string; chartExportCsv: string; chartExportSvg: string; chartExportPng: string;
   donationsTitle: string; donationsSub: string; donationsColParty: string;
   donationsColDonor: string; donationsColAmount: string; donationsColDate: string;
   donationsAlsoLobbyist: string; donationsSource: string;
@@ -249,6 +250,7 @@ export interface Translation {
   crossrefTitle: string; crossrefEmpty: string; colOrg: string; colBill: string;
   topicalTiesTitle: string; topicalTiesSub: string; topicalTiesEmpty: string;
   topicalTieMatchedFieldTemplate: string; topicalTieNote: string; colMatchedField: string;
+  topicalSearchPlaceholder: string; topicalNoResults: string;
   lobbyTopicalTitle: string; lobbyTopicalNote: string;
   lobbyIndicatorConflict: string; lobbyIndicatorTopical: string;
   overviewLobbyPreviewTitle: string; overviewLobbyPreviewCountTemplate: string; overviewLobbyPreviewEmpty: string;
@@ -258,6 +260,8 @@ export interface Translation {
   colOrgMembers: string; colOrgVotes: string; backToLobbyFinance: string; backToParties: string;
   orgSpendLabel: string; orgStaffLabel: string; orgFieldsLabel: string;
   orgLobbiedBillsTitle: string; orgNoLobbiedBills: string;
+  sectorChartTitle: string; sectorChartSub: string; sectorChartMembersTemplate: string; sectorChartOrgsTemplate: string;
+  sectorMetricMembers: string; sectorMetricOrgs: string; sectorMetricSpend: string;
   orgAffiliatedMembersTitle: string; orgNoAffiliatedMembers: string;
   orgConflictsTitle: string; orgTopicalTitle: string;
   orgDonorTitle: string; orgDonorNote: string;
@@ -396,6 +400,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationTimelineQuarterTotalLabel: 'Summe:',
     donationTimelineRangeLabelTemplate: 'Zeitraum: {from} – {to}',
     donationTimelineOtherDonorsLabel: 'Weitere Spender',
+    chartExportLabel: 'Diagramm herunterladen', chartExportCsv: 'Rohdaten als CSV', chartExportSvg: 'Als SVG herunterladen', chartExportPng: 'Als PNG herunterladen',
     donationsTitle: 'Großspenden an Parteien',
     donationsSub: 'Einzelspenden über 35.000 € (bis März 2024: über 50.000 €), veröffentlicht von der Bundestagspräsidentin.',
     donationsColParty: 'Partei', donationsColDonor: 'Spender', donationsColAmount: 'Betrag', donationsColDate: 'Eingang',
@@ -410,6 +415,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     topicalTiesSub:
       'Diese Organisation hat nicht erklärt, zu dieser Abstimmung Interessenvertretung zu betreiben — sie ist nur im selben Themenfeld tätig. Schwächerer Hinweis als oben: kein Beleg, nur thematische Nähe.',
     topicalTiesEmpty: 'Derzeit sind keine solchen thematischen Überschneidungen erfasst.',
+    topicalSearchPlaceholder: 'Abgeordnete/r, Organisation oder Abstimmung suchen…',
+    topicalNoResults: 'Keine thematischen Überschneidungen für diese Filter gefunden.',
     topicalTieMatchedFieldTemplate: 'Organisation listet als Interessengebiet: „{field}“',
     topicalTieNote:
       'Diese Verknüpfung beruht nur auf thematischer Nähe: Die Organisation hat kein Interessengebiet angemeldet, das speziell auf diese Drucksache verweist — nur ein allgemeines Interessengebiet, das laut Politblick-Redaktion zum Thema dieser Abstimmung passt. Anders als bei den oben genannten Verflechtungen gibt es hier keinen dokumentierten Bezug zu genau diesem Gesetz.',
@@ -434,6 +441,10 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     backToLobbyFinance: 'Zurück zu Lobby & Finanzen', backToParties: 'Zurück zu Parteien',
     orgSpendLabel: 'Gemeldete Lobbyausgaben', orgStaffLabel: 'Beschäftigte in der Interessenvertretung (VZÄ)',
     orgFieldsLabel: 'Interessengebiete',
+    sectorChartTitle: 'Interessengebiete mit den meisten Verflechtungen',
+    sectorChartSub: 'Interessengebiete, gerankt nach der gewählten Kennzahl. Anklicken filtert die Liste unten.',
+    sectorChartMembersTemplate: '{n} Abgeordnete', sectorChartOrgsTemplate: '{n} Organisationen',
+    sectorMetricMembers: 'Abgeordnete', sectorMetricOrgs: 'Organisationen', sectorMetricSpend: 'Lobbyausgaben',
     orgLobbiedBillsTitle: 'Abstimmungen mit angemeldeter Interessenvertretung',
     orgNoLobbiedBills: 'Für diese Organisation ist zu keiner namentlichen Abstimmung dieser Wahlperiode Interessenvertretung angemeldet.',
     orgAffiliatedMembersTitle: 'Abgeordnete mit Funktion bei dieser Organisation',
@@ -598,6 +609,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationTimelineQuarterTotalLabel: 'Total:',
     donationTimelineRangeLabelTemplate: 'Time range: {from} – {to}',
     donationTimelineOtherDonorsLabel: 'Other donors',
+    chartExportLabel: 'Download chart', chartExportCsv: 'Raw data as CSV', chartExportSvg: 'Download as SVG', chartExportPng: 'Download as PNG',
     donationsTitle: 'Large donations to parties',
     donationsSub: 'Single donations above €35,000 (before March 2024: above €50,000), published by the President of the Bundestag.',
     donationsColParty: 'Party', donationsColDonor: 'Donor', donationsColAmount: 'Amount', donationsColDate: 'Received',
@@ -612,6 +624,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     topicalTiesSub:
       'This organization did not register lobbying on this specific vote — it is only active in the same policy area. A weaker signal than the table above: no documented link, only topical proximity.',
     topicalTiesEmpty: 'No such topical overlaps are on record at the moment.',
+    topicalSearchPlaceholder: 'Search MP, organization, or vote…',
+    topicalNoResults: 'No topical overlaps found for these filters.',
     topicalTieMatchedFieldTemplate: 'Organization lists as a field of interest: "{field}"',
     topicalTieNote:
       'This tie rests on topical proximity only: the organization has not registered an interest specific to this printed matter — only a general field of interest that Politblick’s editors judged relevant to this vote’s topic. Unlike the ties listed above, there is no documented link to this specific bill.',
@@ -636,6 +650,10 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     backToLobbyFinance: 'Back to Lobby & Finance', backToParties: 'Back to Parties',
     orgSpendLabel: 'Declared lobbying expenditure', orgStaffLabel: 'Staff engaged in lobbying (FTE)',
     orgFieldsLabel: 'Fields of interest',
+    sectorChartTitle: 'Fields of interest with the most ties',
+    sectorChartSub: 'Fields of interest, ranked by the selected metric. Click a bar to filter the list below.',
+    sectorChartMembersTemplate: '{n} MPs', sectorChartOrgsTemplate: '{n} organizations',
+    sectorMetricMembers: 'MPs', sectorMetricOrgs: 'Organizations', sectorMetricSpend: 'Lobbying spend',
     orgLobbiedBillsTitle: 'Votes with registered lobbying',
     orgNoLobbiedBills: 'This organization has no registered lobbying on file for any roll-call vote this term.',
     orgAffiliatedMembersTitle: 'MPs holding a role at this organization',

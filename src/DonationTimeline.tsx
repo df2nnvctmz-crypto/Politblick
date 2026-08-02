@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS } from './bundestag';
 import { formatEuro } from './lobby';
+import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
 
 const BAR_WIDTH = 26;
 const GAP = 12;
@@ -90,6 +91,8 @@ export function DonationTimeline({
   donations,
   labels,
   stackBy = 'fraction',
+  filenameBase,
+  exportLabels,
 }: {
   donations: DonationRow[];
   labels: {
@@ -104,7 +107,10 @@ export function DonationTimeline({
    * the same dataset); 'donor' stacks by the individual donor instead — for a single-party view,
    * where "which party" is constant and "who gave it" is the interesting breakdown. */
   stackBy?: 'fraction' | 'donor';
+  filenameBase: string;
+  exportLabels: ChartExportLabels;
 }) {
+  const svgRef = useRef<SVGSVGElement>(null);
   const [active, setActive] = useState<number | null>(null);
   // null = full range (the default — every quarter shown). Indices are positions into `quarters`,
   // not quarter numbers themselves, so they stay valid across re-renders regardless of which
@@ -151,13 +157,25 @@ export function DonationTimeline({
   const rangeEnd = Math.min(Math.max(rangeStart, rawEnd), lastIdx);
   const visibleQuarters = quarters.slice(rangeStart, rangeEnd + 1);
 
+  const getCsv = () => ({
+    headers: ['Quarter', stackBy === 'donor' ? 'Donor' : 'Party', 'Amount (EUR)'],
+    rows: visibleQuarters.flatMap((q) => q.segments.map((s) => [q.label, s.key, s.amount])),
+  });
+
   const max = Math.max(1, ...visibleQuarters.map((q) => q.total));
   // Total width is pinned to the FULL quarter count, not the visible subset — that keeps the
   // axis line, margins and font sizes fixed regardless of the slider, so narrowing the range
   // never re-scales the chart. Instead, the per-bar step grows to fill that fixed plot width
   // with fewer, wider bars (same bar:gap ratio as the full view).
-  const width = MARGIN_LEFT + MARGIN_RIGHT + quarters.length * (BAR_WIDTH + GAP) - GAP;
   const height = MARGIN_TOP + CHART_HEIGHT + MARGIN_BOTTOM;
+  // A party with only a handful of quarters on record would otherwise produce a near-square
+  // viewBox — stretched to fill the same full-width container as everyone else, that inflates
+  // the rendered height far beyond every other party's chart. Flooring the width at a fixed
+  // landscape ratio reuses the same "grow bar width to fill a fixed plot width" mechanism the
+  // range slider already relies on, so sparse parties get proportionally wider bars instead of
+  // a taller chart.
+  const MIN_ASPECT_RATIO = 2.4;
+  const width = Math.max(MARGIN_LEFT + MARGIN_RIGHT + quarters.length * (BAR_WIDTH + GAP) - GAP, height * MIN_ASPECT_RATIO);
   const plotWidth = width - MARGIN_LEFT - MARGIN_RIGHT;
   const barStep = plotWidth / visibleQuarters.length;
   const gapWidth = barStep * (GAP / (BAR_WIDTH + GAP));
@@ -221,8 +239,10 @@ export function DonationTimeline({
           </div>
         </div>
       )}
-      <div style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', padding: 16 }}>
+      <div style={{ position: 'relative', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', padding: 16 }}>
+        <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} svgRef={svgRef} labels={exportLabels} />
         <svg
+          ref={svgRef}
           viewBox={`0 0 ${width} ${height}`}
           style={{ width: '100%', height: 'auto', display: 'block' }}
           onClick={() => {

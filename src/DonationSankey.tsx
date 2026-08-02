@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS } from './bundestag';
 import { formatEuro } from './lobby';
+import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
 
 const WIDTH = 760;
 const NODE_WIDTH = 12;
@@ -181,6 +182,8 @@ export function DonationSankey({
   onOpenParty,
   isPartyRoutable,
   labels,
+  filenameBase,
+  exportLabels,
 }: {
   donations: DonationRow[];
   /** Each party's true total across ALL donors (not just the ones drawn here) — lets every party
@@ -202,12 +205,19 @@ export function DonationSankey({
     sliderLabelTemplate: string;
     viewParty: string;
   };
+  filenameBase: string;
+  exportLabels: ChartExportLabels;
 }) {
+  const svgRef = useRef<SVGSVGElement>(null);
   const [hovered, setHovered] = useState<{ kind: 'donor' | 'party'; id: string } | null>(null);
   const [pinned, setPinned] = useState<{ kind: 'donor' | 'party'; id: string } | null>(null);
   const [topN, setTopN] = useState(defaultTopN);
 
   const { donorNodes, partyNodes, links, height, excludedCount, excludedTotal } = buildSankey(donations, topN);
+  const getCsv = () => ({
+    headers: ['Donor', 'Party', 'Amount (EUR)'],
+    rows: links.map((l) => [l.donorId, l.partyId, l.amount]),
+  });
   const partyLabelY = layoutLabels(partyNodes);
   if (donorNodes.length === 0) return null;
 
@@ -238,8 +248,10 @@ export function DonationSankey({
         {labels.noteTemplate.replace('{n}', String(donorNodes.length))}
         {excludedCount > 0 && ` ${labels.excludedTemplate.replace('{n}', String(excludedCount)).replace('{amount}', formatEuro(excludedTotal))}`}
       </p>
-      <div style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', padding: 16 }}>
+      <div style={{ position: 'relative', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', padding: 16 }}>
+        <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} svgRef={svgRef} labels={exportLabels} />
         <svg
+          ref={svgRef}
           viewBox={`0 0 ${WIDTH} ${height}`}
           style={{ width: '100%', height: 'auto', display: 'block' }}
           onClick={() => setPinned(null)}
