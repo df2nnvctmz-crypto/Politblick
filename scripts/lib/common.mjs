@@ -110,14 +110,23 @@ export function initialsOf(name) {
  */
 export async function fetchJson(url, attempts = 5, init = {}) {
   let lastError;
+  // 429s get their own, more generous budget: rate-limiting is an expected, recoverable
+  // condition on a 630-request run, not a hard failure — exhausting the same small `attempts`
+  // count used for genuine errors would give up on a rate-limit storm just as it's clearing.
+  const maxRateLimitRetries = 10;
+  let rateLimitRetries = 0;
   for (let attempt = 0; attempt < attempts; attempt++) {
     try {
       const res = await fetch(url, { ...init, signal: AbortSignal.timeout(20_000) });
       if (res.status === 429) {
+        rateLimitRetries++;
+        lastError = new Error(`HTTP 429 (rate limited) for ${url}`);
+        if (rateLimitRetries > maxRateLimitRetries) break;
         const header = res.headers.get('retry-after');
         const waitMs = header && !Number.isNaN(Number(header)) ? Number(header) * 1000 : 60_000;
-        console.warn(`  429 rate-limited, waiting ${Math.round(waitMs / 1000)}s…`);
+        console.warn(`  429 rate-limited, waiting ${Math.round(waitMs / 1000)}s… (${rateLimitRetries}/${maxRateLimitRetries})`);
         await sleep(waitMs);
+        attempt--; // doesn't count against the generic-error attempt budget
         continue;
       }
       if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
