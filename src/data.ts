@@ -201,7 +201,7 @@ export interface Translation {
   flaggedVotes: string; noFlaggedVotes: string; crossrefSub: string;
   colMp: string; colDonor: string; colIndustry: string; colAmount: string; colVote: string; colFlag: string;
   flagged: string; footerNote: string; footerSources: string; footerDisclaimer: string;
-  footerFeedbackLabel: string; footerFeedbackEmail: string; footerFeedbackGithub: string;
+  footerFeedbackLabel: string; footerFeedbackEmail: string; footerFeedbackGithub: string; footerSupportLabel: string;
   disclaimerFeedbackTitle: string; disclaimerFeedbackBody: string;
   tabOverview: string; tabVotes: string; tabLobby: string; tabFinance: string;
   follow: string; following: string;
@@ -329,6 +329,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     flagged: 'Auffällig', footerNote: 'Nur öffentliche Daten. Kein Login, kein Tracking.', footerSources: 'Quellen: Abgeordnetenwatch, Bundestag, Lobbyregister',
     footerDisclaimer: 'Politblick ist ein privates, nicht-kommerzielles Hobbyprojekt ohne Verbindung zu Parteien, Fraktionen oder staatlichen Stellen.',
     footerFeedbackLabel: 'Fehler oder falsche Daten gefunden?', footerFeedbackEmail: 'Per E-Mail melden', footerFeedbackGithub: 'Auf GitHub melden',
+    footerSupportLabel: 'Projekt unterstützen',
     disclaimerFeedbackTitle: 'Fehler gefunden oder Feedback?',
     disclaimerFeedbackBody: 'Politblick führt Daten aus mehreren automatisierten Quellen zusammen — Übertragungsfehler sind nicht ausgeschlossen. Wenn Ihnen eine falsche Zahl, ein falsch zugeordneter Beleg oder ein technisches Problem auffällt, freuen wir uns über eine Nachricht: per E-Mail für alle, oder als Issue auf GitHub für alle, die technisch versiert sind und ein Problem direkt dokumentieren möchten.',
     tabOverview: 'Übersicht', tabVotes: 'Abstimmungen', tabLobby: 'Lobbyverflechtungen', tabFinance: 'Parteifinanzen',
@@ -541,6 +542,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     flagged: 'Flagged', footerNote: 'Public data only. No login, no tracking.', footerSources: 'Sources: Abgeordnetenwatch, Bundestag, Lobbyregister',
     footerDisclaimer: 'Politblick is a private, non-commercial hobby project with no affiliation with any party, parliamentary group, or government body.',
     footerFeedbackLabel: 'Found an error or bad data?', footerFeedbackEmail: 'Report by email', footerFeedbackGithub: 'Report on GitHub',
+    footerSupportLabel: 'Support this project',
     disclaimerFeedbackTitle: 'Found an error, or have feedback?',
     disclaimerFeedbackBody: 'Politblick merges data from several automated sources — transcription errors are possible. If you spot a wrong figure, a misattributed record, or a technical problem, we’d appreciate a message: by email for anyone, or as a GitHub issue if you’re technical and want to document the problem directly.',
     tabOverview: 'Overview', tabVotes: 'Voting record', tabLobby: 'Lobby ties', tabFinance: 'Campaign finance',

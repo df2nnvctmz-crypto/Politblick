@@ -4903,12 +4903,31 @@ function App() {
             padding: '12px 32px',
             fontSize: 12,
             fontWeight: 600,
-            textAlign: 'center',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 14,
             color: 'oklch(40% 0.01 260)',
             background: 'oklch(95% 0.01 265)',
           }}
         >
-          {t.footerDisclaimer}
+          <span>{t.footerDisclaimer}</span>
+          <a
+            href="https://www.paypal.me/oskarleenders"
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              padding: '4px 12px',
+              borderRadius: 20,
+              border: '1px solid oklch(45% 0.16 265 / 0.35)',
+              color: 'oklch(45% 0.16 265)',
+              fontWeight: 700,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {t.footerSupportLabel}
+          </a>
         </div>
         {(snapshot?.meta.coreGeneratedAt ||
           snapshot?.meta.sidejobsGeneratedAt ||
