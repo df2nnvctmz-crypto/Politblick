@@ -201,6 +201,8 @@ export interface Translation {
   flaggedVotes: string; noFlaggedVotes: string; crossrefSub: string;
   colMp: string; colDonor: string; colIndustry: string; colAmount: string; colVote: string; colFlag: string;
   flagged: string; footerNote: string; footerSources: string; footerDisclaimer: string;
+  footerFeedbackLabel: string; footerFeedbackEmail: string; footerFeedbackGithub: string;
+  disclaimerFeedbackTitle: string; disclaimerFeedbackBody: string;
   tabOverview: string; tabVotes: string; tabLobby: string; tabFinance: string;
   follow: string; following: string;
   statBillsVoted: string; statAttendance: string; statPartyAlignment: string; statFlags: string;
@@ -326,6 +328,9 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     colMp: 'Abgeordnete/r', colDonor: 'Spender', colIndustry: 'Branche', colAmount: 'Betrag', colVote: 'Stimme', colFlag: 'Hinweis',
     flagged: 'Auffällig', footerNote: 'Nur öffentliche Daten. Kein Login, kein Tracking.', footerSources: 'Quellen: Abgeordnetenwatch, Bundestag, Lobbyregister',
     footerDisclaimer: 'Politblick ist ein privates, nicht-kommerzielles Hobbyprojekt ohne Verbindung zu Parteien, Fraktionen oder staatlichen Stellen.',
+    footerFeedbackLabel: 'Fehler oder falsche Daten gefunden?', footerFeedbackEmail: 'Per E-Mail melden', footerFeedbackGithub: 'Auf GitHub melden',
+    disclaimerFeedbackTitle: 'Fehler gefunden oder Feedback?',
+    disclaimerFeedbackBody: 'Politblick führt Daten aus mehreren automatisierten Quellen zusammen — Übertragungsfehler sind nicht ausgeschlossen. Wenn Ihnen eine falsche Zahl, ein falsch zugeordneter Beleg oder ein technisches Problem auffällt, freuen wir uns über eine Nachricht: per E-Mail für alle, oder als Issue auf GitHub für alle, die technisch versiert sind und ein Problem direkt dokumentieren möchten.',
     tabOverview: 'Übersicht', tabVotes: 'Abstimmungen', tabLobby: 'Lobbyverflechtungen', tabFinance: 'Parteifinanzen',
     follow: 'Folgen', following: 'Gefolgt',
     statBillsVoted: 'Abstimmungen', statAttendance: 'Anwesenheit', statPartyAlignment: 'Parteitreue', statFlags: 'Hinweise',
@@ -535,6 +540,9 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     colMp: 'MP', colDonor: 'Donor', colIndustry: 'Industry', colAmount: 'Amount', colVote: 'Vote', colFlag: 'Flag',
     flagged: 'Flagged', footerNote: 'Public data only. No login, no tracking.', footerSources: 'Sources: Abgeordnetenwatch, Bundestag, Lobbyregister',
     footerDisclaimer: 'Politblick is a private, non-commercial hobby project with no affiliation with any party, parliamentary group, or government body.',
+    footerFeedbackLabel: 'Found an error or bad data?', footerFeedbackEmail: 'Report by email', footerFeedbackGithub: 'Report on GitHub',
+    disclaimerFeedbackTitle: 'Found an error, or have feedback?',
+    disclaimerFeedbackBody: 'Politblick merges data from several automated sources — transcription errors are possible. If you spot a wrong figure, a misattributed record, or a technical problem, we’d appreciate a message: by email for anyone, or as a GitHub issue if you’re technical and want to document the problem directly.',
     tabOverview: 'Overview', tabVotes: 'Voting record', tabLobby: 'Lobby ties', tabFinance: 'Campaign finance',
     follow: 'Follow', following: 'Following',
     statBillsVoted: 'Bills voted', statAttendance: 'Attendance', statPartyAlignment: 'Party alignment', statFlags: 'Flags',

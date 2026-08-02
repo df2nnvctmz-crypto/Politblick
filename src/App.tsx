@@ -4823,6 +4823,22 @@ function App() {
           >
             {t.disclaimerGithubLabel} →
           </a>
+
+          <h2 style={{ fontSize: 19, fontWeight: 800, margin: '28px 0 12px' }}>{t.disclaimerFeedbackTitle}</h2>
+          <p style={{ fontSize: 14, color: 'oklch(35% 0.01 260)', lineHeight: 1.7 }}>{t.disclaimerFeedbackBody}</p>
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginTop: 4 }}>
+            <a href="mailto:kontakt@politblick.de" style={{ fontSize: 13.5, fontWeight: 700, color: 'oklch(48% 0.12 250)' }}>
+              {t.footerFeedbackEmail} →
+            </a>
+            <a
+              href="https://github.com/df2nnvctmz-crypto/Politblick/issues"
+              target="_blank"
+              rel="noreferrer"
+              style={{ fontSize: 13.5, fontWeight: 700, color: 'oklch(48% 0.12 250)' }}
+            >
+              {t.footerFeedbackGithub} →
+            </a>
+          </div>
         </main>
       )}
 
@@ -4948,6 +4964,30 @@ function App() {
             </a>
           </div>
           <span>{t.footerSources}</span>
+        </div>
+        <div
+          style={{
+            padding: '0 32px 20px',
+            display: 'flex',
+            gap: 16,
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            fontSize: 12,
+            color: 'oklch(52% 0.01 260)',
+          }}
+        >
+          <span>{t.footerFeedbackLabel}</span>
+          <a href="mailto:kontakt@politblick.de" style={{ color: 'oklch(48% 0.12 250)', fontWeight: 600 }}>
+            {t.footerFeedbackEmail}
+          </a>
+          <a
+            href="https://github.com/df2nnvctmz-crypto/Politblick/issues"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: 'oklch(48% 0.12 250)', fontWeight: 600 }}
+          >
+            {t.footerFeedbackGithub}
+          </a>
         </div>
       </footer>
     </div>
