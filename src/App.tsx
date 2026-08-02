@@ -328,6 +328,39 @@ function toggleInSet(set: Set<string>, value: string): Set<string> {
   return next;
 }
 
+/** Turns an MP's name into a URL-safe, readable slug — German umlauts get their usual ASCII
+ * transliteration rather than being stripped, so "Müller" reads as "mueller", not "mller". */
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/** Builds the `/abgeordnete/<id>-<name-slug>` URL segment for an MP — kept ID-first (rather than
+ * a bare name slug like the party URLs) because names aren't guaranteed unique across 630+
+ * members the way party names are, and it keeps every already-shared/indexed numeric link
+ * (`/abgeordnete/175389`) resolving to the same page forever, since the ID is still right there
+ * at the front. The slug after it exists purely so the URL reads as a name for sharing/indexing. */
+function buildMpUrlParam(id: string, roster: RealMp[], demoMps: { id: string; name: string }[]): string {
+  const name = roster.find((m) => String(m.id) === id)?.name ?? demoMps.find((m) => m.id === id)?.name;
+  return name ? `${id}-${slugify(name)}` : id;
+}
+
+/** The router treats the whole `/abgeordnete/<param>` segment as opaque — this pulls the actual
+ * lookup key (the leading numeric ID) back out, so a slug URL and a bare-ID URL both resolve to
+ * the same member via the existing ID-based matching everywhere else in this file. */
+function extractMpId(param: string | null): string | null {
+  if (!param) return null;
+  return param.match(/^\d+/)?.[0] ?? param;
+}
+
 /** Distinct values with occurrence counts, biggest first — feeds MultiSelectFilter option lists. */
 function countOptions(values: string[]): { value: string; label: string; count: number }[] {
   const counts = new Map<string, number>();
@@ -1230,7 +1263,7 @@ function App() {
   const [initialRoute] = useState(() => pathToRoute(stripBase(window.location.pathname, import.meta.env.BASE_URL)));
   const [view, setView] = useState<View>(initialRoute.view);
   const [lang, setLang] = useState<Lang>('de');
-  const [selectedMpId, setSelectedMpId] = useState<string | null>(initialRoute.mpId);
+  const [selectedMpId, setSelectedMpId] = useState<string | null>(extractMpId(initialRoute.mpId));
   const [selectedBillId, setSelectedBillId] = useState<BillId | null>(parseBillId(initialRoute.billId));
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(initialRoute.orgId);
   const [selectedParty, setSelectedParty] = useState<string | null>(initialRoute.party);
@@ -1298,6 +1331,11 @@ function App() {
     mpsNavCloseTimer.current = setTimeout(() => setMpsNavOpen(false), 250);
   };
 
+  // Declared here (ahead of where it's conceptually used, further down) because the URL-sync
+  // effect just below needs it in its dependency array to upgrade a bare-ID profile URL into a
+  // full name slug once the roster finishes loading.
+  const roster = useBundestagRoster();
+
   // Browser back/forward: re-derive route state from the URL rather than replaying setView
   // calls. isPopStateRef suppresses the push effect below for this one render, so going back
   // doesn't immediately push the page we just navigated away from back onto the stack.
@@ -1307,7 +1345,7 @@ function App() {
       isPopStateRef.current = true;
       const r = pathToRoute(stripBase(window.location.pathname, import.meta.env.BASE_URL));
       setView(r.view);
-      setSelectedMpId(r.mpId);
+      setSelectedMpId(extractMpId(r.mpId));
       setSelectedBillId(parseBillId(r.billId));
       setSelectedOrgId(r.orgId);
       setSelectedParty(r.party);
@@ -1331,7 +1369,7 @@ function App() {
     }
     const path = routeToPath({
       view,
-      mpId: selectedMpId,
+      mpId: selectedMpId ? buildMpUrlParam(selectedMpId, roster.members, demoMps) : null,
       profileTab,
       billId: selectedBillId !== null ? String(selectedBillId) : null,
       orgId: selectedOrgId,
@@ -1343,10 +1381,9 @@ function App() {
     const fullPath = withBase(path, import.meta.env.BASE_URL);
     if (window.location.pathname !== fullPath) window.history.pushState(null, '', fullPath);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId]);
+  }, [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, roster.members]);
 
   const { snapshot } = useSnapshot();
-  const roster = useBundestagRoster();
   const pollsState = useAllPolls();
   const weekly = useWeeklyResults(pollsState.polls);
   // Shared across the whole app: the search list computes every visible member's alignment
