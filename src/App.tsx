@@ -1286,6 +1286,7 @@ function App() {
   const [donationsExpanded, setDonationsExpanded] = useState(false);
   const [votesExpanded, setVotesExpanded] = useState(false);
   const [flaggedVotesExpanded, setFlaggedVotesExpanded] = useState(false);
+  const [pollLobbyingExpanded, setPollLobbyingExpanded] = useState(false);
   const [orgsSort, setOrgsSort] = useState<SortState>(null);
   const [conflictsSort, setConflictsSort] = useState<SortState>(null);
   const [topicalSort, setTopicalSort] = useState<SortState>(null);
@@ -1422,6 +1423,7 @@ function App() {
     setView('bill');
     setSelectedBillId(id);
     setFlaggedVotesExpanded(false);
+    setPollLobbyingExpanded(false);
   };
   const openOrg = (id: string) => {
     setView('org');
@@ -3206,8 +3208,8 @@ function App() {
                       <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>
                         {t.pollLobbyingCountTemplate.replace('{n}', String(pollLobbying.entries.length))}
                       </p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-                        {pollLobbying.entries.slice(0, 25).map((e) => {
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+                        {pollLobbying.entries.slice(0, pollLobbyingExpanded ? pollLobbying.entries.length : 10).map((e) => {
                           const spend = formatExpenseBracket(e.org.expensesEuro);
                           return (
                             <div
@@ -3226,6 +3228,14 @@ function App() {
                           );
                         })}
                       </div>
+                      <ShowMoreButton
+                        total={pollLobbying.entries.length}
+                        defaultCount={10}
+                        expanded={pollLobbyingExpanded}
+                        onToggle={() => setPollLobbyingExpanded((v) => !v)}
+                        showMoreTemplate={t.showMoreTemplate}
+                        showLessLabel={t.showLess}
+                      />
                     </>
                   )}
 
