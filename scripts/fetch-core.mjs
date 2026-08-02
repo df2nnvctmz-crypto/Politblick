@@ -17,6 +17,7 @@ import {
   transformMandate,
   transformPoll,
   writeJsonFile,
+  writeMetaFile,
 } from './lib/common.mjs';
 
 const pace = makePacer(1500); // one request per 1.5s — well under 30/min
@@ -87,9 +88,7 @@ async function main() {
   await writeJsonFile('polls.json', polls);
   await writeJsonFile('poll-results.json', pollResults);
 
-  const meta = await readJsonFile('meta.json', {});
-  await writeJsonFile('meta.json', {
-    ...meta,
+  await writeMetaFile({
     legislaturePeriodId: period.id,
     legislatureLabel: period.label,
     coreGeneratedAt: new Date().toISOString(),

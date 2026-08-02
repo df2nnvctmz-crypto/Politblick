@@ -2,12 +2,18 @@ name: Commit data snapshot
 description: >-
   Commits and pushes refreshed data files, retrying onto a moved main.
 
-# Four scheduled workflows write into public/data/ and all push to main. Their schedules are
+# Five scheduled workflows write into public/data/ and all push to main. Their schedules are
 # close enough together — and GitHub's cron drifts far enough under load — that two runs can
 # finish within the same minute, in which case the second push is rejected as non-fast-forward
 # and that run's data is silently lost. Rebasing and retrying makes the writers safe to
-# interleave: each job only ever touches its own files, so replaying onto whatever landed first
-# is always the correct resolution.
+# interleave in the common case.
+#
+# Several of these paths (public/data/lobby-links.json, public/data/meta.json) are written by
+# MORE THAN ONE of the five workflows, though — so a genuine rebase conflict on them isn't a bug,
+# it's an expected race. Both are fully-regenerated derived output (never hand-authored), so on
+# a real conflict this replays just our own listed paths on top of whatever landed first instead
+# of failing the job: nothing upstream is lost, and the next job to touch the same file
+# regenerates it fresh again anyway.
 
 inputs:
   message:
@@ -32,17 +38,18 @@ runs:
 
         # Stage only files that exist. build-lobby-links.mjs deliberately no-ops until the
         # first Lobbyregister crawl has landed, so lobby-links.json is legitimately absent on
-        # early runs and must not fail the job.
-        staged=0
+        # early runs and must not fail the job. existing_paths feeds the rebase-conflict
+        # fallback below, so it only ever tries to recover paths that actually got committed.
+        existing_paths=""
         for path in $COMMIT_PATHS; do
           if [ -e "$path" ]; then
             git add -- "$path"
-            staged=1
+            existing_paths="$existing_paths $path"
           else
             echo "Skipping $path (not present yet)."
           fi
         done
-        if [ "$staged" -eq 0 ]; then
+        if [ -z "$existing_paths" ]; then
           echo "Nothing to stage."
           exit 0
         fi
@@ -52,6 +59,9 @@ runs:
           exit 0
         fi
         git commit -m "$COMMIT_MESSAGE"
+        # Kept around so a rebase conflict can recover our own changes even after we later
+        # reset HEAD out from under this commit — see the fallback below.
+        our_commit=$(git rev-parse HEAD)
 
         for attempt in 1 2 3 4 5; do
           if git push; then
@@ -59,9 +69,25 @@ runs:
             exit 0
           fi
           echo "Push rejected (attempt $attempt) — another data job pushed first. Rebasing…"
-          # Our commit only touches this job's own files, so a rebase onto the newer main
-          # replays cleanly; a conflict here means something unexpected and should fail loudly.
-          git pull --rebase origin "${GITHUB_REF_NAME}"
+          if git pull --rebase origin "${GITHUB_REF_NAME}"; then
+            sleep $((attempt * 5))
+            continue
+          fi
+
+          echo "Rebase conflict on a shared derived file — replaying just our own paths onto the new main."
+          git rebase --abort
+          git fetch origin "${GITHUB_REF_NAME}"
+          git reset --hard "origin/${GITHUB_REF_NAME}"
+          # Pulls only our own listed paths out of the commit we made earlier (still intact in
+          # the object store even though HEAD no longer points anywhere near it) and stages them
+          # on top of the fresh origin base — every other path is left exactly as origin has it.
+          git checkout "$our_commit" -- $existing_paths
+          if git diff --cached --quiet; then
+            echo "Our changes already match origin after the reset — nothing left to push."
+            exit 0
+          fi
+          git commit -m "$COMMIT_MESSAGE"
+          our_commit=$(git rev-parse HEAD)
           sleep $((attempt * 5))
         done
 

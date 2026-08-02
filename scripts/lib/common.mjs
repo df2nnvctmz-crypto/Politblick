@@ -444,6 +444,22 @@ export async function writeJsonFile(name, data) {
   await writeTo(DATA_DIR, name, data, `public/data/${name}`, 0);
 }
 
+/**
+ * Five separate fetch-*.mjs scripts each read meta.json, add their own `<thing>GeneratedAt`
+ * key, and write it back — and their scheduled runs push to main close enough together that
+ * two can legitimately need to reconcile in the same window (see commit-data's own comment on
+ * this). A minified, single-line meta.json makes that reconciliation impossible: git's rebase
+ * is line-based, so two commits that touch *any* key on that one line conflict, even when the
+ * keys themselves are disjoint. Sorted, one-key-per-line output means two jobs adding different
+ * keys touch different lines, so git can merge them automatically instead of failing loudly.
+ */
+export async function writeMetaFile(patch) {
+  const meta = await readJsonFile('meta.json', {});
+  const merged = { ...meta, ...patch };
+  const sorted = Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)));
+  await writeTo(DATA_DIR, 'meta.json', sorted, 'public/data/meta.json', 2);
+}
+
 export async function readSourceFile(name, fallback) {
   return readFrom(SOURCE_DIR, name, fallback);
 }

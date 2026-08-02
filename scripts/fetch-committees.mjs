@@ -18,8 +18,8 @@ import {
   fetchCurrentLegislaturePeriod,
   fetchJson,
   makePacer,
-  readJsonFile,
   writeJsonFile,
+  writeMetaFile,
 } from './lib/common.mjs';
 
 const pace = makePacer(1500);
@@ -55,9 +55,7 @@ async function main() {
   console.log(`  ${memberships.length} memberships across ${new Set(memberships.map((m) => m.mandateId)).size} members`);
 
   await writeJsonFile('committees.json', { committees, memberships });
-
-  const meta = await readJsonFile('meta.json', {});
-  await writeJsonFile('meta.json', { ...meta, committeesGeneratedAt: new Date().toISOString() });
+  await writeMetaFile({ committeesGeneratedAt: new Date().toISOString() });
 
   console.log('Done.');
 }

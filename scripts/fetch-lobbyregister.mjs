@@ -12,9 +12,8 @@
 import {
   fetchLobbyPage,
   makePacer,
-  readJsonFile,
   resolveLobbyApiKey,
-  writeJsonFile,
+  writeMetaFile,
   writeSourceFile,
 } from './lib/common.mjs';
 
@@ -103,9 +102,7 @@ async function main() {
   // public/data/lobby-links.json that the site actually loads.
   await writeSourceFile('lobby-register.json', orgs);
 
-  const meta = await readJsonFile('meta.json', {});
-  await writeJsonFile('meta.json', {
-    ...meta,
+  await writeMetaFile({
     lobbyRegisterGeneratedAt: new Date().toISOString(),
     lobbyRegisterEntryCount: orgs.length,
   });

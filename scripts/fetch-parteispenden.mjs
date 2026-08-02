@@ -10,7 +10,7 @@
 // Data minimisation: the source prints each donor's full postal address. Only the name and
 // city are kept here — enough to identify a corporate donor and to join it to the
 // Lobbyregister, without republishing private individuals' street addresses.
-import { canonicalPartyName, makePacer, readJsonFile, writeJsonFile } from './lib/common.mjs';
+import { canonicalPartyName, makePacer, writeJsonFile, writeMetaFile } from './lib/common.mjs';
 
 const INDEX_URL = 'https://www.bundestag.de/parlament/praesidium/parteienfinanzierung/fundstellen50000';
 const BASE = 'https://www.bundestag.de';
@@ -171,10 +171,7 @@ async function main() {
   console.log(`  ${donations.length} donations total`);
 
   await writeJsonFile('party-donations.json', donations);
-
-  const meta = await readJsonFile('meta.json', {});
-  await writeJsonFile('meta.json', {
-    ...meta,
+  await writeMetaFile({
     partyDonationsGeneratedAt: new Date().toISOString(),
     partyDonationsYears: years,
   });

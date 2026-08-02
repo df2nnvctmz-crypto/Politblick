@@ -7,10 +7,10 @@ import {
   fetchAllPaginated,
   fetchCurrentLegislaturePeriod,
   makePacer,
-  readJsonFile,
   transformMandate,
   transformSidejob,
   writeJsonFile,
+  writeMetaFile,
 } from './lib/common.mjs';
 
 const pace = makePacer(2500); // slower pace — this script alone makes ~630 requests
@@ -44,9 +44,7 @@ async function main() {
   console.log(`  ${Object.keys(sidejobsByMandate).length} members with at least one disclosed activity`);
 
   await writeJsonFile('sidejobs.json', sidejobsByMandate);
-
-  const meta = await readJsonFile('meta.json', {});
-  await writeJsonFile('meta.json', { ...meta, sidejobsGeneratedAt: new Date().toISOString() });
+  await writeMetaFile({ sidejobsGeneratedAt: new Date().toISOString() });
 
   console.log('Done.');
 }
