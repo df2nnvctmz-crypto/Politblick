@@ -1368,6 +1368,11 @@ function App() {
       isPopStateRef.current = false;
       return;
     }
+    // A client-side pushState never triggers the browser's own scroll reset the way a real page
+    // load does, so without this, opening any new page just inherits whatever scroll position
+    // was left over from the one before it. Skipped on popstate (above) so back/forward keeps
+    // the browser's native scroll restoration instead of always snapping to the top.
+    window.scrollTo(0, 0);
     const path = routeToPath({
       view,
       mpId: selectedMpId ? buildMpUrlParam(selectedMpId, roster.members, demoMps) : null,
