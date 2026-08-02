@@ -3341,7 +3341,7 @@ function App() {
                 <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, padding: 16, marginBottom: 20 }}>
                   <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 4 }}>
                     <h3 style={{ fontSize: 14.5, fontWeight: 700, margin: 0 }}>{t.sectorChartTitle}</h3>
-                    <div style={{ display: 'flex', border: '1px solid oklch(90% 0.006 260)', borderRadius: 16, overflow: 'hidden', fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
+                    <div className="pb-metric-toggle-buttons" style={{ display: 'flex', border: '1px solid oklch(90% 0.006 260)', borderRadius: 16, overflow: 'hidden', fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
                       <button onClick={() => setSectorMetric('members')} style={pillBtn(sectorMetric === 'members')}>
                         {t.sectorMetricMembers}
                       </button>
@@ -3352,6 +3352,16 @@ function App() {
                         {t.sectorMetricSpend}
                       </button>
                     </div>
+                    <select
+                      className="pb-metric-toggle-select"
+                      value={sectorMetric}
+                      onChange={(e) => setSectorMetric(e.target.value as SectorMetric)}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid oklch(90% 0.006 260)', fontSize: 13.5, background: 'white' }}
+                    >
+                      <option value="members">{t.sectorMetricMembers}</option>
+                      <option value="orgs">{t.sectorMetricOrgs}</option>
+                      <option value="spend">{t.sectorMetricSpend}</option>
+                    </select>
                   </div>
                   <p style={{ fontSize: 12, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 640 }}>{t.sectorChartSub}</p>
                   <SectorBarChart

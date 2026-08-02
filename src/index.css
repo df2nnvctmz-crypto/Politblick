@@ -103,6 +103,23 @@ button {
   }
 }
 
+/* Metric toggles (e.g. the sector chart's Abgeordnete/Organisationen/Lobbyausgaben switch):
+   a 3-way pill group reads fine on desktop but the labels get clipped once the row is
+   narrower than their combined natural width. Below that point a native <select> takes over
+   instead of trying to keep the pills legible at any width. */
+.pb-metric-toggle-select {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .pb-metric-toggle-buttons {
+    display: none !important;
+  }
+  .pb-metric-toggle-select {
+    display: block;
+  }
+}
+
 /* Highlighted org↔party ties in the network graph: a travelling dash pattern
    reads as "flow" along the edge, toward the party, instead of a static line. */
 @keyframes pb-edge-flow {
