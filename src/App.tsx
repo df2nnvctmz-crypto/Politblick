@@ -566,7 +566,7 @@ function TieMatrix({
   return (
     <div style={{ position: 'relative' }}>
       <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
-      <ScrollBox hintText={scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, marginBottom: 14 }}>
+      <ScrollBox hintText={scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, marginTop: 44, marginBottom: 14 }}>
       <table style={{ borderCollapse: 'collapse', fontSize: 12.5, background: 'white' }}>
         <thead>
           <tr>
@@ -732,7 +732,7 @@ function DonationBarChart({
     return { svgString, width, height };
   };
   return (
-    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 9 }}>
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 9, paddingTop: 44 }}>
       <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
       {data.map((p) => {
         const pct = Math.max(1, (p.total / max) * 100);
@@ -822,7 +822,7 @@ function SectorBarChart({
     return { svgString, width, height };
   };
   return (
-    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 44 }}>
       <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
       {data.map((d) => {
         const pct = Math.max(1, (valueFor(d) / max) * 100);
