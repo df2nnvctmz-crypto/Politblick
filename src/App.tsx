@@ -361,6 +361,29 @@ function extractMpId(param: string | null): string | null {
   return param.match(/^\d+/)?.[0] ?? param;
 }
 
+/** Generic sibling of buildMpUrlParam, for bill/org/committee URLs — same id-first-then-readable-
+ * slug shape, for the same reasons (share-worthy links, stable IDs). */
+function buildSlugParam(id: string | number, name: string | null | undefined): string {
+  return name ? `${id}-${slugify(name)}` : String(id);
+}
+
+/** Generic sibling of extractMpId, for id formats that never contain a hyphen themselves — plain
+ * numeric ids (bills, committees) and the Lobbyregister's letter-prefixed org ids (e.g.
+ * "R007203") all qualify, so splitting on the first hyphen reliably isolates the id from
+ * whatever readable slug got appended after it. */
+function extractLeadingId(param: string | null): string | null {
+  if (!param) return null;
+  const dash = param.indexOf('-');
+  return dash === -1 ? param : param.slice(0, dash);
+}
+
+/** Bills come from two sources — real polls (numeric id) and the demo fixture set (string id like
+ * 'b1') — so the title lookup has to check both, mirroring buildMpUrlParam's roster/demoMps split. */
+function buildBillUrlParam(id: BillId, polls: RealPoll[]): string {
+  const title = (typeof id === 'number' ? polls.find((p) => p.id === id)?.title : undefined) ?? BILLS.find((b) => b.id === id)?.title;
+  return buildSlugParam(id, title);
+}
+
 /** Distinct values with occurrence counts, biggest first — feeds MultiSelectFilter option lists. */
 function countOptions(values: string[]): { value: string; label: string; count: number }[] {
   const counts = new Map<string, number>();
@@ -1264,10 +1287,10 @@ function App() {
   const [view, setView] = useState<View>(initialRoute.view);
   const [lang, setLang] = useState<Lang>('de');
   const [selectedMpId, setSelectedMpId] = useState<string | null>(extractMpId(initialRoute.mpId));
-  const [selectedBillId, setSelectedBillId] = useState<BillId | null>(parseBillId(initialRoute.billId));
-  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(initialRoute.orgId);
+  const [selectedBillId, setSelectedBillId] = useState<BillId | null>(parseBillId(extractLeadingId(initialRoute.billId)));
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(extractLeadingId(initialRoute.orgId));
   const [selectedParty, setSelectedParty] = useState<string | null>(initialRoute.party);
-  const [selectedCommitteeId, setSelectedCommitteeId] = useState<string | null>(initialRoute.committeeId);
+  const [selectedCommitteeId, setSelectedCommitteeId] = useState<string | null>(extractLeadingId(initialRoute.committeeId));
   const [orgSearchQuery, setOrgSearchQuery] = useState('');
   const [sectorMetric, setSectorMetric] = useState<SectorMetric>('members');
   const [profileTab, setProfileTab] = useState<ProfileTab>(initialRoute.profileTab);
@@ -1332,10 +1355,12 @@ function App() {
     mpsNavCloseTimer.current = setTimeout(() => setMpsNavOpen(false), 250);
   };
 
-  // Declared here (ahead of where it's conceptually used, further down) because the URL-sync
-  // effect just below needs it in its dependency array to upgrade a bare-ID profile URL into a
-  // full name slug once the roster finishes loading.
+  // Declared here (ahead of where they're conceptually used, further down) because the URL-sync
+  // effect just below needs them to upgrade bare-ID profile/bill/org/committee URLs into full
+  // name slugs once the underlying data finishes loading.
   const roster = useBundestagRoster();
+  const { snapshot } = useSnapshot();
+  const pollsState = useAllPolls();
 
   // Browser back/forward: re-derive route state from the URL rather than replaying setView
   // calls. isPopStateRef suppresses the push effect below for this one render, so going back
@@ -1347,10 +1372,10 @@ function App() {
       const r = pathToRoute(stripBase(window.location.pathname, import.meta.env.BASE_URL));
       setView(r.view);
       setSelectedMpId(extractMpId(r.mpId));
-      setSelectedBillId(parseBillId(r.billId));
-      setSelectedOrgId(r.orgId);
+      setSelectedBillId(parseBillId(extractLeadingId(r.billId)));
+      setSelectedOrgId(extractLeadingId(r.orgId));
       setSelectedParty(r.party);
-      setSelectedCommitteeId(r.committeeId);
+      setSelectedCommitteeId(extractLeadingId(r.committeeId));
       setProfileTab(r.profileTab);
       setLobbyTab(r.lobbyTab);
       setPartyTab(r.partyTab);
@@ -1377,20 +1402,32 @@ function App() {
       view,
       mpId: selectedMpId ? buildMpUrlParam(selectedMpId, roster.members, demoMps) : null,
       profileTab,
-      billId: selectedBillId !== null ? String(selectedBillId) : null,
-      orgId: selectedOrgId,
+      billId: selectedBillId !== null ? buildBillUrlParam(selectedBillId, pollsState.polls) : null,
+      orgId: selectedOrgId ? buildSlugParam(selectedOrgId, snapshot?.lobbyLinks.orgs[selectedOrgId]?.name) : null,
       party: selectedParty,
       partyTab,
       lobbyTab,
-      committeeId: selectedCommitteeId,
+      committeeId: selectedCommitteeId
+        ? buildSlugParam(selectedCommitteeId, snapshot?.committees.find((c) => String(c.id) === selectedCommitteeId)?.name)
+        : null,
     });
     const fullPath = withBase(path, import.meta.env.BASE_URL);
     if (window.location.pathname !== fullPath) window.history.pushState(null, '', fullPath);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, roster.members]);
-
-  const { snapshot } = useSnapshot();
-  const pollsState = useAllPolls();
+  }, [
+    view,
+    selectedMpId,
+    profileTab,
+    selectedBillId,
+    selectedOrgId,
+    selectedParty,
+    partyTab,
+    lobbyTab,
+    selectedCommitteeId,
+    roster.members,
+    pollsState.polls,
+    snapshot,
+  ]);
   const weekly = useWeeklyResults(pollsState.polls);
   // Shared across the whole app: the search list computes every visible member's alignment
   // from this same fetch (no per-row network calls), and the profile page reuses it too.

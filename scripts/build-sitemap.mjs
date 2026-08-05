@@ -52,22 +52,27 @@ add('/hinweis-zu-den-daten', { changefreq: 'monthly', priority: '0.3' });
 add('/impressum', { changefreq: 'yearly', priority: '0.1' });
 add('/datenschutz', { changefreq: 'yearly', priority: '0.1' });
 
+// Mirrors src/App.tsx's buildSlugParam() — id first (stable, unique), readable slug after.
+function slugParam(id, name) {
+  return name ? `${id}-${slugify(name)}` : String(id);
+}
+
 // MP profile pages — /abgeordnete/<id>-<name-slug>, one per current member.
 const roster = readJson('roster.json');
 for (const m of roster?.members ?? []) {
-  add(`/abgeordnete/${m.id}-${slugify(m.name)}`, { changefreq: 'weekly', priority: '0.6' });
+  add(`/abgeordnete/${slugParam(m.id, m.name)}`, { changefreq: 'weekly', priority: '0.6' });
 }
 
-// Bill/vote pages — /gesetze/<poll id>.
+// Bill/vote pages — /gesetze/<poll id>-<title-slug>.
 const polls = readJson('polls.json');
 for (const p of polls ?? []) {
-  add(`/gesetze/${p.id}`, { changefreq: 'monthly', priority: '0.5' });
+  add(`/gesetze/${slugParam(p.id, p.title)}`, { changefreq: 'monthly', priority: '0.5' });
 }
 
-// Committee pages — /ausschuesse/<committee id>.
+// Committee pages — /ausschuesse/<committee id>-<name-slug>.
 const committees = readJson('committees.json');
 for (const c of committees?.committees ?? []) {
-  add(`/ausschuesse/${c.id}`, { changefreq: 'monthly', priority: '0.3' });
+  add(`/ausschuesse/${slugParam(c.id, c.name)}`, { changefreq: 'monthly', priority: '0.3' });
 }
 
 // Party pages — /parteien/<name> — only the sitting fractions that actually get a page (see
@@ -78,9 +83,9 @@ for (const s of lobbyLinks?.partyLobbySummary ?? []) {
   add(`/parteien/${encodeURIComponent(s.party)}`, { changefreq: 'weekly', priority: '0.5' });
 }
 
-// Organisation pages — /organisationen/<org id>.
+// Organisation pages — /organisationen/<org id>-<name-slug>.
 for (const org of Object.values(lobbyLinks?.orgs ?? {})) {
-  add(`/organisationen/${encodeURIComponent(org.id)}`, { changefreq: 'monthly', priority: '0.4' });
+  add(`/organisationen/${slugParam(org.id, org.name)}`, { changefreq: 'monthly', priority: '0.4' });
 }
 
 const body = urls
