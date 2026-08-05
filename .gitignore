@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Regenerated from public/data/*.json at build time (see scripts/build-sitemap.mjs) — committing
+# it would just add a noisy diff on every ~4h data-fetch commit for no benefit.
+public/sitemap.xml
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
