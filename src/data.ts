@@ -206,7 +206,7 @@ export interface Translation {
   tabOverview: string; tabVotes: string; tabLobby: string; tabFinance: string;
   follow: string; following: string;
   statBillsVoted: string; statAttendance: string; statPartyAlignment: string; statFlags: string;
-  reasonPartyLine: string;
+  reasonPartyLine: string; abstainedFractionLine: string;
   impressumTitle: string; impressumBody: string;
   disclaimerTitle: string; disclaimerBody: string;
   disclaimerTechTitle: string; disclaimerTechBody: string; disclaimerGithubLabel: string;
@@ -222,7 +222,7 @@ export interface Translation {
   noLobbyData: string; noFinanceData: string;
   weekOf: string; noPollsThisWeek: string; pollsLoading: string; pollsError: string; sidejobsError: string;
   pollAccepted: string; pollRejected: string; voteNoShow: string;
-  realAgainstPartyTemplate: string; loadingPoll: string; pollDetailMissing: string; viewSource: string;
+  realAgainstPartyTemplate: string; abstainedPartyTemplate: string; loadingPoll: string; pollDetailMissing: string; viewSource: string;
   viewDrucksacheLabel: string; viewDrucksacheTemplate: string;
   partyDonationSourceTemplate: string;
   noMandateVotesYet: string;
@@ -232,7 +232,7 @@ export interface Translation {
   dataAsOfTemplate: string; sidejobsAsOfTemplate: string;
   lobbyAffiliationsTitle: string; lobbyAffiliationsSub: string; lobbyNoAffiliations: string;
   lobbyVotesTitle: string; lobbyDemandLabel: string; lobbyNoVotes: string;
-  lobbyAgainstPosition: string; lobbyAgainstFraction: string; lobbyPositionSource: string;
+  lobbyAgainstPosition: string; lobbyAgainstFraction: string; lobbyAbstainedFraction: string; lobbyPositionSource: string;
   lobbyNoPositionNote: string; lobbyOrgSpend: string; lobbyOrgStaff: string;
   lobbyRegisterSource: string; lobbyNoContactsNote: string;
   pollLobbyingTitle: string; pollLobbyingCountTemplate: string; pollLobbyingNone: string;
@@ -335,6 +335,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     follow: 'Folgen', following: 'Gefolgt',
     statBillsVoted: 'Abstimmungen', statAttendance: 'Anwesenheit', statPartyAlignment: 'Parteitreue', statFlags: 'Hinweise',
     reasonPartyLine: 'Stimmte gegen die Mehrheit der eigenen Fraktion',
+    abstainedFractionLine: 'Enthielt sich, während die Mehrheit der eigenen Fraktion abstimmte',
     impressumTitle: 'Impressum',
     impressumBody: 'Angaben gemäß § 5 DDG\n\nPolitblick - Oskar Leenders\nc/o Autorenglück #30896\nAlbert-Einstein-Str. 47\n02977 Hoyerswerda\n\nKontakt:\nTelefon: +49 (0) 179 1678934\nE-Mail: kontakt@politblick.de\n\nVerantwortlich für den Inhalt nach § 18 Abs. 2 MStV:\nOskar Leenders, Anschrift wie oben\n\nPolitblick ist ein privates, nicht-kommerzielles Projekt zur Aggregation öffentlich zugänglicher Daten. Es besteht keine Verbindung zu Parteien, Fraktionen oder staatlichen Stellen.',
     datenschutzTitle: 'Datenschutzerklärung',
@@ -380,6 +381,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       'Keine namentliche Abstimmung dieser Wahlperiode betrifft eine Drucksache, zu der eine dieser Organisationen Interessenvertretung angemeldet hat.',
     lobbyAgainstPosition: 'Stimmte gegen die Position dieser Organisation',
     lobbyAgainstFraction: 'Stimmte gegen die Mehrheit der eigenen Fraktion',
+    lobbyAbstainedFraction: 'Enthielt sich, während die Mehrheit der eigenen Fraktion abstimmte',
     lobbyPositionSource: 'Beleg der Position',
     lobbyNoPositionNote:
       'Das Lobbyregister verzeichnet, zu welcher Drucksache eine Organisation Interessenvertretung angemeldet hat — nicht, ob sie dafür oder dagegen war. Wo keine belegte Position hinterlegt ist, steht hier das Anliegen im Wortlaut der Organisation; die Bewertung bleibt Ihnen überlassen.',
@@ -486,6 +488,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     sidejobsError: 'Nebeneinkünfte konnten nicht geladen werden.',
     pollAccepted: 'Angenommen', pollRejected: 'Abgelehnt', voteNoShow: 'Nicht abgestimmt',
     realAgainstPartyTemplate: 'Stimmte gegen die Mehrheit der eigenen Fraktion ({party})',
+    abstainedPartyTemplate: 'Enthielt sich, während die Mehrheit der Fraktion ({party}) abstimmte',
     loadingPoll: 'Abstimmung wird geladen…', pollDetailMissing: 'Abstimmung nicht gefunden.', viewSource: 'Quelle ansehen',
     viewDrucksacheLabel: 'Gesetzestext:', viewDrucksacheTemplate: 'Drucksache {number} (PDF)',
     partyDonationSourceTemplate: 'Quelle: Veröffentlichung der Bundestagspräsidentin für {year}',
@@ -547,6 +550,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     follow: 'Follow', following: 'Following',
     statBillsVoted: 'Bills voted', statAttendance: 'Attendance', statPartyAlignment: 'Party alignment', statFlags: 'Flags',
     reasonPartyLine: 'Voted against own party’s majority',
+    abstainedFractionLine: 'Abstained while their own fraction’s majority voted',
     impressumTitle: 'Legal notice',
     impressumBody: 'Information per § 5 DDG (German Digital Services Act)\n\nPolitblick - Oskar Leenders\nc/o Autorenglück #30896\nAlbert-Einstein-Str. 47\n02977 Hoyerswerda, Germany\n\nContact:\nPhone: +49 (0) 179 1678934\nEmail: contact@politblick.de\n\nResponsible for content per § 18 (2) MStV (German Interstate Media Treaty):\nOskar Leenders, address as above\n\nPolitblick is a private, non-commercial project that aggregates publicly available data. It has no affiliation with any party, parliamentary group, or government body.',
     datenschutzTitle: 'Privacy policy',
@@ -592,6 +596,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       'No roll-call vote this term concerns a printed matter that any of these organizations registered lobbying on.',
     lobbyAgainstPosition: 'Voted against this organization’s position',
     lobbyAgainstFraction: 'Voted against their own fraction’s majority',
+    lobbyAbstainedFraction: 'Abstained while their own fraction’s majority voted',
     lobbyPositionSource: 'Evidence for this position',
     lobbyNoPositionNote:
       'The lobby register records which printed matter an organization registered lobbying on — not whether it was for or against. Where no sourced position is on file, the organization’s aim is shown in its own words and the judgement is left to you.',
@@ -698,6 +703,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     sidejobsError: 'Could not load outside income data.',
     pollAccepted: 'Accepted', pollRejected: 'Rejected', voteNoShow: 'Did not vote',
     realAgainstPartyTemplate: 'Voted against their own fraction majority ({party})',
+    abstainedPartyTemplate: 'Abstained while their own fraction’s majority ({party}) voted',
     loadingPoll: 'Loading vote…', pollDetailMissing: 'Vote not found.', viewSource: 'View source',
     viewDrucksacheLabel: 'Bill text:', viewDrucksacheTemplate: 'Printed matter {number} (PDF)',
     partyDonationSourceTemplate: 'Source: Bundestag President’s publication for {year}',

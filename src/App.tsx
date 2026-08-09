@@ -384,6 +384,13 @@ function buildBillUrlParam(id: BillId, polls: RealPoll[]): string {
   return buildSlugParam(id, title);
 }
 
+/** A "diverged from fraction majority" flag is true for both a genuine opposite vote (yes vs no)
+ * and an abstention that merely didn't join a yes/no majority — those aren't the same thing, so
+ * the label has to say which one actually happened rather than always claiming "voted against". */
+function divergenceLabel(vote: 'yes' | 'no' | 'abstain' | 'no_show', against: string, abstained: string): string {
+  return vote === 'yes' || vote === 'no' ? against : abstained;
+}
+
 /** Distinct values with occurrence counts, biggest first — feeds MultiSelectFilter option lists. */
 function countOptions(values: string[]): { value: string; label: string; count: number }[] {
   const counts = new Map<string, number>();
@@ -1554,7 +1561,7 @@ function App() {
       result: r,
       flag: !!divergence,
       flagText: divergence
-        ? `${divergence.member.name}: ${t.realAgainstPartyTemplate.replace('{party}', divergence.member.party)}`
+        ? `${divergence.member.name}: ${divergenceLabel(divergence.member.vote, t.realAgainstPartyTemplate, t.abstainedPartyTemplate).replace('{party}', divergence.member.party)}`
         : '',
     };
   });
@@ -1565,7 +1572,7 @@ function App() {
       mpName: d.member.name,
       billTitle: d.poll.title,
       color: REAL_PARTY_COLORS[d.member.party] || FALLBACK_PARTY_COLOR,
-      reason: t.realAgainstPartyTemplate.replace('{party}', d.member.party),
+      reason: divergenceLabel(d.member.vote, t.realAgainstPartyTemplate, t.abstainedPartyTemplate).replace('{party}', d.member.party),
       voteLabel: label,
       bg: voteBg[d.member.vote],
       onOpen: rm ? () => openMp(String(rm.id)) : undefined,
@@ -2617,7 +2624,11 @@ function App() {
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                   <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: voteBg[p.vote], color: 'white' }}>{voteLabel}</span>
-                                  {p.aligned === false && <span style={{ fontSize: 11, color: 'oklch(48% 0.16 40)', fontWeight: 600 }}>{t.reasonPartyLine}</span>}
+                                  {p.aligned === false && (
+                                    <span style={{ fontSize: 11, color: 'oklch(48% 0.16 40)', fontWeight: 600 }}>
+                                      {divergenceLabel(p.vote, t.reasonPartyLine, t.abstainedFractionLine)}
+                                    </span>
+                                  )}
                                 </div>
                                 {(lobbyHit?.hasConflict || lobbyHit?.hasTopicalTie) && (
                                   <div style={{ fontSize: 11, marginTop: 6, color: lobbyHit.hasConflict ? 'oklch(48% 0.16 40)' : 'oklch(55% 0.1 90)' }}>
@@ -2897,7 +2908,9 @@ function App() {
                                     </div>
                                   )}
                                   {c.againstFraction && (
-                                    <div style={{ fontSize: 12, fontWeight: 600, color: 'oklch(48% 0.14 60)', marginTop: 6 }}>⬤ {t.lobbyAgainstFraction}</div>
+                                    <div style={{ fontSize: 12, fontWeight: 600, color: 'oklch(48% 0.14 60)', marginTop: 6 }}>
+                                      ⬤ {c.vote === 'yes' || c.vote === 'no' ? t.lobbyAgainstFraction : t.lobbyAbstainedFraction}
+                                    </div>
                                   )}
                                 </div>
                               );
@@ -3222,7 +3235,7 @@ function App() {
                               {d.member.vote === 'yes' ? t.voteYes : d.member.vote === 'no' ? t.voteNo : t.voteAbstain}
                             </span>
                             <span style={{ fontSize: 12, color: 'oklch(48% 0.16 40)' }}>
-                              {t.realAgainstPartyTemplate.replace('{party}', d.member.party)}
+                              {divergenceLabel(d.member.vote, t.realAgainstPartyTemplate, t.abstainedPartyTemplate).replace('{party}', d.member.party)}
                             </span>
                           </div>
                         </div>
@@ -3686,7 +3699,9 @@ function App() {
                                         <div style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.16 40)' }}>⬤ {t.lobbyAgainstPosition}</div>
                                       )}
                                       {r.conflict.againstFraction && (
-                                        <div style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.14 60)' }}>⬤ {t.lobbyAgainstFraction}</div>
+                                        <div style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.14 60)' }}>
+                                          ⬤ {r.conflict.vote === 'yes' || r.conflict.vote === 'no' ? t.lobbyAgainstFraction : t.lobbyAbstainedFraction}
+                                        </div>
                                       )}
                                     </td>
                                   </tr>
@@ -4126,7 +4141,11 @@ function App() {
                             </div>
                           )}
                           {c.againstPosition && <div style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.16 40)', marginTop: 6 }}>⬤ {t.lobbyAgainstPosition}</div>}
-                          {c.againstFraction && <div style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.14 60)', marginTop: 6 }}>⬤ {t.lobbyAgainstFraction}</div>}
+                          {c.againstFraction && (
+                            <div style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.14 60)', marginTop: 6 }}>
+                              ⬤ {c.vote === 'yes' || c.vote === 'no' ? t.lobbyAgainstFraction : t.lobbyAbstainedFraction}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
