@@ -35,7 +35,7 @@ import { DonationTimeline } from './DonationTimeline';
 import { ShowMoreButton } from './ShowMoreButton';
 import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
 import type { ChartSvgExport } from './chartExport';
-import { pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
+import { DEFAULT_ROUTE, pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type RouteState, type View } from './router';
 
 type BillId = string | number;
 
@@ -70,9 +70,18 @@ function formatDateTime(iso: string, lang: Lang): string {
 
 function stop(fn: () => void) {
   return (e: MouseEvent) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
     fn();
   };
+}
+
+/** Computes the real, shareable, middle-clickable URL for an internal nav `<a>` — the SPA
+ * transition itself still happens instantly via the paired `onClick={stop(...)}` handler, but
+ * this gives the anchor a genuine href so native browser behaviors (open in new tab, copy link,
+ * hover preview) work the same way they would for any other link. */
+function routeHref(partial: Partial<RouteState> & { view: View }): string {
+  return withBase(routeToPath({ ...DEFAULT_ROUTE, ...partial }), import.meta.env.BASE_URL);
 }
 
 function navStyle(active: boolean): CSSProperties {
@@ -999,11 +1008,8 @@ function FindMyMpBox({
                 {noResultsTemplate.replace('{query}', query.trim())}
               </div>
               <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onBrowseAll();
-                }}
+                href={routeHref({ view: 'search' })}
+                onClick={stop(onBrowseAll)}
                 style={{ fontSize: 12.5, fontWeight: 700 }}
               >
                 {browseAllLabel} →
@@ -1255,11 +1261,8 @@ function GlobalSearchBox({
               )}
               {mpMatchesAll.length > 0 && (
                 <a
-                  href="#"
-                  onClick={(ev) => {
-                    ev.preventDefault();
-                    submit();
-                  }}
+                  href={routeHref({ view: 'search' })}
+                  onClick={stop(submit)}
                   style={{
                     display: 'block',
                     padding: '10px 16px',
@@ -1783,7 +1786,7 @@ function App() {
           <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em' }}>Politblick</span>
         </div>
         <nav style={{ display: 'flex', gap: 18, fontSize: 13.5, fontWeight: 600, color: 'oklch(40% 0.01 260)' }}>
-          <a onClick={stop(goHome)} href="#" style={navStyle(view === 'home')}>
+          <a onClick={stop(goHome)} href={routeHref({ view: 'home' })} style={navStyle(view === 'home')}>
             {t.navHome}
           </a>
           <div
@@ -1796,7 +1799,7 @@ function App() {
                 goSearch();
                 setMpsNavOpen(false);
               })}
-              href="#"
+              href={routeHref({ view: 'search' })}
               style={{
                 ...navStyle(view === 'search' || view === 'party' || view === 'partyList' || view === 'committee' || view === 'committeeList' || view === 'pollList'),
                 display: 'inline-flex',
@@ -1825,7 +1828,7 @@ function App() {
                 }}
               >
                 <a
-                  href="#"
+                  href={routeHref({ view: 'search' })}
                   onClick={stop(() => {
                     goSearch();
                     setMpsNavOpen(false);
@@ -1844,7 +1847,7 @@ function App() {
                   {t.navMpsSearch}
                 </a>
                 <a
-                  href="#"
+                  href={routeHref({ view: 'partyList' })}
                   onClick={stop(() => {
                     goPartyList();
                     setMpsNavOpen(false);
@@ -1863,7 +1866,7 @@ function App() {
                   {t.navParties}
                 </a>
                 <a
-                  href="#"
+                  href={routeHref({ view: 'committeeList' })}
                   onClick={stop(() => {
                     goCommitteeList();
                     setMpsNavOpen(false);
@@ -1882,7 +1885,7 @@ function App() {
                   {t.navCommittees}
                 </a>
                 <a
-                  href="#"
+                  href={routeHref({ view: 'pollList' })}
                   onClick={stop(() => {
                     goPollList();
                     setMpsNavOpen(false);
@@ -1913,7 +1916,7 @@ function App() {
                 goCrossref();
                 setLobbyNavOpen(false);
               })}
-              href="#"
+              href={routeHref({ view: 'crossref' })}
               style={{ ...navStyle(view === 'crossref'), display: 'inline-flex', alignItems: 'center', gap: 4 }}
             >
               {t.navLobbyFinance}
@@ -1948,7 +1951,7 @@ function App() {
                   return (
                     <a
                       key={opt.key}
-                      href="#"
+                      href={routeHref({ view: 'crossref', lobbyTab: opt.key })}
                       onClick={stop(() => {
                         goCrossref(opt.key);
                         setLobbyNavOpen(false);
@@ -2137,7 +2140,7 @@ function App() {
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '12px 32px 8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 4px' }}>{t.expectationTitle}</h2>
-              <a href="#" onClick={stop(() => goCrossref('conflicts'))} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
+              <a href={routeHref({ view: 'crossref', lobbyTab: 'conflicts' })} onClick={stop(() => goCrossref('conflicts'))} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
                 {t.seeAllConflicts} →
               </a>
             </div>
@@ -2202,7 +2205,11 @@ function App() {
                       );
                     })}
                   </div>
-                  <a href="#" onClick={stop(() => openBill(featuredResult.poll.id))} style={{ fontSize: 12.5, fontWeight: 700 }}>
+                  <a
+                    href={routeHref({ view: 'bill', billId: buildBillUrlParam(featuredResult.poll.id, pollsState.polls) })}
+                    onClick={stop(() => openBill(featuredResult.poll.id))}
+                    style={{ fontSize: 12.5, fontWeight: 700 }}
+                  >
                     {t.readMore} →
                   </a>
                 </>
@@ -2217,7 +2224,7 @@ function App() {
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 32px 80px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 4px' }}>{t.feedTitle}</h2>
-              <a href="#" onClick={stop(goPollList)} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
+              <a href={routeHref({ view: 'pollList' })} onClick={stop(goPollList)} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
                 {t.seeAllPolls} →
               </a>
             </div>
@@ -2388,7 +2395,7 @@ function App() {
 
       {view === 'profile' && (
         <main style={{ flex: 1, maxWidth: 980, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goSearch)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={routeHref({ view: 'search' })} onClick={stop(goSearch)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToSearch}
           </a>
 
@@ -3037,7 +3044,7 @@ function App() {
 
       {view === 'bill' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={routeHref({ view: 'home' })} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
 
@@ -3988,7 +3995,7 @@ function App() {
 
       {view === 'org' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goCrossref)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={routeHref({ view: 'crossref' })} onClick={stop(goCrossref)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToLobbyFinance}
           </a>
           {!orgDetail.org ? (
@@ -4272,7 +4279,7 @@ function App() {
 
       {view === 'committee' && (
         <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goCommitteeList)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={routeHref({ view: 'committeeList' })} onClick={stop(goCommitteeList)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToCommittees}
           </a>
           {!committeeDetail.detail ? (
@@ -4377,7 +4384,11 @@ function App() {
 
       {view === 'party' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(() => (partyOrigin === 'crossref' ? goCrossref('parties') : goPartyList()))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a
+            href={partyOrigin === 'crossref' ? routeHref({ view: 'crossref', lobbyTab: 'parties' }) : routeHref({ view: 'partyList' })}
+            onClick={stop(() => (partyOrigin === 'crossref' ? goCrossref('parties') : goPartyList()))}
+            style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}
+          >
             ← {partyOrigin === 'crossref' ? t.backToLobbyFinance : t.backToParties}
           </a>
           {(() => {
@@ -4850,7 +4861,7 @@ function App() {
 
       {view === 'impressum' && (
         <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={routeHref({ view: 'home' })} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.impressumTitle}</h1>
@@ -4860,7 +4871,7 @@ function App() {
 
       {view === 'disclaimer' && (
         <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={routeHref({ view: 'home' })} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.disclaimerTitle}</h1>
@@ -4896,7 +4907,7 @@ function App() {
 
       {view === 'datenschutz' && (
         <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={routeHref({ view: 'home' })} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.datenschutzTitle}</h1>
@@ -4906,7 +4917,7 @@ function App() {
 
       {view === 'daten' && (
         <main style={{ flex: 1, maxWidth: 820, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={routeHref({ view: 'home' })} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 10px' }}>{t.datenTitle}</h1>
@@ -5002,16 +5013,16 @@ function App() {
         >
           <span>{t.footerNote}</span>
           <div style={{ display: 'flex', gap: 16 }}>
-            <a href="#" onClick={stop(goDisclaimer)} style={{ color: 'oklch(52% 0.01 260)' }}>
+            <a href={routeHref({ view: 'disclaimer' })} onClick={stop(goDisclaimer)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.disclaimerTitle}
             </a>
-            <a href="#" onClick={stop(goImpressum)} style={{ color: 'oklch(52% 0.01 260)' }}>
+            <a href={routeHref({ view: 'impressum' })} onClick={stop(goImpressum)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.impressumTitle}
             </a>
-            <a href="#" onClick={stop(goDatenschutz)} style={{ color: 'oklch(52% 0.01 260)' }}>
+            <a href={routeHref({ view: 'datenschutz' })} onClick={stop(goDatenschutz)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.datenschutzTitle}
             </a>
-            <a href="#" onClick={stop(goDaten)} style={{ color: 'oklch(52% 0.01 260)' }}>
+            <a href={routeHref({ view: 'daten' })} onClick={stop(goDaten)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.datenTitle}
             </a>
           </div>
