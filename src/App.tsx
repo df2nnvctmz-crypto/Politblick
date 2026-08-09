@@ -2648,7 +2648,7 @@ function App() {
                         </div>
                         {realMpFlaggedVotes.map((p) => (
                           <div key={p.poll.id} style={{ fontSize: 13, color: 'oklch(32% 0.14 40)', padding: '4px 0' }}>
-                            · {p.poll.title}: {t.realAgainstPartyTemplate.replace('{party}', p.party)}
+                            · {p.poll.title}: {divergenceLabel(p.vote, t.realAgainstPartyTemplate, t.abstainedPartyTemplate).replace('{party}', p.party)}
                           </div>
                         ))}
                       </div>
