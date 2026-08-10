@@ -35,7 +35,7 @@ import { DonationTimeline } from './DonationTimeline';
 import { ShowMoreButton } from './ShowMoreButton';
 import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
 import type { ChartSvgExport } from './chartExport';
-import { pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
+import { DEFAULT_ROUTE, pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
 
 type BillId = string | number;
 
@@ -68,8 +68,12 @@ function formatDateTime(iso: string, lang: Lang): string {
   return fmt.format(new Date(iso));
 }
 
+/** Wraps a client-side nav action for use as an <a href="..."> onClick. Only intercepts plain,
+ * unmodified left-clicks — ctrl/cmd/shift/alt-click and middle-click fall through to the browser's
+ * native "open in new tab/window" behavior against the real href instead of being swallowed. */
 function stop(fn: () => void) {
   return (e: MouseEvent) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
     fn();
   };
@@ -691,6 +695,7 @@ function HemicycleChart({
   parties,
   seatsLabel,
   onOpenParty,
+  partyHref,
   isPartyRoutable,
   filenameBase,
   exportLabels,
@@ -698,6 +703,7 @@ function HemicycleChart({
   parties: { name: string; seats: number; color: string }[];
   seatsLabel: string;
   onOpenParty: (party: string) => void;
+  partyHref: (party: string) => string;
   isPartyRoutable: (party: string) => boolean;
   filenameBase: string;
   exportLabels: ChartExportLabels;
@@ -735,15 +741,16 @@ function HemicycleChart({
         {parties.map((p) => {
           const routable = isPartyRoutable(p.name);
           return (
-            <div
+            <a
               key={p.name}
-              onClick={routable ? () => onOpenParty(p.name) : undefined}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: routable ? 'pointer' : 'default' }}
+              href={routable ? partyHref(p.name) : undefined}
+              onClick={routable ? stop(() => onOpenParty(p.name)) : undefined}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: routable ? 'pointer' : 'default', textDecoration: 'none', color: 'inherit' }}
             >
               <span style={{ width: 9, height: 9, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
               <span style={{ fontWeight: 600, textDecoration: routable ? 'underline' : 'none', textDecorationColor: 'oklch(85% 0.006 260)' }}>{p.name}</span>
               <span style={{ color: 'oklch(50% 0.01 260)' }}>{p.seats}</span>
-            </div>
+            </a>
           );
         })}
       </div>
@@ -930,6 +937,8 @@ function SectorBarChart({
 function FindMyMpBox({
   members,
   onSelect,
+  mpHref,
+  searchHref,
   placeholder,
   noResultsTemplate,
   browseAllLabel,
@@ -937,6 +946,8 @@ function FindMyMpBox({
 }: {
   members: RealMp[];
   onSelect: (id: string) => void;
+  mpHref: (id: string) => string;
+  searchHref: string;
   placeholder: string;
   noResultsTemplate: string;
   browseAllLabel: string;
@@ -1006,11 +1017,8 @@ function FindMyMpBox({
                 {noResultsTemplate.replace('{query}', query.trim())}
               </div>
               <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onBrowseAll();
-                }}
+                href={searchHref}
+                onClick={stop(onBrowseAll)}
                 style={{ fontSize: 12.5, fontWeight: 700 }}
               >
                 {browseAllLabel} →
@@ -1018,10 +1026,11 @@ function FindMyMpBox({
             </div>
           ) : (
             matches.map((m) => (
-              <div
+              <a
                 key={m.id}
-                onClick={() => select(m.id)}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', cursor: 'pointer' }}
+                href={mpHref(String(m.id))}
+                onClick={stop(() => select(m.id))}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
               >
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: m.color, flexShrink: 0 }} />
                 <div style={{ minWidth: 0, flex: 1 }}>
@@ -1032,7 +1041,7 @@ function FindMyMpBox({
                     {m.party} · {m.constituency}
                   </div>
                 </div>
-              </div>
+              </a>
             ))
           )}
         </div>
@@ -1059,6 +1068,11 @@ function GlobalSearchBox({
   onSelectBill,
   onSelectOrg,
   onSelectParty,
+  searchHref,
+  mpHref,
+  billHref,
+  orgHref,
+  partyHref,
   placeholder,
   groupMpsLabel,
   groupBillsLabel,
@@ -1078,6 +1092,11 @@ function GlobalSearchBox({
   onSelectBill: (id: number) => void;
   onSelectOrg: (id: string) => void;
   onSelectParty: (name: string) => void;
+  searchHref: string;
+  mpHref: (id: string) => string;
+  billHref: (id: number) => string;
+  orgHref: (id: string) => string;
+  partyHref: (name: string) => string;
   placeholder: string;
   groupMpsLabel: string;
   groupBillsLabel: string;
@@ -1207,7 +1226,7 @@ function GlobalSearchBox({
                 <>
                   <div style={groupHeaderStyle}>{groupMpsLabel}</div>
                   {mpMatches.map((m) => (
-                    <div key={m.id} onClick={() => selectMp(m.id)} style={rowStyle}>
+                    <a key={m.id} href={mpHref(String(m.id))} onClick={stop(() => selectMp(m.id))} style={{ ...rowStyle, textDecoration: 'none', color: 'inherit' }}>
                       <span style={{ width: 8, height: 8, borderRadius: '50%', background: m.color, flexShrink: 0 }} />
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={titleStyle}>{m.name}</div>
@@ -1215,7 +1234,7 @@ function GlobalSearchBox({
                           {m.party} · {m.constituency}
                         </div>
                       </div>
-                    </div>
+                    </a>
                   ))}
                 </>
               )}
@@ -1223,14 +1242,14 @@ function GlobalSearchBox({
                 <>
                   <div style={groupHeaderStyle}>{groupBillsLabel}</div>
                   {billMatches.map((p) => (
-                    <div key={p.id} onClick={() => selectBill(p.id)} style={rowStyle}>
+                    <a key={p.id} href={billHref(p.id)} onClick={stop(() => selectBill(p.id))} style={{ ...rowStyle, textDecoration: 'none', color: 'inherit' }}>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={titleStyle}>{p.title}</div>
                         <div style={subStyle}>
                           {p.topic} · {p.date}
                         </div>
                       </div>
-                    </div>
+                    </a>
                   ))}
                 </>
               )}
@@ -1238,12 +1257,12 @@ function GlobalSearchBox({
                 <>
                   <div style={groupHeaderStyle}>{groupOrgsLabel}</div>
                   {orgMatches.map((e) => (
-                    <div key={e.org.id} onClick={() => selectOrg(e.org.id)} style={rowStyle}>
+                    <a key={e.org.id} href={orgHref(e.org.id)} onClick={stop(() => selectOrg(e.org.id))} style={{ ...rowStyle, textDecoration: 'none', color: 'inherit' }}>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={titleStyle}>{e.org.name}</div>
                         {e.org.city && <div style={subStyle}>{e.org.city}</div>}
                       </div>
-                    </div>
+                    </a>
                   ))}
                 </>
               )}
@@ -1251,22 +1270,19 @@ function GlobalSearchBox({
                 <>
                   <div style={groupHeaderStyle}>{groupPartiesLabel}</div>
                   {partyMatches.map((p) => (
-                    <div key={p.name} onClick={() => selectParty(p.name)} style={rowStyle}>
+                    <a key={p.name} href={partyHref(p.name)} onClick={stop(() => selectParty(p.name))} style={{ ...rowStyle, textDecoration: 'none', color: 'inherit' }}>
                       <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={titleStyle}>{p.name}</div>
                       </div>
-                    </div>
+                    </a>
                   ))}
                 </>
               )}
               {mpMatchesAll.length > 0 && (
                 <a
-                  href="#"
-                  onClick={(ev) => {
-                    ev.preventDefault();
-                    submit();
-                  }}
+                  href={searchHref}
+                  onClick={stop(submit)}
                   style={{
                     display: 'block',
                     padding: '10px 16px',
@@ -1373,6 +1389,21 @@ function App() {
   // calls. isPopStateRef suppresses the push effect below for this one render, so going back
   // doesn't immediately push the page we just navigated away from back onto the stack.
   const isPopStateRef = useRef(false);
+  // Remembers where the MP list was scrolled to when a profile is opened from it, so returning
+  // to the list (back button or the "← zurück" link) can restore that position instead of always
+  // snapping to the top — restoring via the browser's native scroll restoration doesn't work here
+  // since the list's <main> is unmounted/remounted on view change, and native restore fires before
+  // React finishes re-rendering it back to full height. prevViewRef guards against reusing a stale
+  // saved position if the user reaches 'search' some other way after leaving the profile.
+  const searchScrollYRef = useRef<number | null>(null);
+  const prevViewRef = useRef<View>(initialRoute.view);
+  // The browser's own scroll restoration would otherwise fight the scroll handling below: it
+  // snapshots each history entry's scroll position independently and can reapply it after our
+  // effect runs, silently overwriting whatever we just set (including the MP-list restore).
+  // Owning this fully ourselves avoids that race.
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
+  }, []);
   useEffect(() => {
     const onPopState = () => {
       isPopStateRef.current = true;
@@ -1396,15 +1427,29 @@ function App() {
   // text are intentionally excluded from the dependency array, so refining a list in place
   // never pushes a history entry.
   useEffect(() => {
+    const prevView = prevViewRef.current;
+    prevViewRef.current = view;
+    const returningToListFromProfile = view === 'search' && prevView === 'profile' && searchScrollYRef.current !== null;
+    // A client-side pushState never triggers the browser's own scroll reset the way a real page
+    // load does, so without this, opening any new page just inherits whatever scroll position
+    // was left over from the one before it — this applies on popstate too (back/forward), rather
+    // than leaning on the browser's native scroll restoration: that races the view's
+    // unmount/remount on every navigation here and reliably loses, landing near the top anyway.
+    // The one deliberate exception is the MP list, which restores its own remembered position
+    // (see searchScrollYRef, set in openMp) instead of resetting to the top.
+    if (returningToListFromProfile) {
+      window.scrollTo(0, searchScrollYRef.current!);
+      searchScrollYRef.current = null;
+    } else {
+      // Left the profile some other way (not back to the list it was opened from) — the
+      // remembered position no longer applies to wherever "search" is reached from next.
+      if (view !== prevView && prevView === 'profile' && view !== 'search') searchScrollYRef.current = null;
+      window.scrollTo(0, 0);
+    }
     if (isPopStateRef.current) {
       isPopStateRef.current = false;
       return;
     }
-    // A client-side pushState never triggers the browser's own scroll reset the way a real page
-    // load does, so without this, opening any new page just inherits whatever scroll position
-    // was left over from the one before it. Skipped on popstate (above) so back/forward keeps
-    // the browser's native scroll restoration instead of always snapping to the top.
-    window.scrollTo(0, 0);
     const path = routeToPath({
       view,
       mpId: selectedMpId ? buildMpUrlParam(selectedMpId, roster.members, demoMps) : null,
@@ -1463,6 +1508,7 @@ function App() {
   const goDatenschutz = () => setView('datenschutz');
   const goDaten = () => setView('daten');
   const openMp = (id: string) => {
+    if (view === 'search') searchScrollYRef.current = window.scrollY;
     setView('profile');
     setSelectedMpId(id);
     setProfileTab('overview');
@@ -1487,6 +1533,28 @@ function App() {
     setPartyTopicalExpanded(false);
     setPartyOrigin(origin);
   };
+  // Real hrefs for every client-side-routed target, computed the same way the address-bar sync
+  // effect above does. Paired with the openX()/goX() state setters via stop(): the href lets
+  // ctrl/cmd/middle-click and long-press-to-open-in-new-tab work like a normal link, while a plain
+  // left-click is intercepted by stop() and handled with the existing SPA state transition instead
+  // of a real page load.
+  const BASE_URL = import.meta.env.BASE_URL;
+  const homeHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'home' }), BASE_URL);
+  const searchHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'search' }), BASE_URL);
+  const partyListHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'partyList' }), BASE_URL);
+  const committeeListHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'committeeList' }), BASE_URL);
+  const pollListHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'pollList' }), BASE_URL);
+  const impressumHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'impressum' }), BASE_URL);
+  const disclaimerHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'disclaimer' }), BASE_URL);
+  const datenschutzHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'datenschutz' }), BASE_URL);
+  const datenHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'daten' }), BASE_URL);
+  const crossrefHref = (tab: LobbyTab = 'overview') => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'crossref', lobbyTab: tab }), BASE_URL);
+  const mpHref = (id: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'profile', mpId: buildMpUrlParam(id, roster.members, demoMps) }), BASE_URL);
+  const billHref = (id: BillId) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'bill', billId: buildBillUrlParam(id, pollsState.polls) }), BASE_URL);
+  const orgHref = (id: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'org', orgId: buildSlugParam(id, snapshot?.lobbyLinks.orgs[id]?.name) }), BASE_URL);
+  const partyHref = (party: string, tab: PartyTab = 'overview') => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'party', party, partyTab: tab }), BASE_URL);
+  const committeeHref = (id: string) =>
+    withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'committee', committeeId: buildSlugParam(id, snapshot?.committees.find((c) => String(c.id) === id)?.name) }), BASE_URL);
   // Party → roster crosslink: narrows the search/browse view down to this party's own MPs
   // instead of adding a separate "members" page, since the roster view already has everything
   // (avatar, constituency, alignment) that a party-members list would otherwise duplicate.
@@ -1575,6 +1643,7 @@ function App() {
       reason: divergenceLabel(d.member.vote, t.realAgainstPartyTemplate, t.abstainedPartyTemplate).replace('{party}', d.member.party),
       voteLabel: label,
       bg: voteBg[d.member.vote],
+      href: rm ? mpHref(String(rm.id)) : undefined,
       onOpen: rm ? () => openMp(String(rm.id)) : undefined,
     };
   });
@@ -1616,7 +1685,7 @@ function App() {
         hasFlags: boolean;
         trendPoints: string;
         partyTrendPoints: string;
-        voteHistoryResolved: { billTitle: string; date: string; voteLabel: string; bg: string; onOpen: () => void }[];
+        voteHistoryResolved: { billTitle: string; date: string; voteLabel: string; bg: string; href: string; onOpen: () => void }[];
       } }
     | { kind: 'real'; mp: RealMp }
     | { kind: 'loading' }
@@ -1633,7 +1702,7 @@ function App() {
           voteHistoryResolved: demoMatch.voteHistory.map((v) => {
             const bill = BILLS.find((b) => b.id === v.billId)!;
             const label = v.vote === 'yes' ? t.voteYes : v.vote === 'no' ? t.voteNo : t.voteAbstain;
-            return { billTitle: bill.title, date: bill.date, voteLabel: label, bg: voteBg[v.vote], onOpen: () => openBill(bill.id) };
+            return { billTitle: bill.title, date: bill.date, voteLabel: label, bg: voteBg[v.vote], href: billHref(bill.id), onOpen: () => openBill(bill.id) };
           }),
         },
       }
@@ -1661,7 +1730,7 @@ function App() {
     }),
     flaggedMps: demoMps
       .filter((m) => m.flags.length > 0 && m.voteHistory.some((v) => v.billId === raw.id))
-      .map((m) => ({ name: m.name, party: m.party, color: m.color, reason: m.flags[0], onOpen: () => openMp(m.id) })),
+      .map((m) => ({ name: m.name, party: m.party, color: m.color, reason: m.flags[0], href: mpHref(m.id), onOpen: () => openMp(m.id) })),
     onOpen: () => openBill(raw.id),
   });
   const demoBillMatch = billsWithBreakdown.find((b) => b.id === selectedBillId);
@@ -1790,7 +1859,7 @@ function App() {
           <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em' }}>Politblick</span>
         </div>
         <nav style={{ display: 'flex', gap: 18, fontSize: 13.5, fontWeight: 600, color: 'oklch(40% 0.01 260)' }}>
-          <a onClick={stop(goHome)} href="#" style={navStyle(view === 'home')}>
+          <a onClick={stop(goHome)} href={homeHref} style={navStyle(view === 'home')}>
             {t.navHome}
           </a>
           <div
@@ -1803,7 +1872,7 @@ function App() {
                 goSearch();
                 setMpsNavOpen(false);
               })}
-              href="#"
+              href={searchHref}
               style={{
                 ...navStyle(view === 'search' || view === 'party' || view === 'partyList' || view === 'committee' || view === 'committeeList' || view === 'pollList'),
                 display: 'inline-flex',
@@ -1832,7 +1901,7 @@ function App() {
                 }}
               >
                 <a
-                  href="#"
+                  href={searchHref}
                   onClick={stop(() => {
                     goSearch();
                     setMpsNavOpen(false);
@@ -1851,7 +1920,7 @@ function App() {
                   {t.navMpsSearch}
                 </a>
                 <a
-                  href="#"
+                  href={partyListHref}
                   onClick={stop(() => {
                     goPartyList();
                     setMpsNavOpen(false);
@@ -1870,7 +1939,7 @@ function App() {
                   {t.navParties}
                 </a>
                 <a
-                  href="#"
+                  href={committeeListHref}
                   onClick={stop(() => {
                     goCommitteeList();
                     setMpsNavOpen(false);
@@ -1889,7 +1958,7 @@ function App() {
                   {t.navCommittees}
                 </a>
                 <a
-                  href="#"
+                  href={pollListHref}
                   onClick={stop(() => {
                     goPollList();
                     setMpsNavOpen(false);
@@ -1920,7 +1989,7 @@ function App() {
                 goCrossref();
                 setLobbyNavOpen(false);
               })}
-              href="#"
+              href={crossrefHref()}
               style={{ ...navStyle(view === 'crossref'), display: 'inline-flex', alignItems: 'center', gap: 4 }}
             >
               {t.navLobbyFinance}
@@ -1955,7 +2024,7 @@ function App() {
                   return (
                     <a
                       key={opt.key}
-                      href="#"
+                      href={crossrefHref(opt.key)}
                       onClick={stop(() => {
                         goCrossref(opt.key);
                         setLobbyNavOpen(false);
@@ -1992,6 +2061,11 @@ function App() {
             onSelectBill={openBill}
             onSelectOrg={openOrg}
             onSelectParty={(name) => openParty(name)}
+            searchHref={searchHref}
+            mpHref={mpHref}
+            billHref={billHref}
+            orgHref={orgHref}
+            partyHref={partyHref}
             placeholder={t.searchPlaceholder}
             groupMpsLabel={t.searchGroupMps}
             groupBillsLabel={t.searchGroupBills}
@@ -2049,6 +2123,8 @@ function App() {
             <FindMyMpBox
               members={roster.members}
               onSelect={openMp}
+              mpHref={mpHref}
+              searchHref={searchHref}
               placeholder={t.findMpPlaceholder}
               noResultsTemplate={t.findMpNoResultsTemplate}
               browseAllLabel={t.findMpBrowseAll}
@@ -2094,6 +2170,7 @@ function App() {
                 parties={parties}
                 seatsLabel={t.seatsLabel}
                 onOpenParty={openParty}
+                partyHref={partyHref}
                 isPartyRoutable={(party) => routablePartyNames.has(party)}
                 filenameBase="politblick-sitzverteilung"
                 exportLabels={exportLabels}
@@ -2144,7 +2221,7 @@ function App() {
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '12px 32px 8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 4px' }}>{t.expectationTitle}</h2>
-              <a href="#" onClick={stop(() => goCrossref('conflicts'))} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
+              <a href={crossrefHref('conflicts')} onClick={stop(() => goCrossref('conflicts'))} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
                 {t.seeAllConflicts} →
               </a>
             </div>
@@ -2156,11 +2233,14 @@ function App() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px,1fr))', gap: 14 }}>
                 {realAgainstExpectation.map((e, i) => (
-                  <div
+                  <a
                     key={i}
-                    onClick={e.onOpen}
+                    href={e.href}
+                    onClick={e.onOpen ? stop(e.onOpen) : undefined}
                     style={{
                       cursor: e.onOpen ? 'pointer' : 'default',
+                      textDecoration: 'none',
+                      color: 'inherit',
                       background: 'white',
                       border: '1px solid oklch(90% 0.006 260)',
                       borderRadius: 12,
@@ -2181,7 +2261,7 @@ function App() {
                     </div>
                     <div style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)' }}>{e.billTitle}</div>
                     <div style={{ fontSize: 12.5, color: 'oklch(48% 0.16 40)', fontWeight: 500 }}>{e.reason}</div>
-                  </div>
+                  </a>
                 ))}
               </div>
             )}
@@ -2209,7 +2289,7 @@ function App() {
                       );
                     })}
                   </div>
-                  <a href="#" onClick={stop(() => openBill(featuredResult.poll.id))} style={{ fontSize: 12.5, fontWeight: 700 }}>
+                  <a href={billHref(featuredResult.poll.id)} onClick={stop(() => openBill(featuredResult.poll.id))} style={{ fontSize: 12.5, fontWeight: 700 }}>
                     {t.readMore} →
                   </a>
                 </>
@@ -2224,7 +2304,7 @@ function App() {
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 32px 80px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 4px' }}>{t.feedTitle}</h2>
-              <a href="#" onClick={stop(goPollList)} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
+              <a href={pollListHref} onClick={stop(goPollList)} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
                 {t.seeAllPolls} →
               </a>
             </div>
@@ -2241,11 +2321,14 @@ function App() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px,1fr))', gap: 16 }}>
                 {weeklyFeedItems.map((f) => (
-                  <div
+                  <a
                     key={f.result.poll.id}
-                    onClick={() => openBill(f.result.poll.id)}
+                    href={billHref(f.result.poll.id)}
+                    onClick={stop(() => openBill(f.result.poll.id))}
                     style={{
                       cursor: 'pointer',
+                      textDecoration: 'none',
+                      color: 'inherit',
                       background: 'white',
                       border: '1px solid oklch(90% 0.006 260)',
                       borderRadius: 12,
@@ -2280,7 +2363,7 @@ function App() {
                         {f.flagText}
                       </div>
                     )}
-                  </div>
+                  </a>
                 ))}
               </div>
             )}
@@ -2355,10 +2438,11 @@ function App() {
               {filteredMps.map((m) => {
                 const memberAlignment = alignmentByMandate.get(m.mandateId);
                 return (
-                  <div
+                  <a
                     key={m.id}
-                    onClick={() => openMp(String(m.id))}
-                    style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: 16, display: 'flex', gap: 12, alignItems: 'center' }}
+                    href={mpHref(String(m.id))}
+                    onClick={stop(() => openMp(String(m.id)))}
+                    style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: 16, display: 'flex', gap: 12, alignItems: 'center' }}
                   >
                     <MpAvatar photoUrl={m.photoUrl} name={m.name} color={m.color} initials={m.initials} size={44} />
                     <div style={{ minWidth: 0 }}>
@@ -2367,6 +2451,7 @@ function App() {
                         {routablePartyNames.has(m.party) ? (
                           <span
                             onClick={(e) => {
+                              e.preventDefault();
                               e.stopPropagation();
                               openParty(m.party);
                             }}
@@ -2385,7 +2470,7 @@ function App() {
                         </div>
                       )}
                     </div>
-                  </div>
+                  </a>
                 );
               })}
             </div>
@@ -2395,7 +2480,7 @@ function App() {
 
       {view === 'profile' && (
         <main style={{ flex: 1, maxWidth: 980, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goSearch)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={searchHref} onClick={stop(goSearch)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToSearch}
           </a>
 
@@ -2417,12 +2502,13 @@ function App() {
                   <h1 style={{ fontSize: 27, fontWeight: 800, margin: '0 0 4px' }}>{profile.mp.name}</h1>
                   <div style={{ fontSize: 13.5, color: 'oklch(45% 0.01 260)' }}>
                     {routablePartyNames.has(profile.mp.party) ? (
-                      <span
-                        onClick={() => openParty(profile.mp.party)}
-                        style={{ cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(80% 0.006 260)' }}
+                      <a
+                        href={partyHref(profile.mp.party)}
+                        onClick={stop(() => openParty(profile.mp.party))}
+                        style={{ cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(80% 0.006 260)', color: 'inherit' }}
                       >
                         {profile.mp.party}
-                      </span>
+                      </a>
                     ) : (
                       profile.mp.party
                     )}{' '}
@@ -2665,14 +2751,15 @@ function App() {
                               : r.role === 'alternate_member' ? t.committeeRoleAlternate
                               : null;
                             return (
-                              <div
+                              <a
                                 key={r.committee.id}
-                                onClick={() => openCommittee(String(r.committee.id))}
-                                style={{ cursor: 'pointer', fontSize: 12.5, padding: '7px 12px', borderRadius: 10, background: 'white', border: '1px solid oklch(90% 0.006 260)' }}
+                                href={committeeHref(String(r.committee.id))}
+                                onClick={stop(() => openCommittee(String(r.committee.id)))}
+                                style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', fontSize: 12.5, padding: '7px 12px', borderRadius: 10, background: 'white', border: '1px solid oklch(90% 0.006 260)' }}
                               >
                                 {r.committee.name}
                                 {roleLabel && <span style={{ fontWeight: 700, color: 'oklch(45% 0.16 265)' }}> · {roleLabel}</span>}
-                              </div>
+                              </a>
                             );
                           })}
                         </div>
@@ -2727,17 +2814,18 @@ function App() {
                   <>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                       {profile.mp.voteHistoryResolved.slice(0, votesExpanded ? profile.mp.voteHistoryResolved.length : 10).map((v, i) => (
-                        <div
+                        <a
                           key={i}
-                          onClick={v.onOpen}
-                          style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
+                          href={v.href}
+                          onClick={stop(v.onOpen)}
+                          style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
                         >
                           <div style={{ minWidth: 0 }}>
                             <div style={{ fontSize: 14, fontWeight: 600 }}>{v.billTitle}</div>
                             <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)' }}>{v.date}</div>
                           </div>
                           <div style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: v.bg, color: 'white', flexShrink: 0 }}>{v.voteLabel}</div>
-                        </div>
+                        </a>
                       ))}
                     </div>
                     <ShowMoreButton
@@ -2762,10 +2850,11 @@ function App() {
                         const label = v.vote === 'yes' ? t.voteYes : v.vote === 'no' ? t.voteNo : v.vote === 'abstain' ? t.voteAbstain : t.voteNoShow;
                         const lobbyHit = lobbyByPollId.get(v.poll.id);
                         return (
-                          <div
+                          <a
                             key={v.poll.id}
-                            onClick={() => openBill(v.poll.id)}
-                            style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
+                            href={billHref(v.poll.id)}
+                            onClick={stop(() => openBill(v.poll.id))}
+                            style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
                           >
                             <div style={{ minWidth: 0 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -2784,7 +2873,7 @@ function App() {
                               <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)' }}>{v.poll.date}</div>
                             </div>
                             <div style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: voteBg[v.vote], color: 'white', flexShrink: 0 }}>{label}</div>
-                          </div>
+                          </a>
                         );
                       })}
                     </div>
@@ -2827,11 +2916,13 @@ function App() {
                             return (
                               <div
                                 key={org.id}
-                                onClick={() => openOrg(org.id)}
+                                onClick={stop(() => openOrg(org.id))}
                                 style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '14px 16px' }}
                               >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
-                                  <span style={{ fontWeight: 600, fontSize: 14 }}>{org.name}</span>
+                                  <a href={orgHref(org.id)} onClick={stop(() => openOrg(org.id))} style={{ fontWeight: 600, fontSize: 14, textDecoration: 'none', color: 'inherit' }}>
+                                    {org.name}
+                                  </a>
                                   {org.city && <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', flexShrink: 0 }}>{org.city}</span>}
                                 </div>
                                 {roles.length > 0 && (
@@ -2882,11 +2973,13 @@ function App() {
                               return (
                                 <div
                                   key={`${c.pollId}-${c.orgId}`}
-                                  onClick={() => openBill(c.pollId)}
+                                  onClick={stop(() => openBill(c.pollId))}
                                   style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '14px 16px' }}
                                 >
                                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
-                                    <span style={{ fontWeight: 600, fontSize: 14 }}>{poll?.title ?? `#${c.pollId}`}</span>
+                                    <a href={billHref(c.pollId)} onClick={stop(() => openBill(c.pollId))} style={{ fontWeight: 600, fontSize: 14, textDecoration: 'none', color: 'inherit' }}>
+                                      {poll?.title ?? `#${c.pollId}`}
+                                    </a>
                                     <span style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: voteBg[c.vote], color: 'white', flexShrink: 0 }}>
                                       {label}
                                     </span>
@@ -2932,24 +3025,24 @@ function App() {
                             return (
                               <div
                                 key={`${tie.pollId}-${tie.orgId}`}
-                                onClick={() => openBill(tie.pollId)}
+                                onClick={stop(() => openBill(tie.pollId))}
                                 style={{ cursor: 'pointer', background: 'oklch(97% 0.008 90)', border: '1px solid oklch(88% 0.02 90)', borderRadius: 10, padding: '14px 16px' }}
                               >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
-                                  <span style={{ fontWeight: 600, fontSize: 14 }}>{poll?.title ?? `#${tie.pollId}`}</span>
+                                  <a href={billHref(tie.pollId)} onClick={stop(() => openBill(tie.pollId))} style={{ fontWeight: 600, fontSize: 14, textDecoration: 'none', color: 'inherit' }}>
+                                    {poll?.title ?? `#${tie.pollId}`}
+                                  </a>
                                   <span style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: voteBg[tie.vote], color: 'white', flexShrink: 0 }}>
                                     {label}
                                   </span>
                                 </div>
-                                <div
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openOrg(tie.org.id);
-                                  }}
+                                <a
+                                  href={orgHref(tie.org.id)}
+                                  onClick={stop(() => openOrg(tie.org.id))}
                                   style={{ fontSize: 12.5, color: 'oklch(42% 0.01 260)', marginTop: 5, textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.02 90)', display: 'inline-block' }}
                                 >
                                   {tie.org.name}
-                                </div>
+                                </a>
                                 <div style={{ fontSize: 12.5, color: 'oklch(50% 0.03 90)', marginTop: 6 }}>
                                   {t.topicalTieMatchedFieldTemplate.replace('{field}', tie.matchedField)}
                                 </div>
@@ -3050,7 +3143,7 @@ function App() {
 
       {view === 'bill' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={homeHref} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
 
@@ -3067,12 +3160,13 @@ function App() {
                 {currentBill.partyBreakdown.map((pb) => (
                   <div key={pb.party} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     {routablePartyNames.has(pb.party) ? (
-                      <span
-                        onClick={() => openParty(pb.party)}
-                        style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)' }}
+                      <a
+                        href={partyHref(pb.party)}
+                        onClick={stop(() => openParty(pb.party))}
+                        style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)', color: 'inherit' }}
                       >
                         {pb.party}
-                      </span>
+                      </a>
                     ) : (
                       <span style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0 }}>{pb.party}</span>
                     )}
@@ -3103,10 +3197,11 @@ function App() {
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>{t.flaggedVotes}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {currentBill.flaggedMps.map((fm, i) => (
-                  <div
+                  <a
                     key={i}
-                    onClick={fm.onOpen}
-                    style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
+                    href={fm.href}
+                    onClick={stop(fm.onOpen)}
+                    style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span style={{ width: 8, height: 8, borderRadius: '50%', background: fm.color }} />
@@ -3114,7 +3209,7 @@ function App() {
                       <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{fm.party}</span>
                     </div>
                     <span style={{ fontSize: 12, color: 'oklch(48% 0.16 40)' }}>{fm.reason}</span>
-                  </div>
+                  </a>
                 ))}
               </div>
             </>
@@ -3152,12 +3247,13 @@ function App() {
                       return (
                         <div key={pb.party} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                           {routablePartyNames.has(pb.party) ? (
-                            <span
-                              onClick={() => openParty(pb.party)}
-                              style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)' }}
+                            <a
+                              href={partyHref(pb.party)}
+                              onClick={stop(() => openParty(pb.party))}
+                              style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)', color: 'inherit' }}
                             >
                               {pb.party}
-                            </span>
+                            </a>
                           ) : (
                             <span style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0 }}>{pb.party}</span>
                           )}
@@ -3202,11 +3298,14 @@ function App() {
                     {pollDetailDivergences.slice(0, flaggedVotesExpanded ? pollDetailDivergences.length : 10).map((d, i) => {
                       const rm = mandateToMember.get(d.member.mandateId);
                       return (
-                        <div
+                        <a
                           key={i}
-                          onClick={rm ? () => openMp(String(rm.id)) : undefined}
+                          href={rm ? mpHref(String(rm.id)) : undefined}
+                          onClick={rm ? stop(() => openMp(String(rm.id))) : undefined}
                           style={{
                             cursor: rm ? 'pointer' : 'default',
+                            textDecoration: 'none',
+                            color: 'inherit',
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
@@ -3238,7 +3337,7 @@ function App() {
                               {divergenceLabel(d.member.vote, t.realAgainstPartyTemplate, t.abstainedPartyTemplate).replace('{party}', d.member.party)}
                             </span>
                           </div>
-                        </div>
+                        </a>
                       );
                     })}
                   </div>
@@ -3267,10 +3366,11 @@ function App() {
                         {pollLobbying.entries.slice(0, pollLobbyingExpanded ? pollLobbying.entries.length : 10).map((e) => {
                           const spend = formatExpenseBracket(e.org.expensesEuro);
                           return (
-                            <div
+                            <a
                               key={e.org.id}
-                              onClick={() => openOrg(e.org.id)}
-                              style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
+                              href={orgHref(e.org.id)}
+                              onClick={stop(() => openOrg(e.org.id))}
+                              style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'block', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
                             >
                               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
                                 <span style={{ fontSize: 13.5, fontWeight: 600 }}>{e.org.name}</span>
@@ -3279,7 +3379,7 @@ function App() {
                               {e.demands.length > 0 && (
                                 <div style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', marginTop: 4, fontStyle: 'italic' }}>„{e.demands[0]}“</div>
                               )}
-                            </div>
+                            </a>
                           );
                         })}
                       </div>
@@ -3385,6 +3485,8 @@ function App() {
                 parties={parties}
                 onOpenOrg={openOrg}
                 onOpenParty={(party) => openParty(party, 'crossref')}
+                orgHref={orgHref}
+                partyHref={(party) => partyHref(party)}
                 isPartyRoutable={(party) => routablePartyNames.has(party)}
                 filenameBase="politblick-lobby-netzwerk"
                 exportLabels={exportLabels}
@@ -3402,10 +3504,11 @@ function App() {
               <h3 style={{ fontSize: 15, fontWeight: 700, margin: '28px 0 12px' }}>{t.partyDetailOrgsTitle}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 12 }}>
                 {partyLobby.summaries.map((p) => (
-                  <div
+                  <a
                     key={p.party}
-                    onClick={() => openParty(p.party, 'crossref')}
-                    style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
+                    href={partyHref(p.party)}
+                    onClick={stop(() => openParty(p.party, 'crossref'))}
+                    style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'block', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
                       <span style={{ width: 9, height: 9, borderRadius: '50%', background: REAL_PARTY_COLORS[p.party] || FALLBACK_PARTY_COLOR, flexShrink: 0 }} />
@@ -3429,7 +3532,7 @@ function App() {
                       {t.partyLobbySpendLabel}: {formatExpenseBracket(p.expensesEuro)}
                     </div>
                     <span style={{ fontSize: 12, fontWeight: 700, color: 'oklch(48% 0.12 250)' }}>{t.seeAll} →</span>
-                  </div>
+                  </a>
                 ))}
               </div>
             </>
@@ -3566,8 +3669,12 @@ function App() {
                           </thead>
                           <tbody>
                             {sortedOrgs.slice(0, orgsExpanded ? sortedOrgs.length : 10).map((e) => (
-                              <tr key={e.org.id} onClick={() => openOrg(e.org.id)} style={{ cursor: 'pointer', borderTop: '1px solid oklch(93% 0.006 260)' }}>
-                                <td style={{ padding: '10px 14px', fontWeight: 600 }}>{e.org.name}</td>
+                              <tr key={e.org.id} onClick={stop(() => openOrg(e.org.id))} style={{ cursor: 'pointer', borderTop: '1px solid oklch(93% 0.006 260)' }}>
+                                <td style={{ padding: '10px 14px', fontWeight: 600 }}>
+                                  <a href={orgHref(e.org.id)} onClick={stop(() => openOrg(e.org.id))} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    {e.org.name}
+                                  </a>
+                                </td>
                                 <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{formatExpenseBracket(e.org.expensesEuro) ?? '—'}</td>
                                 <td style={{ padding: '10px 14px' }}>{e.affiliatedMemberCount}</td>
                                 <td style={{ padding: '10px 14px' }}>{e.lobbiedPollCount}</td>
@@ -3658,21 +3765,27 @@ function App() {
                                 return (
                                   <tr
                                     key={`${r.mandateId}-${r.conflict.pollId}-${r.conflict.orgId}`}
-                                    onClick={r.politicianId !== null ? () => openMp(String(r.politicianId)) : undefined}
+                                    onClick={r.politicianId !== null ? stop(() => openMp(String(r.politicianId))) : undefined}
                                     style={{ cursor: r.politicianId !== null ? 'pointer' : 'default', borderTop: '1px solid oklch(93% 0.006 260)' }}
                                   >
                                     <td style={{ padding: '10px 14px', fontWeight: 600 }}>
-                                      {r.memberName}
+                                      {r.politicianId !== null ? (
+                                        <a href={mpHref(String(r.politicianId))} onClick={stop(() => openMp(String(r.politicianId!)))} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                          {r.memberName}
+                                        </a>
+                                      ) : (
+                                        r.memberName
+                                      )}
                                       <div style={{ fontSize: 11.5, fontWeight: 500, color: 'oklch(48% 0.01 260)' }}>{r.party}</div>
                                     </td>
-                                    <td
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        openOrg(r.org.id);
-                                      }}
-                                      style={{ padding: '10px 14px', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)' }}
-                                    >
-                                      {r.org.name}
+                                    <td style={{ padding: '10px 14px' }}>
+                                      <a
+                                        href={orgHref(r.org.id)}
+                                        onClick={stop(() => openOrg(r.org.id))}
+                                        style={{ textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)', color: 'inherit' }}
+                                      >
+                                        {r.org.name}
+                                      </a>
                                     </td>
                                     <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>
                                       {r.pollTitle}
@@ -3817,21 +3930,27 @@ function App() {
                           return (
                             <tr
                               key={`${r.mandateId}-${r.tie.pollId}-${r.tie.orgId}`}
-                              onClick={r.politicianId !== null ? () => openMp(String(r.politicianId)) : undefined}
+                              onClick={r.politicianId !== null ? stop(() => openMp(String(r.politicianId))) : undefined}
                               style={{ cursor: r.politicianId !== null ? 'pointer' : 'default', borderTop: '1px solid oklch(90% 0.015 90)' }}
                             >
                               <td style={{ padding: '10px 14px', fontWeight: 600 }}>
-                                {r.memberName}
+                                {r.politicianId !== null ? (
+                                  <a href={mpHref(String(r.politicianId))} onClick={stop(() => openMp(String(r.politicianId!)))} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    {r.memberName}
+                                  </a>
+                                ) : (
+                                  r.memberName
+                                )}
                                 <div style={{ fontSize: 11.5, fontWeight: 500, color: 'oklch(48% 0.01 260)' }}>{r.party}</div>
                               </td>
-                              <td
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openOrg(r.org.id);
-                                }}
-                                style={{ padding: '10px 14px', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.02 90)' }}
-                              >
-                                {r.org.name}
+                              <td style={{ padding: '10px 14px' }}>
+                                <a
+                                  href={orgHref(r.org.id)}
+                                  onClick={stop(() => openOrg(r.org.id))}
+                                  style={{ textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.02 90)', color: 'inherit' }}
+                                >
+                                  {r.org.name}
+                                </a>
                               </td>
                               <td style={{ padding: '10px 14px', color: 'oklch(45% 0.03 90)', fontStyle: 'italic' }}>
                                 „{r.tie.matchedField}“
@@ -3955,15 +4074,13 @@ function App() {
                                   {d.donor}
                                   {d.donorCity && <span style={{ color: 'oklch(55% 0.01 260)' }}> · {d.donorCity}</span>}
                                   {lobbyOrg && (
-                                    <div
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        openOrg(lobbyOrg.id);
-                                      }}
-                                      style={{ cursor: 'pointer', fontSize: 11.5, color: 'oklch(48% 0.14 60)', fontWeight: 600 }}
+                                    <a
+                                      href={orgHref(lobbyOrg.id)}
+                                      onClick={stop(() => openOrg(lobbyOrg.id))}
+                                      style={{ cursor: 'pointer', fontSize: 11.5, color: 'oklch(48% 0.14 60)', fontWeight: 600, textDecoration: 'none', display: 'block' }}
                                     >
                                       ⬤ {t.donationsAlsoLobbyist}
-                                    </div>
+                                    </a>
                                   )}
                                 </td>
                                 <td style={{ padding: '10px 14px', fontWeight: 600 }}>{formatEuro(d.amountEuro)}</td>
@@ -4003,7 +4120,7 @@ function App() {
 
       {view === 'org' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goCrossref)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={crossrefHref()} onClick={stop(goCrossref)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToLobbyFinance}
           </a>
           {!orgDetail.org ? (
@@ -4058,10 +4175,11 @@ function App() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 26 }}>
                   {orgDetail.affiliatedMembers.map((a) => (
-                    <div
+                    <a
                       key={a.member.id}
-                      onClick={() => openMp(String(a.member.id))}
-                      style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
+                      href={mpHref(String(a.member.id))}
+                      onClick={stop(() => openMp(String(a.member.id)))}
+                      style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'block', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: a.member.color, flexShrink: 0 }} />
@@ -4069,7 +4187,7 @@ function App() {
                         <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{a.member.party}</span>
                       </div>
                       {a.roles.length > 0 && <div style={{ fontSize: 12.5, color: 'oklch(42% 0.01 260)', marginTop: 4 }}>{a.roles.join(' · ')}</div>}
-                    </div>
+                    </a>
                   ))}
                 </div>
               )}
@@ -4082,11 +4200,13 @@ function App() {
                   {orgDetail.lobbiedPolls.map((p) => (
                     <div
                       key={p.pollId}
-                      onClick={() => openBill(p.pollId)}
+                      onClick={stop(() => openBill(p.pollId))}
                       style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                        <span style={{ fontWeight: 600, fontSize: 14 }}>{p.pollTitle}</span>
+                        <a href={billHref(p.pollId)} onClick={stop(() => openBill(p.pollId))} style={{ fontWeight: 600, fontSize: 14, textDecoration: 'none', color: 'inherit' }}>
+                          {p.pollTitle}
+                        </a>
                         <span style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', flexShrink: 0 }}>{p.pollDate}</span>
                       </div>
                       {p.demands.length > 0 && (
@@ -4118,11 +4238,17 @@ function App() {
                       return (
                         <div
                           key={`${c.mandateId}-${c.pollId}`}
-                          onClick={c.politicianId !== null ? () => openMp(String(c.politicianId)) : undefined}
+                          onClick={c.politicianId !== null ? stop(() => openMp(String(c.politicianId))) : undefined}
                           style={{ cursor: c.politicianId !== null ? 'pointer' : 'default', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
-                            <span style={{ fontWeight: 600, fontSize: 14 }}>{c.memberName}</span>
+                            {c.politicianId !== null ? (
+                              <a href={mpHref(String(c.politicianId))} onClick={stop(() => openMp(String(c.politicianId!)))} style={{ fontWeight: 600, fontSize: 14, textDecoration: 'none', color: 'inherit' }}>
+                                {c.memberName}
+                              </a>
+                            ) : (
+                              <span style={{ fontWeight: 600, fontSize: 14 }}>{c.memberName}</span>
+                            )}
                             <span style={{ fontSize: 11.5, fontWeight: 600, padding: '3px 9px', borderRadius: 10, background: voteBg[c.vote], color: 'white', flexShrink: 0 }}>
                               {label}
                             </span>
@@ -4160,10 +4286,20 @@ function App() {
                     {orgDetail.topicalTies.slice(0, 40).map((tie) => {
                       const label = tie.vote === 'yes' ? t.voteYes : tie.vote === 'no' ? t.voteNo : t.voteAbstain;
                       return (
-                        <div
+                        <a
                           key={`${tie.mandateId}-${tie.pollId}`}
-                          onClick={tie.politicianId !== null ? () => openMp(String(tie.politicianId)) : undefined}
-                          style={{ cursor: tie.politicianId !== null ? 'pointer' : 'default', background: 'oklch(97% 0.008 90)', border: '1px solid oklch(90% 0.015 90)', borderRadius: 10, padding: '12px 16px' }}
+                          href={tie.politicianId !== null ? mpHref(String(tie.politicianId)) : undefined}
+                          onClick={tie.politicianId !== null ? stop(() => openMp(String(tie.politicianId))) : undefined}
+                          style={{
+                            cursor: tie.politicianId !== null ? 'pointer' : 'default',
+                            textDecoration: 'none',
+                            color: 'inherit',
+                            display: 'block',
+                            background: 'oklch(97% 0.008 90)',
+                            border: '1px solid oklch(90% 0.015 90)',
+                            borderRadius: 10,
+                            padding: '12px 16px',
+                          }}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
                             <span style={{ fontWeight: 600, fontSize: 14 }}>{tie.memberName}</span>
@@ -4177,7 +4313,7 @@ function App() {
                               ⬤ {t.lobbyOnCommitteeTemplate.replace('{committee}', tie.relevantCommitteeNames[0] ?? '')}
                             </div>
                           )}
-                        </div>
+                        </a>
                       );
                     })}
                   </div>
@@ -4201,10 +4337,11 @@ function App() {
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
               {committeeList.entries.map(({ committee, memberCount }) => (
-                <div
+                <a
                   key={committee.id}
-                  onClick={() => openCommittee(String(committee.id))}
-                  style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
+                  href={committeeHref(String(committee.id))}
+                  onClick={stop(() => openCommittee(String(committee.id)))}
+                  style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'block', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
                 >
                   <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>{committee.name}</div>
                   <div style={{ fontSize: 12, color: 'oklch(50% 0.01 260)', marginBottom: 8 }}>
@@ -4219,7 +4356,7 @@ function App() {
                       ))}
                     </div>
                   )}
-                </div>
+                </a>
               ))}
             </div>
           )}
@@ -4246,11 +4383,14 @@ function App() {
                   </h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px,1fr))', gap: 16 }}>
                     {group.results.map((r) => (
-                      <div
+                      <a
                         key={r.poll.id}
-                        onClick={() => openBill(r.poll.id)}
+                        href={billHref(r.poll.id)}
+                        onClick={stop(() => openBill(r.poll.id))}
                         style={{
                           cursor: 'pointer',
+                          textDecoration: 'none',
+                          color: 'inherit',
                           background: 'white',
                           border: '1px solid oklch(90% 0.006 260)',
                           borderRadius: 12,
@@ -4279,7 +4419,7 @@ function App() {
                         <span style={{ fontSize: 11, fontWeight: 600, color: r.poll.accepted ? 'oklch(45% 0.14 155)' : 'oklch(48% 0.16 40)' }}>
                           {r.poll.accepted ? t.pollAccepted : t.pollRejected}
                         </span>
-                      </div>
+                      </a>
                     ))}
                   </div>
                 </div>
@@ -4291,7 +4431,7 @@ function App() {
 
       {view === 'committee' && (
         <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goCommitteeList)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={committeeListHref} onClick={stop(goCommitteeList)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToCommittees}
           </a>
           {!committeeDetail.detail ? (
@@ -4322,11 +4462,15 @@ function App() {
                     : row.role === 'alternate_member' ? t.committeeRoleAlternate
                     : null;
                   return (
-                    <div
+                    <a
                       key={row.mandateId}
-                      onClick={row.member ? () => openMp(String(row.member!.id)) : undefined}
+                      href={row.member ? mpHref(String(row.member.id)) : undefined}
+                      onClick={row.member ? stop(() => openMp(String(row.member!.id))) : undefined}
                       style={{
                         cursor: row.member ? 'pointer' : 'default',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        display: 'block',
                         background: 'white',
                         border: '1px solid oklch(90% 0.006 260)',
                         borderRadius: 10,
@@ -4341,7 +4485,7 @@ function App() {
                         {row.member?.party}
                         {roleLabel && <span style={{ fontWeight: 700, color: 'oklch(45% 0.16 265)' }}> · {roleLabel}</span>}
                       </div>
-                    </div>
+                    </a>
                   );
                 })}
               </div>
@@ -4364,10 +4508,11 @@ function App() {
               .map(({ lobby, roster: rp }) => {
                 const donationSum = partyDonations.byFraction.find((f) => f.fraction === lobby.party)?.total;
                 return (
-                  <div
+                  <a
                     key={lobby.party}
-                    onClick={() => openParty(lobby.party, 'partyList')}
-                    style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
+                    href={partyHref(lobby.party)}
+                    onClick={stop(() => openParty(lobby.party, 'partyList'))}
+                    style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'block', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
                       <span style={{ width: 10, height: 10, borderRadius: '50%', background: rp?.color ?? REAL_PARTY_COLORS[lobby.party] ?? FALLBACK_PARTY_COLOR, flexShrink: 0 }} />
@@ -4387,7 +4532,7 @@ function App() {
                       </div>
                     )}
                     <span style={{ fontSize: 12, fontWeight: 700, color: 'oklch(48% 0.12 250)', display: 'inline-block', marginTop: 8 }}>{t.seeAll} →</span>
-                  </div>
+                  </a>
                 );
               })}
           </div>
@@ -4396,7 +4541,11 @@ function App() {
 
       {view === 'party' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(() => (partyOrigin === 'crossref' ? goCrossref('parties') : goPartyList()))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a
+            href={partyOrigin === 'crossref' ? crossrefHref('parties') : partyListHref}
+            onClick={stop(() => (partyOrigin === 'crossref' ? goCrossref('parties') : goPartyList()))}
+            style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}
+          >
             ← {partyOrigin === 'crossref' ? t.backToLobbyFinance : t.backToParties}
           </a>
           {(() => {
@@ -4526,10 +4675,11 @@ function App() {
                               : tally.majority === 'no_show' ? t.voteNoShow
                               : t.voteSplit;
                             return (
-                              <div
+                              <a
                                 key={poll.id}
-                                onClick={() => openBill(poll.id)}
-                                style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
+                                href={billHref(poll.id)}
+                                onClick={stop(() => openBill(poll.id))}
+                                style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
                               >
                                 <div style={{ minWidth: 0 }}>
                                   <div style={{ fontSize: 14, fontWeight: 600 }}>{poll.title}</div>
@@ -4550,7 +4700,7 @@ function App() {
                                 >
                                   {majorityLabel}
                                 </div>
-                              </div>
+                              </a>
                             );
                           })}
                         </div>
@@ -4597,8 +4747,12 @@ function App() {
                             </thead>
                             <tbody>
                               {sortedTopOrgs.map(({ o, org }) => (
-                                <tr key={o.orgId} onClick={() => openOrg(o.orgId)} style={{ cursor: 'pointer', borderTop: '1px solid oklch(93% 0.006 260)' }}>
-                                  <td style={{ padding: '10px 14px', fontWeight: 600 }}>{org.name}</td>
+                                <tr key={o.orgId} onClick={stop(() => openOrg(o.orgId))} style={{ cursor: 'pointer', borderTop: '1px solid oklch(93% 0.006 260)' }}>
+                                  <td style={{ padding: '10px 14px', fontWeight: 600 }}>
+                                    <a href={orgHref(o.orgId)} onClick={stop(() => openOrg(o.orgId))} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                      {org.name}
+                                    </a>
+                                  </td>
                                   <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{formatExpenseBracket(org.expensesEuro) ?? '—'}</td>
                                   <td style={{ padding: '10px 14px' }}>{o.memberCount}</td>
                                 </tr>
@@ -4618,11 +4772,17 @@ function App() {
                             return (
                               <div
                                 key={`${r.mandateId}-${r.conflict.pollId}-${r.conflict.orgId}`}
-                                onClick={r.politicianId !== null ? () => openMp(String(r.politicianId)) : undefined}
+                                onClick={r.politicianId !== null ? stop(() => openMp(String(r.politicianId))) : undefined}
                                 style={{ cursor: r.politicianId !== null ? 'pointer' : 'default', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
                               >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
-                                  <span style={{ fontWeight: 600, fontSize: 14 }}>{r.memberName}</span>
+                                  {r.politicianId !== null ? (
+                                    <a href={mpHref(String(r.politicianId))} onClick={stop(() => openMp(String(r.politicianId!)))} style={{ fontWeight: 600, fontSize: 14, textDecoration: 'none', color: 'inherit' }}>
+                                      {r.memberName}
+                                    </a>
+                                  ) : (
+                                    <span style={{ fontWeight: 600, fontSize: 14 }}>{r.memberName}</span>
+                                  )}
                                   <span style={{ fontSize: 11.5, fontWeight: 600, padding: '3px 9px', borderRadius: 10, background: voteBg[r.conflict.vote], color: 'white', flexShrink: 0 }}>
                                     {label}
                                   </span>
@@ -4710,10 +4870,20 @@ function App() {
                           {filteredPartyTopicalRows.slice(0, partyTopicalExpanded ? filteredPartyTopicalRows.length : 10).map((r) => {
                             const label = r.tie.vote === 'yes' ? t.voteYes : r.tie.vote === 'no' ? t.voteNo : t.voteAbstain;
                             return (
-                              <div
+                              <a
                                 key={`${r.mandateId}-${r.tie.pollId}-${r.tie.orgId}`}
-                                onClick={r.politicianId !== null ? () => openMp(String(r.politicianId)) : undefined}
-                                style={{ cursor: r.politicianId !== null ? 'pointer' : 'default', background: 'oklch(97% 0.008 90)', border: '1px solid oklch(90% 0.015 90)', borderRadius: 10, padding: '12px 16px' }}
+                                href={r.politicianId !== null ? mpHref(String(r.politicianId)) : undefined}
+                                onClick={r.politicianId !== null ? stop(() => openMp(String(r.politicianId))) : undefined}
+                                style={{
+                                  cursor: r.politicianId !== null ? 'pointer' : 'default',
+                                  textDecoration: 'none',
+                                  color: 'inherit',
+                                  display: 'block',
+                                  background: 'oklch(97% 0.008 90)',
+                                  border: '1px solid oklch(90% 0.015 90)',
+                                  borderRadius: 10,
+                                  padding: '12px 16px',
+                                }}
                               >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
                                   <span style={{ fontWeight: 600, fontSize: 14 }}>{r.memberName}</span>
@@ -4729,7 +4899,7 @@ function App() {
                                     ⬤ {t.lobbyOnCommitteeTemplate.replace('{committee}', r.tie.relevantCommitteeNames[0] ?? '')}
                                   </div>
                                 )}
-                              </div>
+                              </a>
                             );
                           })}
                         </div>
@@ -4817,15 +4987,13 @@ function App() {
                                           {d.donor}
                                           {d.donorCity && <span style={{ color: 'oklch(55% 0.01 260)' }}> · {d.donorCity}</span>}
                                           {lobbyOrg && (
-                                            <div
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                openOrg(lobbyOrg.id);
-                                              }}
-                                              style={{ cursor: 'pointer', fontSize: 11.5, color: 'oklch(48% 0.14 60)', fontWeight: 600 }}
+                                            <a
+                                              href={orgHref(lobbyOrg.id)}
+                                              onClick={stop(() => openOrg(lobbyOrg.id))}
+                                              style={{ cursor: 'pointer', fontSize: 11.5, color: 'oklch(48% 0.14 60)', fontWeight: 600, textDecoration: 'none', display: 'block' }}
                                             >
                                               ⬤ {t.donationsAlsoLobbyist}
-                                            </div>
+                                            </a>
                                           )}
                                         </td>
                                         <td style={{ padding: '10px 14px', fontWeight: 600 }}>{formatEuro(d.amountEuro)}</td>
@@ -4869,7 +5037,7 @@ function App() {
 
       {view === 'impressum' && (
         <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={homeHref} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.impressumTitle}</h1>
@@ -4879,7 +5047,7 @@ function App() {
 
       {view === 'disclaimer' && (
         <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={homeHref} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.disclaimerTitle}</h1>
@@ -4915,7 +5083,7 @@ function App() {
 
       {view === 'datenschutz' && (
         <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={homeHref} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.datenschutzTitle}</h1>
@@ -4925,7 +5093,7 @@ function App() {
 
       {view === 'daten' && (
         <main style={{ flex: 1, maxWidth: 820, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href="#" onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={homeHref} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 10px' }}>{t.datenTitle}</h1>
@@ -5021,16 +5189,16 @@ function App() {
         >
           <span>{t.footerNote}</span>
           <div style={{ display: 'flex', gap: 16 }}>
-            <a href="#" onClick={stop(goDisclaimer)} style={{ color: 'oklch(52% 0.01 260)' }}>
+            <a href={disclaimerHref} onClick={stop(goDisclaimer)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.disclaimerTitle}
             </a>
-            <a href="#" onClick={stop(goImpressum)} style={{ color: 'oklch(52% 0.01 260)' }}>
+            <a href={impressumHref} onClick={stop(goImpressum)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.impressumTitle}
             </a>
-            <a href="#" onClick={stop(goDatenschutz)} style={{ color: 'oklch(52% 0.01 260)' }}>
+            <a href={datenschutzHref} onClick={stop(goDatenschutz)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.datenschutzTitle}
             </a>
-            <a href="#" onClick={stop(goDaten)} style={{ color: 'oklch(52% 0.01 260)' }}>
+            <a href={datenHref} onClick={stop(goDaten)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.datenTitle}
             </a>
           </div>

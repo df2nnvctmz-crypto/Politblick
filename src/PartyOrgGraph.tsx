@@ -1,6 +1,16 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import type { OrgNetworkNode } from './lobby';
 import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
+
+/** Same modifier-aware nav-click wrapper as App.tsx's stop(): lets ctrl/cmd/middle-click and
+ * long-press fall through to the real href instead of always intercepting the click. */
+function navClick(fn: () => void) {
+  return (e: ReactMouseEvent) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    fn();
+  };
+}
 
 interface SimNode {
   id: string;
@@ -375,6 +385,8 @@ export function PartyOrgGraph({
   parties,
   onOpenOrg,
   onOpenParty,
+  orgHref,
+  partyHref,
   isPartyRoutable,
   labels,
   filenameBase,
@@ -384,6 +396,8 @@ export function PartyOrgGraph({
   parties: { name: string; color: string; seats: number }[];
   onOpenOrg: (orgId: string) => void;
   onOpenParty: (party: string) => void;
+  orgHref: (orgId: string) => string;
+  partyHref: (party: string) => string;
   /** "Fraktionslos" (independent MPs) shows up as a node here but has no party page of its own. */
   isPartyRoutable: (party: string) => boolean;
   labels: {
@@ -792,12 +806,13 @@ export function PartyOrgGraph({
                   </span>
                 ))}
               </div>
-              <button
-                onClick={() => onOpenOrg(org.org.id)}
-                style={{ border: 'none', background: 'none', color: 'oklch(45% 0.16 265)', fontWeight: 700, cursor: 'pointer', fontSize: 12.5, padding: 0 }}
+              <a
+                href={orgHref(org.org.id)}
+                onClick={navClick(() => onOpenOrg(org.org.id))}
+                style={{ color: 'oklch(45% 0.16 265)', fontWeight: 700, cursor: 'pointer', fontSize: 12.5, textDecoration: 'none' }}
               >
                 {labels.viewOrg} →
-              </button>
+              </a>
             </div>
           );
         })()}
@@ -808,12 +823,13 @@ export function PartyOrgGraph({
             {[...activeParties].join(' + ')} → {matchedOrgIds?.size ?? 0}
           </span>
           {activeParties.size === 1 && isPartyRoutable([...activeParties][0]) && (
-            <button
-              onClick={() => onOpenParty([...activeParties][0])}
-              style={{ border: 'none', background: 'none', color: 'oklch(45% 0.16 265)', fontWeight: 700, cursor: 'pointer', fontSize: 12, padding: 0 }}
+            <a
+              href={partyHref([...activeParties][0])}
+              onClick={navClick(() => onOpenParty([...activeParties][0]))}
+              style={{ color: 'oklch(45% 0.16 265)', fontWeight: 700, cursor: 'pointer', fontSize: 12, textDecoration: 'none' }}
             >
               {labels.viewParty} →
-            </button>
+            </a>
           )}
         </div>
       )}
