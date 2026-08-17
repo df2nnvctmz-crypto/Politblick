@@ -16,6 +16,7 @@ import {
   drucksacheUrl,
   formatEuro,
   formatExpenseBracket,
+  useCommitteeLobbySummary,
   useCrossrefRows,
   useMemberLobby,
   useOrgDetail,
@@ -26,9 +27,10 @@ import {
   usePollLobbying,
   useTopicalTieRows,
   type CrossrefRow,
+  type LobbyOrg,
   type OrgListEntry,
 } from './lobby';
-import { useCommitteeDetail, useCommitteeList, useMemberCommittees } from './committees';
+import { committeeIcon, useCommitteeDetail, useCommitteeList, useMemberCommittees } from './committees';
 import { PartyOrgGraph } from './PartyOrgGraph';
 import { DonationSankey } from './DonationSankey';
 import { DonationTimeline } from './DonationTimeline';
@@ -550,6 +552,49 @@ function truncateLabel(label: string, max: number): string {
   return label.length > max ? `${label.slice(0, max - 1)}…` : label;
 }
 
+/** First paragraph of a `\n\n`-separated text block, for a collapsed preview that never cuts off mid-sentence. */
+function firstParagraph(text: string): string {
+  return text.split(/\n{2,}/)[0];
+}
+
+function normalizeSearchText(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase();
+}
+
+/**
+ * Substring match first (so "cdu" hits "CDU/CSU" outright), falling back to an in-order
+ * subsequence match (so "kwhitt" still hits "Kai Whittaker") — cheap enough for the list sizes
+ * these searches run over, no need for a scored fuzzy library.
+ *
+ * The subsequence fallback is capped to a tight span (query length + slack) — an uncapped
+ * subsequence match against long prose (an org's name plus its lobbying demand) turns almost
+ * any short query into a hit, since 4-5 letters are near-certain to appear somewhere in order
+ * across a long string. Real near-misses (a typo, a skipped letter) still fit the cap; unrelated
+ * matches scattered across a whole sentence don't.
+ */
+function fuzzyMatch(query: string, target: string): boolean {
+  const q = normalizeSearchText(query.trim());
+  if (!q) return true;
+  const t = normalizeSearchText(target);
+  if (t.includes(q)) return true;
+  if (q.length < 3) return false;
+  let qi = 0;
+  let firstIndex = -1;
+  let lastIndex = -1;
+  for (let ti = 0; ti < t.length && qi < q.length; ti++) {
+    if (t[ti] === q[qi]) {
+      if (firstIndex === -1) firstIndex = ti;
+      lastIndex = ti;
+      qi++;
+    }
+  }
+  if (qi !== q.length) return false;
+  return lastIndex - firstIndex + 1 <= q.length + 4;
+}
+
 function TieMatrix({
   rows,
   partyOrder,
@@ -922,6 +967,94 @@ function SectorBarChart({
               </span>
             </div>
           </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Ranked horizontal bar chart of organisations by number of tied members — used on the
+ * committee page to show which registered lobbyists have the most members on a given
+ * committee. Each row links to that organisation's detail page. */
+function OrgInfluenceBarChart({
+  data,
+  orgHref,
+  onSelectOrg,
+  membersTemplate,
+  filenameBase,
+  exportLabels,
+}: {
+  data: { org: LobbyOrg; memberCount: number }[];
+  orgHref: (id: string) => string;
+  onSelectOrg: (id: string) => void;
+  membersTemplate: string;
+  filenameBase: string;
+  exportLabels: ChartExportLabels;
+}) {
+  if (data.length === 0) return null;
+  const max = data[0].memberCount;
+  const ROW_H = 30;
+  const BAR_H = 18;
+  const LABEL_W = 220;
+  const PLOT_W = 340;
+  const VALUE_W = 110;
+  const PAD = 10;
+  const getCsv = () => ({
+    headers: ['Organization', 'Tied members'],
+    rows: data.map((d) => [d.org.name, d.memberCount]),
+  });
+  const getSvg = (): ChartSvgExport => {
+    const width = PAD * 2 + LABEL_W + PLOT_W + VALUE_W;
+    const height = PAD * 2 + data.length * ROW_H;
+    const body = data
+      .map((d, i) => {
+        const y = PAD + i * ROW_H;
+        const pct = Math.max(1, (d.memberCount / max) * 100);
+        const barW = (pct / 100) * PLOT_W;
+        return `<circle cx="${PAD + 5}" cy="${y + BAR_H / 2}" r="4.5" fill="#5c86d6"/>
+          <text x="${PAD + 16}" y="${y + BAR_H / 2}" dominant-baseline="middle" font-size="12.5" font-weight="600" fill="#1a1d23">${escapeXml(d.org.name)}</text>
+          <rect x="${PAD + LABEL_W}" y="${y}" width="${PLOT_W}" height="${BAR_H}" rx="4" fill="#eef0f2"/>
+          <rect x="${PAD + LABEL_W}" y="${y}" width="${barW}" height="${BAR_H}" rx="4" fill="#5c86d6"/>
+          <text x="${PAD + LABEL_W + PLOT_W + 10}" y="${y + BAR_H / 2}" dominant-baseline="middle" font-size="11.5" fill="#6b7280">${escapeXml(membersTemplate.replace('{n}', String(d.memberCount)))}</text>`;
+      })
+      .join('');
+    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" font-family="'IBM Plex Sans', sans-serif">${body}</svg>`;
+    return { svgString, width, height };
+  };
+  return (
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 9, paddingTop: 44 }}>
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
+      {data.map((d) => {
+        const pct = Math.max(1, (d.memberCount / max) * 100);
+        return (
+          <a
+            key={d.org.id}
+            href={orgHref(d.org.id)}
+            onClick={stop(() => onSelectOrg(d.org.id))}
+            style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+          >
+            <div style={{ width: 200, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600 }}>
+              <span style={{ width: 9, height: 9, borderRadius: '50%', background: 'oklch(58% 0.13 265)', flexShrink: 0 }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={d.org.name}>
+                {d.org.name}
+              </span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
+              <div
+                style={{
+                  height: 18,
+                  width: `${pct}%`,
+                  minWidth: 3,
+                  background: 'oklch(58% 0.13 265)',
+                  borderTopRightRadius: 4,
+                  borderBottomRightRadius: 4,
+                }}
+              />
+            </div>
+            <span style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', whiteSpace: 'nowrap', flexShrink: 0, width: 100 }}>
+              {membersTemplate.replace('{n}', String(d.memberCount))}
+            </span>
+          </a>
         );
       })}
     </div>
@@ -1330,6 +1463,14 @@ function App() {
   const [conflictsExpanded, setConflictsExpanded] = useState(false);
   const [topicalExpanded, setTopicalExpanded] = useState(false);
   const [donationsExpanded, setDonationsExpanded] = useState(false);
+  const [orgDescExpanded, setOrgDescExpanded] = useState(false);
+  const [orgMembersShown, setOrgMembersShown] = useState(5);
+  const [pollSummaryExpanded, setPollSummaryExpanded] = useState(false);
+  const [flaggedVotesSearch, setFlaggedVotesSearch] = useState('');
+  const [pollLobbyingSearch, setPollLobbyingSearch] = useState('');
+  const [committeeMemberSearch, setCommitteeMemberSearch] = useState('');
+  const [committeeListSearch, setCommitteeListSearch] = useState('');
+  const [committeeMembersExpanded, setCommitteeMembersExpanded] = useState(false);
   const [votesExpanded, setVotesExpanded] = useState(false);
   const [flaggedVotesExpanded, setFlaggedVotesExpanded] = useState(false);
   const [pollLobbyingExpanded, setPollLobbyingExpanded] = useState(false);
@@ -1353,7 +1494,12 @@ function App() {
   const [topicalSearchQuery, setTopicalSearchQuery] = useState('');
   const [topicalPartyFilter, setTopicalPartyFilter] = useState<Set<string>>(new Set());
   const [topicalFieldFilter, setTopicalFieldFilter] = useState<Set<string>>(new Set());
+  // Touch devices have no real hover, but tapping a link still fires a synthetic mouseenter
+  // right before the click — so the hover-to-open behavior below must be skipped on touch,
+  // otherwise the dropdown opens and the same tap's click immediately navigates and closes it.
+  const [isTouchNav] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
   const [lobbyNavOpen, setLobbyNavOpen] = useState(false);
+  const lobbyNavRef = useRef<HTMLDivElement>(null);
   const lobbyNavCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const openLobbyNav = () => {
     if (lobbyNavCloseTimer.current) {
@@ -1366,6 +1512,7 @@ function App() {
     lobbyNavCloseTimer.current = setTimeout(() => setLobbyNavOpen(false), 250);
   };
   const [mpsNavOpen, setMpsNavOpen] = useState(false);
+  const mpsNavRef = useRef<HTMLDivElement>(null);
   const mpsNavCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const openMpsNav = () => {
     if (mpsNavCloseTimer.current) {
@@ -1377,6 +1524,29 @@ function App() {
   const scheduleCloseMpsNav = () => {
     mpsNavCloseTimer.current = setTimeout(() => setMpsNavOpen(false), 250);
   };
+  // On touch, the first tap on a trigger only reveals its dropdown; a second tap (or a tap on
+  // an actual submenu item) is what navigates. Tapping anywhere else closes it.
+  const touchNavTriggerClick = (open: boolean, setOpen: (v: boolean) => void, navigate: () => void) => (e: MouseEvent) => {
+    if (isTouchNav && !open) {
+      e.preventDefault();
+      e.stopPropagation();
+      setOpen(true);
+      return;
+    }
+    stop(() => {
+      navigate();
+      setOpen(false);
+    })(e);
+  };
+  useEffect(() => {
+    if (!isTouchNav || (!mpsNavOpen && !lobbyNavOpen)) return;
+    const onOutside = (e: globalThis.MouseEvent) => {
+      if (mpsNavOpen && mpsNavRef.current && !mpsNavRef.current.contains(e.target as Node)) setMpsNavOpen(false);
+      if (lobbyNavOpen && lobbyNavRef.current && !lobbyNavRef.current.contains(e.target as Node)) setLobbyNavOpen(false);
+    };
+    document.addEventListener('mousedown', onOutside);
+    return () => document.removeEventListener('mousedown', onOutside);
+  }, [isTouchNav, mpsNavOpen, lobbyNavOpen]);
 
   // Declared here (ahead of where they're conceptually used, further down) because the URL-sync
   // effect just below needs them to upgrade bare-ID profile/bill/org/committee URLs into full
@@ -1389,6 +1559,16 @@ function App() {
   // calls. isPopStateRef suppresses the push effect below for this one render, so going back
   // doesn't immediately push the page we just navigated away from back onto the stack.
   const isPopStateRef = useRef(false);
+  // Counts real in-app navigations (pushState calls) since this tab loaded. "← Back" links use
+  // this to decide whether window.history.back() has anywhere real to go: if the user arrived
+  // here via an in-app link, going back returns to the actual page they came from (an MP profile,
+  // a search, wherever) instead of always landing on a fixed parent page. If this page was the
+  // entry point (a direct link, a refresh), there's no in-app history to unwind, so the caller
+  // falls back to its normal destination instead of leaving the site via browser history.
+  const appNavCountRef = useRef(0);
+  // Identifies "which page" independent of slug resolution — see its use below, where it stops
+  // the URL's bare-ID-to-slug upgrade from being miscounted as a real navigation.
+  const pageKeyRef = useRef<string | null>(null);
   // Remembers where the MP list was scrolled to when a profile is opened from it, so returning
   // to the list (back button or the "← zurück" link) can restore that position instead of always
   // snapping to the top — restoring via the browser's native scroll restoration doesn't work here
@@ -1429,6 +1609,12 @@ function App() {
   useEffect(() => {
     const prevView = prevViewRef.current;
     prevViewRef.current = view;
+    // The raw, pre-slug-resolution identity of "which page" — deliberately built from the
+    // selected ids/tabs rather than the routeToPath() output below, since that output changes
+    // (bare id -> full slug) once `snapshot` loads even though the page itself hasn't changed.
+    const prevPageKey = pageKeyRef.current;
+    const pageKey = [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId].join('|');
+    pageKeyRef.current = pageKey;
     const returningToListFromProfile = view === 'search' && prevView === 'profile' && searchScrollYRef.current !== null;
     // A client-side pushState never triggers the browser's own scroll reset the way a real page
     // load does, so without this, opening any new page just inherits whatever scroll position
@@ -1464,7 +1650,14 @@ function App() {
         : null,
     });
     const fullPath = withBase(path, import.meta.env.BASE_URL);
-    if (window.location.pathname !== fullPath) window.history.pushState(null, '', fullPath);
+    if (window.location.pathname !== fullPath) {
+      window.history.pushState(null, '', fullPath);
+      // Only counts as a real navigation if the underlying page identity actually changed —
+      // a bare-ID URL upgrading to its full slug once `snapshot` finishes loading pushes a new
+      // path too, but it's still the same page, and must not make goBack() think there's
+      // somewhere real to unwind back to.
+      if (prevPageKey !== null && prevPageKey !== pageKey) appNavCountRef.current += 1;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     view,
@@ -1490,6 +1683,11 @@ function App() {
   const t = TRANSLATIONS[lang];
   const exportLabels: ChartExportLabels = { buttonLabel: t.chartExportLabel, csv: t.chartExportCsv, svg: t.chartExportSvg, png: t.chartExportPng };
 
+  /** "← Back" links call this instead of jumping straight to a fixed parent page — see appNavCountRef. */
+  const goBack = (fallback: () => void) => {
+    if (appNavCountRef.current > 0) window.history.back();
+    else fallback();
+  };
   const goHome = () => setView('home');
   const goSearch = () => setView('search');
   const goCrossref = (tab: LobbyTab = 'overview') => {
@@ -1497,11 +1695,16 @@ function App() {
     setLobbyTab(tab);
   };
   const goPartyList = () => setView('partyList');
-  const goCommitteeList = () => setView('committeeList');
+  const goCommitteeList = () => {
+    setView('committeeList');
+    setCommitteeListSearch('');
+  };
   const goPollList = () => setView('pollList');
   const openCommittee = (id: string) => {
     setView('committee');
     setSelectedCommitteeId(id);
+    setCommitteeMemberSearch('');
+    setCommitteeMembersExpanded(false);
   };
   const goImpressum = () => setView('impressum');
   const goDisclaimer = () => setView('disclaimer');
@@ -1519,10 +1722,15 @@ function App() {
     setSelectedBillId(id);
     setFlaggedVotesExpanded(false);
     setPollLobbyingExpanded(false);
+    setPollSummaryExpanded(false);
+    setFlaggedVotesSearch('');
+    setPollLobbyingSearch('');
   };
   const openOrg = (id: string) => {
     setView('org');
     setSelectedOrgId(id);
+    setOrgDescExpanded(false);
+    setOrgMembersShown(5);
   };
   const openParty = (party: string, origin: 'partyList' | 'crossref' = 'partyList') => {
     setView('party');
@@ -1738,6 +1946,7 @@ function App() {
   const realPollId = typeof selectedBillId === 'number' ? selectedBillId : null;
   const pollDetail = usePollResult(realPollId);
   const pollDetailDivergences = pollDetail.result ? computeDivergences(pollDetail.result) : [];
+  const filteredFlaggedVotes = pollDetailDivergences.filter((d) => fuzzyMatch(flaggedVotesSearch, `${d.member.name} ${d.member.party}`));
 
   // Real cross-references: a member voting on a bill that an organisation they are personally
   // tied to registered lobbying on. Sourced from the Lobbyregister + members' own declarations.
@@ -1746,6 +1955,7 @@ function App() {
   const orgNetwork = useOrgPartyNetwork();
   const partyDonations = usePartyDonations();
   const pollLobbying = usePollLobbying(realPollId);
+  const filteredPollLobbying = pollLobbying.entries.filter((e) => fuzzyMatch(pollLobbyingSearch, e.org.name));
   const partyLobby = usePartyLobbySummary();
   // Only the sitting Bundestag fractions have their own party page (partyLobby.summaries is
   // scoped to those) — independents ("Fraktionslos") and parties that received large donations
@@ -1757,6 +1967,10 @@ function App() {
   const orgDetail = useOrgDetail(selectedOrgId);
   const committeeList = useCommitteeList();
   const committeeDetail = useCommitteeDetail(selectedCommitteeId);
+  const committeeLobby = useCommitteeLobbySummary(selectedCommitteeId);
+  const filteredCommitteeMembers = (committeeDetail.detail?.members ?? []).filter((row) =>
+    fuzzyMatch(committeeMemberSearch, `${row.member?.name ?? ''} ${row.member?.party ?? ''}`),
+  );
   const filteredOrgs = orgList.orgs.filter((e) => {
     if (!e.org.name.toLowerCase().includes(orgSearchQuery.trim().toLowerCase())) return false;
     if (orgPartyFilter.size > 0 && !e.parties.some((p) => orgPartyFilter.has(p))) return false;
@@ -1863,15 +2077,13 @@ function App() {
             {t.navHome}
           </a>
           <div
+            ref={mpsNavRef}
             style={{ position: 'relative' }}
-            onMouseEnter={openMpsNav}
-            onMouseLeave={scheduleCloseMpsNav}
+            onMouseEnter={isTouchNav ? undefined : openMpsNav}
+            onMouseLeave={isTouchNav ? undefined : scheduleCloseMpsNav}
           >
             <a
-              onClick={stop(() => {
-                goSearch();
-                setMpsNavOpen(false);
-              })}
+              onClick={touchNavTriggerClick(mpsNavOpen, setMpsNavOpen, goSearch)}
               href={searchHref}
               style={{
                 ...navStyle(view === 'search' || view === 'party' || view === 'partyList' || view === 'committee' || view === 'committeeList' || view === 'pollList'),
@@ -1980,15 +2192,13 @@ function App() {
             )}
           </div>
           <div
+            ref={lobbyNavRef}
             style={{ position: 'relative' }}
-            onMouseEnter={openLobbyNav}
-            onMouseLeave={scheduleCloseLobbyNav}
+            onMouseEnter={isTouchNav ? undefined : openLobbyNav}
+            onMouseLeave={isTouchNav ? undefined : scheduleCloseLobbyNav}
           >
             <a
-              onClick={stop(() => {
-                goCrossref();
-                setLobbyNavOpen(false);
-              })}
+              onClick={touchNavTriggerClick(lobbyNavOpen, setLobbyNavOpen, () => goCrossref())}
               href={crossrefHref()}
               style={{ ...navStyle(view === 'crossref'), display: 'inline-flex', alignItems: 'center', gap: 4 }}
             >
@@ -2373,7 +2583,7 @@ function App() {
 
       {view === 'search' && (
         <main style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: 32, display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-          <aside style={{ width: 220, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 22 }}>
+          <aside className="pb-search-sidebar" style={{ width: 220, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 22 }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'oklch(45% 0.01 260)', marginBottom: 10 }}>{t.filterParty}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -2480,7 +2690,7 @@ function App() {
 
       {view === 'profile' && (
         <main style={{ flex: 1, maxWidth: 980, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href={searchHref} onClick={stop(goSearch)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={searchHref} onClick={stop(() => goBack(goSearch))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToSearch}
           </a>
 
@@ -3143,7 +3353,7 @@ function App() {
 
       {view === 'bill' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href={homeHref} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={homeHref} onClick={stop(() => goBack(goHome))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
 
@@ -3235,9 +3445,36 @@ function App() {
                   <h1 style={{ fontSize: 28, fontWeight: 800, margin: '0 0 16px' }}>{pollDetail.result.poll.title}</h1>
 
                   {pollDetail.result.poll.summary && (
-                    <p style={{ fontSize: 14.5, color: 'oklch(35% 0.01 260)', lineHeight: 1.7, whiteSpace: 'pre-line', margin: '0 0 22px', maxWidth: 640 }}>
-                      {pollDetail.result.poll.summary}
-                    </p>
+                    <div style={{ margin: '0 0 22px', maxWidth: 640 }}>
+                      <p
+                        style={{
+                          fontSize: 14.5,
+                          color: 'oklch(35% 0.01 260)',
+                          lineHeight: 1.7,
+                          whiteSpace: 'pre-line',
+                          margin: 0,
+                        }}
+                      >
+                        {pollSummaryExpanded ? pollDetail.result.poll.summary : firstParagraph(pollDetail.result.poll.summary)}
+                      </p>
+                      {firstParagraph(pollDetail.result.poll.summary) !== pollDetail.result.poll.summary && (
+                        <button
+                          onClick={() => setPollSummaryExpanded((v) => !v)}
+                          style={{
+                            marginTop: 6,
+                            padding: 0,
+                            border: 'none',
+                            background: 'none',
+                            fontSize: 12.5,
+                            fontWeight: 700,
+                            color: 'oklch(45% 0.16 265)',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {pollSummaryExpanded ? t.showLess : t.showMoreText}
+                        </button>
+                      )}
+                    </div>
                   )}
 
                   <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 14, padding: 20, marginBottom: 24 }}>
@@ -3294,8 +3531,19 @@ function App() {
                     <p style={{ fontSize: 13, color: 'oklch(48% 0.01 260)', marginBottom: 20 }}>{t.noFlaggedVotes}</p>
                   ) : (
                   <div style={{ marginBottom: 20 }}>
+                  <input
+                    type="text"
+                    value={flaggedVotesSearch}
+                    onChange={(e) => setFlaggedVotesSearch(e.target.value)}
+                    placeholder={t.flaggedVotesSearchPlaceholder}
+                    style={{ width: '100%', maxWidth: 340, padding: '8px 11px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13, marginBottom: 10, boxSizing: 'border-box' }}
+                  />
+                  {filteredFlaggedVotes.length === 0 ? (
+                    <p style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>{t.searchNoResults}</p>
+                  ) : (
+                  <>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {pollDetailDivergences.slice(0, flaggedVotesExpanded ? pollDetailDivergences.length : 10).map((d, i) => {
+                    {filteredFlaggedVotes.slice(0, flaggedVotesExpanded ? filteredFlaggedVotes.length : 10).map((d, i) => {
                       const rm = mandateToMember.get(d.member.mandateId);
                       return (
                         <a
@@ -3342,13 +3590,15 @@ function App() {
                     })}
                   </div>
                   <ShowMoreButton
-                    total={pollDetailDivergences.length}
+                    total={filteredFlaggedVotes.length}
                     defaultCount={10}
                     expanded={flaggedVotesExpanded}
                     onToggle={() => setFlaggedVotesExpanded((v) => !v)}
                     showMoreTemplate={t.showMoreTemplate}
                     showLessLabel={t.showLess}
                   />
+                  </>
+                  )}
                   </div>
                   )}
                   {/* Interest groups that registered lobbying on this vote's Drucksachen. The
@@ -3362,8 +3612,19 @@ function App() {
                       <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>
                         {t.pollLobbyingCountTemplate.replace('{n}', String(pollLobbying.entries.length))}
                       </p>
+                      <input
+                        type="text"
+                        value={pollLobbyingSearch}
+                        onChange={(e) => setPollLobbyingSearch(e.target.value)}
+                        placeholder={t.pollLobbyingSearchPlaceholder}
+                        style={{ width: '100%', maxWidth: 340, padding: '8px 11px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13, marginBottom: 10, boxSizing: 'border-box' }}
+                      />
+                      {filteredPollLobbying.length === 0 ? (
+                        <p style={{ fontSize: 13, color: 'oklch(48% 0.01 260)', marginBottom: 12 }}>{t.searchNoResults}</p>
+                      ) : (
+                      <>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
-                        {pollLobbying.entries.slice(0, pollLobbyingExpanded ? pollLobbying.entries.length : 10).map((e) => {
+                        {filteredPollLobbying.slice(0, pollLobbyingExpanded ? filteredPollLobbying.length : 10).map((e) => {
                           const spend = formatExpenseBracket(e.org.expensesEuro);
                           return (
                             <a
@@ -3384,13 +3645,15 @@ function App() {
                         })}
                       </div>
                       <ShowMoreButton
-                        total={pollLobbying.entries.length}
+                        total={filteredPollLobbying.length}
                         defaultCount={10}
                         expanded={pollLobbyingExpanded}
                         onToggle={() => setPollLobbyingExpanded((v) => !v)}
                         showMoreTemplate={t.showMoreTemplate}
                         showLessLabel={t.showLess}
                       />
+                      </>
+                      )}
                     </>
                   )}
 
@@ -4120,7 +4383,7 @@ function App() {
 
       {view === 'org' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href={crossrefHref()} onClick={stop(goCrossref)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={crossrefHref()} onClick={stop(() => goBack(goCrossref))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToLobbyFinance}
           </a>
           {!orgDetail.org ? (
@@ -4131,6 +4394,40 @@ function App() {
               <div style={{ fontSize: 13.5, color: 'oklch(45% 0.01 260)', marginBottom: 20 }}>
                 {[orgDetail.org.legalForm, orgDetail.org.city].filter(Boolean).join(' · ')}
               </div>
+
+              {orgDetail.org.description && (
+                <div style={{ marginBottom: 22 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>{t.orgDescriptionLabel}</div>
+                  <p
+                    style={{
+                      fontSize: 13.5,
+                      lineHeight: 1.55,
+                      color: 'oklch(38% 0.01 260)',
+                      whiteSpace: 'pre-wrap',
+                      margin: 0,
+                    }}
+                  >
+                    {orgDescExpanded ? orgDetail.org.description : firstParagraph(orgDetail.org.description)}
+                  </p>
+                  {firstParagraph(orgDetail.org.description) !== orgDetail.org.description && (
+                    <button
+                      onClick={() => setOrgDescExpanded((v) => !v)}
+                      style={{
+                        marginTop: 6,
+                        padding: 0,
+                        border: 'none',
+                        background: 'none',
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        color: 'oklch(45% 0.16 265)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {orgDescExpanded ? t.showLess : t.showMoreText}
+                    </button>
+                  )}
+                </div>
+              )}
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14, marginBottom: 20 }}>
                 <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
@@ -4173,23 +4470,64 @@ function App() {
               {orgDetail.affiliatedMembers.length === 0 ? (
                 <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)', marginBottom: 26 }}>{t.orgNoAffiliatedMembers}</p>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 26 }}>
-                  {orgDetail.affiliatedMembers.map((a) => (
-                    <a
-                      key={a.member.id}
-                      href={mpHref(String(a.member.id))}
-                      onClick={stop(() => openMp(String(a.member.id)))}
-                      style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'block', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
+                <>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 10 }}>
+                    {orgDetail.affiliatedMembers.slice(0, orgMembersShown).map((a) => (
+                      <a
+                        key={a.member.id}
+                        href={mpHref(String(a.member.id))}
+                        onClick={stop(() => openMp(String(a.member.id)))}
+                        style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'block', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ width: 8, height: 8, borderRadius: '50%', background: a.member.color, flexShrink: 0 }} />
+                          <span style={{ fontWeight: 600, fontSize: 14 }}>{a.member.name}</span>
+                          <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{a.member.party}</span>
+                        </div>
+                        {a.roles.length > 0 && <div style={{ fontSize: 12.5, color: 'oklch(42% 0.01 260)', marginTop: 4 }}>{a.roles.join(' · ')}</div>}
+                      </a>
+                    ))}
+                  </div>
+                  {orgMembersShown < orgDetail.affiliatedMembers.length ? (
+                    <button
+                      onClick={() => setOrgMembersShown((v) => Math.min(v + 10, orgDetail.affiliatedMembers.length))}
+                      style={{
+                        display: 'block',
+                        margin: '0 auto 26px',
+                        padding: '8px 18px',
+                        border: '1px solid oklch(85% 0.006 260)',
+                        borderRadius: 20,
+                        background: 'white',
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        color: 'oklch(45% 0.16 265)',
+                        cursor: 'pointer',
+                      }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: a.member.color, flexShrink: 0 }} />
-                        <span style={{ fontWeight: 600, fontSize: 14 }}>{a.member.name}</span>
-                        <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{a.member.party}</span>
-                      </div>
-                      {a.roles.length > 0 && <div style={{ fontSize: 12.5, color: 'oklch(42% 0.01 260)', marginTop: 4 }}>{a.roles.join(' · ')}</div>}
-                    </a>
-                  ))}
-                </div>
+                      {t.showMoreText}
+                    </button>
+                  ) : (
+                    orgDetail.affiliatedMembers.length > 5 && (
+                      <button
+                        onClick={() => setOrgMembersShown(5)}
+                        style={{
+                          display: 'block',
+                          margin: '0 auto 26px',
+                          padding: '8px 18px',
+                          border: '1px solid oklch(85% 0.006 260)',
+                          borderRadius: 20,
+                          background: 'white',
+                          fontSize: 12.5,
+                          fontWeight: 700,
+                          color: 'oklch(45% 0.16 265)',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {t.showLess}
+                      </button>
+                    )
+                  )}
+                </>
               )}
 
               <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{t.orgLobbiedBillsTitle}</h2>
@@ -4330,35 +4668,64 @@ function App() {
       {view === 'committeeList' && (
         <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', width: '100%', padding: 32 }}>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{t.committeesTitle}</h1>
-          <p style={{ fontSize: 14, color: 'oklch(45% 0.01 260)', margin: '0 0 28px', maxWidth: 640 }}>{t.committeesSub}</p>
+          <p style={{ fontSize: 14, color: 'oklch(45% 0.01 260)', margin: '0 0 20px', maxWidth: 640 }}>{t.committeesSub}</p>
 
           {committeeList.entries.length === 0 ? (
             <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.committeesEmpty}</p>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
-              {committeeList.entries.map(({ committee, memberCount }) => (
-                <a
-                  key={committee.id}
-                  href={committeeHref(String(committee.id))}
-                  onClick={stop(() => openCommittee(String(committee.id)))}
-                  style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'block', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
-                >
-                  <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>{committee.name}</div>
-                  <div style={{ fontSize: 12, color: 'oklch(50% 0.01 260)', marginBottom: 8 }}>
-                    {memberCount} {t.committeeMembersCountLabel}
+            <>
+              <input
+                type="text"
+                value={committeeListSearch}
+                onChange={(e) => setCommitteeListSearch(e.target.value)}
+                placeholder={t.committeeListSearchPlaceholder}
+                style={{ width: '100%', maxWidth: 340, padding: '9px 12px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13.5, marginBottom: 20, boxSizing: 'border-box' }}
+              />
+              {(() => {
+                const filtered = committeeList.entries.filter(({ committee }) => fuzzyMatch(committeeListSearch, `${committee.name} ${committee.topics.join(' ')}`));
+                if (filtered.length === 0) return <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.searchNoResults}</p>;
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
+                    {filtered.map(({ committee, memberCount }) => (
+                      <a
+                        key={committee.id}
+                        href={committeeHref(String(committee.id))}
+                        onClick={stop(() => openCommittee(String(committee.id)))}
+                        style={{
+                          position: 'relative',
+                          cursor: 'pointer',
+                          textDecoration: 'none',
+                          color: 'inherit',
+                          display: 'block',
+                          background: 'white',
+                          border: '1px solid oklch(90% 0.006 260)',
+                          borderRadius: 12,
+                          padding: '14px 16px',
+                        }}
+                      >
+                        <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8, paddingRight: 32 }}>{committee.name}</div>
+                        <div style={{ fontSize: 12, color: 'oklch(50% 0.01 260)', marginBottom: 8 }}>
+                          {memberCount} {t.committeeMembersCountLabel}
+                        </div>
+                        {committee.topics.length > 0 && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                            {committee.topics.map((f) => (
+                              <span key={f} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'oklch(95% 0.008 260)', color: 'oklch(40% 0.01 260)' }}>
+                                {f}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {(() => {
+                          const icon = committeeIcon(committee.id);
+                          return <img src={icon.icon} alt={icon.alt} title={icon.alt} width={24} height={24} style={{ position: 'absolute', top: 14, right: 14, opacity: 0.55 }} />;
+                        })()}
+                      </a>
+                    ))}
                   </div>
-                  {committee.topics.length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                      {committee.topics.map((f) => (
-                        <span key={f} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'oklch(95% 0.008 260)', color: 'oklch(40% 0.01 260)' }}>
-                          {f}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </a>
-              ))}
-            </div>
+                );
+              })()}
+            </>
           )}
         </main>
       )}
@@ -4375,9 +4742,12 @@ function App() {
           ) : allPollResults.results.length === 0 ? (
             <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.noPollsThisWeek}</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', left: 5, top: 6, bottom: 6, width: 2, background: 'oklch(90% 0.006 260)', borderRadius: 1 }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 32, paddingLeft: 28 }}>
               {pollWeekGroups.map((group) => (
-                <div key={group.range.start.toISOString()}>
+                <div key={group.range.start.toISOString()} style={{ position: 'relative' }}>
+                  <div style={{ position: 'absolute', left: -28, top: 2, width: 12, height: 12, borderRadius: '50%', background: 'white', border: '2px solid oklch(45% 0.16 265)' }} />
                   <h3 style={{ fontSize: 13, fontWeight: 700, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>
                     {t.weekOf} {formatWeekRange(group.range, lang)}
                   </h3>
@@ -4424,6 +4794,7 @@ function App() {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
           )}
         </main>
@@ -4431,7 +4802,7 @@ function App() {
 
       {view === 'committee' && (
         <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href={committeeListHref} onClick={stop(goCommitteeList)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={committeeListHref} onClick={stop(() => goBack(goCommitteeList))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToCommittees}
           </a>
           {!committeeDetail.detail ? (
@@ -4439,6 +4810,12 @@ function App() {
           ) : (
             <>
               <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 12px' }}>{committeeDetail.detail.committee.name}</h1>
+
+              {committeeDetail.detail.committee.url && (
+                <a href={committeeDetail.detail.committee.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', display: 'inline-block', marginBottom: 14 }}>
+                  {t.viewSource} →
+                </a>
+              )}
 
               {committeeDetail.detail.committee.topics.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 22 }}>
@@ -4450,11 +4827,39 @@ function App() {
                 </div>
               )}
 
+              {committeeLobby.ties.length > 0 && (
+                <div style={{ marginBottom: 28 }}>
+                  <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{t.committeeLobbyTitle}</h2>
+                  <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 14px', maxWidth: 640 }}>{t.committeeLobbySub}</p>
+                  <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '16px 18px' }}>
+                    <OrgInfluenceBarChart
+                      data={committeeLobby.ties}
+                      orgHref={orgHref}
+                      onSelectOrg={openOrg}
+                      membersTemplate={t.sectorChartMembersTemplate}
+                      filenameBase={`politblick-ausschuss-verflechtungen-${committeeDetail.detail.committee.id}`}
+                      exportLabels={exportLabels}
+                    />
+                  </div>
+                </div>
+              )}
+
               <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 12px' }}>
                 {committeeDetail.detail.members.length} {t.committeeMembersCountLabel}
               </h2>
+              <input
+                type="text"
+                value={committeeMemberSearch}
+                onChange={(e) => setCommitteeMemberSearch(e.target.value)}
+                placeholder={t.committeeMemberSearchPlaceholder}
+                style={{ width: '100%', maxWidth: 340, padding: '8px 11px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13, marginBottom: 14, boxSizing: 'border-box' }}
+              />
+              {filteredCommitteeMembers.length === 0 ? (
+                <p style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>{t.searchNoResults}</p>
+              ) : (
+              <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px,1fr))', gap: 12 }}>
-                {committeeDetail.detail.members.map((row) => {
+                {filteredCommitteeMembers.slice(0, committeeMembersExpanded ? filteredCommitteeMembers.length : 12).map((row) => {
                   const roleLabel =
                     row.role === 'chairperson' || row.role === 'foreperson' ? t.committeeRoleChair
                     : row.role === 'vice_chairperson' ? t.committeeRoleViceChair
@@ -4481,14 +4886,37 @@ function App() {
                         {row.member && <span style={{ width: 8, height: 8, borderRadius: '50%', background: row.member.color, flexShrink: 0 }} />}
                         <span style={{ fontWeight: 600, fontSize: 14 }}>{row.member?.name ?? `#${row.mandateId}`}</span>
                       </div>
-                      <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginTop: 3 }}>
-                        {row.member?.party}
-                        {roleLabel && <span style={{ fontWeight: 700, color: 'oklch(45% 0.16 265)' }}> · {roleLabel}</span>}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 5 }}>
+                        <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{row.member?.party}</span>
+                        {roleLabel && (
+                          <span
+                            style={{
+                              fontSize: 10.5,
+                              fontWeight: 700,
+                              padding: '2px 7px',
+                              borderRadius: 8,
+                              background: 'oklch(93% 0.06 75)',
+                              color: 'oklch(40% 0.13 70)',
+                            }}
+                          >
+                            {roleLabel}
+                          </span>
+                        )}
                       </div>
                     </a>
                   );
                 })}
               </div>
+              <ShowMoreButton
+                total={filteredCommitteeMembers.length}
+                defaultCount={12}
+                expanded={committeeMembersExpanded}
+                onToggle={() => setCommitteeMembersExpanded((v) => !v)}
+                showMoreTemplate={t.showMoreTemplate}
+                showLessLabel={t.showLess}
+              />
+              </>
+              )}
             </>
           )}
         </main>
@@ -4543,7 +4971,7 @@ function App() {
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
           <a
             href={partyOrigin === 'crossref' ? crossrefHref('parties') : partyListHref}
-            onClick={stop(() => (partyOrigin === 'crossref' ? goCrossref('parties') : goPartyList()))}
+            onClick={stop(() => goBack(() => (partyOrigin === 'crossref' ? goCrossref('parties') : goPartyList())))}
             style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}
           >
             ← {partyOrigin === 'crossref' ? t.backToLobbyFinance : t.backToParties}
@@ -5037,7 +5465,7 @@ function App() {
 
       {view === 'impressum' && (
         <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href={homeHref} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={homeHref} onClick={stop(() => goBack(goHome))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.impressumTitle}</h1>
@@ -5047,7 +5475,7 @@ function App() {
 
       {view === 'disclaimer' && (
         <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href={homeHref} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={homeHref} onClick={stop(() => goBack(goHome))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.disclaimerTitle}</h1>
@@ -5083,7 +5511,7 @@ function App() {
 
       {view === 'datenschutz' && (
         <main style={{ flex: 1, maxWidth: 720, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href={homeHref} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={homeHref} onClick={stop(() => goBack(goHome))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.datenschutzTitle}</h1>
@@ -5093,7 +5521,7 @@ function App() {
 
       {view === 'daten' && (
         <main style={{ flex: 1, maxWidth: 820, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href={homeHref} onClick={stop(goHome)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+          <a href={homeHref} onClick={stop(() => goBack(goHome))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
             ← {t.backToHome}
           </a>
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 10px' }}>{t.datenTitle}</h1>
@@ -5202,7 +5630,13 @@ function App() {
               {t.datenTitle}
             </a>
           </div>
-          <span>{t.footerSources}</span>
+          <span>
+            {t.footerSources}
+            {' · '}
+            <a href="https://fonts.google.com/icons" target="_blank" rel="noreferrer" style={{ color: 'oklch(52% 0.01 260)' }}>
+              {t.footerIconsSource}
+            </a>
+          </span>
         </div>
         <div
           style={{

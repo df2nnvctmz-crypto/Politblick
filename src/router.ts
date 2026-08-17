@@ -86,6 +86,12 @@ export function routeToPath(r: RouteState): string {
 /** Parses an app-relative pathname (already stripped of BASE_URL) into a route state — unrecognized paths fall back to home. */
 export function pathToRoute(pathname: string): RouteState {
   const segments = pathname.split('/').filter(Boolean).map((s) => decodeURIComponent(s));
+  // Links shared/bookmarked before the custom-domain migration still carry the old GitHub Pages
+  // repo path ('/Politblick/abgeordnete/...'). BASE_URL is '/' now, so stripBase is a no-op for
+  // them — without this, they'd 404-redirect-round-trip successfully but then silently resolve to
+  // home, since 'Politblick' isn't a recognized route segment. Confirmed happening in production
+  // via goatcounter (two hits on /Politblick/abgeordnete/<id> that landed on home instead).
+  if (segments[0] === 'Politblick') segments.shift();
   if (segments.length === 0) return { ...DEFAULT_ROUTE };
 
   const [first, second, third] = segments;

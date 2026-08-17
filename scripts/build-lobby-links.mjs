@@ -122,6 +122,38 @@ async function main() {
   }
   console.log(`${Object.keys(affiliations).length} members hold a role at a registered lobbyist`);
 
+  // ---- committee-level lobby influence: which orgs have the most tied members on a committee ----
+  //
+  // Same shape as partyLobbySummary's topOrgs below, but grouped by committee membership instead
+  // of party — "does the committee that actually handles this policy area have members tied to
+  // the organisations lobbying it" is a sharper, more actionable signal than the party-wide
+  // summary alone.
+  const membersByCommittee = new Map();
+  for (const m of committeesFile.memberships) {
+    const list = membersByCommittee.get(m.committeeId) ?? [];
+    list.push(String(m.mandateId));
+    membersByCommittee.set(m.committeeId, list);
+  }
+  const committeeLobbySummary = {};
+  for (const [committeeId, mandateIds] of membersByCommittee) {
+    const memberSetByOrg = new Map();
+    for (const mandateId of mandateIds) {
+      for (const link of affiliations[mandateId] ?? []) {
+        const set = memberSetByOrg.get(link.orgId) ?? new Set();
+        set.add(mandateId);
+        memberSetByOrg.set(link.orgId, set);
+      }
+    }
+    if (memberSetByOrg.size === 0) continue;
+    const topOrgs = [...memberSetByOrg.entries()]
+      .map(([orgId, members]) => ({ orgId, memberCount: members.size }))
+      .sort((a, b) => b.memberCount - a.memberCount)
+      .slice(0, 10);
+    committeeLobbySummary[committeeId] = topOrgs;
+    for (const { orgId } of topOrgs) referenced.add(orgId);
+  }
+  console.log(`${Object.keys(committeeLobbySummary).length} committees have at least one member tied to a registered lobbyist`);
+
   // ---- the cross-reference: member voted on a bill their own organisation lobbied ---------------
   //
   // A curated stance (data/lobby-positions.json) is what turns this into a directional "voted
@@ -374,6 +406,7 @@ async function main() {
       actorType: org.actorType,
       city: org.city,
       url: org.url,
+      description: org.description,
       expensesEuro: org.expensesEuro,
       staffFte: org.staffFte,
       // Capped, but generously: a topical tie's matchedField must show up in the org's own
@@ -391,6 +424,7 @@ async function main() {
     topicalTies,
     donorLinks,
     partyLobbySummary,
+    committeeLobbySummary,
     generatedAt: new Date().toISOString(),
     registerEntryCount: register.length,
   };

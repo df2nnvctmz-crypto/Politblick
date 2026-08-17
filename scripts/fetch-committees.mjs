@@ -35,6 +35,7 @@ async function main() {
     id: c.id,
     name: c.label,
     topics: (c.field_topics ?? []).map((t) => t.label),
+    url: c.abgeordnetenwatch_url ?? null,
   }));
   console.log(`  ${committees.length} committees`);
 

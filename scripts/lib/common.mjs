@@ -95,6 +95,22 @@ export function stripIntroHtml(html) {
   return text || null;
 }
 
+/**
+ * The Lobbyregister's free-text "Beschreibung der Tätigkeit" — plain text (no HTML), but with
+ * `\r\n` line breaks and often double-blank-line paragraph separation. Collapses that down to
+ * the same `\n\n`-paragraph convention stripIntroHtml() produces, so the UI can treat both the
+ * same way.
+ */
+export function normalizeRegisterText(text) {
+  if (!text) return null;
+  const normalized = String(text)
+    .replace(/\r\n/g, '\n')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+  return normalized || null;
+}
+
 export function initialsOf(name) {
   return name.split(' ').map((w) => w[0]).filter(Boolean).join('').slice(0, 3);
 }

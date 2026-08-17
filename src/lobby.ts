@@ -25,6 +25,8 @@ export interface LobbyOrg {
   actorType: string | null;
   city: string | null;
   url: string | null;
+  /** The organisation's own free-text account of its lobbying activity, verbatim from the register ("Beschreibung der Tätigkeit"). Null where not declared. */
+  description: string | null;
   /** Declared annual lobbying spend, reported by the register as a bracket. */
   expensesEuro: { from: number; to: number } | null;
   staffFte: number | null;
@@ -116,6 +118,12 @@ export interface PartyLobbySummary {
   topOrgs: PartyLobbyTopOrg[];
 }
 
+export interface CommitteeLobbyTopOrg {
+  orgId: string;
+  /** Distinct committee members tied to this organisation — a member counts once even with several roles/ties at the same org. */
+  memberCount: number;
+}
+
 export interface LobbyLinks {
   orgs: Record<string, LobbyOrg>;
   pollLobbying: Record<string, PollLobbyEntry[]>;
@@ -124,6 +132,8 @@ export interface LobbyLinks {
   topicalTies: TopicalTie[];
   donorLinks: Record<string, string>;
   partyLobbySummary: PartyLobbySummary[];
+  /** Keyed by committee id (as a string, matching JSON key coercion). Top organisations by number of tied committee members — omitted for committees with no ties at all. */
+  committeeLobbySummary: Record<string, CommitteeLobbyTopOrg[]>;
   generatedAt: string | null;
   registerEntryCount: number;
 }
@@ -136,6 +146,7 @@ export const EMPTY_LOBBY_LINKS: LobbyLinks = {
   topicalTies: [],
   donorLinks: {},
   partyLobbySummary: [],
+  committeeLobbySummary: {},
   generatedAt: null,
   registerEntryCount: 0,
 };
@@ -523,6 +534,25 @@ export function usePartyLobbySummary(): { summaries: PartyLobbySummary[]; loadin
   const { snapshot, loading, error } = useSnapshot();
   if (!snapshot) return { summaries: [], loading, error };
   return { summaries: snapshot.lobbyLinks.partyLobbySummary, loading, error };
+}
+
+export interface CommitteeLobbyTie {
+  org: LobbyOrg;
+  memberCount: number;
+}
+
+/** Top organisations by number of tied members on one committee — pure lookup, no fetching. Biggest tally first. */
+export function useCommitteeLobbySummary(committeeId: string | null): { ties: CommitteeLobbyTie[]; loading: boolean; error: string | null } {
+  const { snapshot, loading, error } = useSnapshot();
+  if (!snapshot || committeeId === null) return { ties: [], loading, error };
+  const links = snapshot.lobbyLinks;
+  const ties = (links.committeeLobbySummary[committeeId] ?? [])
+    .map((t) => {
+      const org = links.orgs[t.orgId];
+      return org ? { org, memberCount: t.memberCount } : null;
+    })
+    .filter((t): t is CommitteeLobbyTie => t !== null);
+  return { ties, loading, error };
 }
 
 export interface OrgPartyTie {
