@@ -3,6 +3,20 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # The five fetch-*.yml jobs push their data commits with the default GITHUB_TOKEN, and GitHub
+  # deliberately does not fire `push`-triggered workflows for GITHUB_TOKEN-authored pushes (it
+  # would otherwise be trivial to build an infinite workflow loop). Without this, the site only
+  # redeploys when a human pushes a code change — freshly fetched data could sit committed on
+  # main for days without ever reaching the live site. Listing each fetch workflow by name here
+  # closes that gap.
+  workflow_run:
+    workflows:
+      - Fetch core data (roster, polls, votes)
+      - Fetch Lobbyregister
+      - Fetch party donations (Parteispenden)
+      - Fetch sidejobs data (Nebeneinkünfte)
+      - Fetch committee assignments
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -16,6 +30,8 @@ concurrency:
 
 jobs:
   build:
+    # Don't redeploy off a fetch run that failed partway and left nothing new committed.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
