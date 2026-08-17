@@ -1031,9 +1031,10 @@ function OrgInfluenceBarChart({
             key={d.org.id}
             href={orgHref(d.org.id)}
             onClick={stop(() => onSelectOrg(d.org.id))}
+            className="org-bar-row"
             style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
           >
-            <div style={{ width: 200, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600 }}>
+            <div className="org-bar-label" style={{ width: 200, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600 }}>
               <span style={{ width: 9, height: 9, borderRadius: '50%', background: 'oklch(58% 0.13 265)', flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={d.org.name}>
                 {d.org.name}
@@ -1051,7 +1052,7 @@ function OrgInfluenceBarChart({
                 }}
               />
             </div>
-            <span style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', whiteSpace: 'nowrap', flexShrink: 0, width: 100 }}>
+            <span className="org-bar-value" style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', whiteSpace: 'nowrap', flexShrink: 0, width: 100 }}>
               {membersTemplate.replace('{n}', String(d.memberCount))}
             </span>
           </a>

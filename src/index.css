@@ -118,6 +118,22 @@ button {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  /* Same problem, same fix, for the committee-page "tied organisations" bar chart
+     (OrgInfluenceBarChart) — its label+value columns are wider than donation-row's,
+     so on a narrow phone the bar was being squeezed down to a sliver. */
+  .org-bar-row {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+  .org-bar-row .org-bar-label {
+    width: 100% !important;
+  }
+  .org-bar-row .org-bar-value {
+    width: 90px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 /* Metric toggles (e.g. the sector chart's Abgeordnete/Organisationen/Lobbyausgaben switch):
