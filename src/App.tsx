@@ -1479,6 +1479,7 @@ function App() {
   const [conflictsSort, setConflictsSort] = useState<SortState>(null);
   const [topicalSort, setTopicalSort] = useState<SortState>(null);
   const [donationsSort, setDonationsSort] = useState<SortState>(null);
+  const [donationsPartyFilter, setDonationsPartyFilter] = useState<Set<string>>(new Set());
   const [partyOrgsSort, setPartyOrgsSort] = useState<SortState>(null);
   const [partyDonationsSort, setPartyDonationsSort] = useState<SortState>(null);
   const [partyDonationsExpanded, setPartyDonationsExpanded] = useState(false);
@@ -4305,18 +4306,45 @@ function App() {
               {(() => {
                 const donationValue = (d: (typeof partyDonations.all)[number], key: string): string | number | null => {
                   switch (key) {
-                    case 'party': return d.party;
+                    case 'party': return d.fraction;
                     case 'donor': return d.donor;
                     case 'amount': return d.amountEuro;
                     case 'date': return d.receivedOn;
                     default: return null;
                   }
                 };
+                const donationsPartyOptions = countOptions(partyDonations.all.map((d) => d.fraction));
+                const filteredDonations =
+                  donationsPartyFilter.size === 0 ? partyDonations.all : partyDonations.all.filter((d) => donationsPartyFilter.has(d.fraction));
+                // "Multi-parameter" sort: whichever column is clicked is the primary key, but ties
+                // within it fall back to amount (descending) as a secondary key — sorting by Partei
+                // then getting a meaningful within-party order is the actual point of this table,
+                // not an alphabetical-by-donor tie order that's really just insertion order.
                 const sortedDonations = donationsSort
-                  ? [...partyDonations.all].sort((a, b) => compareSortValues(donationValue(a, donationsSort.key), donationValue(b, donationsSort.key), donationsSort.dir))
-                  : partyDonations.all;
+                  ? [...filteredDonations].sort((a, b) => {
+                      const primary = compareSortValues(donationValue(a, donationsSort.key), donationValue(b, donationsSort.key), donationsSort.dir);
+                      return primary !== 0 || donationsSort.key === 'amount' ? primary : b.amountEuro - a.amountEuro;
+                    })
+                  : filteredDonations;
                 return (
                   <>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                      <MultiSelectFilter
+                        label={t.filterParty}
+                        options={donationsPartyOptions}
+                        selected={donationsPartyFilter}
+                        onToggle={(v) => setDonationsPartyFilter((prev) => toggleInSet(prev, v))}
+                        onClear={() => setDonationsPartyFilter(new Set())}
+                        allLabel={t.filterAllLabel}
+                        selectedCountTemplate={t.filterSelectedCountTemplate}
+                        clearLabel={t.clearAllFilters}
+                      />
+                      {donationsPartyFilter.size > 0 && (
+                        <span style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)' }}>
+                          {sortedDonations.length} {t.results}
+                        </span>
+                      )}
+                    </div>
                     <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                         <thead>
@@ -4333,7 +4361,10 @@ function App() {
                             const lobbyOrg = lobbyOrgId ? snapshot?.lobbyLinks.orgs[lobbyOrgId] : undefined;
                             return (
                               <tr key={`${d.publishedOn}-${d.donor}-${d.party}-${i}`} style={{ borderTop: '1px solid oklch(93% 0.006 260)' }}>
-                                <td style={{ padding: '10px 14px', fontWeight: 600 }}>{d.party}</td>
+                                <td style={{ padding: '10px 14px', fontWeight: 600 }}>
+                                  {d.fraction}
+                                  {d.fraction !== d.party && <span style={{ display: 'block', fontWeight: 400, fontSize: 11, color: 'oklch(55% 0.01 260)' }}>{d.party}</span>}
+                                </td>
                                 <td style={{ padding: '10px 14px' }}>
                                   {d.donor}
                                   {d.donorCity && <span style={{ color: 'oklch(55% 0.01 260)' }}> · {d.donorCity}</span>}
@@ -5359,6 +5390,10 @@ function App() {
                       <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
                         <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.partyDonationsCountLabel}</div>
                         <div style={{ fontSize: 24, fontWeight: 800 }}>{partyDonationSummary?.count ?? 0}</div>
+                      </div>
+                      <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
+                        <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.partyDonorsCountLabel}</div>
+                        <div style={{ fontSize: 24, fontWeight: 800 }}>{partyDonationSummary?.donorCount ?? 0}</div>
                       </div>
                     </div>
                     {partyDonationList.length === 0 ? (

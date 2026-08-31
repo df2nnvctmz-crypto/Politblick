@@ -353,6 +353,12 @@ export interface PartyDonationSummary {
   fraction: string;
   total: number;
   count: number;
+  /** Distinct donors, not distinct donations — one donor giving 3 times is 1 here, 3 in `count`.
+   * Computed here, once, from the same `fraction` grouping everything else on this page uses —
+   * see fetch-parteispenden.mjs's KNOWN_PARTY_LABELS for why that matters: a donor's name is
+   * recorded verbatim per row, but the party label has multiple legal-name variants that must be
+   * normalised to `fraction` first, or both this count and the total silently undercount. */
+  donorCount: number;
   donations: PartyDonation[];
 }
 
@@ -377,6 +383,7 @@ export function usePartyDonations(): {
       fraction,
       total: donations.reduce((sum, d) => sum + d.amountEuro, 0),
       count: donations.length,
+      donorCount: new Set(donations.map((d) => d.donor)).size,
       donations: [...donations].sort((a, b) => b.amountEuro - a.amountEuro),
     }))
     .sort((a, b) => b.total - a.total);
