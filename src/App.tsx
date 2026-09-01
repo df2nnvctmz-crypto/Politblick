@@ -287,6 +287,50 @@ function InfoTooltip({ text }: { text: string }) {
   );
 }
 
+/**
+ * Second-level tab bar used inside a single Lobby & Finanzen sub-page (Parteien, Organisationen,
+ * Verflechtungen, Spenden) to split its content into focused views instead of one long vertical
+ * stack — styled to match the party page's top-level tab bar so the pattern reads the same
+ * everywhere. Deliberately local state (not URL-routed) since it's a view of content already
+ * selected by the routed lobbyTab, not a distinct page.
+ */
+function SubTabBar<K extends string>({ tabs, active, onChange }: { tabs: { key: K; label: string }[]; active: K; onChange: (key: K) => void }) {
+  return (
+    <div
+      className="pb-scroll"
+      style={{
+        display: 'flex',
+        gap: 8,
+        borderBottom: '1px solid oklch(90% 0.006 260)',
+        marginBottom: 20,
+        overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch',
+      }}
+    >
+      {tabs.map((tab) => (
+        <button
+          key={tab.key}
+          onClick={() => onChange(tab.key)}
+          style={{
+            padding: '10px 4px',
+            border: 'none',
+            background: 'none',
+            cursor: 'pointer',
+            fontSize: 13.5,
+            fontWeight: 600,
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            borderBottom: `2px solid ${active === tab.key ? 'oklch(45% 0.16 265)' : 'transparent'}`,
+            color: active === tab.key ? 'oklch(20% 0.01 260)' : 'oklch(50% 0.01 260)',
+          }}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 type SortState = { key: string; dir: 'asc' | 'desc' } | null;
 
 function toggleSort(prev: SortState, key: string): SortState {
@@ -1511,6 +1555,11 @@ function App() {
   const [sectorMetric, setSectorMetric] = useState<SectorMetric>('members');
   const [profileTab, setProfileTab] = useState<ProfileTab>(initialRoute.profileTab);
   const [lobbyTab, setLobbyTab] = useState<LobbyTab>(initialRoute.lobbyTab);
+  // Second-level tabs within a single Lobby & Finanzen sub-page — local only, not URL-routed (see SubTabBar).
+  const [lobbyPartiesSubTab, setLobbyPartiesSubTab] = useState<'network' | 'byParty'>('network');
+  const [lobbyOrgsSubTab, setLobbyOrgsSubTab] = useState<'distribution' | 'list'>('distribution');
+  const [lobbyConflictsSubTab, setLobbyConflictsSubTab] = useState<'direct' | 'topical'>('direct');
+  const [lobbyDonationsSubTab, setLobbyDonationsSubTab] = useState<'totals' | 'timeline' | 'topDonors' | 'all'>('totals');
   const [partyTab, setPartyTab] = useState<PartyTab>(initialRoute.partyTab);
   const [searchQuery, setSearchQuery] = useState('');
   const [partyFilter, setPartyFilter] = useState<Record<string, boolean>>({});
@@ -3804,71 +3853,96 @@ function App() {
           {lobbyTab === 'parties' && (
             <>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t.partyLobbyTitle}</h2>
-              <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 20px', maxWidth: 760 }}>{t.partyLobbySub}</p>
+              <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 16px', maxWidth: 760 }}>{t.partyLobbySub}</p>
 
-              <PartyOrgGraph
-                orgs={orgNetwork.orgs}
-                parties={parties}
-                onOpenOrg={openOrg}
-                onOpenParty={(party) => openParty(party, 'crossref')}
-                orgHref={orgHref}
-                partyHref={(party) => partyHref(party)}
-                isPartyRoutable={(party) => routablePartyNames.has(party)}
-                filenameBase="politblick-lobby-netzwerk"
-                exportLabels={exportLabels}
-                labels={{
-                  sub: t.networkSub,
-                  crossPartyToggle: t.networkToggleCrossParty,
-                  allToggle: t.networkToggleAll,
-                  orgCountTemplate: t.networkOrgCountTemplate,
-                  viewOrg: t.networkViewOrg,
-                  viewParty: t.networkViewParty,
-                  empty: t.networkEmpty,
-                }}
+              <SubTabBar
+                tabs={[
+                  { key: 'network' as const, label: t.lobbyPartiesSubTabNetwork },
+                  { key: 'byParty' as const, label: t.lobbyPartiesSubTabByParty },
+                ]}
+                active={lobbyPartiesSubTab}
+                onChange={setLobbyPartiesSubTab}
               />
 
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: '28px 0 12px' }}>{t.partyDetailOrgsTitle}</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 12 }}>
-                {partyLobby.summaries.map((p) => (
-                  <a
-                    key={p.party}
-                    href={partyHref(p.party)}
-                    onClick={stop(() => openParty(p.party, 'crossref'))}
-                    style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'block', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
-                      <span style={{ width: 9, height: 9, borderRadius: '50%', background: REAL_PARTY_COLORS[p.party] || FALLBACK_PARTY_COLOR, flexShrink: 0 }} />
-                      <span style={{ fontWeight: 700, fontSize: 14 }}>{p.party}</span>
-                    </div>
-                    <div style={{ fontSize: 13, color: 'oklch(45% 0.01 260)' }}>{t.partyLobbyOrgCountTemplate.replace('{n}', String(p.orgCount))}</div>
-                    <div style={{ fontSize: 12, color: 'oklch(50% 0.01 260)', marginBottom: 8 }}>
-                      {t.partyLobbyMemberCountTemplate.replace('{n}', String(p.memberCount))}
-                    </div>
-                    <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em', color: 'oklch(55% 0.01 260)', marginBottom: 4 }}>
-                      {t.partyLobbyTopFieldsLabel}
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
-                      {p.byField.slice(0, 4).map((f) => (
-                        <span key={f.field} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'oklch(95% 0.008 260)', color: 'oklch(40% 0.01 260)' }}>
-                          {f.field} ({f.orgCount})
-                        </span>
-                      ))}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'oklch(50% 0.01 260)', marginBottom: 8 }}>
-                      {t.partyLobbySpendLabel}: {formatExpenseBracket(p.expensesEuro)}
-                    </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: 'oklch(48% 0.12 250)' }}>{t.seeAll} →</span>
-                  </a>
-                ))}
-              </div>
+              {lobbyPartiesSubTab === 'network' && (
+                <PartyOrgGraph
+                  orgs={orgNetwork.orgs}
+                  parties={parties}
+                  onOpenOrg={openOrg}
+                  onOpenParty={(party) => openParty(party, 'crossref')}
+                  orgHref={orgHref}
+                  partyHref={(party) => partyHref(party)}
+                  isPartyRoutable={(party) => routablePartyNames.has(party)}
+                  filenameBase="politblick-lobby-netzwerk"
+                  exportLabels={exportLabels}
+                  labels={{
+                    sub: t.networkSub,
+                    crossPartyToggle: t.networkToggleCrossParty,
+                    allToggle: t.networkToggleAll,
+                    orgCountTemplate: t.networkOrgCountTemplate,
+                    viewOrg: t.networkViewOrg,
+                    viewParty: t.networkViewParty,
+                    empty: t.networkEmpty,
+                  }}
+                />
+              )}
+
+              {lobbyPartiesSubTab === 'byParty' && (
+                <>
+                  <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 12px' }}>{t.partyDetailOrgsTitle}</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 12 }}>
+                    {partyLobby.summaries.map((p) => (
+                      <a
+                        key={p.party}
+                        href={partyHref(p.party)}
+                        onClick={stop(() => openParty(p.party, 'crossref'))}
+                        style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'block', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '14px 16px' }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
+                          <span style={{ width: 9, height: 9, borderRadius: '50%', background: REAL_PARTY_COLORS[p.party] || FALLBACK_PARTY_COLOR, flexShrink: 0 }} />
+                          <span style={{ fontWeight: 700, fontSize: 14 }}>{p.party}</span>
+                        </div>
+                        <div style={{ fontSize: 13, color: 'oklch(45% 0.01 260)' }}>{t.partyLobbyOrgCountTemplate.replace('{n}', String(p.orgCount))}</div>
+                        <div style={{ fontSize: 12, color: 'oklch(50% 0.01 260)', marginBottom: 8 }}>
+                          {t.partyLobbyMemberCountTemplate.replace('{n}', String(p.memberCount))}
+                        </div>
+                        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em', color: 'oklch(55% 0.01 260)', marginBottom: 4 }}>
+                          {t.partyLobbyTopFieldsLabel}
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
+                          {p.byField.slice(0, 4).map((f) => (
+                            <span key={f.field} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'oklch(95% 0.008 260)', color: 'oklch(40% 0.01 260)' }}>
+                              {f.field} ({f.orgCount})
+                            </span>
+                          ))}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'oklch(50% 0.01 260)', marginBottom: 8 }}>
+                          {t.partyLobbySpendLabel}: {formatExpenseBracket(p.expensesEuro)}
+                        </div>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'oklch(48% 0.12 250)' }}>{t.seeAll} →</span>
+                      </a>
+                    ))}
+                  </div>
+                </>
+              )}
             </>
           )}
 
           {lobbyTab === 'orgs' && (
             <>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t.orgsSectionTitle}</h2>
-              <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.orgsSectionSub}</p>
-              {sectorStats.length > 0 && (
+              <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 16px', maxWidth: 700 }}>{t.orgsSectionSub}</p>
+
+              <SubTabBar
+                tabs={[
+                  { key: 'distribution' as const, label: t.lobbyOrgsSubTabDistribution },
+                  { key: 'list' as const, label: t.lobbyOrgsSubTabList },
+                ]}
+                active={lobbyOrgsSubTab}
+                onChange={setLobbyOrgsSubTab}
+              />
+
+              {lobbyOrgsSubTab === 'distribution' && sectorStats.length > 0 && (
                 <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, padding: 16, marginBottom: 20 }}>
                   <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 4 }}>
                     <h3 style={{ fontSize: 14.5, fontWeight: 700, margin: 0 }}>{t.sectorChartTitle}</h3>
@@ -3907,6 +3981,9 @@ function App() {
                   />
                 </div>
               )}
+
+              {lobbyOrgsSubTab === 'list' && (
+                <>
               <input
                 type="text"
                 value={orgSearchQuery}
@@ -4021,11 +4098,24 @@ function App() {
                   );
                 })()
               )}
+                </>
+              )}
             </>
           )}
 
           {lobbyTab === 'conflicts' && (
             <>
+              <SubTabBar
+                tabs={[
+                  { key: 'direct' as const, label: t.lobbyConflictsSubTabDirect },
+                  { key: 'topical' as const, label: t.lobbyConflictsSubTabTopical },
+                ]}
+                active={lobbyConflictsSubTab}
+                onChange={setLobbyConflictsSubTab}
+              />
+
+              {lobbyConflictsSubTab === 'direct' && (
+                <>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px' }}>{t.crossrefTitle}</h2>
               {crossref.rows.length === 0 ? (
                 <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.crossrefEmpty}</p>
@@ -4165,8 +4255,12 @@ function App() {
               <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 10, lineHeight: 1.6, maxWidth: 760 }}>
                 {t.lobbyNoPositionNote}
               </p>
+                </>
+              )}
 
-              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '32px 0 4px' }}>{t.topicalTiesTitle}</h2>
+              {lobbyConflictsSubTab === 'topical' && (
+                <>
+              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t.topicalTiesTitle}</h2>
               <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 760 }}>{t.topicalTiesSub}</p>
               {topicalTieRows.rows.length === 0 ? (
                 <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.topicalTiesEmpty}</p>
@@ -4315,20 +4409,38 @@ function App() {
               <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 10, lineHeight: 1.6, maxWidth: 760 }}>
                 {t.topicalTieNote}
               </p>
+                </>
+              )}
             </>
           )}
 
           {lobbyTab === 'donations' && (
             <>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t.donationsTitle}</h2>
-              <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 700 }}>{t.donationsSub}</p>
-              <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '16px 18px', marginBottom: 18 }}>
-                <DonationBarChart data={partyDonations.byFraction} filenameBase="politblick-grossspenden-nach-partei" exportLabels={exportLabels} />
-              </div>
+              <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 16px', maxWidth: 700 }}>{t.donationsSub}</p>
 
+              <SubTabBar
+                tabs={[
+                  { key: 'totals' as const, label: t.lobbyDonationsSubTabTotals },
+                  { key: 'timeline' as const, label: t.lobbyDonationsSubTabTimeline },
+                  { key: 'topDonors' as const, label: t.lobbyDonationsSubTabTopDonors },
+                  { key: 'all' as const, label: t.lobbyDonationsSubTabAll },
+                ]}
+                active={lobbyDonationsSubTab}
+                onChange={setLobbyDonationsSubTab}
+              />
+
+              {lobbyDonationsSubTab === 'totals' && (
+                <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '16px 18px' }}>
+                  <DonationBarChart data={partyDonations.byFraction} filenameBase="politblick-grossspenden-nach-partei" exportLabels={exportLabels} />
+                </div>
+              )}
+
+              {lobbyDonationsSubTab === 'timeline' && (
+                <>
               <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.donationTimelineTitle}</h3>
               <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.donationTimelineSub}</p>
-              <div style={{ marginBottom: 18 }}>
+              <div>
                 <DonationTimeline
                   donations={partyDonations.all}
                   filenameBase="politblick-grossspenden-alle-parteien"
@@ -4343,10 +4455,14 @@ function App() {
                   }}
                 />
               </div>
+                </>
+              )}
 
+              {lobbyDonationsSubTab === 'topDonors' && (
+                <>
               <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.donationSankeyTitle}</h3>
               <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.donationSankeySub}</p>
-              <div style={{ marginBottom: 18 }}>
+              <div>
                 <DonationSankey
                   donations={partyDonations.all}
                   fractionTotals={Object.fromEntries(partyDonations.byFraction.map((f) => [f.fraction, f.total]))}
@@ -4363,7 +4479,11 @@ function App() {
                   }}
                 />
               </div>
+                </>
+              )}
 
+              {lobbyDonationsSubTab === 'all' && (
+                <>
               {(() => {
                 const donationValue = (d: (typeof partyDonations.all)[number], key: string): string | number | null => {
                   switch (key) {
@@ -4482,6 +4602,8 @@ function App() {
                 );
               })()}
               <p style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 10 }}>{t.donationsSource}</p>
+                </>
+              )}
             </>
           )}
         </main>

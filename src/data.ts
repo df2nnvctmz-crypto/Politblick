@@ -304,6 +304,11 @@ export interface Translation {
   networkOrgCountTemplate: string; networkViewOrg: string; networkViewParty: string; networkEmpty: string;
   showMoreTemplate: string; showLess: string;
   infoVerflechtung: string; infoAuffaelligkeit: string; infoThemenfeld: string;
+  lobbyPartiesSubTabNetwork: string; lobbyPartiesSubTabByParty: string;
+  lobbyOrgsSubTabDistribution: string; lobbyOrgsSubTabList: string;
+  lobbyConflictsSubTabDirect: string; lobbyConflictsSubTabTopical: string;
+  lobbyDonationsSubTabTotals: string; lobbyDonationsSubTabTimeline: string;
+  lobbyDonationsSubTabTopDonors: string; lobbyDonationsSubTabAll: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -531,6 +536,11 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       'Eine Auffälligkeit markiert eine Abstimmung, bei der ein:e Abgeordnete:r von der Mehrheitslinie der eigenen Fraktion abgewichen ist. Eine statistische Beobachtung, keine Unterstellung von Fehlverhalten.',
     infoThemenfeld:
       'Schwächerer Hinweis als eine Verflechtung: Die Organisation hat kein Interessengebiet angemeldet, das speziell auf diese Abstimmung verweist — nur ein allgemeines Interessengebiet, das laut Politblick-Redaktion zum Thema passt. Kein dokumentierter Bezug zu dieser Abstimmung.',
+    lobbyPartiesSubTabNetwork: 'Netzwerk', lobbyPartiesSubTabByParty: 'Nach Partei',
+    lobbyOrgsSubTabDistribution: 'Verteilung', lobbyOrgsSubTabList: 'Organisationen',
+    lobbyConflictsSubTabDirect: 'Direkte Verflechtungen', lobbyConflictsSubTabTopical: 'Thematische Nähe',
+    lobbyDonationsSubTabTotals: 'Gesamtspenden', lobbyDonationsSubTabTimeline: 'Spenden über Zeit',
+    lobbyDonationsSubTabTopDonors: 'Großspender', lobbyDonationsSubTabAll: 'Alle Spenden',
   },
   en: {
     navHome: 'Home', navParliament: 'Parliament', navMps: 'MPs', navMpsSearch: 'Search MPs', navParties: 'Parties', navCommittees: 'Committees', navPolls: 'Votes', navLobbyFinance: 'Lobby & Finance',
@@ -756,5 +766,10 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       "A flag marks a vote where an MP broke from their own fraction's majority line. A statistical observation, not an accusation of wrongdoing.",
     infoThemenfeld:
       "A weaker signal than a documented tie: the organization hasn't registered lobbying that specifically names this vote — only a general field of interest that Politblick's editors judged to match the topic. No documented link to this particular vote.",
+    lobbyPartiesSubTabNetwork: 'Network', lobbyPartiesSubTabByParty: 'By party',
+    lobbyOrgsSubTabDistribution: 'Distribution', lobbyOrgsSubTabList: 'Organizations',
+    lobbyConflictsSubTabDirect: 'Direct ties', lobbyConflictsSubTabTopical: 'Topical ties',
+    lobbyDonationsSubTabTotals: 'Total donations', lobbyDonationsSubTabTimeline: 'Donations over time',
+    lobbyDonationsSubTabTopDonors: 'Top donors', lobbyDonationsSubTabAll: 'All donations',
   },
 };
