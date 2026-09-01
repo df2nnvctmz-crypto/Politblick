@@ -248,6 +248,12 @@ export interface Translation {
   chartExportLabel: string; chartExportCsv: string; chartExportSvg: string; chartExportPng: string;
   donationsTitle: string; donationsSub: string; donationsColParty: string;
   donationsColDonor: string; donationsColAmount: string; donationsColDate: string;
+  /** Same underlying idea (a donor's summed total), but the two tables scope it differently — the
+   * global table sums across every party, the per-party table sums only within that one party —
+   * so the header text itself has to say which, not just page context, or the same donor showing
+   * two different numbers on two pages reads as a bug rather than two deliberately different
+   * questions ("how much did they give in total" vs. "how much did they give to this party"). */
+  donationsColDonorTotalAll: string; donationsColDonorTotalPartyTemplate: string;
   donationsAlsoLobbyist: string; donationsSource: string;
   lobbyAsOfTemplate: string; donationsAsOfTemplate: string;
   crossrefTitle: string; crossrefEmpty: string; colOrg: string; colBill: string;
@@ -418,6 +424,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationsTitle: 'Großspenden an Parteien',
     donationsSub: 'Einzelspenden über 35.000 € (bis März 2024: über 50.000 €), veröffentlicht von der Bundestagspräsidentin.',
     donationsColParty: 'Partei', donationsColDonor: 'Spender', donationsColAmount: 'Betrag', donationsColDate: 'Eingang',
+    donationsColDonorTotalAll: 'Spender insgesamt (alle Parteien)', donationsColDonorTotalPartyTemplate: 'Spender insgesamt bei {party}',
     donationsAlsoLobbyist: 'Auch im Lobbyregister eingetragen',
     donationsSource: 'Quelle: Veröffentlichungen der Bundestagspräsidentin nach § 25 Abs. 3 PartG.',
     lobbyAsOfTemplate: 'Lobbyregister: Stand {date}',
@@ -642,6 +649,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationsTitle: 'Large donations to parties',
     donationsSub: 'Single donations above €35,000 (before March 2024: above €50,000), published by the President of the Bundestag.',
     donationsColParty: 'Party', donationsColDonor: 'Donor', donationsColAmount: 'Amount', donationsColDate: 'Received',
+    donationsColDonorTotalAll: 'Donor total (all parties)', donationsColDonorTotalPartyTemplate: 'Donor total at {party}',
     donationsAlsoLobbyist: 'Also listed in the lobby register',
     donationsSource: 'Source: Publications by the President of the Bundestag under § 25 (3) PartG.',
     lobbyAsOfTemplate: 'Lobby register: as of {date}',

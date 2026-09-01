@@ -369,7 +369,12 @@ function MultiSortableTh({ label, sortKey, sort, onSort }: { label: string; sort
         color: active ? 'oklch(35% 0.14 265)' : 'oklch(45% 0.01 260)',
         cursor: 'pointer',
         userSelect: 'none',
-        whiteSpace: 'nowrap',
+        // Unlike SortableTh's short single-word labels, this one also carries the longer
+        // donor-total headers ("Spender insgesamt bei CDU/CSU") — letting those wrap onto a
+        // second line keeps the column (and so the whole table) from being stretched wide by
+        // one long label while every other column stays narrow.
+        whiteSpace: 'normal',
+        maxWidth: 140,
       }}
     >
       {label}
@@ -4366,6 +4371,7 @@ function App() {
                     case 'donor': return d.donor;
                     case 'amount': return d.amountEuro;
                     case 'date': return d.receivedOn;
+                    case 'donorTotal': return d.donor ? (partyDonations.donorTotals.get(d.donor) ?? 0) : null;
                     default: return null;
                   }
                 };
@@ -4414,6 +4420,7 @@ function App() {
                             <MultiSortableTh label={t.donationsColParty} sortKey="party" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleMultiSort(prev, k))} />
                             <MultiSortableTh label={t.donationsColDonor} sortKey="donor" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleMultiSort(prev, k))} />
                             <MultiSortableTh label={t.donationsColAmount} sortKey="amount" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleMultiSort(prev, k))} />
+                            <MultiSortableTh label={t.donationsColDonorTotalAll} sortKey="donorTotal" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleMultiSort(prev, k))} />
                             <MultiSortableTh label={t.donationsColDate} sortKey="date" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleMultiSort(prev, k))} />
                           </tr>
                         </thead>
@@ -4421,6 +4428,8 @@ function App() {
                           {sortedDonations.slice(0, donationsExpanded ? sortedDonations.length : 10).map((d, i) => {
                             const lobbyOrgId = d.donor ? snapshot?.lobbyLinks.donorLinks[d.donor] : undefined;
                             const lobbyOrg = lobbyOrgId ? snapshot?.lobbyLinks.orgs[lobbyOrgId] : undefined;
+                            const donorTotal = d.donor ? (partyDonations.donorTotals.get(d.donor) ?? d.amountEuro) : d.amountEuro;
+                            const isRepeatDonor = donorTotal > d.amountEuro;
                             return (
                               <tr key={`${d.publishedOn}-${d.donor}-${d.party}-${i}`} style={{ borderTop: '1px solid oklch(93% 0.006 260)' }}>
                                 <td style={{ padding: '10px 14px', fontWeight: 600 }}>
@@ -4441,6 +4450,9 @@ function App() {
                                   )}
                                 </td>
                                 <td style={{ padding: '10px 14px', fontWeight: 600 }}>{formatEuro(d.amountEuro)}</td>
+                                <td style={{ padding: '10px 14px', fontWeight: isRepeatDonor ? 700 : 400, color: isRepeatDonor ? 'oklch(48% 0.14 60)' : 'oklch(55% 0.01 260)' }}>
+                                  {formatEuro(donorTotal)}
+                                </td>
                                 <td style={{ padding: '10px 14px' }}>
                                   <a
                                     href={d.sourceUrl}
@@ -5462,11 +5474,21 @@ function App() {
                       <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.partyDonationsEmpty}</p>
                     ) : (
                       (() => {
+                        // Scoped to this party only, deliberately unlike the global table's column
+                        // of the same name — a page already filtered down to one party implies
+                        // everything on it is about that party, so a total that silently included
+                        // other parties' donations would read as inconsistent with the numbers
+                        // visibly summing on the same page, not as a bonus cross-party insight.
+                        const partyDonorTotals = new Map<string, number>();
+                        for (const d of partyDonationList) {
+                          if (d.donor) partyDonorTotals.set(d.donor, (partyDonorTotals.get(d.donor) ?? 0) + d.amountEuro);
+                        }
                         const donationValue = (d: (typeof partyDonationList)[number], key: string): string | number | null => {
                           switch (key) {
                             case 'donor': return d.donor;
                             case 'amount': return d.amountEuro;
                             case 'date': return d.receivedOn;
+                            case 'donorTotal': return d.donor ? (partyDonorTotals.get(d.donor) ?? 0) : null;
                             default: return null;
                           }
                         };
@@ -5521,6 +5543,7 @@ function App() {
                                   <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
                                     <MultiSortableTh label={t.donationsColDonor} sortKey="donor" sort={partyDonationsSort} onSort={(k) => setPartyDonationsSort((prev) => toggleMultiSort(prev, k))} />
                                     <MultiSortableTh label={t.donationsColAmount} sortKey="amount" sort={partyDonationsSort} onSort={(k) => setPartyDonationsSort((prev) => toggleMultiSort(prev, k))} />
+                                    <MultiSortableTh label={t.donationsColDonorTotalPartyTemplate.replace('{party}', p.party)} sortKey="donorTotal" sort={partyDonationsSort} onSort={(k) => setPartyDonationsSort((prev) => toggleMultiSort(prev, k))} />
                                     <MultiSortableTh label={t.donationsColDate} sortKey="date" sort={partyDonationsSort} onSort={(k) => setPartyDonationsSort((prev) => toggleMultiSort(prev, k))} />
                                   </tr>
                                 </thead>
@@ -5528,6 +5551,8 @@ function App() {
                                   {sortedPartyDonations.slice(0, partyDonationsExpanded ? sortedPartyDonations.length : 10).map((d, i) => {
                                     const lobbyOrgId = d.donor ? snapshot?.lobbyLinks.donorLinks[d.donor] : undefined;
                                     const lobbyOrg = lobbyOrgId ? snapshot?.lobbyLinks.orgs[lobbyOrgId] : undefined;
+                                    const donorTotal = d.donor ? (partyDonorTotals.get(d.donor) ?? d.amountEuro) : d.amountEuro;
+                                    const isRepeatDonor = donorTotal > d.amountEuro;
                                     return (
                                       <tr key={`${d.publishedOn}-${d.donor}-${i}`} style={{ borderTop: '1px solid oklch(93% 0.006 260)' }}>
                                         <td style={{ padding: '10px 14px' }}>
@@ -5544,6 +5569,9 @@ function App() {
                                           )}
                                         </td>
                                         <td style={{ padding: '10px 14px', fontWeight: 600 }}>{formatEuro(d.amountEuro)}</td>
+                                        <td style={{ padding: '10px 14px', fontWeight: isRepeatDonor ? 700 : 400, color: isRepeatDonor ? 'oklch(48% 0.14 60)' : 'oklch(55% 0.01 260)' }}>
+                                          {formatEuro(donorTotal)}
+                                        </td>
                                         <td style={{ padding: '10px 14px' }}>
                                           <a
                                             href={d.sourceUrl}

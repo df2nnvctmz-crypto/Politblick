@@ -366,17 +366,24 @@ export interface PartyDonationSummary {
 export function usePartyDonations(): {
   byFraction: PartyDonationSummary[];
   all: PartyDonation[];
+  /** Each donor's grand total across every party, not just the one on a given row — a donor
+   * appearing on 5 rows for 3 different parties (Bitpanda-style) should read the same total on
+   * all 5, so a reader sees the full picture from any single row without having to search or
+   * cross-reference. Keyed by the exact `donor` string, same as the search box matches on. */
+  donorTotals: Map<string, number>;
   loading: boolean;
   error: string | null;
 } {
   const { snapshot, loading, error } = useSnapshot();
-  if (!snapshot) return { byFraction: [], all: [], loading, error };
+  if (!snapshot) return { byFraction: [], all: [], donorTotals: new Map(), loading, error };
   const all = [...snapshot.partyDonations].sort((a, b) => b.amountEuro - a.amountEuro);
   const grouped = new Map<string, PartyDonation[]>();
+  const donorTotals = new Map<string, number>();
   for (const d of snapshot.partyDonations) {
     const list = grouped.get(d.fraction) ?? [];
     list.push(d);
     grouped.set(d.fraction, list);
+    if (d.donor) donorTotals.set(d.donor, (donorTotals.get(d.donor) ?? 0) + d.amountEuro);
   }
   const byFraction = [...grouped.entries()]
     .map(([fraction, donations]) => ({
@@ -387,7 +394,7 @@ export function usePartyDonations(): {
       donations: [...donations].sort((a, b) => b.amountEuro - a.amountEuro),
     }))
     .sort((a, b) => b.total - a.total);
-  return { byFraction, all, loading, error };
+  return { byFraction, all, donorTotals, loading, error };
 }
 
 export interface OrgListEntry {
