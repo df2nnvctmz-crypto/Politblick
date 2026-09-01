@@ -76,6 +76,10 @@ button {
   display: none;
 }
 
+.pb-subtab-arrow {
+  display: none;
+}
+
 /* Keeps the MP list's party filter + sort sidebar in view while the (often 600+ row) results
    column scrolls past it — 84px clears the sticky header (66px tall on desktop) plus a little
    breathing room. Reverts to normal flow below the width where the sidebar already wraps onto
@@ -95,6 +99,10 @@ button {
 
 @media (max-width: 720px) {
   .pb-scroll-hint {
+    display: flex;
+  }
+
+  .pb-subtab-arrow {
     display: flex;
   }
 }

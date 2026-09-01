@@ -288,45 +288,105 @@ function InfoTooltip({ text }: { text: string }) {
 }
 
 /**
- * Second-level tab bar used inside a single Lobby & Finanzen sub-page (Parteien, Organisationen,
- * Verflechtungen, Spenden) to split its content into focused views instead of one long vertical
- * stack — styled to match the party page's top-level tab bar so the pattern reads the same
- * everywhere. Deliberately local state (not URL-routed) since it's a view of content already
- * selected by the routed lobbyTab, not a distinct page.
+ * Tab bar used both for the party page's top-level tabs and for the second-level tabs inside a
+ * single Lobby & Finanzen sub-page (Parteien, Organisationen, Verflechtungen, Spenden) — splits
+ * content into focused views instead of one long vertical stack. On narrow screens the row can
+ * overflow (e.g. "Direkte Verflechtungen" + "Thematische Nähe" don't fit a phone width), so it
+ * tracks scroll position the same way ScrollBox does for wide tables and shows a small trailing
+ * chevron over the right edge whenever there's more to scroll to, so a later tab never just goes
+ * silently missing off-screen. The chevron is mobile-only (see .pb-subtab-arrow in index.css) —
+ * desktop either fits every tab or has an always-visible native scrollbar, so the hint would just
+ * be noise there.
  */
 function SubTabBar<K extends string>({ tabs, active, onChange }: { tabs: { key: K; label: string }[]; active: K; onChange: (key: K) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateOverflow = () => {
+    const el = ref.current;
+    if (!el) return;
+    const next = el.scrollWidth > el.clientWidth + el.scrollLeft + 2;
+    setCanScrollRight((prev) => (prev === next ? prev : next));
+  };
+
+  useEffect(() => {
+    updateOverflow();
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(updateOverflow);
+    ro.observe(el);
+    return () => ro.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabs.length]);
+
   return (
-    <div
-      className="pb-scroll"
-      style={{
-        display: 'flex',
-        gap: 8,
-        borderBottom: '1px solid oklch(90% 0.006 260)',
-        marginBottom: 20,
-        overflowX: 'auto',
-        WebkitOverflowScrolling: 'touch',
-      }}
-    >
-      {tabs.map((tab) => (
-        <button
-          key={tab.key}
-          onClick={() => onChange(tab.key)}
+    <div style={{ position: 'relative', marginBottom: 24 }}>
+      <div
+        ref={ref}
+        onScroll={updateOverflow}
+        className="pb-scroll"
+        style={{
+          display: 'flex',
+          gap: 8,
+          borderBottom: '1px solid oklch(90% 0.006 260)',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => onChange(tab.key)}
+            style={{
+              padding: '10px 4px',
+              border: 'none',
+              background: 'none',
+              cursor: 'pointer',
+              fontSize: 13.5,
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              borderBottom: `2px solid ${active === tab.key ? 'oklch(45% 0.16 265)' : 'transparent'}`,
+              color: active === tab.key ? 'oklch(20% 0.01 260)' : 'oklch(50% 0.01 260)',
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      {canScrollRight && (
+        <span
+          aria-hidden
+          className="pb-subtab-arrow"
           style={{
-            padding: '10px 4px',
-            border: 'none',
-            background: 'none',
-            cursor: 'pointer',
-            fontSize: 13.5,
-            fontWeight: 600,
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-            borderBottom: `2px solid ${active === tab.key ? 'oklch(45% 0.16 265)' : 'transparent'}`,
-            color: active === tab.key ? 'oklch(20% 0.01 260)' : 'oklch(50% 0.01 260)',
+            position: 'absolute',
+            top: 0,
+            bottom: 8,
+            right: -4,
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'none',
           }}
         >
-          {tab.label}
-        </button>
-      ))}
+          <span
+            style={{
+              width: 22,
+              height: 22,
+              borderRadius: '50%',
+              background: 'white',
+              border: '1px solid oklch(85% 0.006 260)',
+              boxShadow: '0 1px 4px oklch(0% 0 0 / 0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="oklch(45% 0.16 265)" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </span>
+        </span>
+      )}
     </div>
   );
 }
@@ -3795,11 +3855,11 @@ function App() {
 
       {view === 'crossref' && (
         <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', width: '100%', padding: 32 }}>
-          <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{t.navLobbyFinance}</h1>
-          <p style={{ fontSize: 14, color: 'oklch(45% 0.01 260)', margin: '0 0 28px', maxWidth: 640 }}>{t.crossrefSub}</p>
-
           {lobbyTab === 'overview' && (
             <>
+              <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{t.navLobbyFinance}</h1>
+              <p style={{ fontSize: 14, color: 'oklch(45% 0.01 260)', margin: '0 0 28px', maxWidth: 640 }}>{t.crossrefSub}</p>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 14, marginBottom: 28 }}>
                 <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
                   <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statOrgsReferencedLabel}</div>
@@ -5234,38 +5294,7 @@ function App() {
                   <h1 style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>{p.party}</h1>
                 </div>
 
-                <div
-                  className="pb-scroll"
-                  style={{
-                    display: 'flex',
-                    gap: 8,
-                    borderBottom: '1px solid oklch(90% 0.006 260)',
-                    marginBottom: 24,
-                    overflowX: 'auto',
-                    WebkitOverflowScrolling: 'touch',
-                  }}
-                >
-                  {partyTabs.map((tab) => (
-                    <button
-                      key={tab.key}
-                      onClick={() => setPartyTab(tab.key)}
-                      style={{
-                        padding: '10px 4px',
-                        border: 'none',
-                        background: 'none',
-                        cursor: 'pointer',
-                        fontSize: 13.5,
-                        fontWeight: 600,
-                        whiteSpace: 'nowrap',
-                        flexShrink: 0,
-                        borderBottom: `2px solid ${partyTab === tab.key ? 'oklch(45% 0.16 265)' : 'transparent'}`,
-                        color: partyTab === tab.key ? 'oklch(20% 0.01 260)' : 'oklch(50% 0.01 260)',
-                      }}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
+                <SubTabBar tabs={partyTabs} active={partyTab} onChange={setPartyTab} />
 
                 {partyTab === 'overview' && (
                   <>
