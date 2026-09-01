@@ -327,6 +327,60 @@ function SortableTh({ label, sortKey, sort, onSort }: { label: string; sortKey: 
   );
 }
 
+/** An ordered list of sort keys — click order is priority order, so "click Partei then Betrag"
+ * sorts by Partei first and uses Betrag only to break ties within a party, not as a competing
+ * global sort. A single-key SortState can't express that: clicking a second column would just
+ * replace the first, losing the grouping. */
+type MultiSortState = { key: string; dir: 'asc' | 'desc' }[];
+
+/** Click cycles a column through three states — unsorted → asc → desc → unsorted (removed) —
+ * without disturbing any other column's position in the priority list, so building up "Partei,
+ * then Betrag" is just clicking each header once in that order. */
+function toggleMultiSort(prev: MultiSortState, key: string): MultiSortState {
+  const existing = prev.find((s) => s.key === key);
+  if (!existing) return [...prev, { key, dir: 'asc' }];
+  if (existing.dir === 'asc') return prev.map((s) => (s.key === key ? { key, dir: 'desc' } : s));
+  return prev.filter((s) => s.key !== key);
+}
+
+function compareMultiSortValues(sort: MultiSortState, valueOf: (key: string) => [string | number | null, string | number | null]): number {
+  for (const { key, dir } of sort) {
+    const [a, b] = valueOf(key);
+    const cmp = compareSortValues(a, b, dir);
+    if (cmp !== 0) return cmp;
+  }
+  return 0;
+}
+
+/** Same as SortableTh, but shows a priority number (1, 2, …) alongside the arrow when more than
+ * one column is active, so it's visible which key is primary vs. a tiebreaker. */
+function MultiSortableTh({ label, sortKey, sort, onSort }: { label: string; sortKey: string; sort: MultiSortState; onSort: (key: string) => void }) {
+  const index = sort.findIndex((s) => s.key === sortKey);
+  const active = index !== -1;
+  return (
+    <th
+      onClick={() => onSort(sortKey)}
+      style={{
+        padding: '10px 14px',
+        fontWeight: 700,
+        fontSize: 11.5,
+        textTransform: 'uppercase',
+        letterSpacing: '0.03em',
+        color: active ? 'oklch(35% 0.14 265)' : 'oklch(45% 0.01 260)',
+        cursor: 'pointer',
+        userSelect: 'none',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {label}
+      <span style={{ marginLeft: 4, fontSize: 9, opacity: active ? 1 : 0.3 }}>
+        {active && sort[index].dir === 'desc' ? '▼' : '▲'}
+        {sort.length > 1 && active ? index + 1 : ''}
+      </span>
+    </th>
+  );
+}
+
 function toggleInSet(set: Set<string>, value: string): Set<string> {
   const next = new Set(set);
   if (next.has(value)) next.delete(value);
@@ -1478,10 +1532,12 @@ function App() {
   const [orgsSort, setOrgsSort] = useState<SortState>(null);
   const [conflictsSort, setConflictsSort] = useState<SortState>(null);
   const [topicalSort, setTopicalSort] = useState<SortState>(null);
-  const [donationsSort, setDonationsSort] = useState<SortState>(null);
+  const [donationsSort, setDonationsSort] = useState<MultiSortState>([]);
   const [donationsPartyFilter, setDonationsPartyFilter] = useState<Set<string>>(new Set());
+  const [donationsDonorQuery, setDonationsDonorQuery] = useState('');
   const [partyOrgsSort, setPartyOrgsSort] = useState<SortState>(null);
-  const [partyDonationsSort, setPartyDonationsSort] = useState<SortState>(null);
+  const [partyDonationsSort, setPartyDonationsSort] = useState<MultiSortState>([]);
+  const [partyDonationsDonorQuery, setPartyDonationsDonorQuery] = useState('');
   const [partyDonationsExpanded, setPartyDonationsExpanded] = useState(false);
   const [partyVotesExpanded, setPartyVotesExpanded] = useState(false);
   const [partyTopicalExpanded, setPartyTopicalExpanded] = useState(false);
@@ -4314,18 +4370,17 @@ function App() {
                   }
                 };
                 const donationsPartyOptions = countOptions(partyDonations.all.map((d) => d.fraction));
-                const filteredDonations =
-                  donationsPartyFilter.size === 0 ? partyDonations.all : partyDonations.all.filter((d) => donationsPartyFilter.has(d.fraction));
-                // "Multi-parameter" sort: whichever column is clicked is the primary key, but ties
-                // within it fall back to amount (descending) as a secondary key — sorting by Partei
-                // then getting a meaningful within-party order is the actual point of this table,
-                // not an alphabetical-by-donor tie order that's really just insertion order.
-                const sortedDonations = donationsSort
-                  ? [...filteredDonations].sort((a, b) => {
-                      const primary = compareSortValues(donationValue(a, donationsSort.key), donationValue(b, donationsSort.key), donationsSort.dir);
-                      return primary !== 0 || donationsSort.key === 'amount' ? primary : b.amountEuro - a.amountEuro;
-                    })
-                  : filteredDonations;
+                const donorQueryNorm = donationsDonorQuery.trim().toLowerCase();
+                const filteredDonations = partyDonations.all
+                  .filter((d) => donationsPartyFilter.size === 0 || donationsPartyFilter.has(d.fraction))
+                  .filter((d) => !donorQueryNorm || (d.donor ?? '').toLowerCase().includes(donorQueryNorm));
+                // True multi-key sort: click order is priority order, so "Partei" then "Betrag"
+                // groups by party and only uses amount to order rows within a group — clicking
+                // Betrag alone still means a single flat sort across every party, same as before.
+                const sortedDonations =
+                  donationsSort.length > 0
+                    ? [...filteredDonations].sort((a, b) => compareMultiSortValues(donationsSort, (key) => [donationValue(a, key), donationValue(b, key)]))
+                    : filteredDonations;
                 return (
                   <>
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 14 }}>
@@ -4339,7 +4394,14 @@ function App() {
                         selectedCountTemplate={t.filterSelectedCountTemplate}
                         clearLabel={t.clearAllFilters}
                       />
-                      {donationsPartyFilter.size > 0 && (
+                      <input
+                        type="text"
+                        value={donationsDonorQuery}
+                        onChange={(e) => setDonationsDonorQuery(e.target.value)}
+                        placeholder={t.donorSearchPlaceholder}
+                        style={{ padding: '8px 12px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 20, fontSize: 12.5, minWidth: 200, boxSizing: 'border-box' }}
+                      />
+                      {(donationsPartyFilter.size > 0 || donorQueryNorm) && (
                         <span style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)' }}>
                           {sortedDonations.length} {t.results}
                         </span>
@@ -4349,10 +4411,10 @@ function App() {
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                         <thead>
                           <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
-                            <SortableTh label={t.donationsColParty} sortKey="party" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleSort(prev, k))} />
-                            <SortableTh label={t.donationsColDonor} sortKey="donor" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleSort(prev, k))} />
-                            <SortableTh label={t.donationsColAmount} sortKey="amount" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleSort(prev, k))} />
-                            <SortableTh label={t.donationsColDate} sortKey="date" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleSort(prev, k))} />
+                            <MultiSortableTh label={t.donationsColParty} sortKey="party" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleMultiSort(prev, k))} />
+                            <MultiSortableTh label={t.donationsColDonor} sortKey="donor" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleMultiSort(prev, k))} />
+                            <MultiSortableTh label={t.donationsColAmount} sortKey="amount" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleMultiSort(prev, k))} />
+                            <MultiSortableTh label={t.donationsColDate} sortKey="date" sort={donationsSort} onSort={(k) => setDonationsSort((prev) => toggleMultiSort(prev, k))} />
                           </tr>
                         </thead>
                         <tbody>
@@ -4397,7 +4459,7 @@ function App() {
                       </table>
                     </ScrollBox>
                     <ShowMoreButton
-                      total={partyDonations.all.length}
+                      total={sortedDonations.length}
                       defaultCount={10}
                       expanded={donationsExpanded}
                       onToggle={() => setDonationsExpanded((v) => !v)}
@@ -5380,7 +5442,7 @@ function App() {
 
                 {partyTab === 'donations' && (
                   <>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 14, marginBottom: 20 }}>
+                    <div className="pb-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 14, marginBottom: 20 }}>
                       <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
                         <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statDonationsSumLabel}</div>
                         <div style={{ fontSize: 20, fontWeight: 800, whiteSpace: 'nowrap' }}>
@@ -5408,9 +5470,16 @@ function App() {
                             default: return null;
                           }
                         };
-                        const sortedPartyDonations = partyDonationsSort
-                          ? [...partyDonationList].sort((a, b) => compareSortValues(donationValue(a, partyDonationsSort.key), donationValue(b, partyDonationsSort.key), partyDonationsSort.dir))
+                        const partyDonorQueryNorm = partyDonationsDonorQuery.trim().toLowerCase();
+                        const filteredPartyDonations = partyDonorQueryNorm
+                          ? partyDonationList.filter((d) => (d.donor ?? '').toLowerCase().includes(partyDonorQueryNorm))
                           : partyDonationList;
+                        const sortedPartyDonations =
+                          partyDonationsSort.length > 0
+                            ? [...filteredPartyDonations].sort((a, b) =>
+                                compareMultiSortValues(partyDonationsSort, (key) => [donationValue(a, key), donationValue(b, key)]),
+                              )
+                            : filteredPartyDonations;
                         return (
                           <>
                             <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.donationTimelineTitle}</h3>
@@ -5432,13 +5501,27 @@ function App() {
                               />
                             </div>
 
+                            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                              <input
+                                type="text"
+                                value={partyDonationsDonorQuery}
+                                onChange={(e) => setPartyDonationsDonorQuery(e.target.value)}
+                                placeholder={t.donorSearchPlaceholder}
+                                style={{ padding: '8px 12px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 20, fontSize: 12.5, minWidth: 200, boxSizing: 'border-box' }}
+                              />
+                              {partyDonorQueryNorm && (
+                                <span style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)' }}>
+                                  {sortedPartyDonations.length} {t.results}
+                                </span>
+                              )}
+                            </div>
                             <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
                               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                                 <thead>
                                   <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
-                                    <SortableTh label={t.donationsColDonor} sortKey="donor" sort={partyDonationsSort} onSort={(k) => setPartyDonationsSort((prev) => toggleSort(prev, k))} />
-                                    <SortableTh label={t.donationsColAmount} sortKey="amount" sort={partyDonationsSort} onSort={(k) => setPartyDonationsSort((prev) => toggleSort(prev, k))} />
-                                    <SortableTh label={t.donationsColDate} sortKey="date" sort={partyDonationsSort} onSort={(k) => setPartyDonationsSort((prev) => toggleSort(prev, k))} />
+                                    <MultiSortableTh label={t.donationsColDonor} sortKey="donor" sort={partyDonationsSort} onSort={(k) => setPartyDonationsSort((prev) => toggleMultiSort(prev, k))} />
+                                    <MultiSortableTh label={t.donationsColAmount} sortKey="amount" sort={partyDonationsSort} onSort={(k) => setPartyDonationsSort((prev) => toggleMultiSort(prev, k))} />
+                                    <MultiSortableTh label={t.donationsColDate} sortKey="date" sort={partyDonationsSort} onSort={(k) => setPartyDonationsSort((prev) => toggleMultiSort(prev, k))} />
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -5479,7 +5562,7 @@ function App() {
                               </table>
                             </ScrollBox>
                             <ShowMoreButton
-                              total={partyDonationList.length}
+                              total={sortedPartyDonations.length}
                               defaultCount={10}
                               expanded={partyDonationsExpanded}
                               onToggle={() => setPartyDonationsExpanded((v) => !v)}

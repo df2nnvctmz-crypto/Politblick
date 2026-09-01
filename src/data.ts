@@ -289,7 +289,7 @@ export interface Translation {
   statTopicalTiesLabel: string; statDonationsSumLabel: string;
   partyDetailFieldsTitle: string; partyDetailOrgsTitle: string;
   partyNotFound: string; partyViewMembers: string;
-  partyTabDonations: string; partyDonationsEmpty: string; partyDonationsCountLabel: string; partyDonorsCountLabel: string;
+  partyTabDonations: string; partyDonationsEmpty: string; partyDonationsCountLabel: string; partyDonorsCountLabel: string; donorSearchPlaceholder: string;
   partyVotesEmpty: string;
   scrollHintText: string;
   tieMatrixSub: string; matrixFilteredTemplate: string; matrixClearFilter: string;
@@ -494,6 +494,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     partyNotFound: 'Für diese Partei liegen keine Lobbydaten vor.', partyViewMembers: 'Alle Abgeordneten anzeigen',
     partyTabDonations: 'Spenden', partyDonationsEmpty: 'Keine gemeldeten Großspenden für diese Partei.',
     partyDonationsCountLabel: 'Anzahl Großspenden', partyDonorsCountLabel: 'Anzahl Spender',
+    donorSearchPlaceholder: 'Spender suchen…',
     partyVotesEmpty: 'Für diese Partei sind noch keine Abstimmungsergebnisse erfasst.',
     weekOf: 'Sitzungswoche', noPollsThisWeek: 'Für die aktuelle Sitzungswoche liegen noch keine namentlichen Abstimmungen vor.',
     pollsLoading: 'Abstimmungen werden geladen…', pollsError: 'Abstimmungsdaten konnten nicht geladen werden.',
@@ -717,6 +718,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     partyNotFound: 'No lobbying data is on file for this party.', partyViewMembers: 'View all MPs',
     partyTabDonations: 'Donations', partyDonationsEmpty: 'No reported large donations for this party.',
     partyDonationsCountLabel: 'Number of large donations', partyDonorsCountLabel: 'Number of distinct donors',
+    donorSearchPlaceholder: 'Search donors…',
     partyVotesEmpty: 'No vote results are on file yet for this party.',
     weekOf: 'Sitting week', noPollsThisWeek: 'No roll-call votes are available yet for the current sitting week.',
     pollsLoading: 'Loading votes…', pollsError: 'Could not load voting data.',

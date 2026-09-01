@@ -136,6 +136,18 @@ button {
   }
 }
 
+/* Stat-tile grids (e.g. a party's Spenden tab: Großspenden gesamt / Anzahl Großspenden / Anzahl
+   Spender) use `repeat(auto-fit, minmax(180px,1fr))`, which packs 3-up on desktop but drops to
+   2-up once the container is under ~540px (3 × 180px) — an odd tile count then leaves a lone
+   last card sitting half-width with empty space next to it, reading as unfinished rather than a
+   deliberate layout. Below that same width, stretch a lone last-and-odd card across both columns
+   instead. Left alone above it, where 3-up already fills the row with nothing left over. */
+@media (max-width: 539px) {
+  .pb-stat-grid > *:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
 /* Metric toggles (e.g. the sector chart's Abgeordnete/Organisationen/Lobbyausgaben switch):
    a 3-way pill group reads fine on desktop but the labels get clipped once the row is
    narrower than their combined natural width. Below that point a native <select> takes over
