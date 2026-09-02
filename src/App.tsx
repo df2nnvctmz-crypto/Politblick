@@ -50,6 +50,15 @@ function parseBillId(billId: string | null): BillId | null {
 /** Mirrors scripts/build-sitemap.mjs's SITE_URL — used to build the canonical/OG URL for the page currently on screen. */
 const SITE_URL = 'https://politblick.de';
 
+declare global {
+  interface Window {
+    // The count.js script (loaded in index.html) defines this once it's finished loading —
+    // undefined until then, and permanently if it's blocked (ad blockers commonly block
+    // analytics scripts by domain), so every call site guards with `?.`.
+    goatcounter?: { count?: (vars: { path?: string; title?: string; event?: boolean; referrer?: string }) => void };
+  }
+}
+
 const voteBg: Record<string, string> = {
   yes: 'oklch(50% 0.14 155)',
   no: 'oklch(55% 0.16 40)',
@@ -1744,6 +1753,10 @@ function App() {
   // Identifies "which page" independent of slug resolution — see its use below, where it stops
   // the URL's bare-ID-to-slug upgrade from being miscounted as a real navigation.
   const pageKeyRef = useRef<string | null>(null);
+  // Same idea, for the GoatCounter pageview count in the document-head effect further down —
+  // separate ref since it's set on every page (including the very first), while pageKeyRef above
+  // is only ever touched by real pushState navigations.
+  const lastCountedPageKeyRef = useRef<string | null>(null);
   // Remembers where the MP list was scrolled to when a profile is opened from it, so returning
   // to the list (back button or the "← zurück" link) can restore that position instead of always
   // snapping to the top — restoring via the browser's native scroll restoration doesn't work here
@@ -2148,10 +2161,13 @@ function App() {
   );
 
   // Sets the browser tab title plus <meta description>/canonical/OG tags for whatever page is on
-  // screen. Matters for real users (correct tabs, bookmarks, social-share previews — today every
-  // page just says "Politblick"), but the more important reason is scripts/prerender.mjs: it
-  // captures the DOM after this effect has run, so every one of the ~1000+ prerendered static
-  // files gets its own real title/description instead of the same generic one on all of them.
+  // screen, and — since it already knows exactly when the page has changed — also fires a manual
+  // GoatCounter pageview count for client-side navigations, which its own count.js never sees
+  // (see the comment further down). The title/meta half matters for real users (correct tabs,
+  // bookmarks, social-share previews — today every page just says "Politblick"), but the more
+  // important reason is scripts/prerender.mjs: it captures the DOM after this effect has run, so
+  // every one of the ~1000+ prerendered static files gets its own real title/description instead
+  // of the same generic one on all of them.
   useEffect(() => {
     let title = 'Politblick';
     let description = t.metaHomeDescription;
@@ -2254,8 +2270,24 @@ function App() {
     const canonicalUrl = `${SITE_URL}${window.location.pathname}`;
     setMeta('link[rel="canonical"]', 'href', canonicalUrl);
     setMeta('meta[property="og:url"]', 'content', canonicalUrl);
+
+    // GoatCounter's count.js only ever fires its own pageview beacon once, on script load, for
+    // whichever page a real browser navigation landed on — client-side route changes afterward
+    // (pushState, no reload) never re-trigger it, so every click through the app past the first
+    // page was going uncounted. pageKey (not window.location.pathname) is what actually decides
+    // "did the page change" here — reusing the same identity pageKeyRef above is built from, so a
+    // bare-MP-ID URL upgrading to its full slug once data loads doesn't get miscounted as a second
+    // pageview of what's still the same page. The very first run of this effect deliberately
+    // doesn't count anything itself: that page was already counted by count.js's own on-load
+    // beacon moments earlier, however its title read at that point (see index.html) — this only
+    // ever fires for a page reached by an in-app navigation, which that beacon could never see.
+    const pageKey = [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId].join('|');
+    if (lastCountedPageKeyRef.current !== null && lastCountedPageKeyRef.current !== pageKey) {
+      window.goatcounter?.count?.({ path: window.location.pathname, title });
+    }
+    lastCountedPageKeyRef.current = pageKey;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, lang, selectedParty, lobbyTab, profile, pollDetail.result, currentBill, orgDetail.org, committeeDetail.detail]);
+  }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, profile, pollDetail.result, currentBill, orgDetail.org, committeeDetail.detail]);
   const filteredOrgs = orgList.orgs.filter((e) => {
     if (!e.org.name.toLowerCase().includes(orgSearchQuery.trim().toLowerCase())) return false;
     if (orgPartyFilter.size > 0 && !e.parties.some((p) => orgPartyFilter.has(p))) return false;
