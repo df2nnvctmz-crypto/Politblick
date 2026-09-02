@@ -309,6 +309,20 @@ export interface Translation {
   lobbyConflictsSubTabDirect: string; lobbyConflictsSubTabTopical: string;
   lobbyDonationsSubTabTotals: string; lobbyDonationsSubTabTimeline: string;
   lobbyDonationsSubTabTopDonors: string; lobbyDonationsSubTabAll: string;
+  /** Per-page <title>/<meta description> content, set on every client-side navigation (see the
+   * document-head effect in App.tsx) so real browser tabs/bookmarks/history and — critically —
+   * the static HTML each page prerenders to (see scripts/prerender.mjs) carry the right title
+   * instead of the generic "Politblick" on every single one of the ~1000+ deep-linkable pages. */
+  metaHomeDescription: string;
+  metaSearchDescription: string;
+  metaMpDescTemplate: string;
+  metaBillDescTemplate: string;
+  metaOrgDescTemplate: string;
+  metaCommitteeDescTemplate: string;
+  metaPartyDescTemplate: string;
+  metaImpressumDescription: string;
+  metaDatenschutzDescription: string;
+  metaDisclaimerDescription: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -541,6 +555,17 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     lobbyConflictsSubTabDirect: 'Direkte Verflechtungen', lobbyConflictsSubTabTopical: 'Thematische Nähe',
     lobbyDonationsSubTabTotals: 'Gesamtspenden', lobbyDonationsSubTabTimeline: 'Spenden über Zeit',
     lobbyDonationsSubTabTopDonors: 'Großspender', lobbyDonationsSubTabAll: 'Alle Spenden',
+    metaHomeDescription:
+      'Politblick zeigt, wie Bundestagsabgeordnete abgestimmt haben, welche Nebeneinkünfte, Lobbykontakte und Parteispenden dahinterstehen — kostenlos, werbefrei und ohne Tracking.',
+    metaSearchDescription: 'Alle Bundestagsabgeordneten durchsuchen und filtern — nach Partei, Wahlkreis und mehr.',
+    metaMpDescTemplate: 'Abstimmungen, Nebeneinkünfte und Lobbykontakte von {name} ({party}) im Bundestag.',
+    metaBillDescTemplate: 'Wie hat der Bundestag über „{title}“ abgestimmt? Alle Stimmen, aufgeschlüsselt nach Fraktion.',
+    metaOrgDescTemplate: 'Lobbyregister-Eintrag, verflochtene Abgeordnete und gemeldete Ausgaben von {name} auf Politblick',
+    metaCommitteeDescTemplate: 'Mitglieder und Zuständigkeiten des Ausschusses {name} im Bundestag.',
+    metaPartyDescTemplate: 'Sitzverteilung, Abstimmungsverhalten, Lobbyverflechtungen und Großspenden von {party} im Bundestag.',
+    metaImpressumDescription: 'Impressum und Kontaktangaben von Politblick.',
+    metaDatenschutzDescription: 'Datenschutzerklärung von Politblick — welche Daten anfallen und wie sie verarbeitet werden.',
+    metaDisclaimerDescription: 'Woher die Daten auf Politblick stammen und was ihre Grenzen sind.',
   },
   en: {
     navHome: 'Home', navParliament: 'Parliament', navMps: 'MPs', navMpsSearch: 'Search MPs', navParties: 'Parties', navCommittees: 'Committees', navPolls: 'Votes', navLobbyFinance: 'Lobby & Finance',
@@ -771,5 +796,16 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     lobbyConflictsSubTabDirect: 'Direct ties', lobbyConflictsSubTabTopical: 'Topical ties',
     lobbyDonationsSubTabTotals: 'Total donations', lobbyDonationsSubTabTimeline: 'Donations over time',
     lobbyDonationsSubTabTopDonors: 'Top donors', lobbyDonationsSubTabAll: 'All donations',
+    metaHomeDescription:
+      'Politblick shows how German Bundestag MPs voted, and what side income, lobby ties, and party donations sit behind it — free, ad-free, and tracking-free.',
+    metaSearchDescription: 'Search and filter every Bundestag MP — by party, constituency, and more.',
+    metaMpDescTemplate: 'Votes, side income, and lobby ties of {name} ({party}) in the Bundestag.',
+    metaBillDescTemplate: 'How did the Bundestag vote on "{title}"? Every vote, broken down by fraction.',
+    metaOrgDescTemplate: 'Lobby register entry, tied MPs, and reported spending for {name} on Politblick',
+    metaCommitteeDescTemplate: 'Members and responsibilities of the {name} committee in the Bundestag.',
+    metaPartyDescTemplate: 'Seat count, voting record, lobby ties, and large donations of {party} in the Bundestag.',
+    metaImpressumDescription: 'Legal notice and contact details for Politblick.',
+    metaDatenschutzDescription: "Politblick's privacy policy — what data is collected and how it's processed.",
+    metaDisclaimerDescription: "Where Politblick's data comes from, and what its limits are.",
   },
 };

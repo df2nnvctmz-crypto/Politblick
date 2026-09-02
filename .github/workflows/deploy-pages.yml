@@ -40,6 +40,10 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      # scripts/prerender.mjs (part of `npm run build`) drives a headless Chromium to snapshot
+      # every route to a real static file — see that script for why. --with-deps pulls in the
+      # system libraries Chromium needs on a bare Ubuntu runner, not just the browser binary.
+      - run: npx playwright install --with-deps chromium
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

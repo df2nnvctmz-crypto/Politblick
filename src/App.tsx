@@ -47,6 +47,9 @@ function parseBillId(billId: string | null): BillId | null {
   return /^\d+$/.test(billId) ? Number(billId) : billId;
 }
 
+/** Mirrors scripts/build-sitemap.mjs's SITE_URL — used to build the canonical/OG URL for the page currently on screen. */
+const SITE_URL = 'https://politblick.de';
+
 const voteBg: Record<string, string> = {
   yes: 'oklch(50% 0.14 155)',
   no: 'oklch(55% 0.16 40)',
@@ -2143,6 +2146,116 @@ function App() {
   const filteredCommitteeMembers = (committeeDetail.detail?.members ?? []).filter((row) =>
     fuzzyMatch(committeeMemberSearch, `${row.member?.name ?? ''} ${row.member?.party ?? ''}`),
   );
+
+  // Sets the browser tab title plus <meta description>/canonical/OG tags for whatever page is on
+  // screen. Matters for real users (correct tabs, bookmarks, social-share previews — today every
+  // page just says "Politblick"), but the more important reason is scripts/prerender.mjs: it
+  // captures the DOM after this effect has run, so every one of the ~1000+ prerendered static
+  // files gets its own real title/description instead of the same generic one on all of them.
+  useEffect(() => {
+    let title = 'Politblick';
+    let description = t.metaHomeDescription;
+    switch (view) {
+      case 'home':
+        break;
+      case 'search':
+        title = `${t.navMpsSearch} – Politblick`;
+        description = t.metaSearchDescription;
+        break;
+      case 'profile':
+        if (profile.kind === 'real' || profile.kind === 'demo') {
+          title = `${profile.mp.name} – Politblick`;
+          description = t.metaMpDescTemplate.replace('{name}', profile.mp.name).replace('{party}', profile.mp.party);
+        }
+        break;
+      case 'bill': {
+        const billTitle = pollDetail.result?.poll.title ?? currentBill?.title ?? null;
+        if (billTitle) {
+          title = `${billTitle} – Politblick`;
+          description = t.metaBillDescTemplate.replace('{title}', billTitle);
+        }
+        break;
+      }
+      case 'crossref': {
+        const tabTitle =
+          lobbyTab === 'parties' ? t.partyLobbyTitle
+          : lobbyTab === 'orgs' ? t.orgsSectionTitle
+          : lobbyTab === 'conflicts' ? t.crossrefTitle
+          : lobbyTab === 'donations' ? t.donationsTitle
+          : t.navLobbyFinance;
+        const tabSub =
+          lobbyTab === 'parties' ? t.partyLobbySub
+          : lobbyTab === 'orgs' ? t.orgsSectionSub
+          : lobbyTab === 'conflicts' ? t.crossrefSub
+          : lobbyTab === 'donations' ? t.donationsSub
+          : t.crossrefSub;
+        title = `${tabTitle} – Politblick`;
+        description = tabSub;
+        break;
+      }
+      case 'org':
+        if (orgDetail.org) {
+          title = `${orgDetail.org.name} – Politblick`;
+          description = t.metaOrgDescTemplate.replace('{name}', orgDetail.org.name);
+        }
+        break;
+      case 'committeeList':
+        title = `${t.committeesTitle} – Politblick`;
+        description = t.committeesSub;
+        break;
+      case 'pollList':
+        title = `${t.navPolls} – Politblick`;
+        description = t.pollListSub;
+        break;
+      case 'committee':
+        if (committeeDetail.detail) {
+          title = `${committeeDetail.detail.committee.name} – Politblick`;
+          description = t.metaCommitteeDescTemplate.replace('{name}', committeeDetail.detail.committee.name);
+        }
+        break;
+      case 'partyList':
+        title = `${t.navParties} – Politblick`;
+        description = t.partyListSub;
+        break;
+      case 'party':
+        if (selectedParty) {
+          title = `${selectedParty} – Politblick`;
+          description = t.metaPartyDescTemplate.replace('{party}', selectedParty);
+        }
+        break;
+      case 'impressum':
+        title = `${t.impressumTitle} – Politblick`;
+        description = t.metaImpressumDescription;
+        break;
+      case 'disclaimer':
+        title = `${t.disclaimerTitle} – Politblick`;
+        description = t.metaDisclaimerDescription;
+        break;
+      case 'datenschutz':
+        title = `${t.datenschutzTitle} – Politblick`;
+        description = t.metaDatenschutzDescription;
+        break;
+      case 'daten':
+        title = `${t.datenTitle} – Politblick`;
+        description = t.datenIntro;
+        break;
+    }
+
+    document.title = title;
+    const setMeta = (selector: string, attr: string, value: string) => document.querySelector(selector)?.setAttribute(attr, value);
+    setMeta('meta[name="description"]', 'content', description);
+    setMeta('meta[property="og:title"]', 'content', title);
+    setMeta('meta[property="og:description"]', 'content', description);
+    setMeta('meta[name="twitter:title"]', 'content', title);
+    setMeta('meta[name="twitter:description"]', 'content', description);
+    // window.location.pathname is already correct by the time this runs — either the browser
+    // itself updated it before this render (initial load, popstate back/forward) or the URL-sync
+    // effect above (declared earlier, so it commits first) already called pushState this commit.
+    const canonicalUrl = `${SITE_URL}${window.location.pathname}`;
+    setMeta('link[rel="canonical"]', 'href', canonicalUrl);
+    setMeta('meta[property="og:url"]', 'content', canonicalUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, lang, selectedParty, lobbyTab, profile, pollDetail.result, currentBill, orgDetail.org, committeeDetail.detail]);
   const filteredOrgs = orgList.orgs.filter((e) => {
     if (!e.org.name.toLowerCase().includes(orgSearchQuery.trim().toLowerCase())) return false;
     if (orgPartyFilter.size > 0 && !e.parties.some((p) => orgPartyFilter.has(p))) return false;
