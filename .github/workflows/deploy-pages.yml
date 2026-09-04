@@ -40,10 +40,25 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+
+      # Runs before the Chromium download because it is instant and needs no network: a stale
+      # summary should fail the job in seconds rather than after installing a browser.
+      #
+      # The long-run figures come from a derived summary, and the rule that produces it is
+      # necessarily restated in Node because the frontend's own copy runs in the browser. Two
+      # implementations drift silently — a wrong loyalty percentage looks exactly like a right
+      # one. This recomputes every member from the raw vote strings, sharing no code with either,
+      # and also fails if the summary was built from a different archive than the committed one.
+      # It blocks the deploy rather than publishing wrong numbers about named people, and exits 0
+      # when no archive is present so it never blocks a data-less checkout.
+      - name: Verify derived vote-history summary
+        run: node scripts/verify-vote-history-summary.mjs
+
       # scripts/prerender.mjs (part of `npm run build`) drives a headless Chromium to snapshot
       # every route to a real static file — see that script for why. --with-deps pulls in the
       # system libraries Chromium needs on a bare Ubuntu runner, not just the browser binary.
       - run: npx playwright install --with-deps chromium
+
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

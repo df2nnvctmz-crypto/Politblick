@@ -26,3 +26,7 @@ public/sitemap.xml
 *.njsproj
 *.sln
 *.sw?
+
+# Promo video renders — large binaries that would sit in git history forever and are not part of
+# the site build. Keep them locally or in release assets instead.
+marketing/

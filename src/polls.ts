@@ -6,7 +6,16 @@ export interface RealPoll {
   id: number;
   title: string;
   date: string;
+  /** The poll's primary topic — abgeordnetenwatch's first `field_topics` entry. For display. */
   topic: string;
+  /**
+   * Every topic the poll carries. 71% of polls have more than one, and six labels (Verkehr,
+   * Wirtschaft, Staat und Verwaltung, Soziale Sicherung, Innere Sicherheit, Wissenschaft) never
+   * appear first at all, so anything that *matches* on topic (search, policy-area ties,
+   * committee relevance) must use this rather than `topic`. Normalised in snapshot.ts, so it is always a
+   * non-empty array even for a snapshot written before this field existed.
+   */
+  topics: string[];
   accepted: boolean;
   url: string;
   /** Drucksache(n) ("21/6278") this poll's own intro text links to — see drucksacheUrl() in lobby.ts for the source-document link. */

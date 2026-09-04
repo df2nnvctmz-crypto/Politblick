@@ -24,6 +24,25 @@
     "Topics with no substantive external policy content (e.g. 'Bundestag', which is mostly",
     "MPs' own legal status and parliamentary procedure) are deliberately left unmapped.",
     "",
+    "3. A TOPIC can be non-discriminating too, not just a field — and then it has to go, however",
+    "   specific the fields under it are. Two topics were removed for this:",
+    "",
+    "   'Politisches Leben, Parteien' listed only its own sector name, so rule 1 removed it.",
+    "",
+    "   'Öffentliche Finanzen, Steuern und Abgaben' is the instructive one. It is attached to",
+    "   16 of 63 current polls (25%) but is the PRIMARY topic of only 4 — the other 12 are",
+    "   budget-adjacent bills about energy, education or foreign policy that merely move money.",
+    "   Matching it tied every registered bank to every one of them: Sparkassenverband Bayern",
+    "   picked up 115 ties, including to the Chancellery's own budget and a BAföG reform.",
+    "   Deleting its generic self-named field did NOT fix that — the same ties simply came back",
+    "   under 'Bank- und Finanzwesen', which is a perfectly specific field. The field was never",
+    "   the problem; the topic was. A bank on a budget bill is not evidence of anything, because",
+    "   every bill is a budget bill somewhere.",
+    "",
+    "   Little is lost: for the 4 genuinely fiscal bills, an org with a real stake will normally",
+    "   have registered the Drucksache itself — and that declared tie is the stronger signal this",
+    "   topical tier only ever stood in for.",
+    "",
     "Format: poll topic string (must match abgeordnetenwatch's field_topics label) -> array of",
     "Lobbyregister field-of-interest 'de' label strings."
   ],
@@ -85,14 +104,6 @@
       "Ausländer- und Aufenthaltsrecht",
       "Migration",
       "Integration"
-    ],
-    "Politisches Leben, Parteien": [
-      "Politisches Leben, Parteien"
-    ],
-    "Öffentliche Finanzen, Steuern und Abgaben": [
-      "Öffentliche Finanzen, Steuern und Abgaben",
-      "Bank- und Finanzwesen",
-      "Versicherungswesen"
     ],
     "Recht": [
       "Strafrecht",

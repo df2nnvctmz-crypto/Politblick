@@ -1,183 +1,5 @@
 export type Lang = 'de' | 'en';
 
-export type PartyName = 'SPD' | 'CDU/CSU' | 'Grüne' | 'FDP' | 'AfD' | 'Linke' | 'BSW';
-
-/** Colors for the 8 illustrative demo profiles used by the sample bills/votes/lobby content below. */
-export const DEMO_PARTY_META: Record<PartyName, { color: string }> = {
-  SPD: { color: 'oklch(52% 0.16 25)' },
-  'CDU/CSU': { color: 'oklch(25% 0.01 90)' },
-  Grüne: { color: 'oklch(52% 0.1 150)' },
-  FDP: { color: 'oklch(75% 0.15 100)' },
-  AfD: { color: 'oklch(55% 0.11 240)' },
-  Linke: { color: 'oklch(45% 0.15 340)' },
-  BSW: { color: 'oklch(45% 0.08 290)' },
-};
-
-export type VoteChoice = 'yes' | 'no' | 'abstain';
-
-export interface VoteRecord {
-  billId: string;
-  vote: VoteChoice;
-}
-
-export interface LobbyContact {
-  org: string;
-  topic: string;
-  date: string;
-}
-
-export interface Donation {
-  donor: string;
-  industry: string;
-  amount: string;
-  date: string;
-}
-
-export interface ExpectationNote {
-  billId: string;
-  de: string;
-  en: string;
-}
-
-export interface Mp {
-  id: string;
-  name: string;
-  party: PartyName;
-  constituency: string;
-  flags: string[];
-  expectationNote?: ExpectationNote;
-  /** [billsVoted, attendance%, partyAlignment%, flagCount] */
-  statValues: [number, string, string, number];
-  voteHistory: VoteRecord[];
-  lobbyContacts: LobbyContact[];
-  donations: Donation[];
-}
-
-/** Illustrative sample profiles (not real people) used to demo the votes/lobby/finance analysis views. */
-export const DEMO_MPS: Mp[] = [
-  {
-    id: 'm1', name: 'Anna Becker', party: 'SPD', constituency: 'Berlin-Mitte',
-    flags: ['Stimmte für Subventionsgesetz nach Spende aus der Branche'],
-    expectationNote: { billId: 'b4', de: 'Enthielt sich bei der Digitalsteuer nach Kontakt mit dem Handelsverband Deutschland', en: 'Abstained on the digital tax after contact with the German Retail Association' },
-    statValues: [142, '96%', '91%', 1],
-    voteHistory: [
-      { billId: 'b1', vote: 'yes' }, { billId: 'b2', vote: 'yes' }, { billId: 'b3', vote: 'no' }, { billId: 'b4', vote: 'abstain' }, { billId: 'b5', vote: 'yes' },
-    ],
-    lobbyContacts: [
-      { org: 'Bundesverband der Energiewirtschaft', topic: 'Klimaschutzgesetz-Novelle', date: '12.03.2026' },
-      { org: 'Handelsverband Deutschland', topic: 'Digitalsteuer für Plattformen', date: '02.02.2026' },
-    ],
-    donations: [{ donor: 'Energie Nord AG', industry: 'Energie', amount: '18.000€', date: 'Nov 2025' }],
-  },
-  {
-    id: 'm2', name: 'Markus Voss', party: 'CDU/CSU', constituency: 'München-Ost',
-    flags: [], statValues: [138, '93%', '97%', 0],
-    voteHistory: [
-      { billId: 'b1', vote: 'no' }, { billId: 'b2', vote: 'yes' }, { billId: 'b3', vote: 'yes' }, { billId: 'b4', vote: 'no' }, { billId: 'b5', vote: 'yes' },
-    ],
-    lobbyContacts: [{ org: 'Bundesverband der Deutschen Industrie', topic: 'Rüstungsexportkontrolle', date: '20.01.2026' }],
-    donations: [],
-  },
-  {
-    id: 'm3', name: 'Fatima Celik', party: 'Grüne', constituency: 'Köln',
-    flags: [], statValues: [150, '99%', '94%', 0],
-    voteHistory: [
-      { billId: 'b1', vote: 'yes' }, { billId: 'b2', vote: 'yes' }, { billId: 'b3', vote: 'no' }, { billId: 'b4', vote: 'yes' }, { billId: 'b5', vote: 'abstain' },
-    ],
-    lobbyContacts: [{ org: 'Deutsche Umwelthilfe', topic: 'Klimaschutzgesetz-Novelle', date: '05.03.2026' }],
-    donations: [],
-  },
-  {
-    id: 'm4', name: 'Jens Reuter', party: 'FDP', constituency: 'Stuttgart',
-    flags: ['Stimmte gegen Digitalsteuer nach Lobbykontakt der Plattformbranche'],
-    expectationNote: { billId: 'b3', de: 'Stimmte für schärfere Rüstungsexportkontrolle entgegen der FDP-Mehrheit', en: 'Voted for stricter arms-export controls against the FDP majority' },
-    statValues: [130, '88%', '89%', 1],
-    voteHistory: [
-      { billId: 'b1', vote: 'no' }, { billId: 'b2', vote: 'no' }, { billId: 'b3', vote: 'yes' }, { billId: 'b4', vote: 'no' }, { billId: 'b5', vote: 'abstain' },
-    ],
-    lobbyContacts: [{ org: 'Bitkom e.V.', topic: 'Digitalsteuer für Plattformen', date: '18.02.2026' }],
-    donations: [{ donor: 'TechConnect Media GmbH', industry: 'Plattformwirtschaft', amount: '25.000€', date: 'Jan 2026' }],
-  },
-  {
-    id: 'm5', name: 'Peter Lang', party: 'AfD', constituency: 'Dresden',
-    flags: [], statValues: [120, '82%', '95%', 0],
-    voteHistory: [
-      { billId: 'b1', vote: 'no' }, { billId: 'b2', vote: 'no' }, { billId: 'b3', vote: 'no' }, { billId: 'b4', vote: 'no' }, { billId: 'b5', vote: 'no' },
-    ],
-    lobbyContacts: [], donations: [],
-  },
-  {
-    id: 'm6', name: 'Sabine Krüger', party: 'Linke', constituency: 'Leipzig',
-    flags: [], statValues: [145, '97%', '92%', 0],
-    voteHistory: [
-      { billId: 'b1', vote: 'yes' }, { billId: 'b2', vote: 'yes' }, { billId: 'b3', vote: 'no' }, { billId: 'b4', vote: 'yes' }, { billId: 'b5', vote: 'yes' },
-    ],
-    lobbyContacts: [{ org: 'Deutscher Gewerkschaftsbund', topic: 'Mindestlohnerhöhung', date: '11.01.2026' }],
-    donations: [],
-  },
-  {
-    id: 'm7', name: 'Thomas Wagner', party: 'BSW', constituency: 'Chemnitz',
-    flags: ['Erhielt Spende der Pharmabranche vor Gesundheitsreform-Abstimmung'],
-    statValues: [110, '85%', '88%', 1],
-    voteHistory: [
-      { billId: 'b1', vote: 'abstain' }, { billId: 'b2', vote: 'yes' }, { billId: 'b3', vote: 'no' }, { billId: 'b4', vote: 'abstain' }, { billId: 'b5', vote: 'yes' },
-    ],
-    lobbyContacts: [{ org: 'Verband der forschenden Pharmaunternehmen', topic: 'Gesundheitsreform 2026', date: '25.02.2026' }],
-    donations: [{ donor: 'MediPharm Holding', industry: 'Pharma', amount: '30.000€', date: 'Dez 2025' }],
-  },
-  {
-    id: 'm8', name: 'Lena Hoffmann', party: 'CDU/CSU', constituency: 'Hamburg-Nord',
-    flags: [], statValues: [141, '95%', '96%', 0],
-    voteHistory: [
-      { billId: 'b1', vote: 'no' }, { billId: 'b2', vote: 'yes' }, { billId: 'b3', vote: 'yes' }, { billId: 'b4', vote: 'no' }, { billId: 'b5', vote: 'yes' },
-    ],
-    lobbyContacts: [], donations: [],
-  },
-];
-
-export interface Bill {
-  id: string;
-  title: string;
-  category: string;
-  date: string;
-  summaryDe: string;
-  summaryEn: string;
-  breakdown: Partial<Record<PartyName, [number, number, number]>>;
-}
-
-export const BILLS: Bill[] = [
-  {
-    id: 'b1', title: 'Klimaschutzgesetz-Novelle', category: 'Klima', date: '14.03.2026',
-    summaryDe: 'Verschärfung der CO₂-Reduktionsziele für die Industrie bis 2032.',
-    summaryEn: 'Tightens industrial CO₂ reduction targets through 2032.',
-    breakdown: { SPD: [80, 10, 10], 'CDU/CSU': [40, 50, 10], Grüne: [98, 1, 1], FDP: [30, 60, 10], AfD: [2, 95, 3], Linke: [90, 5, 5], BSW: [45, 35, 20] },
-  },
-  {
-    id: 'b2', title: 'Mindestlohnerhöhung', category: 'Wirtschaft', date: '22.02.2026',
-    summaryDe: 'Anhebung des gesetzlichen Mindestlohns auf 14,50€ ab 2027.',
-    summaryEn: 'Raises the statutory minimum wage to €14.50 starting 2027.',
-    breakdown: { SPD: [95, 3, 2], 'CDU/CSU': [55, 40, 5], Grüne: [92, 3, 5], FDP: [15, 80, 5], AfD: [20, 70, 10], Linke: [99, 0, 1], BSW: [70, 20, 10] },
-  },
-  {
-    id: 'b3', title: 'Rüstungsexportkontrolle', category: 'Sicherheit', date: '08.02.2026',
-    summaryDe: 'Strengere Genehmigungspflichten für Rüstungsexporte in Krisenregionen.',
-    summaryEn: 'Stricter approval requirements for arms exports to crisis regions.',
-    breakdown: { SPD: [60, 30, 10], 'CDU/CSU': [35, 55, 10], Grüne: [85, 10, 5], FDP: [40, 50, 10], AfD: [10, 85, 5], Linke: [88, 7, 5], BSW: [50, 40, 10] },
-  },
-  {
-    id: 'b4', title: 'Digitalsteuer für Plattformen', category: 'Digitales', date: '19.02.2026',
-    summaryDe: 'Einführung einer Umsatzsteuer für große Digitalplattformen ab 500 Mio.€ Jahresumsatz.',
-    summaryEn: 'Introduces a turnover tax on large digital platforms above €500M annual revenue.',
-    breakdown: { SPD: [75, 15, 10], 'CDU/CSU': [45, 45, 10], Grüne: [80, 10, 10], FDP: [10, 85, 5], AfD: [30, 60, 10], Linke: [85, 10, 5], BSW: [55, 30, 15] },
-  },
-  {
-    id: 'b5', title: 'Gesundheitsreform 2026', category: 'Gesundheit', date: '02.03.2026',
-    summaryDe: 'Neuordnung der Krankenhausfinanzierung und Arzneimittelpreise.',
-    summaryEn: 'Restructures hospital financing and pharmaceutical pricing.',
-    breakdown: { SPD: [85, 10, 5], 'CDU/CSU': [60, 30, 10], Grüne: [75, 15, 10], FDP: [35, 55, 10], AfD: [15, 80, 5], Linke: [70, 20, 10], BSW: [65, 15, 20] },
-  },
-];
-
 export interface Translation {
   navHome: string; navParliament: string; navMps: string; navMpsSearch: string; navParties: string; navCommittees: string; navPolls: string; navLobbyFinance: string;
   searchPlaceholder: string;
@@ -185,7 +7,7 @@ export interface Translation {
   heroCta: string; heroCta2: string;
   findMpKicker: string; findMpPlaceholder: string; findMpNoResultsTemplate: string; findMpBrowseAll: string;
   searchGroupMps: string; searchGroupBills: string; searchGroupOrgs: string; searchGroupParties: string; searchSeeAllMpsTemplate: string;
-  statMpsLabel: string; statFlagsLabel: string;
+  statMpsLabel: string;
   expectationTitle: string; expectationSub: string;
   featuredKicker: string; readMore: string;
   feedTitle: string; feedSub: string;
@@ -194,9 +16,27 @@ export interface Translation {
   filterActorType: string; filterFieldOfInterest: string; filterAllLabel: string;
   filterSelectedCountTemplate: string; clearAllFilters: string; filterSearchPlaceholder: string;
   flagsLabel: string; backToSearch: string; backToHome: string;
-  alignmentTrend: string; partyAverage: string;
-  flagsHeading: string; sourceNote: string;
-  rechenschaftsNote: string;
+  divergencesHeading: string; divergencesBaseRate: string;
+  historyHeading: string; historyBaseRate: string; historyFractionAverage: string;
+  historyTopicsLabel: string; historyTopicTemplate: string; historyTermTemplate: string;
+  historyNone: string; historyLoading: string; historyInfo: string;
+  historyKindOpposed: string; historyKindAbstained: string; historyKindBrokeAbstention: string;
+  historyKindOpposedOne: string; historyKindAbstainedOne: string; historyKindBrokeAbstentionOne: string;
+  historyKindSplitInfo: string; historyDetailTitle: string; historyDetailSub: string;
+  historyDetailVoteTemplate: string; historySeeVotesTab: string;
+  historyShowDetail: string; historyHideDetail: string;
+  historyShowFiltered: string; historyClearFilter: string; historyNoMatches: string;
+  historyCardContext: string; historyCardFirstTerm: string; historyCoverageNote: string;
+  sortLoyalty: string; rosterLoyaltyLong: string; rosterLoyaltyRecent: string;
+  historyCardHeadline: string; historyCardDetail: string;
+  partyDissentTitle: string; partyDissentSub: string; partyCohesion: string;
+  partyDividedTitle: string; partyDeviatorsTitle: string;
+  partyDissentSummary: string; partyDissentSeeVotes: string; partyShowDetail: string; partyHideDetail: string;
+  partyVoteLine: string; partyVoteTally: string; partyVoteNoShow: string;
+  partyDeviatorsOnVote: string; partyDeviatorsMore: string;
+  statWindowLong: string; statWindowRecent: string;
+  partyDissentInfo: string; partyDividedTemplate: string; partyDeviatorTemplate: string;
+  sortDivergences: string;
   voteBreakdown: string; voteYes: string; voteNo: string; voteAbstain: string; voteSplit: string;
   flaggedVotes: string; noFlaggedVotes: string; crossrefSub: string;
   colMp: string; colDonor: string; colIndustry: string; colAmount: string; colVote: string; colFlag: string;
@@ -215,7 +55,7 @@ export interface Translation {
   datenUpdatedTemplate: string; datenDownloadLabel: string; datenNoTimestamp: string; datenSourceLabel: string;
   datasets: {
     file: string; name: string; description: string; source: string; sourceUrl: string | null;
-    metaKey: 'coreGeneratedAt' | 'sidejobsGeneratedAt' | 'lobbyRegisterGeneratedAt' | 'partyDonationsGeneratedAt' | 'committeesGeneratedAt' | null;
+    metaKey: 'coreGeneratedAt' | 'sidejobsGeneratedAt' | 'lobbyRegisterGeneratedAt' | 'partyDonationsGeneratedAt' | 'committeesGeneratedAt' | 'voteHistoryGeneratedAt' | null;
   }[];
   rosterLoading: string; rosterUpdated: string; rosterError: string; rosterRetry: string;
   viewOnAbgeordnetenwatch: string; loadingProfile: string; profileNotFound: string;
@@ -339,7 +179,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     findMpBrowseAll: 'Alle Abgeordneten durchsuchen',
     searchGroupMps: 'Abgeordnete', searchGroupBills: 'Gesetze & Abstimmungen', searchGroupOrgs: 'Organisationen', searchGroupParties: 'Parteien',
     searchSeeAllMpsTemplate: 'Alle Abgeordneten für „{query}“ anzeigen',
-    statMpsLabel: 'Abgeordnete erfasst', statFlagsLabel: 'Auffälligkeiten',
+    statMpsLabel: 'Abgeordnete erfasst',
     expectationTitle: 'Gegen die Erwartung gestimmt',
     expectationSub: 'Abgeordnete, die von der Mehrheitslinie ihrer eigenen Fraktion abgewichen sind — mit Kontext zu Lobbyverflechtungen und Spenden.',
     featuredKicker: 'Im Fokus', readMore: 'Vollständige Analyse lesen',
@@ -349,9 +189,63 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     filterActorType: 'Akteurstyp', filterFieldOfInterest: 'Interessengebiet', filterAllLabel: 'Alle',
     filterSelectedCountTemplate: '{n} ausgewählt', clearAllFilters: 'Filter zurücksetzen', filterSearchPlaceholder: 'Suchen…',
     flagsLabel: 'Hinweise', backToSearch: 'Zurück zur Suche', backToHome: 'Zurück zur Startseite',
-    alignmentTrend: 'Übereinstimmung mit Parteilinie über Zeit', partyAverage: 'Partei-Durchschnitt',
-    flagsHeading: 'Auffälligkeiten', sourceNote: 'Quelle: Lobbyregister des Deutschen Bundestages.',
-    rechenschaftsNote: 'Quelle: Rechenschaftsberichte der Parteien.',
+    divergencesHeading: 'Abweichungen von der Fraktionslinie',
+    divergencesBaseRate: '{count} von {total} bewerteten Abstimmungen — Fraktionstreue {pct}%',
+    historyHeading: 'Langzeit-Bilanz',
+    historyBaseRate: '{count} Abweichungen bei {total} bewerteten Abstimmungen — Fraktionstreue {pct}%',
+    historyFractionAverage: 'Die eigene Fraktion kam bei denselben Abstimmungen auf {pct}%.',
+    historyTopicsLabel: 'Abweichungen nach Themenfeld',
+    historyTopicTemplate: '{topic}: {count} von {total}',
+    historyTermTemplate: '{label}: {count} von {total}',
+    historyNone: 'Keine früheren Mandate im Bundestag erfasst — die Langzeit-Bilanz beginnt erst mit der zweiten Wahlperiode.',
+    historyLoading: 'Langzeit-Daten werden geladen…',
+    historyKindOpposed: 'Gegenstimmen',
+    historyKindAbstained: 'Enthaltungen',
+    historyKindBrokeAbstention: 'Stimmen trotz Enthaltungslinie',
+    historyKindOpposedOne: 'Gegenstimme',
+    historyKindAbstainedOne: 'Enthaltung',
+    historyKindBrokeAbstentionOne: 'Stimme trotz Enthaltungslinie',
+    historyKindSplitInfo:
+      'Nicht jede Abweichung ist dasselbe. Eine Gegenstimme ist offener Widerspruch: Die Fraktion stimmte mit Ja, das Mitglied mit Nein (oder umgekehrt). Eine Enthaltung ist ein angemeldeter Vorbehalt — sie als Gegenstimme zu zählen, würde mehr behaupten, als tatsächlich passiert ist. Und wenn die Fraktion sich enthielt, das Mitglied aber abstimmte, hat es eine Position bezogen, die die Fraktion gerade nicht einnehmen wollte. Über das gesamte Archiv verteilen sich die Abweichungen etwa 61 / 29 / 10 Prozent auf diese drei Fälle.',
+    historyDetailTitle: 'Abweichungen in früheren Wahlperioden',
+    historyDetailSub: 'Jede namentliche Abstimmung der abgeschlossenen Wahlperioden, bei der die Stimme von der Mehrheitslinie der eigenen Fraktion abwich — neueste zuerst. Die laufende Wahlperiode ist nicht enthalten.',
+    historyDetailVoteTemplate: 'Stimme: {vote} · Fraktionslinie ({party}): {majority}',
+    historySeeVotesTab: 'Alle Abweichungen im Detail ansehen →',
+    historyShowDetail: 'Alle {count} Abweichungen einzeln anzeigen ▾',
+    historyHideDetail: 'Einzelne Abweichungen ausblenden ▴',
+    historyShowFiltered: '{count} passende Abweichungen anzeigen ▾',
+    historyClearFilter: 'Filter zurücksetzen',
+    historyNoMatches: 'Keine Abweichung passt zu dieser Kombination.',
+    historyCardContext: 'Langfristig {count} von {total} — Fraktionsschnitt {pct}%',
+    historyCardFirstTerm: 'Erste Wahlperiode — keine Langzeit-Bilanz',
+    historyCoverageNote: 'Langfristig = namentliche Abstimmungen der abgeschlossenen Wahlperioden {year}, verglichen mit der Mehrheitslinie der eigenen Fraktion. Die laufende Wahlperiode ist darin nicht enthalten.',
+    partyDissentTitle: 'Fraktionsdisziplin',
+    partyDissentSub: 'Wo diese Fraktion in den abgeschlossenen Wahlperioden {year} uneins war — und wer am häufigsten von der eigenen Mehrheitslinie abwich.',
+    partyCohesion: 'Geschlossenheit {pct}% bei {total} abgegebenen Stimmen',
+    partyDividedTitle: 'Abstimmungen mit den meisten Abweichungen',
+    partyDeviatorsTitle: 'Häufigste Abweichler',
+    partyDissentSummary: '{divided} von {total} Abstimmungen waren in der Fraktion umstritten.',
+    partyDissentSeeVotes: 'Umstrittene Abstimmungen ansehen →',
+    partyVoteLine: 'Mehrheitslinie der Fraktion: {majority}',
+    partyVoteTally: '{yes} Ja · {no} Nein · {abstain} Enthaltung',
+    partyVoteNoShow: '{count} nicht teilgenommen',
+    partyDeviatorsOnVote: 'Wich von der Fraktionslinie ab',
+    partyDeviatorsMore: '+{count} weitere',
+    statWindowLong: 'Wahlperioden {year}',
+    statWindowRecent: 'letzte {count} Abstimmungen',
+    partyShowDetail: 'Mehr umstrittene Abstimmungen anzeigen ▾',
+    partyHideDetail: 'Weniger anzeigen ▴',
+    partyDissentInfo: 'Anteil der Stimmen, die der Mehrheitslinie der eigenen Fraktion folgten. Wichtig zur Einordnung: Bei Gewissensentscheidungen — etwa Ehe für Alle, Organspende oder Stammzellgesetz — heben Fraktionen den Fraktionszwang häufig ausdrücklich auf. Dann gibt es gar keine Linie, von der jemand abweichen könnte, und ein hoher Anteil bedeutet Meinungsvielfalt, nicht Aufsässigkeit. Ob der Zwang im Einzelfall aufgehoben war, verzeichnet keine der Quellen — Politblick trifft dazu deshalb keine Aussage und zeigt nur den gemessenen Anteil.',
+    partyDividedTemplate: '{count} von {total} ({pct}%)',
+    partyDeviatorTemplate: '{count} Abweichungen',
+    sortDivergences: 'Abweichungen (meiste zuerst)',
+    historyCardHeadline: 'Fraktionstreue langfristig {pct}% · Fraktion {fracPct}%',
+    historyCardDetail: '{count} Abweichungen bei {total} Abstimmungen ({year})',
+    sortLoyalty: 'Fraktionstreue (niedrigste zuerst)',
+    rosterLoyaltyLong: 'Fraktionstreue {pct}% · {total} Abstimmungen ({year})',
+    rosterLoyaltyRecent: 'Fraktionstreue {pct}% · letzte {total} Abstimmungen',
+    historyInfo:
+      'Namentliche Abstimmungen früherer Wahlperioden, verglichen mit der Mehrheitslinie der Fraktion, der die Person am jeweiligen Abstimmungstag angehörte. Der Fraktionsschnitt daneben ist der entscheidende Vergleichswert: Eine Fraktionstreue von 97% bedeutet etwas völlig anderes, je nachdem ob die Kolleginnen und Kollegen bei 99% oder bei 95% liegen. Eine statistische Beobachtung, keine Unterstellung von Fehlverhalten.',
     voteBreakdown: 'Abstimmungsergebnis nach Partei', voteYes: 'Ja', voteNo: 'Nein', voteAbstain: 'Enthaltung', voteSplit: 'Kein Mehrheitsvotum',
     flaggedVotes: 'Auffällige Stimmen', noFlaggedVotes: 'Keine auffälligen Stimmen bei dieser Abstimmung.', crossrefSub: 'Abgeordnete, die über eine Funktion, Beteiligung oder Zuwendung mit einer Organisation verbunden sind, die zu genau dieser Abstimmung Interessenvertretung angemeldet hat — sowie die veröffentlichten Großspenden an die Parteien.',
     colMp: 'Abgeordnete/r', colDonor: 'Spender', colIndustry: 'Branche', colAmount: 'Betrag', colVote: 'Stimme', colFlag: 'Hinweis',
@@ -381,12 +275,14 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       { file: '/data/sidejobs.json', name: 'Nebeneinkünfte', description: 'Von Abgeordneten gemeldete Nebentätigkeiten und Nebeneinkünfte gemäß den Verhaltensregeln für Mitglieder des Deutschen Bundestages.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/sidejob', metaKey: 'sidejobsGeneratedAt' },
       { file: '/data/lobby-links.json', name: 'Lobbyregister-Verknüpfungen', description: 'Von Politblick aus dem Lobbyregister des Deutschen Bundestages, den Abstimmungsdaten und den gemeldeten Nebentätigkeiten abgeleitete Verknüpfungen: welche Organisationen zu welchen Gesetzen Interessenvertretung angemeldet haben und welche Abgeordneten dazu Verflechtungen aufweisen.', source: 'Lobbyregister des Deutschen Bundestages, Verknüpfung von Politblick', sourceUrl: 'https://www.lobbyregister.bundestag.de/', metaKey: 'lobbyRegisterGeneratedAt' },
       { file: '/data/party-donations.json', name: 'Großspenden an Parteien', description: 'Einzelspenden oberhalb der gesetzlichen Veröffentlichungsschwelle (§ 25 Abs. 3 PartG).', source: 'Veröffentlichung der Bundestagspräsidentin', sourceUrl: 'https://www.bundestag.de/parlament/praesidium/parteienfinanzierung/fundstellen50000', metaKey: 'partyDonationsGeneratedAt' },
+      { file: '/data/vote-history.json', name: 'Abstimmungsarchiv (abgeschlossene Wahlperioden)', description: 'Das Stimmverhalten jedes Abgeordneten bei jeder namentlichen Abstimmung der abgeschlossenen Wahlperioden seit 2005. Kompakt kodiert: pro Abstimmung ein Zeichen je Mitglied für die Stimme und eines für die damalige Fraktion. Die laufende Wahlperiode steht in den Dateien oben.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/vote', metaKey: 'voteHistoryGeneratedAt' },
+      { file: '/data/vote-history-summary.json', name: 'Langzeit-Bilanz je Abgeordnete/r', description: 'Aus dem Archiv abgeleitete Kennzahlen pro Person: Zahl der bewerteten Abstimmungen, Abweichungen von der eigenen Fraktionslinie und der Fraktionsschnitt bei denselben Abstimmungen. Enthält keine Einzelstimmen — nur Summen, damit die Startseite nicht das ganze Archiv laden muss.', source: 'Ableitung von Politblick aus dem Abstimmungsarchiv', sourceUrl: null, metaKey: 'voteHistoryGeneratedAt' },
       { file: '/data/committees.json', name: 'Ausschüsse', description: 'Bundestagsausschüsse und ihre Mitglieder — dient intern dazu, thematische Übereinstimmungen mit einer Ausschusszuständigkeit zu kennzeichnen.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/committee', metaKey: 'committeesGeneratedAt' },
     ],
     disclaimerTitle: 'Hinweis zu den Daten',
-    disclaimerBody: 'Alle auf Politblick dargestellten Informationen stammen aus öffentlich zugänglichen Quellen (Abgeordnetenwatch, Bundestag-Open-Data, Lobbyregister des Deutschen Bundestages, Veröffentlichungen der Bundestagspräsidentin zu Großspenden) und werden automatisiert zusammengeführt.\n\nWichtig zum Thema Lobbyismus: In Deutschland gibt es kein öffentliches Verzeichnis von Treffen zwischen Interessenvertretern und Abgeordneten. Politblick kann und will daher nicht zeigen, wer sich mit wem getroffen hat. Dargestellt werden ausschließlich Eigenerklärungen — einerseits von Organisationen, die im Lobbyregister angeben, zu welcher Drucksache sie Interessenvertretung betreiben, andererseits von Abgeordneten, die ihre Funktionen, Beteiligungen und Zuwendungen anzeigen müssen. Wo beides dieselbe Abstimmung betrifft, wird das als Überschneidung ausgewiesen.\n\nDas Lobbyregister verzeichnet nicht, ob eine Organisation für oder gegen ein Vorhaben war. Eine Aussage wie "stimmte gegen die Position dieser Organisation" erscheint deshalb nur dort, wo eine belegte Position redaktionell erfasst und mit Quelle hinterlegt wurde. Ansonsten steht das Anliegen im Wortlaut der Organisation, ohne Richtungsangabe.\n\nDie Daten zu Abgeordneten, Abstimmungen und Parteitreue werden alle paar Stunden automatisch aktualisiert; Nebeneinkünfte und Parteispenden einmal täglich, das Lobbyregister wöchentlich. Politblick zeigt also nicht den Stand in Echtzeit, sondern den Stand der letzten automatischen Aktualisierung — den genauen Zeitpunkt sehen Sie am Seitenende.\n\nTrotz sorgfältiger Aufbereitung übernehmen wir keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität der Angaben. Insbesondere die als "Auffälligkeit" oder "Verflechtung" gekennzeichneten Verknüpfungen stellen statistische Beobachtungen dar, keine Tatsachenbehauptungen über Absicht oder Fehlverhalten einzelner Personen.\n\nFür verbindliche Aussagen konsultieren Sie bitte die genannten Primärquellen. Politblick übernimmt keine Haftung für Entscheidungen, die auf Basis dieser Daten getroffen werden.',
+    disclaimerBody: 'Alle auf Politblick dargestellten Informationen stammen aus öffentlich zugänglichen Quellen (Abgeordnetenwatch, Bundestag-Open-Data, Lobbyregister des Deutschen Bundestages, Veröffentlichungen der Bundestagspräsidentin zu Großspenden) und werden automatisiert zusammengeführt.\n\nWichtig zum Thema Lobbyismus: In Deutschland gibt es kein öffentliches Verzeichnis von Treffen zwischen Interessenvertretern und Abgeordneten. Politblick kann und will daher nicht zeigen, wer sich mit wem getroffen hat. Dargestellt werden ausschließlich Eigenerklärungen — einerseits von Organisationen, die im Lobbyregister angeben, zu welcher Drucksache sie Interessenvertretung betreiben, andererseits von Abgeordneten, die ihre Funktionen, Beteiligungen und Zuwendungen anzeigen müssen. Wo beides dieselbe Abstimmung betrifft, wird das als Überschneidung ausgewiesen.\n\nDas Lobbyregister verzeichnet nicht, ob eine Organisation für oder gegen ein Vorhaben war. Eine Aussage wie "stimmte gegen die Position dieser Organisation" erscheint deshalb nur dort, wo eine belegte Position redaktionell erfasst und mit Quelle hinterlegt wurde. Ansonsten steht das Anliegen im Wortlaut der Organisation, ohne Richtungsangabe.\n\nDie Daten zu Abgeordneten, Abstimmungen und Fraktionstreue werden alle paar Stunden automatisch aktualisiert; Nebeneinkünfte und Parteispenden einmal täglich, das Lobbyregister wöchentlich. Das Archiv abgeschlossener Wahlperioden (2005–2025) ändert sich nicht mehr und wird deshalb nur einmal erhoben. Politblick zeigt also nicht den Stand in Echtzeit, sondern den Stand der letzten automatischen Aktualisierung — den genauen Zeitpunkt sehen Sie am Seitenende.\n\nTrotz sorgfältiger Aufbereitung übernehmen wir keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität der Angaben. Insbesondere Abweichungen von der Fraktionslinie und als "Verflechtung" gekennzeichnete Verknüpfungen stellen statistische Beobachtungen dar, keine Tatsachenbehauptungen über Absicht oder Fehlverhalten einzelner Personen. Eine Abweichung ist für sich genommen weder ungewöhnlich noch vorwerfbar — sie wird deshalb nie ohne die Zahl der zugrunde liegenden Abstimmungen und den Vergleichswert der eigenen Fraktion gezeigt.\n\nFür verbindliche Aussagen konsultieren Sie bitte die genannten Primärquellen. Politblick übernimmt keine Haftung für Entscheidungen, die auf Basis dieser Daten getroffen werden.',
     disclaimerTechTitle: 'Technische Aufbereitung der Daten',
-    disclaimerTechBody: 'Politblick berechnet nichts live beim Aufruf einer Seite. Automatisierte Skripte holen die Rohdaten in den oben genannten Abständen von den Originalquellen, verarbeiten sie zu einem Snapshot, und die Website liest daraus — nicht in Echtzeit von den Quellen selbst.\n\n"Mehrheitslinie einer Fraktion": Für jede Abstimmung wird pro Partei gezählt, wie viele ihrer Abgeordneten mit Ja, Nein oder Enthaltung gestimmt haben; die häufigste Stimme gilt als Mehrheitslinie. Fraktionslose Abgeordnete haben keine Mehrheitslinie, weil sie keiner Fraktion mit gemeinsamer Position angehören.\n\n"Auffällige Stimme" / gegen die Erwartung: Ein Abgeordneter gilt als abweichend, wenn seine Stimme von der Mehrheitslinie der eigenen Fraktion abweicht. Nicht-Abstimmungen und fraktionslose Abgeordnete fließen nicht in diese Auswertung ein.\n\n"Parteitreue" (Ausrichtungs-%): Für jeden Abgeordneten wird über dessen letzte 10 namentliche Abstimmungen geprüft, wie oft seine Stimme mit der Mehrheitslinie seiner Fraktion übereinstimmt. Nicht-Abstimmungen zählen nicht mit; fraktionslose Abgeordnete werden nicht bewertet.\n\nSpenden nach Quartal: Großspenden werden anhand ihres Eingangsdatums in Kalenderquartale einsortiert. Spenden ohne bekanntes Eingangsdatum erscheinen nicht im Zeitverlauf-Diagramm, zählen aber weiterhin zur Gesamtsumme und stehen in der Tabelle.\n\n"Top"-Listen (z. B. größte Spender): Wo eine vollständige Liste unübersichtlich wäre, zeigt Politblick nur die größten Einzelpositionen mit eigener Farbe; alle übrigen werden zu "Weitere" zusammengefasst — aus Summen und Tabellen werden sie dadurch nie entfernt.\n\nDiese Regeln sind fest im Code hinterlegt und werden nicht von Hand für einzelne Abgeordnete oder Parteien angepasst.',
+    disclaimerTechBody: 'Politblick berechnet nichts live beim Aufruf einer Seite. Automatisierte Skripte holen die Rohdaten in den oben genannten Abständen von den Originalquellen, verarbeiten sie zu einem Snapshot, und die Website liest daraus — nicht in Echtzeit von den Quellen selbst.\n\n"Mehrheitslinie einer Fraktion": Für jede Abstimmung wird pro Partei gezählt, wie viele ihrer Abgeordneten mit Ja, Nein oder Enthaltung gestimmt haben; die häufigste Stimme gilt als Mehrheitslinie. Fraktionslose Abgeordnete haben keine Mehrheitslinie, weil sie keiner Fraktion mit gemeinsamer Position angehören.\n\n"Auffällige Stimme" / gegen die Erwartung: Ein Abgeordneter gilt als abweichend, wenn seine Stimme von der Mehrheitslinie der eigenen Fraktion abweicht. Nicht-Abstimmungen und fraktionslose Abgeordnete fließen nicht in diese Auswertung ein.\n\n"Fraktionstreue" (Ausrichtungs-%): Anteil der Abstimmungen, bei denen die Stimme mit der Mehrheitslinie der eigenen Fraktion übereinstimmte. Wo eine Langzeit-Bilanz vorliegt, bezieht sich der Wert auf alle namentlichen Abstimmungen der abgeschlossenen Wahlperioden seit 2005; sonst auf die letzten 10 Abstimmungen. Welcher Zeitraum gilt, steht immer an der Zahl. Nicht-Abstimmungen zählen nicht mit; fraktionslose Abgeordnete werden nicht bewertet.\n\nLangzeit-Bilanz: Das Archiv enthält die abgeschlossenen Wahlperioden 2005–2025. Die laufende Wahlperiode ist darin NICHT enthalten — deren Abstimmungen stehen separat im Abstimmungs-Tab. Rund 63% der aktuellen Abgeordneten hatten schon ein früheres Mandat; für die übrigen gibt es keine Langzeit-Bilanz, was ausdrücklich so ausgewiesen wird und nicht als perfekte Treue gewertet werden darf.\n\nArten der Abweichung: Eine Gegenstimme (Fraktion Ja, Mitglied Nein oder umgekehrt) ist offener Widerspruch. Eine Enthaltung, während die Fraktion sich festlegte, ist ein angemeldeter Vorbehalt — sie wird deshalb getrennt gezählt und nicht als Gegenstimme dargestellt. Stimmt ein Mitglied ab, während die Fraktion sich enthielt, ist das ein dritter Fall. Über das Archiv verteilen sich die Abweichungen etwa 61 / 29 / 10 Prozent auf diese drei.\n\nFraktionsdisziplin: Für eine Fraktion wird gezählt, welcher Anteil aller abgegebenen Stimmen der eigenen Mehrheitslinie folgte. Bei Gewissensentscheidungen heben Fraktionen den Fraktionszwang häufig auf; ob das im Einzelfall geschah, verzeichnet keine Quelle, und Politblick trifft dazu keine Aussage. Ein hoher Abweichungsanteil kann also Meinungsvielfalt statt Aufsässigkeit bedeuten — deshalb steht neben jeder Zahl das vollständige Stimmenverhältnis der Fraktion.\n\nSpenden nach Quartal: Großspenden werden anhand ihres Eingangsdatums in Kalenderquartale einsortiert. Spenden ohne bekanntes Eingangsdatum erscheinen nicht im Zeitverlauf-Diagramm, zählen aber weiterhin zur Gesamtsumme und stehen in der Tabelle.\n\n"Top"-Listen (z. B. größte Spender): Wo eine vollständige Liste unübersichtlich wäre, zeigt Politblick nur die größten Einzelpositionen mit eigener Farbe; alle übrigen werden zu "Weitere" zusammengefasst — aus Summen und Tabellen werden sie dadurch nie entfernt.\n\nDiese Regeln sind fest im Code hinterlegt und werden nicht von Hand für einzelne Abgeordnete oder Parteien angepasst.',
     disclaimerGithubLabel: 'Quellcode auf GitHub ansehen',
     rosterLoading: 'Abgeordnetenliste wird geladen…', rosterUpdated: 'Aktualisiert', rosterError: 'Abgeordnetenliste konnte nicht geladen werden.', rosterRetry: 'Erneut versuchen',
     viewOnAbgeordnetenwatch: 'Vollständiges Profil auf abgeordnetenwatch.de ansehen',
@@ -547,7 +443,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     infoVerflechtung:
       'Ein:e Abgeordnete:r übt eine Funktion oder Beteiligung bei einer Organisation aus — oder erhielt eine Zuwendung von ihr —, die zu genau dieser Abstimmung Interessenvertretung im Lobbyregister angemeldet hat. Eine statistische Beobachtung, keine Unterstellung von Fehlverhalten.',
     infoAuffaelligkeit:
-      'Eine Auffälligkeit markiert eine Abstimmung, bei der ein:e Abgeordnete:r von der Mehrheitslinie der eigenen Fraktion abgewichen ist. Eine statistische Beobachtung, keine Unterstellung von Fehlverhalten.',
+      'Zählt die Abstimmungen, bei denen ein:e Abgeordnete:r von der Mehrheitslinie der eigenen Fraktion abgewichen ist — immer zusammen mit der Zahl aller bewerteten Abstimmungen, denn eine einzelne Abweichung sagt für sich genommen nichts aus. Eine statistische Beobachtung, keine Unterstellung von Fehlverhalten.',
     infoThemenfeld:
       'Schwächerer Hinweis als eine Verflechtung: Die Organisation hat kein Interessengebiet angemeldet, das speziell auf diese Abstimmung verweist — nur ein allgemeines Interessengebiet, das laut Politblick-Redaktion zum Thema passt. Kein dokumentierter Bezug zu dieser Abstimmung.',
     lobbyPartiesSubTabNetwork: 'Netzwerk', lobbyPartiesSubTabByParty: 'Nach Partei',
@@ -580,7 +476,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     findMpBrowseAll: 'Browse all MPs',
     searchGroupMps: 'MPs', searchGroupBills: 'Bills & votes', searchGroupOrgs: 'Organizations', searchGroupParties: 'Parties',
     searchSeeAllMpsTemplate: 'Show all MPs for “{query}”',
-    statMpsLabel: 'MPs tracked', statFlagsLabel: 'Flags raised',
+    statMpsLabel: 'MPs tracked',
     expectationTitle: 'Voted against expectation',
     expectationSub: 'MPs who broke from their own party’s majority line — with context on lobby ties and donations.',
     featuredKicker: 'In focus', readMore: 'Read the full analysis',
@@ -590,9 +486,63 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     filterActorType: 'Actor type', filterFieldOfInterest: 'Field of interest', filterAllLabel: 'All',
     filterSelectedCountTemplate: '{n} selected', clearAllFilters: 'Clear filters', filterSearchPlaceholder: 'Search…',
     flagsLabel: 'flags', backToSearch: 'Back to search', backToHome: 'Back to home',
-    alignmentTrend: 'Alignment with party line over time', partyAverage: 'Party average',
-    flagsHeading: 'Flags', sourceNote: 'Source: German Bundestag lobby register.',
-    rechenschaftsNote: 'Source: Party financial disclosure reports.',
+    divergencesHeading: "Votes against their own fraction’s line",
+    divergencesBaseRate: '{count} of {total} rated votes — {pct}% aligned with the fraction',
+    historyHeading: 'Long-term record',
+    historyBaseRate: '{count} divergences across {total} rated votes — {pct}% aligned with the fraction',
+    historyFractionAverage: 'Their own fraction averaged {pct}% on the same votes.',
+    historyTopicsLabel: 'Divergences by policy area',
+    historyTopicTemplate: '{topic}: {count} of {total}',
+    historyTermTemplate: '{label}: {count} of {total}',
+    historyNone: 'No earlier Bundestag mandate on file — a long-term record only starts with a second term.',
+    historyLoading: 'Loading long-term record…',
+    historyKindOpposed: 'Opposite votes',
+    historyKindAbstained: 'Abstentions',
+    historyKindBrokeAbstention: 'Votes where the fraction abstained',
+    historyKindOpposedOne: 'Opposite vote',
+    historyKindAbstainedOne: 'Abstention',
+    historyKindBrokeAbstentionOne: 'Vote where the fraction abstained',
+    historyKindSplitInfo:
+      "Not every divergence is the same act. An opposite vote is open dissent: the fraction voted yes, the member voted no, or the reverse. An abstention is a registered reservation — counting it as a vote against would claim more than actually happened. And where the fraction abstained but the member voted, they took a position their fraction declined to take. Across the whole archive these split roughly 61 / 29 / 10 per cent.",
+    historyDetailTitle: 'Divergences in earlier terms',
+    historyDetailSub: 'Every recorded vote of the completed terms where this member departed from their own fraction’s majority line — most recent first. The current term is not included.',
+    historyDetailVoteTemplate: 'Vote: {vote} · fraction line ({party}): {majority}',
+    historySeeVotesTab: 'See every divergence in detail →',
+    historyShowDetail: 'Show all {count} divergences individually ▾',
+    historyHideDetail: 'Hide individual divergences ▴',
+    historyShowFiltered: 'Show {count} matching divergences ▾',
+    historyClearFilter: 'Clear filter',
+    historyNoMatches: 'No divergence matches this combination.',
+    historyCardContext: 'Long term {count} of {total} — fraction average {pct}%',
+    historyCardFirstTerm: 'First term — no long-term record yet',
+    historyCoverageNote: 'Long term = recorded votes from the completed terms {year}, measured against the member’s own fraction majority. The current term is not included.',
+    partyDissentTitle: 'Fraction discipline',
+    partyDissentSub: 'Where this fraction was divided across the completed terms {year} — and who most often departed from its own majority line.',
+    partyCohesion: '{pct}% cohesion across {total} votes cast',
+    partyDividedTitle: 'Votes with the most divergences',
+    partyDeviatorsTitle: 'Most frequent deviators',
+    partyDissentSummary: '{divided} of {total} votes divided the fraction.',
+    partyDissentSeeVotes: 'See the divided votes →',
+    partyVoteLine: 'Fraction majority line: {majority}',
+    partyVoteTally: '{yes} yes · {no} no · {abstain} abstained',
+    partyVoteNoShow: '{count} did not take part',
+    partyDeviatorsOnVote: 'Departed from the fraction line',
+    partyDeviatorsMore: '+{count} more',
+    statWindowLong: 'terms {year}',
+    statWindowRecent: 'last {count} votes',
+    partyShowDetail: 'Show more divided votes ▾',
+    partyHideDetail: 'Show fewer ▴',
+    partyDissentInfo: 'Share of votes that followed the fraction’s own majority line. Important context: on conscience questions — same-sex marriage, organ donation, stem cell law — fractions often explicitly lift the whip. There is then no line to depart from, and a high share means diversity of view rather than indiscipline. Whether the whip was lifted in any given case is recorded by none of the sources, so Politblick makes no claim about it and shows only the measured share.',
+    partyDividedTemplate: '{count} of {total} ({pct}%)',
+    partyDeviatorTemplate: '{count} divergences',
+    sortDivergences: 'Divergences (most first)',
+    historyCardHeadline: 'Long-term loyalty {pct}% · fraction {fracPct}%',
+    historyCardDetail: '{count} divergences across {total} votes ({year})',
+    sortLoyalty: 'Fraction loyalty (lowest first)',
+    rosterLoyaltyLong: 'Fraction loyalty {pct}% · {total} votes ({year})',
+    rosterLoyaltyRecent: 'Fraction loyalty {pct}% · last {total} votes',
+    historyInfo:
+      "Recorded votes from earlier terms, compared against the majority line of whichever fraction the member belonged to on the day of each vote. The fraction average beside it is the number that matters: 97% loyalty means something entirely different depending on whether colleagues sat at 99% or at 95%. A statistical observation, not an accusation of wrongdoing.",
     voteBreakdown: 'Vote breakdown by party', voteYes: 'Yes', voteNo: 'No', voteAbstain: 'Abstain', voteSplit: 'No majority',
     flaggedVotes: 'Flagged votes', noFlaggedVotes: 'No flagged votes on this poll.', crossrefSub: 'MPs tied by a position, shareholding or donation to an organization that registered lobbying on that very vote — plus the published large donations to the parties.',
     colMp: 'MP', colDonor: 'Donor', colIndustry: 'Industry', colAmount: 'Amount', colVote: 'Vote', colFlag: 'Flag',
@@ -622,12 +572,14 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       { file: '/data/sidejobs.json', name: 'Outside income', description: 'Disclosed side activities and outside income, per the Bundestag members\' code of conduct.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/sidejob', metaKey: 'sidejobsGeneratedAt' },
       { file: '/data/lobby-links.json', name: 'Lobby register cross-references', description: 'Links Politblick derives from the German Bundestag lobby register, the vote data, and disclosed side activities: which organizations declared lobbying on which bills, and which MPs have a tie to them.', source: 'German Bundestag lobby register, cross-referenced by Politblick', sourceUrl: 'https://www.lobbyregister.bundestag.de/', metaKey: 'lobbyRegisterGeneratedAt' },
       { file: '/data/party-donations.json', name: 'Large party donations', description: 'Individual donations above the statutory disclosure threshold (§ 25 (3) PartG).', source: 'Bundestag President\'s publication', sourceUrl: 'https://www.bundestag.de/parlament/praesidium/parteienfinanzierung/fundstellen50000', metaKey: 'partyDonationsGeneratedAt' },
+      { file: '/data/vote-history.json', name: 'Vote archive (completed terms)', description: 'How every member voted in every recorded vote of the completed terms since 2005. Compactly encoded: one character per member for the vote and one for the fraction they sat in at the time. The current term is in the files above.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/vote', metaKey: 'voteHistoryGeneratedAt' },
+      { file: '/data/vote-history-summary.json', name: 'Long-term record per member', description: 'Aggregates derived from the archive: rated votes, divergences from the member’s own fraction line, and that fraction’s average on the same votes. Carries no individual votes — totals only, so the landing page need not load the whole archive.', source: 'Derived by Politblick from the vote archive', sourceUrl: null, metaKey: 'voteHistoryGeneratedAt' },
       { file: '/data/committees.json', name: 'Committees', description: 'Bundestag committees and their members — used internally to flag topical matches with committee jurisdiction.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/committee', metaKey: 'committeesGeneratedAt' },
     ],
     disclaimerTitle: 'Data disclaimer',
-    disclaimerBody: 'All information shown on Politblick comes from publicly available sources (Abgeordnetenwatch, Bundestag open data, the German Bundestag lobby register, and the President of the Bundestag’s publications of large donations) and is aggregated automatically.\n\nImportant, on lobbying: Germany publishes no register of meetings between lobbyists and MPs. Politblick therefore cannot and does not attempt to show who met whom. What is shown are self-declarations only — by organizations, which state in the lobby register which printed matter they lobby on, and by MPs, who must declare their positions, shareholdings and donations received. Where the two concern the same vote, that is reported as an overlap.\n\nThe lobby register does not record whether an organization was for or against a proposal. A statement such as "voted against this organization’s position" therefore appears only where a sourced position has been recorded editorially. Otherwise the organization’s aim is shown in its own words, with no direction attached.\n\nMP, voting and party-alignment data refresh automatically every few hours; outside income and party donations once daily; the lobby register weekly. Politblick therefore does not show a live, real-time state — it shows the state as of the last automatic update, timestamped at the bottom of the page.\n\nDespite careful processing, we make no guarantee as to the accuracy, completeness, or currency of the information. In particular, links labeled as "flags" or "ties" represent statistical observations, not factual claims about any individual’s intent or wrongdoing.\n\nFor authoritative information, please consult the primary sources listed. Politblick accepts no liability for decisions made based on this data.',
+    disclaimerBody: 'All information shown on Politblick comes from publicly available sources (Abgeordnetenwatch, Bundestag open data, the German Bundestag lobby register, and the President of the Bundestag’s publications of large donations) and is aggregated automatically.\n\nImportant, on lobbying: Germany publishes no register of meetings between lobbyists and MPs. Politblick therefore cannot and does not attempt to show who met whom. What is shown are self-declarations only — by organizations, which state in the lobby register which printed matter they lobby on, and by MPs, who must declare their positions, shareholdings and donations received. Where the two concern the same vote, that is reported as an overlap.\n\nThe lobby register does not record whether an organization was for or against a proposal. A statement such as "voted against this organization’s position" therefore appears only where a sourced position has been recorded editorially. Otherwise the organization’s aim is shown in its own words, with no direction attached.\n\nMP, voting and fraction-loyalty data refresh automatically every few hours; outside income and party donations once daily; the lobby register weekly. The archive of completed terms (2005–2025) no longer changes and is therefore collected once. Politblick therefore does not show a live, real-time state — it shows the state as of the last automatic update, timestamped at the bottom of the page.\n\nDespite careful processing, we make no guarantee as to the accuracy, completeness, or currency of the information. In particular, divergences from a fraction line and links labeled as "ties" represent statistical observations, not factual claims about any individual’s intent or wrongdoing. A single divergence is neither unusual nor blameworthy on its own — which is why it is never shown without the number of votes it is drawn from and the member’s own fraction average for comparison.\n\nFor authoritative information, please consult the primary sources listed. Politblick accepts no liability for decisions made based on this data.',
     disclaimerTechTitle: 'Technical data processing',
-    disclaimerTechBody: 'Politblick doesn’t compute anything live when you load a page. Automated scripts fetch the raw data from the original sources at the intervals listed above, process it into a snapshot, and the site reads from that snapshot — not from the sources themselves in real time.\n\n"Party majority": for each vote, Politblick counts how many of a party’s MPs voted yes, no, or abstained; whichever is largest becomes that party’s majority line. Independent MPs (Fraktionslos) have no majority line, since they don’t belong to a fraction with a shared position.\n\n"Flagged vote" / against expectation: an MP counts as diverging when their vote differs from their own fraction’s majority line. Non-votes and independent MPs are excluded from this comparison.\n\n"Party alignment" (%): for each MP, Politblick checks their last 10 roll-call votes against their fraction’s majority line and reports the match rate. Non-votes don’t count; independent MPs aren’t rated.\n\nDonations by quarter: large donations are bucketed into calendar quarters by their received date. Donations with no known received date don’t appear in the time-series chart, but are still included in totals and the table.\n\n"Top" lists (e.g. largest donors): where a full list would be unreadable, Politblick shows only the largest individual entries with their own color; everything else is grouped into "other" — it is never dropped from totals or tables.\n\nThese rules are fixed in the code and are never adjusted by hand for a specific MP or party.',
+    disclaimerTechBody: 'Politblick doesn’t compute anything live when you load a page. Automated scripts fetch the raw data from the original sources at the intervals listed above, process it into a snapshot, and the site reads from that snapshot — not from the sources themselves in real time.\n\n"Party majority": for each vote, Politblick counts how many of a party’s MPs voted yes, no, or abstained; whichever is largest becomes that party’s majority line. Independent MPs (Fraktionslos) have no majority line, since they don’t belong to a fraction with a shared position.\n\n"Flagged vote" / against expectation: an MP counts as diverging when their vote differs from their own fraction’s majority line. Non-votes and independent MPs are excluded from this comparison.\n\n"Fraction loyalty" (%): the share of votes that matched the member’s own fraction majority line. Where a long-term record exists it covers every recorded vote of the completed terms since 2005; otherwise the last 10 votes. The applicable period is always stated next to the number. Non-votes don’t count; independent MPs aren’t rated.\n\nLong-term record: the archive holds the completed terms 2005–2025. The current term is NOT included — those votes are listed separately on the votes tab. About 63% of sitting members held an earlier mandate; for the rest there is no long-term record, which is stated explicitly and must not be read as flawless loyalty.\n\nKinds of divergence: an opposite vote (fraction yes, member no or the reverse) is open dissent. An abstention while the fraction took a side is a registered reservation, counted separately and never presented as a vote against. A member voting where the fraction abstained is a third case. Across the archive these run roughly 61 / 29 / 10 per cent.\n\nFraction discipline: for a fraction, Politblick reports the share of all votes cast that followed its own majority line. On conscience questions fractions often lift the whip; whether that happened in any given case is recorded by no source, and Politblick makes no claim about it. A high divergence share may therefore mean diversity of view rather than indiscipline — which is why the fraction’s full tally is shown beside every such number.\n\nDonations by quarter: large donations are bucketed into calendar quarters by their received date. Donations with no known received date don’t appear in the time-series chart, but are still included in totals and the table.\n\n"Top" lists (e.g. largest donors): where a full list would be unreadable, Politblick shows only the largest individual entries with their own color; everything else is grouped into "other" — it is never dropped from totals or tables.\n\nThese rules are fixed in the code and are never adjusted by hand for a specific MP or party.',
     disclaimerGithubLabel: 'View source on GitHub',
     rosterLoading: 'Loading MP roster…', rosterUpdated: 'Updated', rosterError: 'Could not load the MP roster.', rosterRetry: 'Retry',
     viewOnAbgeordnetenwatch: 'View full profile on abgeordnetenwatch.de',
@@ -788,7 +740,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     infoVerflechtung:
       'An MP holds a role or shareholding at an organization — or received a payment from it — that registered lobbying on the printed matter behind this exact vote. A statistical observation, not an accusation of wrongdoing.',
     infoAuffaelligkeit:
-      "A flag marks a vote where an MP broke from their own fraction's majority line. A statistical observation, not an accusation of wrongdoing.",
+      "Counts the votes where an MP broke from their own fraction’s majority line — always shown against the total number of rated votes, because a single divergence on its own means nothing. A statistical observation, not an accusation of wrongdoing.",
     infoThemenfeld:
       "A weaker signal than a documented tie: the organization hasn't registered lobbying that specifically names this vote — only a general field of interest that Politblick's editors judged to match the topic. No documented link to this particular vote.",
     lobbyPartiesSubTabNetwork: 'Network', lobbyPartiesSubTabByParty: 'By party',

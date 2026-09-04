@@ -274,8 +274,14 @@ async function main() {
 
   const topicalTies = [];
   for (const poll of polls) {
-    const fields = topicMapFile.topics?.[poll.topic];
-    if (!fields || fields.length === 0) continue;
+    // Match on EVERY topic the poll carries, not just field_topics[0]. 71% of polls carry more
+    // than one, and six labels never appear first at all — matching on the first alone
+    // meant a bill tagged ["Wirtschaft", "Energie"] was tested against the (unmapped) Wirtschaft
+    // fields and produced no energy ties at all. The `poll.topic` fallback keeps this working
+    // against a polls.json written before `topics` existed.
+    const pollTopics = poll.topics?.length ? poll.topics : poll.topic ? [poll.topic] : [];
+    const fields = [...new Set(pollTopics.flatMap((t) => topicMapFile.topics?.[t] ?? []))];
+    if (fields.length === 0) continue;
     const result = pollResults[poll.id];
     if (!result) continue;
     const majorityByParty = new Map(result.partyBreakdown.map((p) => [p.party, p.majority]));
@@ -299,7 +305,10 @@ async function main() {
 
         const fractionMajority = vote.party === NO_FRACTION ? null : majorityByParty.get(vote.party) ?? null;
         const memberCommittees = committeesByMandate.get(mandateId) ?? [];
-        const relevantCommittees = memberCommittees.filter((c) => c.topics.includes(poll.topic));
+        // Same reasoning as the field lookup above: a member sitting on the committee actually
+        // responsible for the bill is the strongest non-document signal there is, and testing
+        // it against only the poll's first topic threw most of those matches away.
+        const relevantCommittees = memberCommittees.filter((c) => c.topics.some((t) => pollTopics.includes(t)));
         topicalTies.push({
           mandateId: Number(mandateId),
           pollId: poll.id,

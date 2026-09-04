@@ -60,6 +60,21 @@ export function canonicalPartyName(rawLabel) {
   return cleaned;
 }
 
+/**
+ * The fraction a single vote record was cast under, canonicalised — or 'Fraktionslos'.
+ *
+ * Not inlined as `v.fraction ? canonicalPartyName(v.fraction.label) : 'Fraktionslos'`, which is
+ * the obvious spelling and is wrong: abgeordnetenwatch serialises "no fraction" as an empty
+ * ARRAY (`"fraction": []`), and `[]` is truthy in JavaScript. That check therefore takes the
+ * fraction branch and throws on `.label` of an array. Real example: Joana Cotar's no_show in
+ * poll 4828 (Atomkraft-Weiterbetrieb, 11.11.2022), recorded after she left the AfD fraction.
+ * Testing the label rather than the container is what makes this safe.
+ */
+export function fractionNameFromVote(rawVote) {
+  const label = rawVote.fraction?.label;
+  return label ? canonicalPartyName(label) : 'Fraktionslos';
+}
+
 export function stripLabelPrefix(label) {
   return label
     .replace(/\s*\(Bundestag[^)]*\)/, '')
@@ -360,6 +375,16 @@ export function transformPoll(raw) {
     title: raw.label,
     date: raw.field_poll_date,
     topic: raw.field_topics?.[0]?.label ?? '',
+    // Every topic the poll carries, not just the first. 71% of polls are tagged with more than
+    // one. The first is the dominant topic, but not the only substantive one — six labels (Verkehr,
+    // Wirtschaft, Staat und Verwaltung, Soziale Sicherung, Innere Sicherheit, Wissenschaft) never
+    // appear first at all, so keying anything off
+    // `topic` alone silently loses the rest. That cost real signal: the topical-tie lookup and
+    // the committee boost in build-lobby-links.mjs both matched on `topic`, so a bill tagged
+    // ["Wirtschaft", "Energie"] produced no energy ties and no boost for members on the energy
+    // committee. `topic` is kept as the primary label for display; `topics` is what matching
+    // should use.
+    topics: (raw.field_topics || []).map((t) => t.label),
     accepted: !!raw.field_accepted,
     url: raw.abgeordnetenwatch_url,
     // The Drucksachen the poll's intro links to. This is the join key to the Lobbyregister,
@@ -373,7 +398,14 @@ export function transformPoll(raw) {
   };
 }
 
-function majorityOf(yes, no, abstain) {
+/**
+ * A fraction's majority line on one vote. Exported because fetch-history.mjs must produce the
+ * SAME `partyBreakdown[].majority` that computePollResult() writes into poll-results.json — the
+ * frontend decides "voted against their own fraction" off that field, and a second, subtly
+ * different majority rule for archived polls would make the same member's loyalty read
+ * differently depending only on which term the vote fell in.
+ */
+export function majorityOf(yes, no, abstain) {
   if (yes === 0 && no === 0 && abstain === 0) return null;
   if (yes >= no && yes >= abstain) return 'yes';
   if (no >= yes && no >= abstain) return 'no';
@@ -384,11 +416,50 @@ function mandateNameFromLabel(label) {
   return label.replace(/\s*\(Bundestag[^)]*\)/, '').trim();
 }
 
+/**
+ * One vote record per mandate.
+ *
+ * abgeordnetenwatch sometimes returns several rows for the same mandate on the same poll —
+ * six identical "no" rows for Karin Maag on poll 4119, and occasionally contradictory ones
+ * (Karin Maag again on poll 4140: one "yes" and one "no"). They cluster around members who
+ * left their fraction mid-term. Counting every row inflates that fraction's tally, and on a
+ * close vote that can move its majority line — which is the very thing "voted against their
+ * own fraction" is measured against, for every member of that fraction, not just the
+ * duplicated one.
+ *
+ * Resolution: a cast vote (yes/no/abstain) beats a no_show, because an absence row recorded
+ * alongside an actual ballot is the less credible of the two. Two DIFFERENT cast votes are
+ * genuinely unresolvable, so the mandate is dropped from that poll rather than guessed at —
+ * one silent wrong vote on a member's record is worse than one acknowledged gap.
+ *
+ * The current term has no such rows (0 of 63 polls); the 2017-2021 archive has a handful.
+ */
+export function dedupeVotesByMandate(rawVotes) {
+  const byMandate = new Map();
+  const conflicted = new Set();
+  for (const v of rawVotes) {
+    const mandateId = v.mandate?.id;
+    if (mandateId == null) continue;
+    const existing = byMandate.get(mandateId);
+    if (!existing) {
+      byMandate.set(mandateId, v);
+      continue;
+    }
+    if (existing.vote === v.vote) continue;
+    const existingCast = existing.vote !== 'no_show';
+    const incomingCast = v.vote !== 'no_show';
+    if (incomingCast && !existingCast) byMandate.set(mandateId, v);
+    else if (incomingCast && existingCast) conflicted.add(mandateId);
+  }
+  for (const mandateId of conflicted) byMandate.delete(mandateId);
+  return { votes: [...byMandate.values()], duplicateCount: rawVotes.length - byMandate.size - conflicted.size, conflictCount: conflicted.size };
+}
+
 export function computePollResult(rawVotes) {
-  const votes = rawVotes.map((v) => ({
+  const votes = dedupeVotesByMandate(rawVotes).votes.map((v) => ({
     mandateId: v.mandate.id,
     name: mandateNameFromLabel(v.mandate.label),
-    party: v.fraction ? canonicalPartyName(v.fraction.label) : 'Fraktionslos',
+    party: fractionNameFromVote(v),
     vote: v.vote,
   }));
   const partyMap = new Map();

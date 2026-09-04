@@ -22,6 +22,28 @@ export interface SnapshotMeta {
   lobbyRegisterGeneratedAt: string | null;
   partyDonationsGeneratedAt: string | null;
   committeesGeneratedAt: string | null;
+  voteHistoryGeneratedAt: string | null;
+}
+
+/** One member's long-run record, from the derived summary — aggregates only, no per-vote detail. */
+export interface MemberHistorySummary {
+  ratedCount: number;
+  divergenceCount: number;
+  opposedCount: number;
+  abstainedCount: number;
+  brokeAbstentionCount: number;
+  alignmentPct: number;
+  fractionAlignmentPct: number | null;
+  termCount: number;
+}
+
+export interface VoteHistoryCoverage {
+  fromDate: string;
+  toDate: string;
+  firstTerm: string;
+  lastTerm: string;
+  termCount: number;
+  pollCount: number;
 }
 
 export interface Snapshot {
@@ -34,7 +56,17 @@ export interface Snapshot {
   partyDonations: PartyDonation[];
   committees: Committee[];
   committeeMemberships: CommitteeMembership[];
+  /** Long-run voting aggregates per politician id. Empty when the derived summary is absent. */
+  historyByPolitician: Map<number, MemberHistorySummary>;
+  historyCoverage: VoteHistoryCoverage | null;
   meta: SnapshotMeta;
+}
+
+interface RawVoteHistorySummary {
+  fields: string[];
+  coverage: VoteHistoryCoverage;
+  /** politicianId -> values positioned per `fields`. */
+  members: Record<string, (number | null)[]>;
 }
 
 interface RawPollResult {
@@ -47,7 +79,7 @@ interface RawPollResult {
   votes: MemberVote[];
 }
 
-async function fetchLocalJson<T>(path: string): Promise<T> {
+export async function fetchLocalJson<T>(path: string): Promise<T> {
   // path arguments are root-absolute ('/data/...'); resolve against BASE_URL so this
   // works both in dev (base '/') and once deployed under a GitHub Pages subpath.
   const url = `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
@@ -60,7 +92,7 @@ async function buildSnapshot(): Promise<Snapshot> {
   // Roster, polls and results are required — without them there is no site. Everything else
   // degrades to empty, so a member's profile still renders fully before the first
   // fetch-lobbyregister run has ever landed.
-  const [roster, polls, pollResultsRaw, sidejobsRaw, lobbyLinks, partyDonations, committeesRaw, meta] = await Promise.all([
+  const [roster, polls, pollResultsRaw, sidejobsRaw, lobbyLinks, partyDonations, committeesRaw, historyRaw, meta] = await Promise.all([
     fetchLocalJson<{ members: RealMp[]; parties: RealParty[] }>('/data/roster.json'),
     fetchLocalJson<RealPoll[]>('/data/polls.json'),
     fetchLocalJson<Record<string, RawPollResult>>('/data/poll-results.json'),
@@ -68,6 +100,10 @@ async function buildSnapshot(): Promise<Snapshot> {
     fetchLocalJson<LobbyLinks>('/data/lobby-links.json').catch(() => EMPTY_LOBBY_LINKS),
     fetchLocalJson<Omit<PartyDonation, 'sourceUrl'>[]>('/data/party-donations.json').catch(() => []),
     fetchLocalJson<{ committees: Committee[]; memberships: CommitteeMembership[] }>('/data/committees.json').catch(() => ({ committees: [], memberships: [] })),
+    // The *summary*, not the 2.6 MB archive — 15 KB gzipped, so it can sit in the blocking
+    // snapshot and give the landing page long-run context without every visitor paying for the
+    // full vote-by-vote record they will probably never open.
+    fetchLocalJson<RawVoteHistorySummary>('/data/vote-history-summary.json').catch(() => null),
     fetchLocalJson<SnapshotMeta>('/data/meta.json').catch(() => ({
       legislaturePeriodId: null,
       legislatureLabel: null,
@@ -76,8 +112,17 @@ async function buildSnapshot(): Promise<Snapshot> {
       lobbyRegisterGeneratedAt: null,
       partyDonationsGeneratedAt: null,
       committeesGeneratedAt: null,
+      voteHistoryGeneratedAt: null,
     })),
   ]);
+
+  // `topics` was added to polls.json after launch. Normalising it here means every consumer can
+  // rely on a non-empty array without each one repeating the fallback — and the app keeps
+  // working against a snapshot committed before the field existed, which matters because the
+  // data files are refreshed by a scheduled job, not by the deploy.
+  for (const poll of polls) {
+    if (!poll.topics?.length) poll.topics = poll.topic ? [poll.topic] : [];
+  }
 
   const pollsById = new Map(polls.map((p) => [p.id, p]));
   const pollResults = new Map<number, PollResult>();
@@ -91,6 +136,26 @@ async function buildSnapshot(): Promise<Snapshot> {
     sidejobsByMandate.set(Number(idStr), records);
   }
 
+  // Decoded through the file's own `fields` array rather than by fixed position, so adding a
+  // field to the builder can never silently shift every number by one.
+  const historyByPolitician = new Map<number, MemberHistorySummary>();
+  if (historyRaw?.members && Array.isArray(historyRaw.fields)) {
+    const fields = historyRaw.fields;
+    const at = (row: (number | null)[], field: string) => row[fields.indexOf(field)];
+    for (const [idStr, row] of Object.entries(historyRaw.members)) {
+      historyByPolitician.set(Number(idStr), {
+        ratedCount: Number(at(row, 'ratedCount') ?? 0),
+        divergenceCount: Number(at(row, 'divergenceCount') ?? 0),
+        opposedCount: Number(at(row, 'opposedCount') ?? 0),
+        abstainedCount: Number(at(row, 'abstainedCount') ?? 0),
+        brokeAbstentionCount: Number(at(row, 'brokeAbstentionCount') ?? 0),
+        alignmentPct: Number(at(row, 'alignmentPct') ?? 0),
+        fractionAlignmentPct: at(row, 'fractionAlignmentPct') ?? null,
+        termCount: Number(at(row, 'termCount') ?? 0),
+      });
+    }
+  }
+
   return {
     members: roster.members,
     parties: roster.parties,
@@ -101,6 +166,8 @@ async function buildSnapshot(): Promise<Snapshot> {
     partyDonations: partyDonations.map((d) => ({ ...d, sourceUrl: partyDonationSourceUrl(d.year) })),
     committees: committeesRaw.committees,
     committeeMemberships: committeesRaw.memberships,
+    historyByPolitician,
+    historyCoverage: historyRaw?.coverage ?? null,
     meta,
   };
 }

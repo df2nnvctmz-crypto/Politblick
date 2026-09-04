@@ -1,0 +1,50 @@
+{
+  "_readme": [
+    "Maps a RETIRED abgeordnetenwatch poll-topic label onto the label the same subject carries",
+    "in the CURRENT vocabulary. Needed because the topic list was coarsened over time: the",
+    "2017-2021 Bundestag tagged polls with 39 distinct topics, the current one uses 23. Without",
+    "this, a cross-period question like 'alle Energie-/Umweltabstimmungen seit 2017' silently",
+    "drops every poll filed under 'Naturschutz', because that label no longer exists.",
+    "",
+    "Only ever used to ADD a second, current-vocabulary key to a historical poll. The poll's",
+    "own original topic string is always kept alongside it (field `topic`), so nothing is",
+    "rewritten and the mapping stays auditable.",
+    "",
+    "Two rules when editing:",
+    "",
+    "1. Map only a genuine COARSENING — one retired label whose subject now lives entirely",
+    "   under one current label. Where a retired label was split across several current ones,",
+    "   leave it unmapped (see `unmapped` below). Guessing which half a vote belonged to would",
+    "   file real votes under a topic they were never about, which is exactly the kind of",
+    "   silent error this site cannot afford.",
+    "2. Where data/lobby-topic-map.json already groups the same subject, follow it rather than",
+    "   inventing a second, conflicting taxonomy — it is why Menschenrechte, Entwicklungspolitik",
+    "   and Humanitäre Hilfe land under Außenpolitik, and why Familie/Frauen/Senioren land",
+    "   under Gesellschaftspolitik.",
+    "",
+    "Format: retired label (must match abgeordnetenwatch's field_topics label exactly) ->",
+    "current label (must be one of the 23 labels the current legislature actually uses)."
+  ],
+  "merge": {
+    "Finanzen": "Öffentliche Finanzen, Steuern und Abgaben",
+    "Haushalt": "Öffentliche Finanzen, Steuern und Abgaben",
+    "Naturschutz": "Umwelt",
+    "Entwicklungspolitik": "Außenpolitik und internationale Beziehungen",
+    "Humanitäre Hilfe": "Außenpolitik und internationale Beziehungen",
+    "Menschenrechte": "Außenpolitik und internationale Beziehungen",
+    "Familie": "Gesellschaftspolitik, soziale Gruppen",
+    "Frauen": "Gesellschaftspolitik, soziale Gruppen",
+    "Senioren": "Gesellschaftspolitik, soziale Gruppen",
+    "Geschäftsordnung": "Bundestag",
+    "Digitale Agenda": "Wissenschaft, Forschung und Technologie",
+    "Lobbyismus & Transparenz": "Politisches Leben, Parteien",
+    "Außenwirtschaft": "Wirtschaft"
+  },
+  "unmapped": {
+    "Innere Angelegenheiten": "Split, not renamed: the old Innenausschuss catch-all is today three separate labels (Innere Sicherheit, Migration und Aufenthaltsrecht, Staat und Verwaltung). Which one a given vote belongs to cannot be derived from the label alone.",
+    "Medien, Kommunikation und Informationstechnik": "Half media/culture, half IT. The current vocabulary has no media topic at all, so there is no honest target.",
+    "Kultur": "No current equivalent. Filing it under Gesellschaftspolitik would be an invention, not a merge.",
+    "Deutsche Einheit / Innerdeutsche Beziehungen (bis 1990)": "A historical subject with no successor label. Left as-is.",
+    "Verbraucherschutz": "Split across at least Recht (the modern committee is 'Recht und Verbraucherschutz'), Landwirtschaft und Ernährung (food safety) and Wirtschaft (trade). Appears on 9 polls of the 2005-2017 terms, 8 of which also carry a mapped topic and so stay reachable anyway; only the 2014 TTIP/CETA arbitration vote is reachable by its original label alone. Mapping it to any one target would file the other two kinds of vote under a topic they were never about."
+  }
+}

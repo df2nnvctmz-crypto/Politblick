@@ -1,0 +1,54 @@
+name: Fetch vote archive (closed legislature periods)
+
+# Deliberately NOT on a schedule. Closed legislature periods are immutable, so re-fetching them
+# daily would spend ~600 paced requests to reproduce a byte-identical file. Run this by hand when
+# HISTORY_PERIOD_IDS in scripts/fetch-history.mjs gains a term — or when the term that just ended
+# closes and moves out of fetch-core's scope.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-history
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    # ~600 polls plus roster and mandate reconciliation, all paced at 1.5s to stay under
+    # abgeordnetenwatch's 30 req/min fair-use limit. The default 360-minute cap is ample, but a
+    # tighter one means a hung run fails rather than idling for six hours.
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so the rebase in commit-data can replay onto origin/main.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch closed legislature periods
+        run: node scripts/fetch-history.mjs
+
+      # The summary is what the landing page and the roster read — the 2.6 MB archive itself is
+      # only lazy-loaded on profile and party pages. Rebuilding it in the same job is what keeps
+      # the two from drifting apart. No network.
+      - name: Rebuild the derived summary
+        run: node scripts/build-vote-history-summary.mjs
+
+      # Recomputes every member from the raw vote strings, sharing no code with the builder, and
+      # exits non-zero on any disagreement. Nothing is committed if this fails.
+      - name: Verify the summary against an independent recount
+        run: node scripts/verify-vote-history-summary.mjs
+
+      - uses: ./.github/actions/commit-data
+        with:
+          message: Update vote archive (closed legislature periods)
+          paths: >-
+            public/data/vote-history.json
+            public/data/vote-history-summary.json
+            public/data/meta.json

@@ -1,16 +1,11 @@
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
-import {
-  BILLS,
-  DEMO_MPS,
-  DEMO_PARTY_META,
-  TRANSLATIONS,
-  type Lang,
-} from './data';
-import { computeHemicycleSeats, fuzzyIncludes, initials, trendPoints } from './helpers';
+import { TRANSLATIONS, type Lang, type Translation } from './data';
+import { computeHemicycleSeats, fuzzyIncludes } from './helpers';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealMp } from './bundestag';
 import { computeAllAlignments, computeDivergences, computeMemberAlignment, isoWeekRange, useAllPollResults, useAllPolls, useMandateVotes, usePartyVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult, type RealPoll } from './polls';
 import { buildMemberIncomeScores, useSidejobs } from './sidejobs';
-import { useSnapshot } from './snapshot';
+import { useSnapshot, type MemberHistorySummary } from './snapshot';
+import { useMemberVoteHistory, usePartyVoteHistory, type DivergenceKind, type HistoricAlignment, type HistoricDivergence } from './voteHistory';
 import {
   buildMemberTieCounts,
   drucksacheUrl,
@@ -529,8 +524,8 @@ function slugify(name: string): string {
  * members the way party names are, and it keeps every already-shared/indexed numeric link
  * (`/abgeordnete/175389`) resolving to the same page forever, since the ID is still right there
  * at the front. The slug after it exists purely so the URL reads as a name for sharing/indexing. */
-function buildMpUrlParam(id: string, roster: RealMp[], demoMps: { id: string; name: string }[]): string {
-  const name = roster.find((m) => String(m.id) === id)?.name ?? demoMps.find((m) => m.id === id)?.name;
+function buildMpUrlParam(id: string, roster: RealMp[]): string {
+  const name = roster.find((m) => String(m.id) === id)?.name;
   return name ? `${id}-${slugify(name)}` : id;
 }
 
@@ -558,10 +553,9 @@ function extractLeadingId(param: string | null): string | null {
   return dash === -1 ? param : param.slice(0, dash);
 }
 
-/** Bills come from two sources — real polls (numeric id) and the demo fixture set (string id like
- * 'b1') — so the title lookup has to check both, mirroring buildMpUrlParam's roster/demoMps split. */
+/** Bill URLs are keyed by the real poll id. */
 function buildBillUrlParam(id: BillId, polls: RealPoll[]): string {
-  const title = (typeof id === 'number' ? polls.find((p) => p.id === id)?.title : undefined) ?? BILLS.find((b) => b.id === id)?.title;
+  const title = typeof id === 'number' ? polls.find((p) => p.id === id)?.title : undefined;
   return buildSlugParam(id, title);
 }
 
@@ -579,6 +573,187 @@ function countOptions(values: string[]): { value: string; label: string; count: 
   return [...counts.entries()]
     .map(([value, count]) => ({ value, label: value, count }))
     .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value, 'de'));
+}
+
+/**
+ * The long-run voting record, as one card. Rendered on both the overview and the votes tab, so
+ * it lives here rather than being written twice — two copies of a card that makes a factual
+ * claim about a named person is exactly the sort of thing that drifts apart unnoticed.
+ *
+ * `footer` is what differs between the two placements: a link across to the votes tab on the
+ * overview, an expand toggle plus the vote-by-vote list on the votes tab itself.
+ */
+function LongTermRecordCard({
+  history,
+  t,
+  formatPct,
+  activeKind,
+  activeTopic,
+  onSelectKind,
+  onSelectTopic,
+  footer,
+}: {
+  history: HistoricAlignment;
+  t: Translation;
+  formatPct: (value: number) => string;
+  /** The kind/topic currently narrowing the detail list, so the chip can show as pressed. */
+  activeKind?: DivergenceKind | null;
+  activeTopic?: string | null;
+  onSelectKind?: (kind: DivergenceKind) => void;
+  onSelectTopic?: (topic: string) => void;
+  footer?: ReactNode;
+}) {
+  if (history.error) return null;
+  return (
+    <div style={{ background: 'oklch(97% 0.006 260)', border: '1px solid oklch(90% 0.008 260)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: 'oklch(30% 0.01 260)', marginBottom: 4 }}>
+        {t.historyHeading}
+        <InfoTooltip text={t.historyInfo} />
+      </div>
+      {history.loading ? (
+        <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{t.historyLoading}</div>
+      ) : history.ratedCount === 0 ? (
+        // Said out loud rather than left blank: 37% of members are in their first term, and an
+        // empty space here reads as "nothing to report about their loyalty" instead of "no
+        // earlier term exists to measure".
+        <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{t.historyNone}</div>
+      ) : (
+        <>
+          <div style={{ fontSize: 13, color: 'oklch(32% 0.01 260)', marginBottom: 4 }}>
+            {t.historyBaseRate
+              .replace('{count}', String(history.divergenceCount))
+              .replace('{total}', String(history.ratedCount))
+              .replace('{pct}', history.alignmentPct == null ? '—' : formatPct(history.alignmentPct))}
+          </div>
+          {history.fractionAlignmentPct != null && (
+            <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 8 }}>
+              {t.historyFractionAverage.replace('{pct}', formatPct(history.fractionAlignmentPct))}
+            </div>
+          )}
+          {/* An abstention is not a vote against. Splitting the total keeps the headline number
+              from reading as more dissent than actually occurred — across the archive nearly four
+              in ten divergences are not opposition. */}
+          {history.divergenceCount > 0 && (
+            <div style={{ fontSize: 12, color: 'oklch(38% 0.01 260)', marginBottom: 10, display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+              {([
+                ['opposed', history.opposedCount, t.historyKindOpposed, t.historyKindOpposedOne],
+                ['abstained', history.abstainedCount, t.historyKindAbstained, t.historyKindAbstainedOne],
+                ['brokeAbstention', history.brokeAbstentionCount, t.historyKindBrokeAbstention, t.historyKindBrokeAbstentionOne],
+              ] as [DivergenceKind, number, string, string][])
+                .filter(([, n]) => n > 0)
+                .map(([kind, n, plural, singular]) => {
+                  const active = activeKind === kind;
+                  return (
+                    <button
+                      key={kind}
+                      type="button"
+                      onClick={onSelectKind ? () => onSelectKind(kind) : undefined}
+                      aria-pressed={active}
+                      style={{
+                        padding: '2px 8px',
+                        borderRadius: 10,
+                        fontSize: 12,
+                        fontFamily: 'inherit',
+                        cursor: onSelectKind ? 'pointer' : 'default',
+                        background: active ? 'oklch(30% 0.01 260)' : 'white',
+                        color: active ? 'white' : 'oklch(38% 0.01 260)',
+                        border: `1px solid ${active ? 'oklch(30% 0.01 260)' : 'oklch(90% 0.006 260)'}`,
+                      }}
+                    >
+                      {n} {n === 1 ? singular : plural}
+                    </button>
+                  );
+                })}
+              <InfoTooltip text={t.historyKindSplitInfo} />
+            </div>
+          )}
+          <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: history.topTopics.length > 0 ? 10 : 0 }}>
+            {history.terms
+              .map((term) =>
+                t.historyTermTemplate
+                  .replace('{label}', term.label)
+                  .replace('{count}', String(term.divergenceCount))
+                  .replace('{total}', String(term.ratedCount)),
+              )
+              .join(' · ')}
+          </div>
+          {history.topTopics.length > 0 && (
+            <>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'oklch(38% 0.01 260)', marginBottom: 6 }}>{t.historyTopicsLabel}</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {history.topTopics.slice(0, 6).map((topic) => {
+                  const active = activeTopic === topic.topic;
+                  return (
+                    <button
+                      key={topic.topic}
+                      type="button"
+                      onClick={onSelectTopic ? () => onSelectTopic(topic.topic) : undefined}
+                      aria-pressed={active}
+                      style={{
+                        fontSize: 11.5,
+                        padding: '3px 9px',
+                        borderRadius: 10,
+                        fontFamily: 'inherit',
+                        cursor: onSelectTopic ? 'pointer' : 'default',
+                        background: active ? 'oklch(30% 0.01 260)' : 'white',
+                        color: active ? 'white' : 'oklch(38% 0.01 260)',
+                        border: `1px solid ${active ? 'oklch(30% 0.01 260)' : 'oklch(90% 0.006 260)'}`,
+                      }}
+                    >
+                      {t.historyTopicTemplate
+                        .replace('{topic}', topic.topic)
+                        .replace('{count}', String(topic.divergences))
+                        .replace('{total}', String(topic.rated))}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+          {footer}
+        </>
+      )}
+    </div>
+  );
+}
+
+/** The vote-by-vote detail behind the card: every archived divergence, newest first. */
+function LongTermDivergenceList({ divergences, t }: { divergences: HistoricDivergence[]; t: Translation }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+      {divergences.map((d) => {
+        const voteLabel = d.vote === 'yes' ? t.voteYes : d.vote === 'no' ? t.voteNo : t.voteAbstain;
+        const majorityLabel = d.majority === 'yes' ? t.voteYes : d.majority === 'no' ? t.voteNo : t.voteAbstain;
+        // Singular: each row is one vote, not a count.
+        const kindLabel =
+          d.kind === 'opposed' ? t.historyKindOpposedOne : d.kind === 'abstained' ? t.historyKindAbstainedOne : t.historyKindBrokeAbstentionOne;
+        // Only an opposite vote is coloured as dissent; an abstention is a reservation and is
+        // deliberately not dressed up as opposition.
+        const kindColor = d.kind === 'opposed' ? 'oklch(48% 0.16 40)' : 'oklch(50% 0.01 260)';
+        return (
+          <a
+            key={`${d.pollId}-${d.date}`}
+            href={d.url}
+            target="_blank"
+            rel="noreferrer"
+            style={{ textDecoration: 'none', color: 'inherit', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+              <span style={{ fontWeight: 600, fontSize: 14 }}>{d.title}</span>
+              <span style={{ fontSize: 11.5, color: kindColor, fontWeight: 700, whiteSpace: 'nowrap' }}>{kindLabel}</span>
+            </div>
+            <div style={{ fontSize: 12, color: 'oklch(45% 0.01 260)', marginTop: 4 }}>
+              {t.historyDetailVoteTemplate.replace('{vote}', voteLabel).replace('{party}', d.party).replace('{majority}', majorityLabel)}
+            </div>
+            <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 3 }}>
+              {d.date} · {d.termLabel}
+              {d.topics.length > 0 ? ` · ${d.topics.join(', ')}` : ''}
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  );
 }
 
 /** Checkbox-list dropdown filter: click to open, click any checkbox to toggle, click outside to close. */
@@ -1428,7 +1603,12 @@ function GlobalSearchBox({
   const q = query.trim();
   const showDropdown = open && q.length >= 2;
   const mpMatchesAll = showDropdown ? members.filter((m) => fuzzyIncludes(m.name, q) || fuzzyIncludes(m.constituency, q)) : [];
-  const billMatches = showDropdown ? polls.filter((p) => fuzzyIncludes(p.title, q) || fuzzyIncludes(p.topic, q)).slice(0, 4) : [];
+  // Searches every topic the poll carries, not just the displayed primary one — otherwise a
+  // search for "Verkehr" finds nothing, because that label only ever appears as a poll's
+  // second topic and so never reaches `topic`.
+  const billMatches = showDropdown
+    ? polls.filter((p) => fuzzyIncludes(p.title, q) || p.topics.some((topic) => fuzzyIncludes(topic, q))).slice(0, 4)
+    : [];
   const orgMatches = showDropdown ? orgs.filter((e) => fuzzyIncludes(e.org.name, q)).slice(0, 4) : [];
   const partyMatches = showDropdown ? parties.filter((p) => fuzzyIncludes(p.name, q)).slice(0, 4) : [];
   const mpMatches = mpMatchesAll.slice(0, 4);
@@ -1635,7 +1815,7 @@ function App() {
   const [partyTab, setPartyTab] = useState<PartyTab>(initialRoute.partyTab);
   const [searchQuery, setSearchQuery] = useState('');
   const [partyFilter, setPartyFilter] = useState<Record<string, boolean>>({});
-  const [rosterSort, setRosterSort] = useState<'default' | 'income' | 'ties'>('default');
+  const [rosterSort, setRosterSort] = useState<'default' | 'income' | 'ties' | 'loyalty' | 'divergences'>('default');
   const [following, setFollowing] = useState<Record<string, boolean>>({});
   const [hoveredAlignmentPoint, setHoveredAlignmentPoint] = useState<number | null>(null);
   const alignmentSvgRef = useRef<SVGSVGElement>(null);
@@ -1653,6 +1833,11 @@ function App() {
   const [committeeListSearch, setCommitteeListSearch] = useState('');
   const [committeeMembersExpanded, setCommitteeMembersExpanded] = useState(false);
   const [votesExpanded, setVotesExpanded] = useState(false);
+  const [historyExpanded, setHistoryExpanded] = useState(false);
+  // Chips on the long-run card double as filters over its detail list — with 40+ divergences
+  // across five terms, scanning for "the energy ones" by eye is not realistic.
+  const [historyKindFilter, setHistoryKindFilter] = useState<DivergenceKind | null>(null);
+  const [historyTopicFilter, setHistoryTopicFilter] = useState<string | null>(null);
   const [flaggedVotesExpanded, setFlaggedVotesExpanded] = useState(false);
   const [pollLobbyingExpanded, setPollLobbyingExpanded] = useState(false);
   const [orgsSort, setOrgsSort] = useState<SortState>(null);
@@ -1666,6 +1851,14 @@ function App() {
   const [partyDonationsDonorQuery, setPartyDonationsDonorQuery] = useState('');
   const [partyDonationsExpanded, setPartyDonationsExpanded] = useState(false);
   const [partyVotesExpanded, setPartyVotesExpanded] = useState(false);
+  // The card itself is always shown on the Abstimmungen tab; this only controls whether the
+  // vote list runs past the first six, which is the length that reads as a summary rather than
+  // a data dump.
+  const [partyDissentExpanded, setPartyDissentExpanded] = useState(false);
+  /** Which divided-vote rows are open. A set, so several can be compared side by side. */
+  const [openDividedVotes, setOpenDividedVotes] = useState<Set<string>>(new Set());
+  /** Divided votes whose deviator list is shown in full rather than capped at 20 names. */
+  const [fullDeviatorLists, setFullDeviatorLists] = useState<Set<string>>(new Set());
   const [partyTopicalExpanded, setPartyTopicalExpanded] = useState(false);
   const [partyTopicalSearchQuery, setPartyTopicalSearchQuery] = useState('');
   const [partyTopicalFieldFilter, setPartyTopicalFieldFilter] = useState<Set<string>>(new Set());
@@ -1826,7 +2019,7 @@ function App() {
     }
     const path = routeToPath({
       view,
-      mpId: selectedMpId ? buildMpUrlParam(selectedMpId, roster.members, demoMps) : null,
+      mpId: selectedMpId ? buildMpUrlParam(selectedMpId, roster.members) : null,
       profileTab,
       billId: selectedBillId !== null ? buildBillUrlParam(selectedBillId, pollsState.polls) : null,
       orgId: selectedOrgId ? buildSlugParam(selectedOrgId, snapshot?.lobbyLinks.orgs[selectedOrgId]?.name) : null,
@@ -1904,6 +2097,11 @@ function App() {
     setSelectedMpId(id);
     setProfileTab('overview');
     setVotesExpanded(false);
+    // A filter set on one member's record would otherwise silently carry over to the next one,
+    // hiding most of their divergences for a reason the reader never chose.
+    setHistoryExpanded(false);
+    setHistoryKindFilter(null);
+    setHistoryTopicFilter(null);
   };
   const openBill = (id: BillId) => {
     setView('bill');
@@ -1924,6 +2122,9 @@ function App() {
     setView('party');
     setSelectedParty(party);
     setPartyTab('overview');
+    setPartyDissentExpanded(false);
+    setOpenDividedVotes(new Set());
+    setFullDeviatorLists(new Set());
     setPartyDonationsExpanded(false);
     setPartyVotesExpanded(false);
     setPartyTopicalExpanded(false);
@@ -1945,7 +2146,7 @@ function App() {
   const datenschutzHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'datenschutz' }), BASE_URL);
   const datenHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'daten' }), BASE_URL);
   const crossrefHref = (tab: LobbyTab = 'overview') => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'crossref', lobbyTab: tab }), BASE_URL);
-  const mpHref = (id: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'profile', mpId: buildMpUrlParam(id, roster.members, demoMps) }), BASE_URL);
+  const mpHref = (id: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'profile', mpId: buildMpUrlParam(id, roster.members) }), BASE_URL);
   const billHref = (id: BillId) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'bill', billId: buildBillUrlParam(id, pollsState.polls) }), BASE_URL);
   const orgHref = (id: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'org', orgId: buildSlugParam(id, snapshot?.lobbyLinks.orgs[id]?.name) }), BASE_URL);
   const partyHref = (party: string, tab: PartyTab = 'overview') => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'party', party, partyTab: tab }), BASE_URL);
@@ -1980,6 +2181,9 @@ function App() {
   const q = searchQuery.trim();
   const incomeScoreByMandate = snapshot ? buildMemberIncomeScores(snapshot.sidejobsByMandate) : new Map<number, number>();
   const tieCountByMandate = snapshot ? buildMemberTieCounts(snapshot.lobbyLinks) : new Map<number, number>();
+  // Keyed by politician id (stable across terms), unlike the two maps above which key on the
+  // per-term mandate id.
+  const historyByPolitician = snapshot?.historyByPolitician ?? new Map<number, MemberHistorySummary>();
   const filteredMps = roster.members
     .filter((m) => {
       if (partyFilter[m.party] === false) return false;
@@ -1989,25 +2193,46 @@ function App() {
     .sort((a, b) => {
       if (rosterSort === 'income') return (incomeScoreByMandate.get(b.mandateId) ?? 0) - (incomeScoreByMandate.get(a.mandateId) ?? 0);
       if (rosterSort === 'ties') return (tieCountByMandate.get(b.mandateId) ?? 0) - (tieCountByMandate.get(a.mandateId) ?? 0);
+      if (rosterSort === 'loyalty') {
+        // Sorts on the LONG-RUN figure only. The ten-vote number this list used to show is 100%
+        // for 602 of 630 members, so ranking by it would order the roster essentially at random.
+        //
+        // Members with no earlier term are sorted last rather than treated as 0% (which would
+        // top a "least loyal" list) or 100% (which would claim a loyalty nobody measured). Their
+        // absence is missing data, and missing data must not become a position in a ranking.
+        const pa = historyByPolitician.get(a.id)?.alignmentPct;
+        const pb = historyByPolitician.get(b.id)?.alignmentPct;
+        if (pa === undefined && pb === undefined) return 0;
+        if (pa === undefined) return 1;
+        if (pb === undefined) return -1;
+        return pa - pb;
+      }
+      if (rosterSort === 'divergences') {
+        // The raw count answers a different question from the rate: "how many times" rather than
+        // "how often". It favours long service, which is why both are offered rather than one.
+        return (historyByPolitician.get(b.id)?.divergenceCount ?? -1) - (historyByPolitician.get(a.id)?.divergenceCount ?? -1);
+      }
       return 0;
     });
   const alignmentByMandate = computeAllAlignments(recentPolls.results);
-
-  // Illustrative sample profiles (not real people) that power the votes/lobby/finance demo content below.
-  const demoMps = DEMO_MPS.map((m) => ({ ...m, color: DEMO_PARTY_META[m.party].color, initials: initials(m.name) }));
-  const demoFlagCount = demoMps.reduce((sum, m) => sum + m.flags.length, 0);
-
-  const billsWithBreakdown = BILLS.map((b) => {
-    const values = Object.values(b.breakdown) as [number, number, number][];
-    const totalsYes = values.reduce((a, c) => a + c[0], 0) / values.length;
-    return { ...b, summary: lang === 'de' ? b.summaryDe : b.summaryEn, yesPct: Math.round(totalsYes) };
-  });
 
   // Real data for the current sitting week: recent-votes feed, "against expectation" cards,
   // and the featured-vote widget. Each divergence is a plain statistical fact (this member's
   // vote differed from their own fraction's majority on this specific poll) — never a claim
   // about motive, sourced live from abgeordnetenwatch.de's roll-call vote records.
   const weekLabel = weekly.weekRange ? formatWeekRange(weekly.weekRange, lang) : '';
+  /**
+   * "2005–2025". Deliberately a closed range: the archive holds only COMPLETED terms, so the
+   * current term's votes are not in any long-run figure. An open-ended "seit 2005" read as
+   * "through today" and put a member's long-run loyalty directly above a list of current-term
+   * votes it does not count.
+   */
+  const historyCoverageLabel = snapshot?.historyCoverage
+    ? `${snapshot.historyCoverage.fromDate.slice(0, 4)}–${snapshot.historyCoverage.toDate.slice(0, 4)}`
+    : '';
+  /** One decimal place, in the reader's locale — German writes 86,8 where English writes 86.8. */
+  const formatPct = (value: number) =>
+    value.toLocaleString(lang === 'de' ? 'de-DE' : 'en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   // All polls grouped by sitting week (Sitzungswoche), most recent week first, for the full poll list view.
   const pollWeekGroups = (() => {
     const byWeek = new Map<string, { range: { start: Date; end: Date }; results: PollResult[] }>();
@@ -2032,7 +2257,13 @@ function App() {
   const realAgainstExpectation = weekly.divergences.slice(0, 4).map((d) => {
     const rm = mandateToMember.get(d.member.mandateId);
     const label = d.member.vote === 'yes' ? t.voteYes : d.member.vote === 'no' ? t.voteNo : t.voteAbstain;
+    // The long-run context that turns "broke ranks once" into "and here is how often they do".
+    // Keyed by politician id — these cards are selected by CURRENT-term behaviour, so adding
+    // history to them ranks nothing; a standalone "biggest dissenters" list would instead be
+    // sorted by length of service, since only 63% of sitting members have an earlier term.
+    const history = rm ? (snapshot?.historyByPolitician.get(rm.id) ?? null) : null;
     return {
+      history,
       mpName: d.member.name,
       billTitle: d.poll.title,
       color: REAL_PARTY_COLORS[d.member.party] || FALLBACK_PARTY_COLOR,
@@ -2048,10 +2279,38 @@ function App() {
   // A profile is either one of the 8 illustrative demo MPs (full sample analysis content)
   // or a real, live-fetched Bundestag member (factual name/party/constituency only — no
   // fabricated votes/lobby/donations are ever attached to a real person).
-  const demoMatch = demoMps.find((m) => m.id === selectedMpId);
   const realMatch = roster.members.find((m) => String(m.id) === selectedMpId);
   const mandateVotes = useMandateVotes(realMatch ? realMatch.mandateId : null);
+  // Grouped into sitting weeks like the parliament-wide vote list, so a member's record reads with
+  // the same rhythm as the page it mirrors — and so a run of votes on one day is visibly one day's
+  // work rather than five unrelated rows. Sliced BEFORE grouping, so "show 10" still means ten
+  // votes rather than ten weeks.
+  const visibleMandateVotes = mandateVotes.votes.slice(0, votesExpanded ? mandateVotes.votes.length : 10);
+  const mandateVoteWeeks = (() => {
+    const byWeek = new Map<string, { range: { start: Date; end: Date }; votes: typeof visibleMandateVotes }>();
+    for (const v of visibleMandateVotes) {
+      const range = isoWeekRange(v.poll.date);
+      const key = range.start.toISOString();
+      if (!byWeek.has(key)) byWeek.set(key, { range, votes: [] });
+      byWeek.get(key)!.votes.push(v);
+    }
+    return [...byWeek.values()].sort((a, b) => b.range.start.getTime() - a.range.start.getTime());
+  })();
   const partyVotes = usePartyVotes(selectedParty);
+  const partyDissent = usePartyVoteHistory(selectedParty);
+  // Same sitting-week grouping as the parliament-wide and per-member vote lists. Sliced before
+  // grouping so "show 10" stays ten votes rather than ten weeks.
+  const visiblePartyVotes = partyVotes.votes.slice(0, partyVotesExpanded ? partyVotes.votes.length : 10);
+  const partyVoteWeeks = (() => {
+    const byWeek = new Map<string, { range: { start: Date; end: Date }; votes: typeof visiblePartyVotes }>();
+    for (const v of visiblePartyVotes) {
+      const range = isoWeekRange(v.poll.date);
+      const key = range.start.toISOString();
+      if (!byWeek.has(key)) byWeek.set(key, { range, votes: [] });
+      byWeek.get(key)!.votes.push(v);
+    }
+    return [...byWeek.values()].sort((a, b) => b.range.start.getTime() - a.range.start.getTime());
+  })();
   const sidejobs = useSidejobs(realMatch ? realMatch.mandateId : null);
   const memberLobby = useMemberLobby(realMatch ? realMatch.mandateId : null);
   // Per-poll lookup so the Abstimmungen tab can show an inline lobby indicator on each vote
@@ -2074,41 +2333,39 @@ function App() {
   const realMpAttendancePct = mandateVotes.votes.length > 0 ? Math.round((realMpBillsVoted / mandateVotes.votes.length) * 100) : null;
   const alignment = computeMemberAlignment(realMatch?.mandateId ?? -1, recentPolls.results);
   const realMpFlaggedVotes = alignment.points.filter((p) => p.aligned === false);
-  const statLabels = [t.statBillsVoted, t.statAttendance, t.statPartyAlignment, t.statFlags];
   type Profile =
-    | { kind: 'demo'; mp: (typeof demoMps)[number] & {
-        stats: { label: string; value: string | number }[];
-        hasFlags: boolean;
-        trendPoints: string;
-        partyTrendPoints: string;
-        voteHistoryResolved: { billTitle: string; date: string; voteLabel: string; bg: string; href: string; onOpen: () => void }[];
-      } }
     | { kind: 'real'; mp: RealMp }
     | { kind: 'loading' }
     | { kind: 'missing' };
-  const profile: Profile = demoMatch
-    ? {
-        kind: 'demo',
-        mp: {
-          ...demoMatch,
-          stats: demoMatch.statValues.map((value, i) => ({ label: statLabels[i], value })),
-          hasFlags: demoMatch.flags.length > 0,
-          trendPoints: trendPoints(demoMatch.id.charCodeAt(1)),
-          partyTrendPoints: trendPoints(demoMatch.id.charCodeAt(1) + 2),
-          voteHistoryResolved: demoMatch.voteHistory.map((v) => {
-            const bill = BILLS.find((b) => b.id === v.billId)!;
-            const label = v.vote === 'yes' ? t.voteYes : v.vote === 'no' ? t.voteNo : t.voteAbstain;
-            return { billTitle: bill.title, date: bill.date, voteLabel: label, bg: voteBg[v.vote], href: billHref(bill.id), onOpen: () => openBill(bill.id) };
-          }),
-        },
-      }
-    : realMatch
-      ? { kind: 'real', mp: realMatch }
-      : selectedMpId && roster.loading
-        ? { kind: 'loading' }
-        : { kind: 'missing' };
+  const profile: Profile = realMatch
+    ? { kind: 'real', mp: realMatch }
+    : selectedMpId && roster.loading
+      ? { kind: 'loading' }
+      : { kind: 'missing' };
 
   const memberCommittees = useMemberCommittees(profile.kind === 'real' ? profile.mp.mandateId : null);
+  // Keyed by politician id, not mandateId: mandate ids are issued per legislature, so an earlier
+  // term knows this person by a different one. Passing null keeps the 1.3 MB archive unfetched
+  // for every visitor who never opens a profile.
+  const voteHistory = useMemberVoteHistory(profile.kind === 'real' ? profile.mp.id : null);
+  const historyFilterActive = historyKindFilter !== null || historyTopicFilter !== null;
+  const filteredDivergences = voteHistory.divergences.filter(
+    (d) => (!historyKindFilter || d.kind === historyKindFilter) && (!historyTopicFilter || d.topics.includes(historyTopicFilter)),
+  );
+  // Clicking a chip is a request to see those votes, so it opens the list rather than silently
+  // narrowing something still collapsed. Clicking the same chip again clears it.
+  const toggleHistoryKind = (kind: DivergenceKind) => {
+    setHistoryKindFilter((current) => (current === kind ? null : kind));
+    setHistoryExpanded(true);
+  };
+  const toggleHistoryTopic = (topic: string) => {
+    setHistoryTopicFilter((current) => (current === topic ? null : topic));
+    setHistoryExpanded(true);
+  };
+  const clearHistoryFilter = () => {
+    setHistoryKindFilter(null);
+    setHistoryTopicFilter(null);
+  };
   const isFollowing = !!(selectedMpId && following[selectedMpId]);
 
   const profileTabs: { key: ProfileTab; label: string }[] = [
@@ -2118,19 +2375,6 @@ function App() {
     { key: 'finance', label: profile.kind === 'real' ? t.tabSidejobs : t.tabFinance },
   ];
 
-  const buildBreakdown = (raw: (typeof billsWithBreakdown)[number]) => ({
-    ...raw,
-    partyBreakdown: Object.entries(raw.breakdown).map(([party, dist]) => {
-      const [y, n, a] = dist as [number, number, number];
-      return { party, summary: `${y}/${n}/${a}%`, y, n, a };
-    }),
-    flaggedMps: demoMps
-      .filter((m) => m.flags.length > 0 && m.voteHistory.some((v) => v.billId === raw.id))
-      .map((m) => ({ name: m.name, party: m.party, color: m.color, reason: m.flags[0], href: mpHref(m.id), onOpen: () => openMp(m.id) })),
-    onOpen: () => openBill(raw.id),
-  });
-  const demoBillMatch = billsWithBreakdown.find((b) => b.id === selectedBillId);
-  const currentBill = demoBillMatch ? buildBreakdown(demoBillMatch) : null;
   const realPollId = typeof selectedBillId === 'number' ? selectedBillId : null;
   const pollDetail = usePollResult(realPollId);
   const pollDetailDivergences = pollDetail.result ? computeDivergences(pollDetail.result) : [];
@@ -2179,13 +2423,14 @@ function App() {
         description = t.metaSearchDescription;
         break;
       case 'profile':
-        if (profile.kind === 'real' || profile.kind === 'demo') {
+        if (profile.kind === 'real') {
           title = `${profile.mp.name} – Politblick`;
           description = t.metaMpDescTemplate.replace('{name}', profile.mp.name).replace('{party}', profile.mp.party);
         }
         break;
       case 'bill': {
-        const billTitle = pollDetail.result?.poll.title ?? currentBill?.title ?? null;
+        // Real polls only — the demo bill fixtures this used to fall back to are gone.
+        const billTitle = pollDetail.result?.poll.title ?? null;
         if (billTitle) {
           title = `${billTitle} – Politblick`;
           description = t.metaBillDescTemplate.replace('{title}', billTitle);
@@ -2287,7 +2532,7 @@ function App() {
     }
     lastCountedPageKeyRef.current = pageKey;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, profile, pollDetail.result, currentBill, orgDetail.org, committeeDetail.detail]);
+  }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, profile, pollDetail.result, orgDetail.org, committeeDetail.detail]);
   const filteredOrgs = orgList.orgs.filter((e) => {
     if (!e.org.name.toLowerCase().includes(orgSearchQuery.trim().toLowerCase())) return false;
     if (orgPartyFilter.size > 0 && !e.parties.some((p) => orgPartyFilter.has(p))) return false;
@@ -2708,9 +2953,16 @@ function App() {
                 <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statMpsLabel}</div>
                 <div style={{ fontSize: 26, fontWeight: 800 }}>{roster.loading && roster.members.length === 0 ? '…' : roster.members.length}</div>
               </div>
-              <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}>
-                <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statFlagsLabel}</div>
-                <div style={{ fontSize: 26, fontWeight: 800, color: 'oklch(55% 0.16 40)' }}>{demoFlagCount}</div>
+              {/* The strongest signal the site actually has — a member voting on a bill an
+                  organisation they are tied to declared lobbying on, document-backed — sits in the
+                  most prominent slot. It replaces a tile that summed DEMO_MPS' invented `flags`
+                  and rendered that fictional count next to the real ones. */}
+              <div
+                onClick={() => goCrossref('conflicts')}
+                style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}
+              >
+                <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statConflictsLabel}</div>
+                <div style={{ fontSize: 26, fontWeight: 800 }}>{crossref.rows.length}</div>
               </div>
               <div
                 onClick={() => goCrossref('donations')}
@@ -2732,13 +2984,6 @@ function App() {
                 onClick={() => goCrossref('conflicts')}
                 style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}
               >
-                <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statConflictsLabel}</div>
-                <div style={{ fontSize: 26, fontWeight: 800 }}>{crossref.rows.length}</div>
-              </div>
-              <div
-                onClick={() => goCrossref('conflicts')}
-                style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}
-              >
                 <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statTopicalTiesLabel}</div>
                 <div style={{ fontSize: 26, fontWeight: 800 }}>{topicalTieRows.rows.length}</div>
               </div>
@@ -2752,7 +2997,15 @@ function App() {
                 {t.seeAllConflicts} →
               </a>
             </div>
-            <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)', margin: '0 0 18px', maxWidth: 640 }}>{t.expectationSub}</p>
+            <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)', margin: '0 0 6px', maxWidth: 640 }}>{t.expectationSub}</p>
+            {/* Says what "langfristig" on each card actually spans, and reads the year off the
+                archive rather than hard-coding it — the covered range changes whenever another
+                term is added to HISTORY_PERIOD_IDS. */}
+            {snapshot?.historyCoverage && (
+              <p style={{ fontSize: 12, color: 'oklch(55% 0.01 260)', margin: '0 0 18px', maxWidth: 640 }}>
+                {t.historyCoverageNote.replace('{year}', historyCoverageLabel)}
+              </p>
+            )}
             {weekly.loading && weekly.results.length === 0 ? (
               <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.pollsLoading}</p>
             ) : realAgainstExpectation.length === 0 ? (
@@ -2788,6 +3041,30 @@ function App() {
                     </div>
                     <div style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)' }}>{e.billTitle}</div>
                     <div style={{ fontSize: 12.5, color: 'oklch(48% 0.16 40)', fontWeight: 500 }}>{e.reason}</div>
+                    {/* One divergence is not a pattern, and this is what lets a reader tell the two
+                        apart without leaving the page — so it is set as a readable line rather than
+                        grey small print. Both percentages are stated because the comparison is the
+                        whole point: asking the reader to divide 5 by 434 in their head and weigh it
+                        against the fraction average is asking them not to bother. */}
+                    <div style={{ borderTop: '1px solid oklch(93% 0.006 260)', paddingTop: 8 }}>
+                      {e.history ? (
+                        <>
+                          <div style={{ fontSize: 12.5, fontWeight: 600, color: 'oklch(32% 0.01 260)' }}>
+                            {t.historyCardHeadline
+                              .replace('{pct}', formatPct(e.history.alignmentPct))
+                              .replace('{fracPct}', e.history.fractionAlignmentPct == null ? '—' : formatPct(e.history.fractionAlignmentPct))}
+                          </div>
+                          <div style={{ fontSize: 11.5, color: 'oklch(52% 0.01 260)', marginTop: 2 }}>
+                            {t.historyCardDetail
+                              .replace('{count}', String(e.history.divergenceCount))
+                              .replace('{total}', String(e.history.ratedCount))
+                              .replace('{year}', historyCoverageLabel)}
+                          </div>
+                        </>
+                      ) : (
+                        <div style={{ fontSize: 11.5, color: 'oklch(52% 0.01 260)' }}>{t.historyCardFirstTerm}</div>
+                      )}
+                    </div>
                   </a>
                 ))}
               </div>
@@ -2923,6 +3200,8 @@ function App() {
                 <option value="default">{t.sortDefault}</option>
                 <option value="income">{t.sortIncome}</option>
                 <option value="ties">{t.sortTies}</option>
+                <option value="loyalty">{t.sortLoyalty}</option>
+                <option value="divergences">{t.sortDivergences}</option>
               </select>
             </div>
           </aside>
@@ -2991,11 +3270,33 @@ function App() {
                         )}{' '}
                         · {m.constituency}
                       </div>
-                      {memberAlignment?.alignmentPct !== null && memberAlignment !== undefined && (
-                        <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 2 }}>
-                          {t.statPartyAlignment}: {memberAlignment.alignmentPct}%
-                        </div>
-                      )}
+                      {/* The long-run figure, with its denominator. The ten-vote number shown here
+                          before was 100% for 602 of 630 members — an identical value down the whole
+                          list carries no information. The denominator is not decoration either:
+                          85% of 54 votes and 85% of 491 are not the same claim, and without it a
+                          short-serving member reads as a rebel. Members with no earlier term keep
+                          the recent window, labelled as such rather than silently mixed in. */}
+                      {(() => {
+                        const longRun = historyByPolitician.get(m.id);
+                        if (longRun) {
+                          return (
+                            <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 2 }}>
+                              {t.rosterLoyaltyLong
+                                .replace('{pct}', formatPct(longRun.alignmentPct))
+                                .replace('{total}', String(longRun.ratedCount))
+                                .replace('{year}', historyCoverageLabel)}
+                            </div>
+                          );
+                        }
+                        if (memberAlignment?.alignmentPct == null) return null;
+                        return (
+                          <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 2 }}>
+                            {t.rosterLoyaltyRecent
+                              .replace('{pct}', String(memberAlignment.alignmentPct))
+                              .replace('{total}', String(memberAlignment.ratedCount))}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </a>
                 );
@@ -3014,7 +3315,7 @@ function App() {
           {profile.kind === 'loading' && <p style={{ fontSize: 14, color: 'oklch(48% 0.01 260)', marginTop: 20 }}>{t.loadingProfile}</p>}
           {profile.kind === 'missing' && <p style={{ fontSize: 14, color: 'oklch(48% 0.01 260)', marginTop: 20 }}>{t.profileNotFound}</p>}
 
-          {(profile.kind === 'demo' || profile.kind === 'real') && (
+          {profile.kind === 'real' && (
             <>
               <div style={{ display: 'flex', gap: 20, alignItems: 'center', margin: '20px 0 24px', flexWrap: 'wrap' }}>
                 <MpAvatar
@@ -3096,45 +3397,7 @@ function App() {
               </div>
 
               {profileTab === 'overview' &&
-                (profile.kind === 'demo' ? (
-                  <>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14, marginBottom: 28 }}>
-                      {profile.mp.stats.map((s, i) => (
-                        <div key={i} style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
-                          <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{s.label}</div>
-                          <div style={{ fontSize: 24, fontWeight: 800 }}>{s.value}</div>
-                        </div>
-                      ))}
-                    </div>
-                    <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 20, marginBottom: 20 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>{t.alignmentTrend}</div>
-                      <svg viewBox="0 0 400 100" style={{ width: '100%', height: 100, display: 'block' }}>
-                        <polyline points={profile.mp.trendPoints} fill="none" stroke="oklch(45% 0.16 265)" strokeWidth={2.5} />
-                        <polyline points={profile.mp.partyTrendPoints} fill="none" stroke="oklch(85% 0.006 260)" strokeWidth={2} strokeDasharray="4 4" />
-                      </svg>
-                      <div style={{ display: 'flex', gap: 16, fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginTop: 6 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                          <span style={{ width: 14, height: 2, background: 'oklch(45% 0.16 265)', display: 'inline-block' }} />
-                          {profile.mp.name}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                          <span style={{ width: 14, height: 2, background: 'oklch(85% 0.006 260)', display: 'inline-block' }} />
-                          {t.partyAverage}
-                        </div>
-                      </div>
-                    </div>
-                    {profile.mp.hasFlags && (
-                      <div style={{ background: 'oklch(55% 0.16 40 / 0.06)', border: '1px solid oklch(55% 0.16 40 / 0.2)', borderRadius: 12, padding: 16 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: 'oklch(42% 0.16 40)', marginBottom: 8 }}>{t.flagsHeading}</div>
-                        {profile.mp.flags.map((fl, i) => (
-                          <div key={i} style={{ fontSize: 13, color: 'oklch(32% 0.14 40)', padding: '4px 0' }}>
-                            · {fl}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : mandateVotes.loading && mandateVotes.votes.length === 0 ? (
+                (mandateVotes.loading && mandateVotes.votes.length === 0 ? (
                   <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.pollsLoading}</p>
                 ) : mandateVotes.error ? (
                   <p style={{ fontSize: 13.5, color: 'oklch(48% 0.16 40)' }}>{t.pollsError}</p>
@@ -3152,13 +3415,65 @@ function App() {
                         </div>
                         <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
                           <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statPartyAlignment}</div>
-                          <div style={{ fontSize: 24, fontWeight: 800 }}>
-                            {alignment.alignmentPct !== null ? `${alignment.alignmentPct}%` : recentPolls.loading ? '…' : '—'}
-                          </div>
+                          {/* The long-run figure where there is one. Over ten votes this tile read
+                              100% for members with dozens of divergences on record — Klaus-Peter
+                              Willsch showed a flawless 100% against an actual 94,1% across 539
+                              votes. Whichever window is used, the tile now says which. */}
+                          {(() => {
+                            const longRun = snapshot?.historyByPolitician.get(profile.mp.id);
+                            if (longRun) {
+                              return (
+                                <>
+                                  <div style={{ fontSize: 24, fontWeight: 800 }}>{formatPct(longRun.alignmentPct)}%</div>
+                                  <div style={{ fontSize: 11, color: 'oklch(55% 0.01 260)', marginTop: 2 }}>
+                                    {t.statWindowLong.replace('{year}', historyCoverageLabel)}
+                                  </div>
+                                </>
+                              );
+                            }
+                            return (
+                              <>
+                                <div style={{ fontSize: 24, fontWeight: 800 }}>
+                                  {alignment.alignmentPct !== null ? `${alignment.alignmentPct}%` : recentPolls.loading ? '…' : '—'}
+                                </div>
+                                {alignment.ratedCount > 0 && (
+                                  <div style={{ fontSize: 11, color: 'oklch(55% 0.01 260)', marginTop: 2 }}>
+                                    {t.statWindowRecent.replace('{count}', String(alignment.ratedCount))}
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                         <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
                           <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statFlags}</div>
-                          <div style={{ fontSize: 24, fontWeight: 800 }}>{recentPolls.loading && alignment.points.length === 0 ? '…' : realMpFlaggedVotes.length}</div>
+                          {/* Same window as the loyalty tile beside it — a 100% next to a count of
+                              0 drawn from different spans would be two answers to one question. */}
+                          {(() => {
+                            const longRun = snapshot?.historyByPolitician.get(profile.mp.id);
+                            if (longRun) {
+                              return (
+                                <>
+                                  <div style={{ fontSize: 24, fontWeight: 800 }}>{longRun.divergenceCount}</div>
+                                  <div style={{ fontSize: 11, color: 'oklch(55% 0.01 260)', marginTop: 2 }}>
+                                    {t.statWindowLong.replace('{year}', historyCoverageLabel)}
+                                  </div>
+                                </>
+                              );
+                            }
+                            return (
+                              <>
+                                <div style={{ fontSize: 24, fontWeight: 800 }}>
+                                  {recentPolls.loading && alignment.points.length === 0 ? '…' : realMpFlaggedVotes.length}
+                                </div>
+                                {alignment.ratedCount > 0 && (
+                                  <div style={{ fontSize: 11, color: 'oklch(55% 0.01 260)', marginTop: 2 }}>
+                                    {t.statWindowRecent.replace('{count}', String(alignment.ratedCount))}
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     ) : (
@@ -3253,19 +3568,66 @@ function App() {
                           })()}
                       </div>
                     )}
+                    {/* Deliberately not styled as a warning, and no longer headed "Auffälligkeiten".
+                        Diverging from the fraction line is a fact about a vote, not a verdict on a
+                        person — and a bare count of divergences is close to meaningless without the
+                        number of votes it is drawn from. The base rate underneath is what makes the
+                        number readable: 3-of-4 and 3-of-120 are not the same observation. */}
                     {realMpFlaggedVotes.length > 0 && (
-                      <div style={{ background: 'oklch(55% 0.16 40 / 0.06)', border: '1px solid oklch(55% 0.16 40 / 0.2)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: 'oklch(42% 0.16 40)', marginBottom: 8 }}>
-                          {t.flagsHeading}
+                      <div style={{ background: 'oklch(97% 0.006 260)', border: '1px solid oklch(90% 0.008 260)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'oklch(30% 0.01 260)', marginBottom: 4 }}>
+                          {t.divergencesHeading}
                           <InfoTooltip text={t.infoAuffaelligkeit} />
                         </div>
+                        <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 10 }}>
+                          {t.divergencesBaseRate
+                            .replace('{count}', String(realMpFlaggedVotes.length))
+                            .replace('{total}', String(alignment.ratedCount))
+                            .replace('{pct}', alignment.alignmentPct == null ? '—' : String(alignment.alignmentPct))}
+                        </div>
                         {realMpFlaggedVotes.map((p) => (
-                          <div key={p.poll.id} style={{ fontSize: 13, color: 'oklch(32% 0.14 40)', padding: '4px 0' }}>
+                          <div key={p.poll.id} style={{ fontSize: 13, color: 'oklch(32% 0.01 260)', padding: '4px 0' }}>
                             · {p.poll.title}: {divergenceLabel(p.vote, t.realAgainstPartyTemplate, t.abstainedPartyTemplate).replace('{party}', p.party)}
                           </div>
                         ))}
                       </div>
                     )}
+                    {/* The long view. The box above measures ten recent votes, which is far too
+                        short a window to tell an outlier from noise — this is the same
+                        measurement over every recorded vote of the member's earlier terms, and
+                        crucially against what their own fraction did on those same votes. */}
+                    <LongTermRecordCard
+                      history={voteHistory}
+                      t={t}
+                      formatPct={formatPct}
+                      activeKind={historyKindFilter}
+                      activeTopic={historyTopicFilter}
+                      // On the overview the chips are still filters, they just have to take the
+                      // reader to the list they filter — otherwise the click would appear to do
+                      // nothing, since the detail lives on the votes tab.
+                      onSelectKind={(kind) => {
+                        toggleHistoryKind(kind);
+                        setProfileTab('votes');
+                      }}
+                      onSelectTopic={(topic) => {
+                        toggleHistoryTopic(topic);
+                        setProfileTab('votes');
+                      }}
+                      footer={
+                        voteHistory.divergences.length > 0 ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setProfileTab('votes');
+                              setHistoryExpanded(true);
+                            }}
+                            style={{ marginTop: 10, padding: 0, border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: 'oklch(48% 0.12 250)' }}
+                          >
+                            {t.historySeeVotesTab}
+                          </button>
+                        ) : null
+                      }
+                    />
                     {memberCommittees.rows.length > 0 && (
                       <div style={{ marginBottom: 20 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>{t.profileCommitteesTitle}</div>
@@ -3336,35 +3698,60 @@ function App() {
                   </>
                 ))}
 
+              {/* The long-run record leads the tab, so the summary comes before the vote list
+                  rather than trailing it. Expanding it reveals the vote-by-vote detail in place —
+                  that detail belongs to this summary, and stacking it as a second, unrelated list
+                  at the bottom of the tab made both harder to read. */}
+              {profileTab === 'votes' && (
+                <LongTermRecordCard
+                  history={voteHistory}
+                  t={t}
+                  formatPct={formatPct}
+                  activeKind={historyKindFilter}
+                  activeTopic={historyTopicFilter}
+                  onSelectKind={toggleHistoryKind}
+                  onSelectTopic={toggleHistoryTopic}
+                  footer={
+                    voteHistory.divergences.length > 0 ? (
+                      <>
+                        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', marginTop: 10 }}>
+                          <button
+                            type="button"
+                            onClick={() => setHistoryExpanded((v) => !v)}
+                            style={{ padding: 0, border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: 'oklch(48% 0.12 250)' }}
+                          >
+                            {historyExpanded
+                              ? t.historyHideDetail
+                              : historyFilterActive
+                                ? t.historyShowFiltered.replace('{count}', String(filteredDivergences.length))
+                                : t.historyShowDetail.replace('{count}', String(voteHistory.divergences.length))}
+                          </button>
+                          {historyFilterActive && (
+                            <button
+                              type="button"
+                              onClick={clearHistoryFilter}
+                              style={{ padding: 0, border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: 'oklch(48% 0.01 260)', textDecoration: 'underline' }}
+                            >
+                              {t.historyClearFilter}
+                            </button>
+                          )}
+                        </div>
+                        {historyExpanded &&
+                          (filteredDivergences.length > 0 ? (
+                            <LongTermDivergenceList divergences={filteredDivergences} t={t} />
+                          ) : (
+                            // Reachable by combining two chips that share no votes — say so rather
+                            // than showing an empty area that reads as "no divergences at all".
+                            <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginTop: 12 }}>{t.historyNoMatches}</div>
+                          ))}
+                      </>
+                    ) : null
+                  }
+                />
+              )}
+
               {profileTab === 'votes' &&
-                (profile.kind === 'demo' ? (
-                  <>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {profile.mp.voteHistoryResolved.slice(0, votesExpanded ? profile.mp.voteHistoryResolved.length : 10).map((v, i) => (
-                        <a
-                          key={i}
-                          href={v.href}
-                          onClick={stop(v.onOpen)}
-                          style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px', gap: 12 }}
-                        >
-                          <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: 14, fontWeight: 600 }}>{v.billTitle}</div>
-                            <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)' }}>{v.date}</div>
-                          </div>
-                          <div style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 12, background: v.bg, color: 'white', flexShrink: 0 }}>{v.voteLabel}</div>
-                        </a>
-                      ))}
-                    </div>
-                    <ShowMoreButton
-                      total={profile.mp.voteHistoryResolved.length}
-                      defaultCount={10}
-                      expanded={votesExpanded}
-                      onToggle={() => setVotesExpanded((v) => !v)}
-                      showMoreTemplate={t.showMoreTemplate}
-                      showLessLabel={t.showLess}
-                    />
-                  </>
-                ) : mandateVotes.loading && mandateVotes.votes.length === 0 ? (
+                (mandateVotes.loading && mandateVotes.votes.length === 0 ? (
                   <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.pollsLoading}</p>
                 ) : mandateVotes.error ? (
                   <p style={{ fontSize: 13.5, color: 'oklch(48% 0.16 40)' }}>{t.pollsError}</p>
@@ -3372,8 +3759,17 @@ function App() {
                   <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.noMandateVotesYet}</p>
                 ) : (
                   <>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {mandateVotes.votes.slice(0, votesExpanded ? mandateVotes.votes.length : 10).map((v) => {
+                    <div style={{ position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: 5, top: 6, bottom: 6, width: 2, background: 'oklch(90% 0.006 260)', borderRadius: 1 }} />
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 26, paddingLeft: 28 }}>
+                        {mandateVoteWeeks.map((group) => (
+                          <div key={group.range.start.toISOString()} style={{ position: 'relative' }}>
+                            <div style={{ position: 'absolute', left: -28, top: 2, width: 12, height: 12, borderRadius: '50%', background: 'white', border: '2px solid oklch(45% 0.16 265)' }} />
+                            <h3 style={{ fontSize: 13, fontWeight: 700, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>
+                              {t.weekOf} {formatWeekRange(group.range, lang)}
+                            </h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {group.votes.map((v) => {
                         const label = v.vote === 'yes' ? t.voteYes : v.vote === 'no' ? t.voteNo : v.vote === 'abstain' ? t.voteAbstain : t.voteNoShow;
                         const lobbyHit = lobbyByPollId.get(v.poll.id);
                         return (
@@ -3403,6 +3799,10 @@ function App() {
                           </a>
                         );
                       })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                     <ShowMoreButton
                       total={mandateVotes.votes.length}
@@ -3416,20 +3816,7 @@ function App() {
                 ))}
 
               {profileTab === 'lobby' &&
-                (profile.kind === 'demo' ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {profile.mp.lobbyContacts.map((l, i) => (
-                      <div key={i} style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ fontWeight: 600, fontSize: 14 }}>{l.org}</span>
-                          <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{l.date}</span>
-                        </div>
-                        <div style={{ fontSize: 13, color: 'oklch(42% 0.01 260)', marginTop: 3 }}>{l.topic}</div>
-                      </div>
-                    ))}
-                    <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 6 }}>{t.sourceNote}</div>
-                  </div>
-                ) : (
+                (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
                     <section>
                       <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.lobbyAffiliationsTitle}</h3>
@@ -3593,25 +3980,10 @@ function App() {
                       </a>
                     </p>
                   </div>
-                ))}
+                )}
 
               {profileTab === 'finance' &&
-                (profile.kind === 'demo' ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {profile.mp.donations.map((d, i) => (
-                      <div key={i} style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                        <div>
-                          <div style={{ fontWeight: 600, fontSize: 14 }}>{d.donor}</div>
-                          <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>
-                            {d.industry} · {d.date}
-                          </div>
-                        </div>
-                        <div style={{ fontSize: 17, fontWeight: 700 }}>{d.amount}</div>
-                      </div>
-                    ))}
-                    <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 6 }}>{t.rechenschaftsNote}</div>
-                  </div>
-                ) : sidejobs.loading && sidejobs.records.length === 0 ? (
+                (sidejobs.loading && sidejobs.records.length === 0 ? (
                   <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.pollsLoading}</p>
                 ) : sidejobs.error ? (
                   <p style={{ fontSize: 13.5, color: 'oklch(48% 0.16 40)' }}>{t.sidejobsError}</p>
@@ -3674,75 +4046,7 @@ function App() {
             ← {t.backToHome}
           </a>
 
-          {currentBill && (
-            <>
-              <div style={{ margin: '18px 0 8px', fontSize: 11.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'oklch(48% 0.01 260)' }}>
-                {currentBill.category} · {currentBill.date}
-              </div>
-              <h1 style={{ fontSize: 28, fontWeight: 800, margin: '0 0 12px' }}>{currentBill.title}</h1>
-              <p style={{ fontSize: 14.5, color: 'oklch(38% 0.01 260)', lineHeight: 1.6, maxWidth: 680, margin: '0 0 28px' }}>{currentBill.summary}</p>
-
-              <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 14, padding: 20, marginBottom: 24 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>{t.voteBreakdown}</div>
-                {currentBill.partyBreakdown.map((pb) => (
-                  <div key={pb.party} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                    {routablePartyNames.has(pb.party) ? (
-                      <a
-                        href={partyHref(pb.party)}
-                        onClick={stop(() => openParty(pb.party))}
-                        style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)', color: 'inherit' }}
-                      >
-                        {pb.party}
-                      </a>
-                    ) : (
-                      <span style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0 }}>{pb.party}</span>
-                    )}
-                    <div style={{ flex: 1, height: 14, borderRadius: 7, overflow: 'hidden', display: 'flex', background: 'oklch(90% 0.006 260)' }}>
-                      <div style={{ width: `${pb.y}%`, background: 'oklch(50% 0.14 155)' }} />
-                      <div style={{ width: `${pb.n}%`, background: 'oklch(55% 0.16 40)' }} />
-                      <div style={{ width: `${pb.a}%`, background: 'oklch(85% 0.006 260)' }} />
-                    </div>
-                    <span style={{ width: 70, fontSize: 11.5, color: 'oklch(48% 0.01 260)', textAlign: 'right', flexShrink: 0 }}>{pb.summary}</span>
-                  </div>
-                ))}
-                <div style={{ display: 'flex', gap: 14, fontSize: 11, color: 'oklch(48% 0.01 260)', marginTop: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <span style={{ width: 9, height: 9, background: 'oklch(50% 0.14 155)', display: 'inline-block', borderRadius: 2 }} />
-                    {t.voteYes}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <span style={{ width: 9, height: 9, background: 'oklch(55% 0.16 40)', display: 'inline-block', borderRadius: 2 }} />
-                    {t.voteNo}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <span style={{ width: 9, height: 9, background: 'oklch(85% 0.006 260)', display: 'inline-block', borderRadius: 2 }} />
-                    {t.voteAbstain}
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>{t.flaggedVotes}</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {currentBill.flaggedMps.map((fm, i) => (
-                  <a
-                    key={i}
-                    href={fm.href}
-                    onClick={stop(fm.onOpen)}
-                    style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: fm.color }} />
-                      <span style={{ fontSize: 14, fontWeight: 600 }}>{fm.name}</span>
-                      <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{fm.party}</span>
-                    </div>
-                    <span style={{ fontSize: 12, color: 'oklch(48% 0.16 40)' }}>{fm.reason}</span>
-                  </a>
-                ))}
-              </div>
-            </>
-          )}
-
-          {!currentBill && realPollId !== null && (
+          {realPollId !== null && (
             <>
               {pollDetail.loading && <p style={{ fontSize: 14, color: 'oklch(48% 0.01 260)', marginTop: 20 }}>{t.loadingPoll}</p>}
               {pollDetail.error && <p style={{ fontSize: 14, color: 'oklch(48% 0.16 40)', marginTop: 20 }}>{t.pollsError}</p>}
@@ -5475,6 +5779,72 @@ function App() {
                       </div>
                     </div>
 
+                    {/* Overview stays an overview: the headline number plus a way through to the
+                        detail, which lives at the top of the Abstimmungen tab where the votes it
+                        describes already are. */}
+                    {!partyDissent.error && partyDissent.ratedCount > 0 && (
+                      <div style={{ background: 'oklch(97% 0.006 260)', border: '1px solid oklch(90% 0.008 260)', borderRadius: 12, padding: 16, marginBottom: 22 }}>
+                        <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 2px' }}>
+                          {t.partyDissentTitle}
+                          <InfoTooltip text={t.partyDissentInfo} />
+                        </h2>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'oklch(32% 0.01 260)', marginTop: 6 }}>
+                          {t.partyCohesion
+                            .replace('{pct}', partyDissent.cohesionPct == null ? '—' : formatPct(partyDissent.cohesionPct))
+                            .replace('{total}', partyDissent.ratedCount.toLocaleString(lang === 'de' ? 'de-DE' : 'en-US'))}
+                        </div>
+                        <div style={{ fontSize: 12, color: 'oklch(50% 0.01 260)', marginTop: 3 }}>
+                          {t.partyDissentSummary
+                            .replace('{divided}', String(partyDissent.dividedVotes.length))
+                            .replace('{total}', String(partyDissent.pollCount))}
+                        </div>
+                        {/* Enough to be worth reading on its own — the three sharpest splits and
+                            who turns up most — without reproducing the full section that lives on
+                            the Abstimmungen tab. */}
+                        {partyDissent.dividedVotes.length > 0 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 5, margin: '12px 0 4px' }}>
+                            {partyDissent.dividedVotes.slice(0, 3).map((v) => (
+                              <div key={`${v.pollId}-${v.date}`} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 12.5, flexWrap: 'wrap' }}>
+                                <span style={{ color: 'oklch(32% 0.01 260)' }}>{v.title}</span>
+                                <span style={{ color: 'oklch(48% 0.01 260)', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                                  {t.partyDividedTemplate
+                                    .replace('{count}', String(v.deviators))
+                                    .replace('{total}', String(v.rated))
+                                    .replace('{pct}', formatPct(v.sharePct))}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {partyDissent.topDeviators.length > 0 && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 10 }}>
+                            {partyDissent.topDeviators.slice(0, 5).map((d) => (
+                              <a
+                                key={d.politicianId}
+                                href={mpHref(String(d.politicianId))}
+                                onClick={stop(() => openMp(String(d.politicianId)))}
+                                style={{ fontSize: 11.5, padding: '3px 9px', borderRadius: 10, background: 'white', border: '1px solid oklch(90% 0.006 260)', color: 'oklch(35% 0.01 260)', textDecoration: 'none' }}
+                              >
+                                {d.name} · {d.count}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                        {partyDissent.dividedVotes.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPartyTab('votes');
+                              setPartyDissentExpanded(true);
+                            }}
+                            style={{ marginTop: 10, padding: 0, border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: 'oklch(48% 0.12 250)' }}
+                          >
+                            {t.partyDissentSeeVotes}
+                          </button>
+                        )}
+                      </div>
+                    )}
+
                     <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 10px' }}>{t.partyDetailFieldsTitle}</h2>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                       {p.byField.map((f) => (
@@ -5488,6 +5858,176 @@ function App() {
 
                 {partyTab === 'votes' && (
                   <>
+                    {/* The full section, shown outright rather than behind a toggle: on this tab
+                        it is the substance, not an extra. The trailing control only widens the
+                        vote list beyond the first handful. */}
+                    {!partyDissent.error && partyDissent.dividedVotes.length > 0 && (
+                      <div style={{ background: 'oklch(97% 0.006 260)', border: '1px solid oklch(90% 0.008 260)', borderRadius: 12, padding: 18, marginBottom: 22 }}>
+                        <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 2px' }}>
+                          {t.partyDissentTitle}
+                          <InfoTooltip text={t.partyDissentInfo} />
+                        </h2>
+                        <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 10px' }}>
+                          {t.partyDissentSub.replace('{year}', historyCoverageLabel)}
+                        </p>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'oklch(32% 0.01 260)', marginBottom: 14 }}>
+                          {t.partyCohesion
+                            .replace('{pct}', partyDissent.cohesionPct == null ? '—' : formatPct(partyDissent.cohesionPct))
+                            .replace('{total}', partyDissent.ratedCount.toLocaleString(lang === 'de' ? 'de-DE' : 'en-US'))}
+                        </div>
+
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'oklch(38% 0.01 260)', marginBottom: 6 }}>{t.partyDividedTitle}</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
+                          {partyDissent.dividedVotes.slice(0, partyDissentExpanded ? 10 : 3).map((v) => {
+                            const key = `${v.pollId}-${v.date}`;
+                            const open = openDividedVotes.has(key);
+                            const majorityLabel =
+                              v.majority === 'yes' ? t.voteYes : v.majority === 'no' ? t.voteNo : t.voteAbstain;
+                            return (
+                              // A row, not a link: clicking used to throw the reader off the site
+                              // mid-thought. It opens the fraction's actual tally in place, and the
+                              // trip to abgeordnetenwatch is its own explicit link below.
+                              <div
+                                key={key}
+                                style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '10px 14px' }}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setOpenDividedVotes((current) => {
+                                      const next = new Set(current);
+                                      if (next.has(key)) next.delete(key);
+                                      else next.add(key);
+                                      return next;
+                                    })
+                                  }
+                                  aria-expanded={open}
+                                  style={{ width: '100%', textAlign: 'left', padding: 0, border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit', color: 'inherit' }}
+                                >
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                                    <span style={{ fontSize: 13.5, fontWeight: 600 }}>
+                                      {open ? '▾' : '▸'} {v.title}
+                                    </span>
+                                    <span style={{ fontSize: 11.5, fontWeight: 700, whiteSpace: 'nowrap', color: 'oklch(38% 0.01 260)' }}>
+                                      {t.partyDividedTemplate
+                                        .replace('{count}', String(v.deviators))
+                                        .replace('{total}', String(v.rated))
+                                        .replace('{pct}', formatPct(v.sharePct))}
+                                    </span>
+                                  </div>
+                                  <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 3 }}>
+                                    {v.date} · {v.termLabel}
+                                  </div>
+                                </button>
+                                {open && (
+                                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid oklch(93% 0.006 260)' }}>
+                                    {/* The share alone says how split the fraction was but not which
+                                        way it went — this is the line the deviators departed from. */}
+                                    <div style={{ fontSize: 12.5, fontWeight: 600, color: 'oklch(32% 0.01 260)' }}>
+                                      {t.partyVoteLine.replace('{majority}', majorityLabel)}
+                                    </div>
+                                    <div style={{ fontSize: 12, color: 'oklch(45% 0.01 260)', marginTop: 3 }}>
+                                      {t.partyVoteTally
+                                        .replace('{yes}', String(v.yes))
+                                        .replace('{no}', String(v.no))
+                                        .replace('{abstain}', String(v.abstain))}
+                                      {v.noShow > 0 ? ` · ${t.partyVoteNoShow.replace('{count}', String(v.noShow))}` : ''}
+                                    </div>
+                                    {v.topics.length > 0 && (
+                                      <div style={{ fontSize: 11.5, color: 'oklch(55% 0.01 260)', marginTop: 4 }}>{v.topics.join(', ')}</div>
+                                    )}
+                                    {/* The names are the point. On a one-member divergence the
+                                        whole story is who it was; on a large split they are what
+                                        let a reader recognise the same people recurring. Each
+                                        carries how they voted, since a fraction that splits
+                                        102/113 has deviators on only one side of the line. */}
+                                    {v.deviatorList.length > 0 && (
+                                      <>
+                                        <div style={{ fontSize: 12, fontWeight: 700, color: 'oklch(38% 0.01 260)', margin: '10px 0 5px' }}>
+                                          {t.partyDeviatorsOnVote}
+                                        </div>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                                          {v.deviatorList.slice(0, fullDeviatorLists.has(key) ? v.deviatorList.length : 20).map((d) => (
+                                            <a
+                                              key={d.politicianId}
+                                              href={mpHref(String(d.politicianId))}
+                                              onClick={stop(() => openMp(String(d.politicianId)))}
+                                              style={{ fontSize: 11.5, padding: '3px 9px', borderRadius: 10, background: 'oklch(97% 0.006 260)', border: '1px solid oklch(90% 0.006 260)', color: 'oklch(35% 0.01 260)', textDecoration: 'none' }}
+                                            >
+                                              {d.name} · {d.vote === 'yes' ? t.voteYes : d.vote === 'no' ? t.voteNo : t.voteAbstain}
+                                            </a>
+                                          ))}
+                                          {/* The cut-off names are not decoration — on a 91-way
+                                              split the reader may be looking for one particular
+                                              person, and "+71 weitere" hid exactly the ones they
+                                              could not already see. */}
+                                          {v.deviatorList.length > 20 && (
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                setFullDeviatorLists((current) => {
+                                                  const next = new Set(current);
+                                                  if (next.has(key)) next.delete(key);
+                                                  else next.add(key);
+                                                  return next;
+                                                })
+                                              }
+                                              style={{ fontSize: 11.5, padding: '3px 9px', border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit', color: 'oklch(48% 0.12 250)' }}
+                                            >
+                                              {fullDeviatorLists.has(key)
+                                                ? t.showLess
+                                                : t.partyDeviatorsMore.replace('{count}', String(v.deviatorList.length - 20))}
+                                            </button>
+                                          )}
+                                        </div>
+                                      </>
+                                    )}
+                                    <a
+                                      href={v.url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      style={{ display: 'inline-block', marginTop: 10, fontSize: 12, color: 'oklch(48% 0.12 250)' }}
+                                    >
+                                      {t.viewSource} →
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {partyDissent.topDeviators.length > 0 && (
+                          <>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: 'oklch(38% 0.01 260)', marginBottom: 6 }}>{t.partyDeviatorsTitle}</div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                              {partyDissent.topDeviators.map((d) => (
+                                <a
+                                  key={d.politicianId}
+                                  href={mpHref(String(d.politicianId))}
+                                  onClick={stop(() => openMp(String(d.politicianId)))}
+                                  style={{ fontSize: 11.5, padding: '4px 10px', borderRadius: 10, background: 'white', border: '1px solid oklch(90% 0.006 260)', color: 'oklch(35% 0.01 260)', textDecoration: 'none' }}
+                                >
+                                  {d.name} · {t.partyDeviatorTemplate.replace('{count}', String(d.count))}
+                                </a>
+                              ))}
+                            </div>
+                          </>
+                        )}
+
+                        {partyDissent.dividedVotes.length > 3 && (
+                          <button
+                            type="button"
+                            onClick={() => setPartyDissentExpanded((v) => !v)}
+                            style={{ marginTop: 14, padding: 0, border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: 'oklch(48% 0.12 250)' }}
+                          >
+                            {partyDissentExpanded
+                              ? t.partyHideDetail
+                              : t.partyShowDetail.replace('{count}', String(partyDissent.dividedVotes.length))}
+                          </button>
+                        )}
+                      </div>
+                    )}
                     {partyVotes.loading && partyVotes.votes.length === 0 ? (
                       <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.pollsLoading}</p>
                     ) : partyVotes.error ? (
@@ -5496,8 +6036,17 @@ function App() {
                       <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.partyVotesEmpty}</p>
                     ) : (
                       <>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                          {partyVotes.votes.slice(0, partyVotesExpanded ? partyVotes.votes.length : 10).map(({ poll, tally }) => {
+                        <div style={{ position: 'relative' }}>
+                          <div style={{ position: 'absolute', left: 5, top: 6, bottom: 6, width: 2, background: 'oklch(90% 0.006 260)', borderRadius: 1 }} />
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 26, paddingLeft: 28 }}>
+                            {partyVoteWeeks.map((group) => (
+                              <div key={group.range.start.toISOString()} style={{ position: 'relative' }}>
+                                <div style={{ position: 'absolute', left: -28, top: 2, width: 12, height: 12, borderRadius: '50%', background: 'white', border: '2px solid oklch(45% 0.16 265)' }} />
+                                <h3 style={{ fontSize: 13, fontWeight: 700, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>
+                                  {t.weekOf} {formatWeekRange(group.range, lang)}
+                                </h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                          {group.votes.map(({ poll, tally }) => {
                             const majorityLabel =
                               tally.majority === 'yes' ? t.voteYes
                               : tally.majority === 'no' ? t.voteNo
@@ -5533,6 +6082,10 @@ function App() {
                               </a>
                             );
                           })}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                         <ShowMoreButton
                           total={partyVotes.votes.length}
