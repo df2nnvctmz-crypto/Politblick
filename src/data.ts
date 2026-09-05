@@ -134,13 +134,14 @@ export interface Translation {
   committeeListSearchPlaceholder: string;
   partyListSub: string;
   pollListSub: string; seeAllPolls: string; seeAllConflicts: string;
-  partyLobbyTitle: string; partyLobbySub: string;
+  partyLobbySub: string;
   partyLobbyOrgCountTemplate: string; partyLobbyMemberCountTemplate: string;
   partyLobbyTopFieldsLabel: string;
   lobbyOnCommitteeTemplate: string;
-  lobbyTabOverview: string; lobbyTabParties: string; lobbyTabOrgs: string;
+  lobbyTabOverview: string; lobbyTabTies: string; lobbyTabOrgs: string;
+  tiesTabTitle: string; tiesTabSub: string;
   orgsShowMoreTemplate: string; orgsShownCountTemplate: string;
-  lobbyTabConflicts: string; lobbyTabTopical: string; lobbyTabDonations: string;
+  lobbyTabDonations: string;
   lobbySectionLabel: string;
   statOrgsReferencedLabel: string; statConflictsLabel: string;
   statTopicalTiesLabel: string; statDonationsSumLabel: string;
@@ -155,9 +156,9 @@ export interface Translation {
   networkOrgCountTemplate: string; networkViewOrg: string; networkViewParty: string; networkEmpty: string;
   showMoreTemplate: string; showLess: string;
   infoVerflechtung: string; infoAuffaelligkeit: string; infoThemenfeld: string;
-  lobbyPartiesSubTabNetwork: string; lobbyPartiesSubTabByParty: string;
+  lobbyTiesSubTabNetwork: string; lobbyTiesSubTabByParty: string;
   lobbyOrgsSubTabDistribution: string; lobbyOrgsSubTabFields: string; lobbyOrgsSubTabList: string;
-  lobbyConflictsSubTabDirect: string; lobbyConflictsSubTabTopical: string;
+  lobbyTiesSubTabDirect: string; lobbyTiesSubTabTopical: string;
   lobbyDonationsSubTabTotals: string; lobbyDonationsSubTabTimeline: string;
   lobbyDonationsSubTabTopDonors: string; lobbyDonationsSubTabAll: string;
   /** Per-page <title>/<meta description> content, set on every client-side navigation (see the
@@ -380,7 +381,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     overviewSidejobsPreviewCountTemplate: '{n} gemeldete Nebentätigkeiten',
     overviewSidejobsPreviewEmpty: 'Keine Nebentätigkeiten gemeldet',
     seeAll: 'Alle ansehen',
-    orgsSectionTitle: 'Organisationen durchsuchen',
+    orgsSectionTitle: 'Lobbyorganisationen',
     orgsSectionSub: 'Alle aktiven Eintragungen im Lobbyregister. Umschaltbar auf die Organisationen, die mit mindestens einem Abgeordneten, einer Abstimmung oder einer Parteispende verknüpft sind.',
     orgScopeAll: 'Ganzes Register', orgScopeLinked: 'Mit Parlamentsbezug',
     statLobbySpendLabel: 'Gemeldete Lobbyausgaben',
@@ -432,15 +433,16 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     committeeListSearchPlaceholder: 'Ausschuss oder Themenfeld suchen…',
     partyListSub: 'Jede Fraktion im Bundestag: Sitzverteilung, Lobbyverflechtungen, Großspenden und wie sie bei namentlichen Abstimmungen votiert hat.',
     pollListSub: 'Alle namentlichen Abstimmungen im Bundestag dieser Wahlperiode.', seeAllPolls: 'Alle Abstimmungen ansehen', seeAllConflicts: 'Alle Verflechtungen ansehen',
-    partyLobbyTitle: 'Lobbyverflechtungen nach Partei',
     partyLobbySub: 'Für jede Partei: die Organisationen, bei denen ihre Abgeordneten laut eigener Angabe eine Funktion ausüben, gruppiert nach deren Interessengebiet.',
     partyLobbyOrgCountTemplate: '{n} Organisationen', partyLobbyMemberCountTemplate: '{n} Abgeordnete mit Funktion',
     partyLobbyTopFieldsLabel: 'Häufigste Interessengebiete',
     lobbyOnCommitteeTemplate: 'Mitglied im zuständigen Ausschuss: {committee}',
-    lobbyTabOverview: 'Übersicht', lobbyTabParties: 'Nach Partei', lobbyTabOrgs: 'Organisationen',
+    lobbyTabOverview: 'Übersicht', lobbyTabTies: 'Verflechtungen', lobbyTabOrgs: 'Lobbyorganisationen',
+    tiesTabTitle: 'Verflechtungen',
+    tiesTabSub: 'Wo sich Bundestag und eingetragene Interessenvertretungen berühren: welche Abgeordneten laut eigener Angabe eine Funktion bei einer Organisation ausüben, und bei welchen Abstimmungen sich das mit dem Gegenstand der Abstimmung überschneidet.',
     orgsShowMoreTemplate: 'Weitere {n} anzeigen',
     orgsShownCountTemplate: '{shown} von {total} angezeigt',
-    lobbyTabConflicts: 'Verflechtungen', lobbyTabTopical: 'Themenfeld', lobbyTabDonations: 'Parteispenden',
+    lobbyTabDonations: 'Parteispenden',
     lobbySectionLabel: 'Bereich',
     statOrgsReferencedLabel: 'Verknüpfte Organisationen', statConflictsLabel: 'Abstimmung trotz Verflechtung',
     statTopicalTiesLabel: 'Gleiches Themenfeld', statDonationsSumLabel: 'Großspenden gesamt',
@@ -478,9 +480,9 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       'Zählt die Abstimmungen, bei denen ein:e Abgeordnete:r von der Mehrheitslinie der eigenen Fraktion abgewichen ist — immer zusammen mit der Zahl aller bewerteten Abstimmungen, denn eine einzelne Abweichung sagt für sich genommen nichts aus. Eine statistische Beobachtung, keine Unterstellung von Fehlverhalten.',
     infoThemenfeld:
       'Schwächerer Hinweis als eine Verflechtung: Die Organisation hat kein Interessengebiet angemeldet, das speziell auf diese Abstimmung verweist — nur ein allgemeines Interessengebiet, das laut Politblick-Redaktion zum Thema passt. Kein dokumentierter Bezug zu dieser Abstimmung.',
-    lobbyPartiesSubTabNetwork: 'Netzwerk', lobbyPartiesSubTabByParty: 'Nach Partei',
+    lobbyTiesSubTabNetwork: 'Netzwerk', lobbyTiesSubTabByParty: 'Nach Partei',
     lobbyOrgsSubTabDistribution: 'Lobbyausgaben', lobbyOrgsSubTabFields: 'Interessengebiete', lobbyOrgsSubTabList: 'Alle Organisationen',
-    lobbyConflictsSubTabDirect: 'Direkte Verflechtungen', lobbyConflictsSubTabTopical: 'Thematische Nähe',
+    lobbyTiesSubTabDirect: 'Abstimmung trotz Verflechtung', lobbyTiesSubTabTopical: 'Gleiches Themenfeld',
     lobbyDonationsSubTabTotals: 'Gesamtspenden', lobbyDonationsSubTabTimeline: 'Spenden über Zeit',
     lobbyDonationsSubTabTopDonors: 'Großspender', lobbyDonationsSubTabAll: 'Alle Spenden',
     metaHomeDescription:
@@ -698,7 +700,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     overviewSidejobsPreviewCountTemplate: '{n} declared outside activities',
     overviewSidejobsPreviewEmpty: 'No outside income reported',
     seeAll: 'See all',
-    orgsSectionTitle: 'Search organizations',
+    orgsSectionTitle: 'Lobby organizations',
     orgsSectionSub: 'Every active entry in the lobby register. Switchable to those tied to at least one MP, one vote, or one party donation.',
     orgScopeAll: 'Whole register', orgScopeLinked: 'Linked to parliament',
     statLobbySpendLabel: 'Declared lobbying spend',
@@ -750,15 +752,16 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     committeeListSearchPlaceholder: 'Search a committee or topic…',
     partyListSub: 'Every fraction in the Bundestag: seat count, lobby ties, large donations, and how they voted on roll-call votes.',
     pollListSub: 'Every roll-call vote in the Bundestag this term.', seeAllPolls: 'See all votes', seeAllConflicts: 'See all conflicts',
-    partyLobbyTitle: 'Lobby ties by party',
     partyLobbySub: 'For each party: the organizations its MPs declare holding a role at, grouped by that organization’s own field of interest.',
     partyLobbyOrgCountTemplate: '{n} organizations', partyLobbyMemberCountTemplate: '{n} MPs with a role',
     partyLobbyTopFieldsLabel: 'Most common fields of interest',
     lobbyOnCommitteeTemplate: 'Sits on the responsible committee: {committee}',
-    lobbyTabOverview: 'Overview', lobbyTabParties: 'By party', lobbyTabOrgs: 'Organizations',
+    lobbyTabOverview: 'Overview', lobbyTabTies: 'Ties', lobbyTabOrgs: 'Lobby organizations',
+    tiesTabTitle: 'Ties',
+    tiesTabSub: 'Where the Bundestag and registered interest representatives meet: which MPs declare holding a role at an organization, and which votes overlap with what those organizations lobbied on.',
     orgsShowMoreTemplate: 'Show {n} more',
     orgsShownCountTemplate: '{shown} of {total} shown',
-    lobbyTabConflicts: 'Conflicts', lobbyTabTopical: 'Policy area', lobbyTabDonations: 'Party donations',
+    lobbyTabDonations: 'Party donations',
     lobbySectionLabel: 'Section',
     statOrgsReferencedLabel: 'Linked organizations', statConflictsLabel: 'Voted despite a tie',
     statTopicalTiesLabel: 'Same policy area', statDonationsSumLabel: 'Large donations, total',
@@ -796,9 +799,9 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       "Counts the votes where an MP broke from their own fraction’s majority line — always shown against the total number of rated votes, because a single divergence on its own means nothing. A statistical observation, not an accusation of wrongdoing.",
     infoThemenfeld:
       "A weaker signal than a documented tie: the organization hasn't registered lobbying that specifically names this vote — only a general field of interest that Politblick's editors judged to match the topic. No documented link to this particular vote.",
-    lobbyPartiesSubTabNetwork: 'Network', lobbyPartiesSubTabByParty: 'By party',
+    lobbyTiesSubTabNetwork: 'Network', lobbyTiesSubTabByParty: 'By party',
     lobbyOrgsSubTabDistribution: 'Lobbying spend', lobbyOrgsSubTabFields: 'Fields of interest', lobbyOrgsSubTabList: 'All organizations',
-    lobbyConflictsSubTabDirect: 'Direct ties', lobbyConflictsSubTabTopical: 'Topical ties',
+    lobbyTiesSubTabDirect: 'Voted despite a tie', lobbyTiesSubTabTopical: 'Same policy area',
     lobbyDonationsSubTabTotals: 'Total donations', lobbyDonationsSubTabTimeline: 'Donations over time',
     lobbyDonationsSubTabTopDonors: 'Top donors', lobbyDonationsSubTabAll: 'All donations',
     metaHomeDescription:

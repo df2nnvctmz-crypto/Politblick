@@ -1897,9 +1897,8 @@ function App() {
   const [profileTab, setProfileTab] = useState<ProfileTab>(initialRoute.profileTab);
   const [lobbyTab, setLobbyTab] = useState<LobbyTab>(initialRoute.lobbyTab);
   // Second-level tabs within a single Lobby & Finanzen sub-page — local only, not URL-routed (see SubTabBar).
-  const [lobbyPartiesSubTab, setLobbyPartiesSubTab] = useState<'network' | 'byParty'>('network');
+  const [lobbyTiesSubTab, setLobbyTiesSubTab] = useState<'network' | 'byParty' | 'direct' | 'topical'>('network');
   const [lobbyOrgsSubTab, setLobbyOrgsSubTab] = useState<'distribution' | 'fields' | 'list'>('distribution');
-  const [lobbyConflictsSubTab, setLobbyConflictsSubTab] = useState<'direct' | 'topical'>('direct');
   const [lobbyDonationsSubTab, setLobbyDonationsSubTab] = useState<'totals' | 'timeline' | 'topDonors' | 'all'>('totals');
   const [partyTab, setPartyTab] = useState<PartyTab>(initialRoute.partyTab);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1934,7 +1933,9 @@ function App() {
   const [historyTopicFilter, setHistoryTopicFilter] = useState<string | null>(null);
   const [flaggedVotesExpanded, setFlaggedVotesExpanded] = useState(false);
   const [pollLobbyingExpanded, setPollLobbyingExpanded] = useState(false);
-  const [orgsSort, setOrgsSort] = useState<SortState>(null);
+  // Multi-key, like the donations table: click order is priority order, so "Akteurstyp" then
+  // "Gemeldete Lobbyausgaben" groups by type and orders by spend inside each group.
+  const [orgsSort, setOrgsSort] = useState<MultiSortState>([]);
   const [conflictsSort, setConflictsSort] = useState<SortState>(null);
   const [topicalSort, setTopicalSort] = useState<SortState>(null);
   const [donationsSort, setDonationsSort] = useState<MultiSortState>([]);
@@ -2544,15 +2545,13 @@ function App() {
       }
       case 'crossref': {
         const tabTitle =
-          lobbyTab === 'parties' ? t.partyLobbyTitle
+          lobbyTab === 'ties' ? t.tiesTabTitle
           : lobbyTab === 'orgs' ? t.orgsSectionTitle
-          : lobbyTab === 'conflicts' ? t.crossrefTitle
           : lobbyTab === 'donations' ? t.donationsTitle
           : t.navLobbyFinance;
         const tabSub =
-          lobbyTab === 'parties' ? t.partyLobbySub
+          lobbyTab === 'ties' ? t.tiesTabSub
           : lobbyTab === 'orgs' ? t.orgsSectionSub
-          : lobbyTab === 'conflicts' ? t.crossrefSub
           : lobbyTab === 'donations' ? t.donationsSub
           : t.crossrefSub;
         title = `${tabTitle} – Politblick`;
@@ -2665,7 +2664,7 @@ function App() {
   // Hoisted out of the table's render so a sort of several thousand names — localeCompare, which
   // is not cheap — happens when the sort or the filters change, not on every keystroke.
   const sortedOrgs = useMemo(() => {
-    if (!orgsSort) return filteredOrgs;
+    if (orgsSort.length === 0) return filteredOrgs;
     const orgValue = (e: OrgListEntry, key: string): string | number | null => {
       switch (key) {
         case 'name': return e.org.name;
@@ -2676,7 +2675,7 @@ function App() {
         default: return null;
       }
     };
-    return [...filteredOrgs].sort((a, b) => compareSortValues(orgValue(a, orgsSort.key), orgValue(b, orgsSort.key), orgsSort.dir));
+    return [...filteredOrgs].sort((a, b) => compareMultiSortValues(orgsSort, (key) => [orgValue(a, key), orgValue(b, key)]));
   }, [filteredOrgs, orgsSort]);
   // A party is only ever knowable for an organisation a member is tied to, so that filter stays
   // drawn from the tied set however wide the list itself runs.
@@ -2952,9 +2951,8 @@ function App() {
               >
                 {(
                   [
-                    { key: 'parties' as const, label: t.lobbyTabParties },
+                    { key: 'ties' as const, label: t.lobbyTabTies },
                     { key: 'orgs' as const, label: t.lobbyTabOrgs },
-                    { key: 'conflicts' as const, label: t.lobbyTabConflicts },
                     { key: 'donations' as const, label: t.lobbyTabDonations },
                   ]
                 ).map((opt) => {
@@ -3124,7 +3122,7 @@ function App() {
                   most prominent slot. It replaces a tile that summed DEMO_MPS' invented `flags`
                   and rendered that fictional count next to the real ones. */}
               <div
-                onClick={() => goCrossref('conflicts')}
+                onClick={() => goCrossref('ties')}
                 style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}
               >
                 <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statConflictsLabel}</div>
@@ -3174,7 +3172,7 @@ function App() {
                 <div style={{ fontSize: 26, fontWeight: 800 }}>{Object.keys(snapshot?.lobbyLinks.orgs ?? {}).length}</div>
               </div>
               <div
-                onClick={() => goCrossref('conflicts')}
+                onClick={() => goCrossref('ties')}
                 style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}
               >
                 <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statTopicalTiesLabel}</div>
@@ -3186,7 +3184,7 @@ function App() {
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '12px 32px 8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 4px' }}>{t.expectationTitle}</h2>
-              <a href={crossrefHref('conflicts')} onClick={stop(() => goCrossref('conflicts'))} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
+              <a href={crossrefHref('ties')} onClick={stop(() => goCrossref('ties'))} style={{ fontSize: 12.5, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}>
                 {t.seeAllConflicts} →
               </a>
             </div>
@@ -4525,7 +4523,7 @@ function App() {
                     <div style={{ fontSize: 11, lineHeight: 1.4, color: 'oklch(43% 0.05 262)', marginTop: 5 }}>{t.statLobbySpendNote}</div>
                   </div>
                 )}
-                <div onClick={() => goCrossref('parties')} style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16, flex: '1 1 200px' }}>
+                <div onClick={() => goCrossref('ties')} style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16, flex: '1 1 200px' }}>
                   <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statTiedMembersLabel}</div>
                   <div style={{ fontSize: 24, fontWeight: 800, whiteSpace: 'nowrap' }}>
                     {t.statTiedMembersTemplate
@@ -4562,9 +4560,8 @@ function App() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
                 {(
                   [
-                    { key: 'parties' as const, title: t.partyLobbyTitle, sub: t.partyLobbySub },
+                    { key: 'ties' as const, title: t.tiesTabTitle, sub: t.tiesTabSub },
                     { key: 'orgs' as const, title: t.orgsSectionTitle, sub: t.orgsSectionSub },
-                    { key: 'conflicts' as const, title: t.crossrefTitle, sub: t.crossrefSub },
                     { key: 'donations' as const, title: t.donationsTitle, sub: t.donationsSub },
                   ]
                 ).map((s) => (
@@ -4582,21 +4579,23 @@ function App() {
             </>
           )}
 
-          {lobbyTab === 'parties' && (
+          {lobbyTab === 'ties' && (
             <>
-              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t.partyLobbyTitle}</h2>
-              <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 16px', maxWidth: 760 }}>{t.partyLobbySub}</p>
+              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t.tiesTabTitle}</h2>
+              <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 16px', maxWidth: 760 }}>{t.tiesTabSub}</p>
 
               <SubTabBar
                 tabs={[
-                  { key: 'network' as const, label: t.lobbyPartiesSubTabNetwork },
-                  { key: 'byParty' as const, label: t.lobbyPartiesSubTabByParty },
+                  { key: 'network' as const, label: t.lobbyTiesSubTabNetwork },
+                  { key: 'byParty' as const, label: t.lobbyTiesSubTabByParty },
+                  { key: 'direct' as const, label: t.lobbyTiesSubTabDirect },
+                  { key: 'topical' as const, label: t.lobbyTiesSubTabTopical },
                 ]}
-                active={lobbyPartiesSubTab}
-                onChange={setLobbyPartiesSubTab}
+                active={lobbyTiesSubTab}
+                onChange={setLobbyTiesSubTab}
               />
 
-              {lobbyPartiesSubTab === 'network' && (
+              {lobbyTiesSubTab === 'network' && (
                 <PartyOrgGraph
                   orgs={orgNetwork.orgs}
                   parties={parties}
@@ -4619,7 +4618,7 @@ function App() {
                 />
               )}
 
-              {lobbyPartiesSubTab === 'byParty' && (
+              {lobbyTiesSubTab === 'byParty' && (
                 <>
                   <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 12px' }}>{t.partyDetailOrgsTitle}</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 12 }}>
@@ -4842,11 +4841,11 @@ function App() {
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                           <thead>
                             <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
-                              <SortableTh label={t.colOrg} sortKey="name" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleSort(prev, k))} />
-                              <SortableTh label={t.filterActorType} sortKey="actorType" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleSort(prev, k))} />
-                              <SortableTh label={t.orgSpendLabel} sortKey="spend" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleSort(prev, k))} />
-                              <SortableTh label={t.colOrgMembers} sortKey="members" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleSort(prev, k))} />
-                              <SortableTh label={t.colOrgVotes} sortKey="votes" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleSort(prev, k))} />
+                              <MultiSortableTh label={t.colOrg} sortKey="name" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleMultiSort(prev, k))} />
+                              <MultiSortableTh label={t.filterActorType} sortKey="actorType" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleMultiSort(prev, k))} />
+                              <MultiSortableTh label={t.orgSpendLabel} sortKey="spend" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleMultiSort(prev, k))} />
+                              <MultiSortableTh label={t.colOrgMembers} sortKey="members" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleMultiSort(prev, k))} />
+                              <MultiSortableTh label={t.colOrgVotes} sortKey="votes" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleMultiSort(prev, k))} />
                             </tr>
                           </thead>
                           <tbody>
@@ -4909,18 +4908,10 @@ function App() {
             </>
           )}
 
-          {lobbyTab === 'conflicts' && (
+          {lobbyTab === 'ties' && (
             <>
-              <SubTabBar
-                tabs={[
-                  { key: 'direct' as const, label: t.lobbyConflictsSubTabDirect },
-                  { key: 'topical' as const, label: t.lobbyConflictsSubTabTopical },
-                ]}
-                active={lobbyConflictsSubTab}
-                onChange={setLobbyConflictsSubTab}
-              />
 
-              {lobbyConflictsSubTab === 'direct' && (
+              {lobbyTiesSubTab === 'direct' && (
                 <>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px' }}>{t.crossrefTitle}</h2>
               {crossref.rows.length === 0 ? (
@@ -5064,7 +5055,7 @@ function App() {
                 </>
               )}
 
-              {lobbyConflictsSubTab === 'topical' && (
+              {lobbyTiesSubTab === 'topical' && (
                 <>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t.topicalTiesTitle}</h2>
               <p style={{ fontSize: 13, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 760 }}>{t.topicalTiesSub}</p>
@@ -6034,8 +6025,8 @@ function App() {
       {view === 'party' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
           <a
-            href={partyOrigin === 'crossref' ? crossrefHref('parties') : partyListHref}
-            onClick={stop(() => goBack(() => (partyOrigin === 'crossref' ? goCrossref('parties') : goPartyList())))}
+            href={partyOrigin === 'crossref' ? crossrefHref('ties') : partyListHref}
+            onClick={stop(() => goBack(() => (partyOrigin === 'crossref' ? goCrossref('ties') : goPartyList())))}
             style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}
           >
             ← {partyOrigin === 'crossref' ? t.backToLobbyFinance : t.backToParties}
@@ -6524,7 +6515,7 @@ function App() {
                               setTopicalPartyFilter(new Set([p.party]));
                               setTopicalFieldFilter(new Set());
                               setTopicalSearchQuery('');
-                              goCrossref('conflicts');
+                              goCrossref('ties');
                             }}
                             style={{ border: 'none', background: 'none', color: 'oklch(45% 0.16 265)', fontWeight: 700, cursor: 'pointer', fontSize: 12.5, padding: 0, whiteSpace: 'nowrap' }}
                           >

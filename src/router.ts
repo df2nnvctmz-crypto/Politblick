@@ -11,7 +11,7 @@
 
 export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'partyList' | 'party' | 'committeeList' | 'committee' | 'pollList' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten';
 export type ProfileTab = 'overview' | 'votes' | 'lobby' | 'finance';
-export type LobbyTab = 'overview' | 'parties' | 'orgs' | 'conflicts' | 'donations';
+export type LobbyTab = 'overview' | 'ties' | 'orgs' | 'donations';
 export type PartyTab = 'overview' | 'votes' | 'ties' | 'donations';
 
 export interface RouteState {
@@ -36,8 +36,11 @@ const SEGMENT_TO_PROFILE_TAB: Record<string, ProfileTab> = { stimmen: 'votes', l
 const PARTY_TAB_TO_SEGMENT: Record<PartyTab, string | null> = { overview: null, votes: 'abstimmungen', ties: 'verflechtungen', donations: 'spenden' };
 const SEGMENT_TO_PARTY_TAB: Record<string, PartyTab> = { abstimmungen: 'votes', verflechtungen: 'ties', spenden: 'donations' };
 
-const LOBBY_TAB_TO_SEGMENT: Record<LobbyTab, string | null> = { overview: null, parties: 'parteien', orgs: 'organisationen', conflicts: 'verflechtungen', donations: 'spenden' };
-const SEGMENT_TO_LOBBY_TAB: Record<string, LobbyTab> = { parteien: 'parties', organisationen: 'orgs', verflechtungen: 'conflicts', spenden: 'donations' };
+const LOBBY_TAB_TO_SEGMENT: Record<LobbyTab, string | null> = { overview: null, ties: 'verflechtungen', orgs: 'organisationen', donations: 'spenden' };
+// 'parteien' used to be its own tab before the party view and the vote overlaps were merged into
+// one Verflechtungen page. It stays readable so links and search results from before the merge
+// still land somewhere sensible; only 'verflechtungen' is ever written back out.
+const SEGMENT_TO_LOBBY_TAB: Record<string, LobbyTab> = { parteien: 'ties', verflechtungen: 'ties', organisationen: 'orgs', spenden: 'donations' };
 
 /** Builds the app-relative path (no BASE_URL prefix) for a route state. */
 export function routeToPath(r: RouteState): string {
