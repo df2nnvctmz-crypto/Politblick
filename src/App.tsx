@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import { TRANSLATIONS, type Lang, type Translation } from './data';
 import { computeHemicycleSeats, fuzzyIncludes } from './helpers';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealMp } from './bundestag';
@@ -11,8 +11,10 @@ import {
   drucksacheUrl,
   formatEuro,
   formatExpenseBracket,
+  mergeDirectory,
   useCommitteeLobbySummary,
   useCrossrefRows,
+  useLobbyDirectory,
   useMemberLobby,
   useOrgDetail,
   useOrgList,
@@ -24,6 +26,7 @@ import {
   type CrossrefRow,
   type LobbyOrg,
   type OrgListEntry,
+  type SpendScope,
 } from './lobby';
 import { committeeIcon, useCommitteeDetail, useCommitteeList, useMemberCommittees } from './committees';
 import { PartyOrgGraph } from './PartyOrgGraph';
@@ -129,6 +132,11 @@ function MpAvatar({ photoUrl, name, color, initials, size }: { photoUrl: string 
       {initials}
     </div>
   );
+}
+
+/** Whole millions, for stat tiles where a nine-digit euro figure would wrap or crowd out its label. */
+function formatMillions(euro: number, lang: Lang): string {
+  return Math.round(euro / 1e6).toLocaleString(lang === 'de' ? 'de-DE' : 'en-US');
 }
 
 function pillBtn(active: boolean): CSSProperties {
@@ -1229,7 +1237,87 @@ function DonationBarChart({
   );
 }
 
-export type SectorMetric = 'members' | 'orgs' | 'spend';
+export type SectorMetric = 'members' | 'orgs';
+
+/**
+ * Declared lobbying spend grouped by the register's own actor-type classification.
+ *
+ * This is the only grouping `expensesEuro` supports. Every organisation carries exactly one actor
+ * type, so no budget lands in two rows. Grouping by field of interest instead would hand each of
+ * an organisation's ~12 declared fields its entire budget and overstate the total roughly
+ * 17-fold, which is why that metric no longer exists. Party, bill and time axes are absent here
+ * because the register records no euro against any of them — not because they were left out.
+ */
+function ActorTypeSpendChart({
+  scope,
+  orgsTemplate,
+  filenameBase,
+  exportLabels,
+}: {
+  scope: SpendScope;
+  orgsTemplate: string;
+  filenameBase: string;
+  exportLabels: ChartExportLabels;
+}) {
+  const rows = scope.byActorType.filter((a) => a.to > 0);
+  if (rows.length === 0) return null;
+  const max = Math.max(1, ...rows.map((a) => a.to));
+  const getCsv = () => ({
+    headers: ['Actor type', 'Organizations', 'Organizations declaring a figure', 'Spend from (EUR)', 'Spend to (EUR)'],
+    rows: rows.map((a) => [a.actorType, a.orgCount, a.declaringCount, a.from, a.to]),
+  });
+  const getSvg = (): ChartSvgExport => {
+    const ROW_H = 48;
+    const BAR_H = 18;
+    const PLOT_W = 380;
+    const VALUE_W = 300;
+    const PAD = 10;
+    const width = PAD * 2 + PLOT_W + VALUE_W;
+    const height = PAD * 2 + rows.length * ROW_H;
+    const body = rows
+      .map((a, i) => {
+        const y = PAD + i * ROW_H;
+        const barW = Math.max(2, (a.to / max) * PLOT_W);
+        const valueText = `${orgsTemplate.replace('{n}', String(a.declaringCount))} · ${escapeXml(formatExpenseBracket({ from: a.from, to: a.to }) ?? '')}`;
+        return `<text x="${PAD}" y="${y + 12}" font-size="12.5" font-weight="600" fill="#1a1d23">${escapeXml(a.actorType)}</text>
+          <rect x="${PAD}" y="${y + 18}" width="${PLOT_W}" height="${BAR_H}" rx="4" fill="#eef0f2"/>
+          <rect x="${PAD}" y="${y + 18}" width="${barW}" height="${BAR_H}" rx="4" fill="#5c86d6"/>
+          <text x="${PAD + PLOT_W + 10}" y="${y + 18 + BAR_H / 2}" dominant-baseline="middle" font-size="11" fill="#6b7280">${valueText}</text>`;
+      })
+      .join('');
+    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" font-family="'IBM Plex Sans', sans-serif">${body}</svg>`;
+    return { svgString, width, height };
+  };
+  return (
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 44 }}>
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
+      {rows.map((a) => (
+        <div key={a.actorType}>
+          <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 5 }}>{a.actorType}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
+              <div
+                style={{
+                  height: 18,
+                  width: `${Math.max(1, (a.to / max) * 100)}%`,
+                  minWidth: 3,
+                  background: 'oklch(58% 0.13 265)',
+                  borderTopRightRadius: 4,
+                  borderBottomRightRadius: 4,
+                }}
+              />
+            </div>
+            {/* Same fixed-width trailing column as SectorBarChart, so every bar track is the
+                same length regardless of how long that row's own value text runs. */}
+            <span style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', width: 240, flexShrink: 0 }}>
+              {orgsTemplate.replace('{n}', String(a.declaringCount))} · {formatExpenseBracket({ from: a.from, to: a.to })}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 /** Ranked horizontal bar chart for a category count (e.g. field-of-interest → tied MPs) — bars
  * are clickable to drill into the filtered list they summarize. The label sits on its own line
@@ -1245,7 +1333,7 @@ function SectorBarChart({
   filenameBase,
   exportLabels,
 }: {
-  data: { field: string; memberCount: number; orgCount: number; spend: { from: number; to: number } | null }[];
+  data: { field: string; memberCount: number; orgCount: number }[];
   metric: SectorMetric;
   selected: Set<string>;
   onSelect: (field: string) => void;
@@ -1255,11 +1343,11 @@ function SectorBarChart({
   exportLabels: ChartExportLabels;
 }) {
   if (data.length === 0) return null;
-  const valueFor = (d: (typeof data)[number]) => (metric === 'members' ? d.memberCount : metric === 'orgs' ? d.orgCount : ((d.spend?.from ?? 0) + (d.spend?.to ?? 0)) / 2);
+  const valueFor = (d: (typeof data)[number]) => (metric === 'members' ? d.memberCount : d.orgCount);
   const max = Math.max(1, ...data.map(valueFor));
   const getCsv = () => ({
-    headers: ['Field of interest', 'Tied MPs', 'Organizations', 'Spend from (EUR)', 'Spend to (EUR)'],
-    rows: data.map((d) => [d.field, d.memberCount, d.orgCount, d.spend?.from ?? null, d.spend?.to ?? null]),
+    headers: ['Field of interest', 'Tied MPs (distinct)', 'Organizations'],
+    rows: data.map((d) => [d.field, d.memberCount, d.orgCount]),
   });
   const getSvg = (): ChartSvgExport => {
     const ROW_H = 48;
@@ -1276,7 +1364,7 @@ function SectorBarChart({
         const pct = Math.max(1, (valueFor(d) / max) * 100);
         const barW = (pct / 100) * PLOT_W;
         const color = isSelected ? '#284cac' : '#5c86d6';
-        const valueText = `${membersTemplate.replace('{n}', String(d.memberCount))} · ${orgsTemplate.replace('{n}', String(d.orgCount))}${d.spend ? ` · ${escapeXml(formatExpenseBracket(d.spend) ?? '')}` : ''}`;
+        const valueText = `${membersTemplate.replace('{n}', String(d.memberCount))} · ${orgsTemplate.replace('{n}', String(d.orgCount))}`;
         return `<text x="${PAD}" y="${y + 12}" font-size="12.5" font-weight="${isSelected ? 700 : 600}" fill="#1a1d23">${escapeXml(d.field)}</text>
           <rect x="${PAD}" y="${y + 18}" width="${PLOT_W}" height="${BAR_H}" rx="4" fill="#eef0f2"/>
           <rect x="${PAD}" y="${y + 18}" width="${barW}" height="${BAR_H}" rx="4" fill="${color}"/>
@@ -1313,7 +1401,6 @@ function SectorBarChart({
                   since its remaining space depends on how long that row's own value text is. */}
               <span style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', width: 220, flexShrink: 0 }}>
                 {membersTemplate.replace('{n}', String(d.memberCount))} · {orgsTemplate.replace('{n}', String(d.orgCount))}
-                {d.spend && ` · ${formatExpenseBracket(d.spend)}`}
               </span>
             </div>
           </div>
@@ -1805,11 +1892,13 @@ function App() {
   const [selectedCommitteeId, setSelectedCommitteeId] = useState<string | null>(extractLeadingId(initialRoute.committeeId));
   const [orgSearchQuery, setOrgSearchQuery] = useState('');
   const [sectorMetric, setSectorMetric] = useState<SectorMetric>('members');
+  const [spendScope, setSpendScope] = useState<'all' | 'linked'>('all');
+  const [orgScope, setOrgScope] = useState<'all' | 'linked'>('all');
   const [profileTab, setProfileTab] = useState<ProfileTab>(initialRoute.profileTab);
   const [lobbyTab, setLobbyTab] = useState<LobbyTab>(initialRoute.lobbyTab);
   // Second-level tabs within a single Lobby & Finanzen sub-page — local only, not URL-routed (see SubTabBar).
   const [lobbyPartiesSubTab, setLobbyPartiesSubTab] = useState<'network' | 'byParty'>('network');
-  const [lobbyOrgsSubTab, setLobbyOrgsSubTab] = useState<'distribution' | 'list'>('distribution');
+  const [lobbyOrgsSubTab, setLobbyOrgsSubTab] = useState<'distribution' | 'fields' | 'list'>('distribution');
   const [lobbyConflictsSubTab, setLobbyConflictsSubTab] = useState<'direct' | 'topical'>('direct');
   const [lobbyDonationsSubTab, setLobbyDonationsSubTab] = useState<'totals' | 'timeline' | 'topDonors' | 'all'>('totals');
   const [partyTab, setPartyTab] = useState<PartyTab>(initialRoute.partyTab);
@@ -1820,7 +1909,12 @@ function App() {
   const [hoveredAlignmentPoint, setHoveredAlignmentPoint] = useState<number | null>(null);
   const alignmentSvgRef = useRef<SVGSVGElement>(null);
   const [tieMatrixFilter, setTieMatrixFilter] = useState<MatrixCell | null>(null);
-  const [orgsExpanded, setOrgsExpanded] = useState(false);
+  // A count rather than an expanded/collapsed flag: the list runs to ~6,000 rows now, and
+  // rendering all of them at once locks the page up for seconds while burying the collapse
+  // control kilometres down the page.
+  const ORGS_PAGE_SIZE = 100;
+  const ORGS_INITIAL_COUNT = 25;
+  const [orgsVisibleCount, setOrgsVisibleCount] = useState(ORGS_INITIAL_COUNT);
   const [conflictsExpanded, setConflictsExpanded] = useState(false);
   const [topicalExpanded, setTopicalExpanded] = useState(false);
   const [donationsExpanded, setDonationsExpanded] = useState(false);
@@ -1846,6 +1940,7 @@ function App() {
   const [donationsSort, setDonationsSort] = useState<MultiSortState>([]);
   const [donationsPartyFilter, setDonationsPartyFilter] = useState<Set<string>>(new Set());
   const [donationsDonorQuery, setDonationsDonorQuery] = useState('');
+  const [donationsOnlyLobbyists, setDonationsOnlyLobbyists] = useState(false);
   const [partyOrgsSort, setPartyOrgsSort] = useState<SortState>(null);
   const [partyDonationsSort, setPartyDonationsSort] = useState<MultiSortState>([]);
   const [partyDonationsDonorQuery, setPartyDonationsDonorQuery] = useState('');
@@ -2396,7 +2491,17 @@ function App() {
   // page that can only ever show "no data for this party".
   const routablePartyNames = new Set(partyLobby.summaries.map((s) => s.party));
   const orgList = useOrgList();
-  const orgDetail = useOrgDetail(selectedOrgId);
+  // The full register is fetched only where it is actually browsed: the organisation list, and an
+  // organisation page whose id is not one of the few hundred the snapshot already carries.
+  const needsDirectory =
+    (view === 'crossref' && lobbyTab === 'orgs' && lobbyOrgsSubTab === 'list') ||
+    (view === 'org' && selectedOrgId !== null && !snapshot?.lobbyLinks.orgs[selectedOrgId]);
+  const lobbyDirectory = useLobbyDirectory(needsDirectory);
+  const orgDetail = useOrgDetail(selectedOrgId, lobbyDirectory.orgs);
+  // Only the browsable list widens to the whole register; tie-based views keep their own scope.
+  // Memoised because it merges and sorts ~6,000 entries, and this component re-renders on every
+  // keystroke in the search box.
+  const directoryOrgs = useMemo(() => mergeDirectory(orgList.orgs, lobbyDirectory.orgs), [orgList.orgs, lobbyDirectory.orgs]);
   const committeeList = useCommitteeList();
   const committeeDetail = useCommitteeDetail(selectedCommitteeId);
   const committeeLobby = useCommitteeLobbySummary(selectedCommitteeId);
@@ -2533,41 +2638,102 @@ function App() {
     lastCountedPageKeyRef.current = pageKey;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, profile, pollDetail.result, orgDetail.org, committeeDetail.detail]);
-  const filteredOrgs = orgList.orgs.filter((e) => {
-    if (!e.org.name.toLowerCase().includes(orgSearchQuery.trim().toLowerCase())) return false;
-    if (orgPartyFilter.size > 0 && !e.parties.some((p) => orgPartyFilter.has(p))) return false;
-    if (orgActorTypeFilter.size > 0 && (!e.org.actorType || !orgActorTypeFilter.has(e.org.actorType))) return false;
-    if (orgFieldFilter.size > 0 && !e.org.fieldsOfInterest.some((f) => orgFieldFilter.has(f))) return false;
-    return true;
-  });
+  // "Linked" means exactly what orgsSectionSub claims: something on this site points at it — a
+  // member's role, a lobbied vote, a committee, or a large donation. Re-deriving it from member
+  // and vote counts alone would silently drop the donation-only ties.
+  const tiedOrgIds = useMemo(() => new Set(orgList.orgs.map((e) => e.org.id)), [orgList.orgs]);
+  // Filtering runs over the whole register, so at ~6,000 rows it is too slow to block a keystroke
+  // on. Deferring the query lets the input update immediately and the list catch up a frame later.
+  const deferredOrgSearchQuery = useDeferredValue(orgSearchQuery);
+  const filteredOrgs = useMemo(() => {
+    const needle = deferredOrgSearchQuery.trim().toLowerCase();
+    return directoryOrgs.filter((e) => {
+      if (orgScope === 'linked' && !tiedOrgIds.has(e.org.id)) return false;
+      if (needle && !e.org.name.toLowerCase().includes(needle)) return false;
+      if (orgPartyFilter.size > 0 && !e.parties.some((p) => orgPartyFilter.has(p))) return false;
+      if (orgActorTypeFilter.size > 0 && (!e.org.actorType || !orgActorTypeFilter.has(e.org.actorType))) return false;
+      if (orgFieldFilter.size > 0 && !e.org.fieldsOfInterest.some((f) => orgFieldFilter.has(f))) return false;
+      return true;
+    });
+  }, [directoryOrgs, tiedOrgIds, orgScope, deferredOrgSearchQuery, orgPartyFilter, orgActorTypeFilter, orgFieldFilter]);
+  // Back to the first page whenever the filters change. Without this, someone who paged two
+  // thousand rows deep and then narrowed the search still pays to render everything the new
+  // filter happens to match.
+  useEffect(() => {
+    setOrgsVisibleCount(ORGS_INITIAL_COUNT);
+  }, [orgScope, deferredOrgSearchQuery, orgPartyFilter, orgActorTypeFilter, orgFieldFilter]);
+  // Hoisted out of the table's render so a sort of several thousand names — localeCompare, which
+  // is not cheap — happens when the sort or the filters change, not on every keystroke.
+  const sortedOrgs = useMemo(() => {
+    if (!orgsSort) return filteredOrgs;
+    const orgValue = (e: OrgListEntry, key: string): string | number | null => {
+      switch (key) {
+        case 'name': return e.org.name;
+        case 'actorType': return e.org.actorType;
+        case 'spend': return e.org.expensesEuro ? e.org.expensesEuro.from : null;
+        case 'members': return e.affiliatedMemberCount;
+        case 'votes': return e.lobbiedPollCount;
+        default: return null;
+      }
+    };
+    return [...filteredOrgs].sort((a, b) => compareSortValues(orgValue(a, orgsSort.key), orgValue(b, orgsSort.key), orgsSort.dir));
+  }, [filteredOrgs, orgsSort]);
+  // A party is only ever knowable for an organisation a member is tied to, so that filter stays
+  // drawn from the tied set however wide the list itself runs.
   const orgPartyOptions = countOptions(orgList.orgs.flatMap((e) => e.parties));
-  const orgActorTypeOptions = countOptions(orgList.orgs.map((e) => e.org.actorType).filter((v): v is string => Boolean(v)));
-  const orgFieldOptions = countOptions(orgList.orgs.flatMap((e) => e.org.fieldsOfInterest));
-  // Top fields of interest by tied MP count — an org contributes its full member/spend count to
-  // every field it declares, since the register doesn't split an org's activity across its fields.
+  // ~6,000 organisations declaring ~12 fields each is ~72,000 strings to tally — far too much to
+  // redo on every keystroke, and it does not depend on any of the filters.
+  const orgActorTypeOptions = useMemo(
+    () => countOptions(directoryOrgs.map((e) => e.org.actorType).filter((v): v is string => Boolean(v))),
+    [directoryOrgs],
+  );
+  const orgFieldOptions = useMemo(() => countOptions(directoryOrgs.flatMap((e) => e.org.fieldsOfInterest)), [directoryOrgs]);
+  const linkedOrgCount = tiedOrgIds.size;
+  // Which registered organisations also show up as large donors, and for how much. `donorLinks`
+  // maps a donation row's donor string onto a register id, so the totals come from the published
+  // donation records themselves — nothing here is re-derived or matched by name at render time.
+  const donationTotalByOrgId = useMemo(() => {
+    const links = snapshot?.lobbyLinks.donorLinks ?? {};
+    const byOrg = new Map<string, number>();
+    for (const d of partyDonations.all) {
+      if (!d.donor) continue;
+      const orgId = links[d.donor];
+      if (!orgId) continue;
+      byOrg.set(orgId, (byOrg.get(orgId) ?? 0) + d.amountEuro);
+    }
+    return byOrg;
+  }, [snapshot, partyDonations.all]);
+  // Top fields of interest. An organisation counts in every field it declares — that is what a
+  // field of interest means in the register — but a member is counted once per field however many
+  // of that field's organisations they are tied to, so the MP figure stays a headcount of people.
+  //
+  // Budgets are deliberately absent. `expensesEuro` belongs to the organisation as a whole, so
+  // adding it up per field gives each of an organisation's ~12 fields the entire budget and
+  // inflates the total roughly 17-fold. Spend is shown by actor type instead, where every
+  // organisation falls into exactly one group.
   const sectorStats = (() => {
-    const byField = new Map<string, { orgCount: number; memberCount: number; from: number; to: number; hasSpend: boolean }>();
+    const byField = new Map<string, { orgCount: number; members: Set<string> }>();
     for (const e of orgList.orgs) {
       for (const f of e.org.fieldsOfInterest) {
-        const cur = byField.get(f) ?? { orgCount: 0, memberCount: 0, from: 0, to: 0, hasSpend: false };
+        const cur = byField.get(f) ?? { orgCount: 0, members: new Set<string>() };
         cur.orgCount += 1;
-        cur.memberCount += e.affiliatedMemberCount;
-        if (e.org.expensesEuro) {
-          cur.from += e.org.expensesEuro.from;
-          cur.to += e.org.expensesEuro.to;
-          cur.hasSpend = true;
-        }
+        for (const mandateId of e.affiliatedMandateIds) cur.members.add(mandateId);
         byField.set(f, cur);
       }
     }
-    const spendMid = (v: { from: number; to: number; hasSpend: boolean }) => (v.hasSpend ? (v.from + v.to) / 2 : 0);
-    const sortValue = (v: { orgCount: number; memberCount: number; spendMid: number }) =>
-      sectorMetric === 'members' ? v.memberCount : sectorMetric === 'orgs' ? v.orgCount : v.spendMid;
     return [...byField.entries()]
-      .map(([field, v]) => ({ field, orgCount: v.orgCount, memberCount: v.memberCount, spend: v.hasSpend ? { from: v.from, to: v.to } : null, spendMid: spendMid(v) }))
-      .sort((a, b) => sortValue(b) - sortValue(a) || b.orgCount - a.orgCount)
+      .map(([field, v]) => ({ field, orgCount: v.orgCount, memberCount: v.members.size }))
+      .sort((a, b) => (sectorMetric === 'members' ? b.memberCount - a.memberCount : b.orgCount - a.orgCount) || b.orgCount - a.orgCount)
       .slice(0, 8);
   })();
+
+  // Register-wide spending. Unlike everything else on this page it is not scoped to parliament by
+  // default: the register's own total is the honest figure, and the linked subset is offered
+  // beside it so the reader can see how little of the register this site actually touches.
+  const spendSummary = snapshot?.lobbyLinks.spendSummary ?? null;
+  const spendScopeData = spendSummary ? spendSummary[spendScope] : null;
+  // The widest concentration bracket this scope has enough declarants to fill.
+  const topConcentration = spendScopeData?.concentration.at(-1) ?? null;
 
   const topicalPartyOptions = countOptions(topicalTieRows.rows.map((r) => r.party));
   const topicalFieldOptions = countOptions(topicalTieRows.rows.map((r) => r.tie.matchedField));
@@ -2972,7 +3138,34 @@ function App() {
                 <div style={{ fontSize: 20, fontWeight: 800, whiteSpace: 'nowrap' }}>
                   {formatEuro(partyDonations.all.reduce((sum, d) => sum + d.amountEuro, 0))}
                 </div>
+                <div style={{ fontSize: 11, color: 'oklch(50% 0.01 260)', marginTop: 5 }}>
+                  {t.statDonationsSumYearsNote.replace('{n}', String(new Set(partyDonations.all.map((d) => d.year)).size))}
+                </div>
               </div>
+              {/* Deliberately next to the donation total, and deliberately the loudest tile on the
+                  page: large donations are the number this debate is usually had over, and they are
+                  a fraction of the money organisations declare spending on lobbying in a single
+                  year. The two are only comparable if the reader is told one is annual and the
+                  other is not, which is what the note under each does. */}
+              {spendSummary && (
+                <div
+                  onClick={() => goCrossref('orgs')}
+                  style={{ cursor: 'pointer', background: 'oklch(96% 0.03 262)', border: '1px solid oklch(86% 0.07 262)', borderRadius: 12, padding: 18 }}
+                >
+                  <div style={{ fontSize: 11.5, lineHeight: 1.35, color: 'oklch(43% 0.05 262)', marginBottom: 6 }}>{t.statLobbySpendLabel}</div>
+                  {/* The midpoint, not the bracket. Every bracket the register reports is €9,999
+                      wide, so the spread on a total is accumulated bracket width rather than doubt
+                      about the magnitude — and a range needs twice the room to say the same thing.
+                      The exact bracket is one click away on the Lobbyausgaben tab. */}
+                  <div style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.15, whiteSpace: 'nowrap', color: 'oklch(45% 0.18 265)' }}>
+                    {t.statLobbySpendValueTemplate.replace(
+                      '{n}',
+                      formatMillions((spendSummary.all.from + spendSummary.all.to) / 2, lang),
+                    )}
+                  </div>
+                  <div style={{ fontSize: 11, lineHeight: 1.4, color: 'oklch(43% 0.05 262)', marginTop: 5 }}>{t.statLobbySpendNote}</div>
+                </div>
+              )}
               <div
                 onClick={() => goCrossref('orgs')}
                 style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}
@@ -4309,26 +4502,56 @@ function App() {
               <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{t.navLobbyFinance}</h1>
               <p style={{ fontSize: 14, color: 'oklch(45% 0.01 260)', margin: '0 0 28px', maxWidth: 640 }}>{t.crossrefSub}</p>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 14, marginBottom: 28 }}>
-                <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
+              {/* Flex rather than grid: with seven tiles an auto-fit grid leaves the last row
+                  half-empty, which reads as missing data. Letting the tiles grow means each row
+                  fills the width whatever the count and the viewport. */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 28 }}>
+                {/* The register's own size and spend come first: everything else on this page is a
+                    slice of parliament's contact with it, and those two say how large the thing
+                    being sliced actually is. */}
+                <div onClick={() => goCrossref('orgs')} style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16, flex: '1 1 200px' }}>
+                  <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statRegisterOrgsLabel}</div>
+                  <div style={{ fontSize: 24, fontWeight: 800 }}>{(spendSummary?.all.orgCount ?? 0).toLocaleString(lang === 'de' ? 'de-DE' : 'en-US')}</div>
+                </div>
+                {spendSummary && (
+                  <div
+                    onClick={() => goCrossref('orgs')}
+                    style={{ cursor: 'pointer', background: 'oklch(96% 0.03 262)', border: '1px solid oklch(86% 0.07 262)', borderRadius: 12, padding: 16, flex: '1 1 200px' }}
+                  >
+                    <div style={{ fontSize: 12, lineHeight: 1.35, color: 'oklch(43% 0.05 262)', marginBottom: 6 }}>{t.statLobbySpendLabel}</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.15, whiteSpace: 'nowrap', color: 'oklch(45% 0.18 265)' }}>
+                      {t.statLobbySpendValueTemplate.replace('{n}', formatMillions((spendSummary.all.from + spendSummary.all.to) / 2, lang))}
+                    </div>
+                    <div style={{ fontSize: 11, lineHeight: 1.4, color: 'oklch(43% 0.05 262)', marginTop: 5 }}>{t.statLobbySpendNote}</div>
+                  </div>
+                )}
+                <div onClick={() => goCrossref('parties')} style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16, flex: '1 1 200px' }}>
+                  <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statTiedMembersLabel}</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, whiteSpace: 'nowrap' }}>
+                    {t.statTiedMembersTemplate
+                      .replace('{n}', String(Object.keys(snapshot?.lobbyLinks.affiliations ?? {}).length))
+                      .replace('{total}', String(roster.members.length))}
+                  </div>
+                </div>
+                <div onClick={() => goCrossref('orgs')} style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16, flex: '1 1 200px' }}>
                   <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statOrgsReferencedLabel}</div>
                   <div style={{ fontSize: 24, fontWeight: 800 }}>{Object.keys(snapshot?.lobbyLinks.orgs ?? {}).length}</div>
                 </div>
-                <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
+                <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16, flex: '1 1 200px' }}>
                   <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>
                     {t.statConflictsLabel}
                     <InfoTooltip text={t.infoVerflechtung} />
                   </div>
                   <div style={{ fontSize: 24, fontWeight: 800 }}>{crossref.rows.length}</div>
                 </div>
-                <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
+                <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16, flex: '1 1 200px' }}>
                   <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>
                     {t.statTopicalTiesLabel}
                     <InfoTooltip text={t.infoThemenfeld} />
                   </div>
                   <div style={{ fontSize: 24, fontWeight: 800 }}>{topicalTieRows.rows.length}</div>
                 </div>
-                <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
+                <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16, flex: '1 1 200px' }}>
                   <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statDonationsSumLabel}</div>
                   <div style={{ fontSize: 20, fontWeight: 800, whiteSpace: 'nowrap' }}>
                     {formatEuro(partyDonations.all.reduce((sum, d) => sum + d.amountEuro, 0))}
@@ -4425,9 +4648,6 @@ function App() {
                             </span>
                           ))}
                         </div>
-                        <div style={{ fontSize: 11, color: 'oklch(50% 0.01 260)', marginBottom: 8 }}>
-                          {t.partyLobbySpendLabel}: {formatExpenseBracket(p.expensesEuro)}
-                        </div>
                         <span style={{ fontSize: 12, fontWeight: 700, color: 'oklch(48% 0.12 250)' }}>{t.seeAll} →</span>
                       </a>
                     ))}
@@ -4445,13 +4665,61 @@ function App() {
               <SubTabBar
                 tabs={[
                   { key: 'distribution' as const, label: t.lobbyOrgsSubTabDistribution },
+                  { key: 'fields' as const, label: t.lobbyOrgsSubTabFields },
                   { key: 'list' as const, label: t.lobbyOrgsSubTabList },
                 ]}
                 active={lobbyOrgsSubTab}
                 onChange={setLobbyOrgsSubTab}
               />
 
-              {lobbyOrgsSubTab === 'distribution' && sectorStats.length > 0 && (
+              {lobbyOrgsSubTab === 'distribution' && spendSummary && spendScopeData && (
+                <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, padding: 16, marginBottom: 20 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 4 }}>
+                    <h3 style={{ fontSize: 14.5, fontWeight: 700, margin: 0 }}>{t.spendChartTitle}</h3>
+                    {/* The whole register is the honest default; the parliament-linked subset stays
+                        reachable because it is what the rest of this page is about — but it is a
+                        small and skewed slice, which the counts beside each scope make visible. */}
+                    <div className="pb-metric-toggle-buttons" style={{ display: 'flex', border: '1px solid oklch(90% 0.006 260)', borderRadius: 16, overflow: 'hidden', fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
+                      <button onClick={() => setSpendScope('all')} style={pillBtn(spendScope === 'all')}>
+                        {t.spendScopeAll} ({spendSummary.all.orgCount})
+                      </button>
+                      <button onClick={() => setSpendScope('linked')} style={pillBtn(spendScope === 'linked')}>
+                        {t.spendScopeLinked} ({spendSummary.linked.orgCount})
+                      </button>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: 12, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 640 }}>{t.spendChartSub}</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 4 }}>
+                    <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: '12px 16px', flex: '1 1 220px' }}>
+                      <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.spendTotalLabel}</div>
+                      <div style={{ fontSize: 18, fontWeight: 800 }}>{formatExpenseBracket({ from: spendScopeData.from, to: spendScopeData.to })}</div>
+                      <div style={{ fontSize: 11, color: 'oklch(50% 0.01 260)', marginTop: 4 }}>
+                        {t.spendDeclaringTemplate.replace('{n}', String(spendScopeData.declaringCount)).replace('{total}', String(spendScopeData.orgCount))}
+                      </div>
+                    </div>
+                    <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: '12px 16px', flex: '1 1 220px' }}>
+                      <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.spendStaffLabel}</div>
+                      <div style={{ fontSize: 18, fontWeight: 800 }}>{spendScopeData.staffFte.toLocaleString(lang === 'de' ? 'de-DE' : 'en-US')}</div>
+                      {topConcentration && (
+                        <div style={{ fontSize: 11, color: 'oklch(50% 0.01 260)', marginTop: 4 }}>
+                          {t.spendConcentrationTemplate
+                            .replace('{n}', String(topConcentration.n))
+                            .replace('{pct}', String(Math.round((topConcentration.to / Math.max(1, spendScopeData.to)) * 100)))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <ActorTypeSpendChart
+                    scope={spendScopeData}
+                    orgsTemplate={t.spendOrgsTemplate}
+                    filenameBase="politblick-lobbyausgaben"
+                    exportLabels={exportLabels}
+                  />
+                  <p style={{ fontSize: 11.5, color: 'oklch(50% 0.01 260)', margin: '14px 0 0', maxWidth: 700, lineHeight: 1.5 }}>{t.spendChartNote}</p>
+                </div>
+              )}
+
+              {lobbyOrgsSubTab === 'fields' && sectorStats.length > 0 && (
                 <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, padding: 16, marginBottom: 20 }}>
                   <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 4 }}>
                     <h3 style={{ fontSize: 14.5, fontWeight: 700, margin: 0 }}>{t.sectorChartTitle}</h3>
@@ -4462,9 +4730,6 @@ function App() {
                       <button onClick={() => setSectorMetric('orgs')} style={pillBtn(sectorMetric === 'orgs')}>
                         {t.sectorMetricOrgs}
                       </button>
-                      <button onClick={() => setSectorMetric('spend')} style={pillBtn(sectorMetric === 'spend')}>
-                        {t.sectorMetricSpend}
-                      </button>
                     </div>
                     <select
                       className="pb-metric-toggle-select"
@@ -4474,7 +4739,6 @@ function App() {
                     >
                       <option value="members">{t.sectorMetricMembers}</option>
                       <option value="orgs">{t.sectorMetricOrgs}</option>
-                      <option value="spend">{t.sectorMetricSpend}</option>
                     </select>
                   </div>
                   <p style={{ fontSize: 12, color: 'oklch(45% 0.01 260)', margin: '0 0 14px', maxWidth: 640 }}>{t.sectorChartSub}</p>
@@ -4482,7 +4746,12 @@ function App() {
                     data={sectorStats}
                     metric={sectorMetric}
                     selected={orgFieldFilter}
-                    onSelect={(field) => setOrgFieldFilter((prev) => toggleInSet(prev, field))}
+                    // The list this used to sit above now lives on its own tab, so a click has to
+                    // take the reader there rather than filtering something off-screen.
+                    onSelect={(field) => {
+                      setOrgFieldFilter((prev) => toggleInSet(prev, field));
+                      setLobbyOrgsSubTab('list');
+                    }}
                     membersTemplate={t.sectorChartMembersTemplate}
                     orgsTemplate={t.sectorChartOrgsTemplate}
                     filenameBase="politblick-interessengebiete"
@@ -4493,6 +4762,18 @@ function App() {
 
               {lobbyOrgsSubTab === 'list' && (
                 <>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <div className="pb-metric-toggle-buttons" style={{ display: 'flex', border: '1px solid oklch(90% 0.006 260)', borderRadius: 16, overflow: 'hidden', fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
+                  <button onClick={() => setOrgScope('all')} style={pillBtn(orgScope === 'all')}>
+                    {t.orgScopeAll} ({directoryOrgs.length})
+                  </button>
+                  <button onClick={() => setOrgScope('linked')} style={pillBtn(orgScope === 'linked')}>
+                    {t.orgScopeLinked} ({linkedOrgCount})
+                  </button>
+                </div>
+                {lobbyDirectory.loading && <span style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)' }}>{t.orgDirectoryLoading}</span>}
+                {lobbyDirectory.error && <span style={{ fontSize: 12.5, color: 'oklch(50% 0.19 25)' }}>{t.orgDirectoryError}</span>}
+              </div>
               <input
                 type="text"
                 value={orgSearchQuery}
@@ -4555,18 +4836,6 @@ function App() {
                 <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.orgsNoResults}</p>
               ) : (
                 (() => {
-                  const orgValue = (e: (typeof filteredOrgs)[number], key: string): string | number | null => {
-                    switch (key) {
-                      case 'name': return e.org.name;
-                      case 'spend': return e.org.expensesEuro ? e.org.expensesEuro.from : null;
-                      case 'members': return e.affiliatedMemberCount;
-                      case 'votes': return e.lobbiedPollCount;
-                      default: return null;
-                    }
-                  };
-                  const sortedOrgs = orgsSort
-                    ? [...filteredOrgs].sort((a, b) => compareSortValues(orgValue(a, orgsSort.key), orgValue(b, orgsSort.key), orgsSort.dir))
-                    : filteredOrgs;
                   return (
                     <>
                       <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
@@ -4574,19 +4843,30 @@ function App() {
                           <thead>
                             <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
                               <SortableTh label={t.colOrg} sortKey="name" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleSort(prev, k))} />
+                              <SortableTh label={t.filterActorType} sortKey="actorType" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleSort(prev, k))} />
                               <SortableTh label={t.orgSpendLabel} sortKey="spend" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleSort(prev, k))} />
                               <SortableTh label={t.colOrgMembers} sortKey="members" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleSort(prev, k))} />
                               <SortableTh label={t.colOrgVotes} sortKey="votes" sort={orgsSort} onSort={(k) => setOrgsSort((prev) => toggleSort(prev, k))} />
                             </tr>
                           </thead>
                           <tbody>
-                            {sortedOrgs.slice(0, orgsExpanded ? sortedOrgs.length : 10).map((e) => (
+                            {sortedOrgs.slice(0, orgsVisibleCount).map((e) => (
                               <tr key={e.org.id} onClick={stop(() => openOrg(e.org.id))} style={{ cursor: 'pointer', borderTop: '1px solid oklch(93% 0.006 260)' }}>
                                 <td style={{ padding: '10px 14px', fontWeight: 600 }}>
                                   <a href={orgHref(e.org.id)} onClick={stop(() => openOrg(e.org.id))} style={{ textDecoration: 'none', color: 'inherit' }}>
                                     {e.org.name}
                                   </a>
+                                  {/* The same tie the donations table flags in the other direction:
+                                      this organisation lobbies and has also given a reportable
+                                      donation to a party. Amount included so it is a fact, not a
+                                      hint. */}
+                                  {donationTotalByOrgId.has(e.org.id) && (
+                                    <span style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: 'oklch(48% 0.14 60)' }}>
+                                      ⬤ {t.orgDonatedBadge}: {formatEuro(donationTotalByOrgId.get(e.org.id) ?? 0)}
+                                    </span>
+                                  )}
                                 </td>
+                                <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{e.org.actorType ?? '—'}</td>
                                 <td style={{ padding: '10px 14px', color: 'oklch(45% 0.01 260)' }}>{formatExpenseBracket(e.org.expensesEuro) ?? '—'}</td>
                                 <td style={{ padding: '10px 14px' }}>{e.affiliatedMemberCount}</td>
                                 <td style={{ padding: '10px 14px' }}>{e.lobbiedPollCount}</td>
@@ -4595,14 +4875,31 @@ function App() {
                           </tbody>
                         </table>
                       </ScrollBox>
-                      <ShowMoreButton
-                        total={filteredOrgs.length}
-                        defaultCount={10}
-                        expanded={orgsExpanded}
-                        onToggle={() => setOrgsExpanded((v) => !v)}
-                        showMoreTemplate={t.showMoreTemplate}
-                        showLessLabel={t.showLess}
-                      />
+                      {filteredOrgs.length > ORGS_INITIAL_COUNT && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 10, marginTop: 14 }}>
+                          <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>
+                            {t.orgsShownCountTemplate
+                              .replace('{shown}', String(Math.min(orgsVisibleCount, filteredOrgs.length)))
+                              .replace('{total}', String(filteredOrgs.length))}
+                          </span>
+                          {orgsVisibleCount < filteredOrgs.length && (
+                            <button
+                              onClick={() => setOrgsVisibleCount((n) => n + ORGS_PAGE_SIZE)}
+                              style={{ padding: '8px 18px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 20, background: 'white', fontSize: 12.5, fontWeight: 700, color: 'oklch(45% 0.16 265)', cursor: 'pointer' }}
+                            >
+                              {t.orgsShowMoreTemplate.replace('{n}', String(Math.min(ORGS_PAGE_SIZE, filteredOrgs.length - orgsVisibleCount)))}
+                            </button>
+                          )}
+                          {orgsVisibleCount > ORGS_INITIAL_COUNT && (
+                            <button
+                              onClick={() => setOrgsVisibleCount(ORGS_INITIAL_COUNT)}
+                              style={{ padding: '8px 18px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 20, background: 'white', fontSize: 12.5, fontWeight: 700, color: 'oklch(45% 0.01 260)', cursor: 'pointer' }}
+                            >
+                              {t.showLess}
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </>
                   );
                 })()
@@ -5006,9 +5303,15 @@ function App() {
                 };
                 const donationsPartyOptions = countOptions(partyDonations.all.map((d) => d.fraction));
                 const donorQueryNorm = donationsDonorQuery.trim().toLowerCase();
+                const donorLinks = snapshot?.lobbyLinks.donorLinks ?? {};
+                const isRegisteredLobbyist = (d: (typeof partyDonations.all)[number]) => Boolean(d.donor && donorLinks[d.donor]);
+                const lobbyistDonationCount = partyDonations.all.filter(isRegisteredLobbyist).length;
                 const filteredDonations = partyDonations.all
                   .filter((d) => donationsPartyFilter.size === 0 || donationsPartyFilter.has(d.fraction))
-                  .filter((d) => !donorQueryNorm || (d.donor ?? '').toLowerCase().includes(donorQueryNorm));
+                  .filter((d) => !donorQueryNorm || (d.donor ?? '').toLowerCase().includes(donorQueryNorm))
+                  // The badge on individual rows only turns up if you happen to scroll onto one of
+                  // them; this makes the overlap something you can actually ask for.
+                  .filter((d) => !donationsOnlyLobbyists || isRegisteredLobbyist(d));
                 // True multi-key sort: click order is priority order, so "Partei" then "Betrag"
                 // groups by party and only uses amount to order rows within a group — clicking
                 // Betrag alone still means a single flat sort across every party, same as before.
@@ -5036,7 +5339,22 @@ function App() {
                         placeholder={t.donorSearchPlaceholder}
                         style={{ padding: '8px 12px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 20, fontSize: 12.5, minWidth: 200, boxSizing: 'border-box' }}
                       />
-                      {(donationsPartyFilter.size > 0 || donorQueryNorm) && (
+                      <button
+                        onClick={() => setDonationsOnlyLobbyists((v) => !v)}
+                        style={{
+                          padding: '8px 14px',
+                          borderRadius: 20,
+                          border: `1px solid ${donationsOnlyLobbyists ? 'oklch(48% 0.14 60)' : 'oklch(85% 0.006 260)'}`,
+                          background: donationsOnlyLobbyists ? 'oklch(96% 0.05 60)' : 'white',
+                          color: donationsOnlyLobbyists ? 'oklch(42% 0.14 60)' : 'oklch(35% 0.01 260)',
+                          fontSize: 12.5,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        ⬤ {t.donationsOnlyLobbyistsLabel} ({lobbyistDonationCount})
+                      </button>
+                      {(donationsPartyFilter.size > 0 || donorQueryNorm || donationsOnlyLobbyists) && (
                         <span style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)' }}>
                           {sortedDonations.length} {t.results}
                         </span>
@@ -5131,6 +5449,15 @@ function App() {
               <div style={{ fontSize: 13.5, color: 'oklch(45% 0.01 260)', marginBottom: 20 }}>
                 {[orgDetail.org.legalForm, orgDetail.org.city].filter(Boolean).join(' · ')}
               </div>
+
+              {/* Reached from the widened list: an organisation the snapshot never carried. Saying
+                  so beats an unexplained page of empty tie sections, which reads like missing data
+                  rather than the finding it actually is. */}
+              {selectedOrgId !== null && !snapshot?.lobbyLinks.orgs[selectedOrgId] && (
+                <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', lineHeight: 1.55, background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: '12px 14px', marginBottom: 22, maxWidth: 720 }}>
+                  {t.orgDirectoryOnlyNote}
+                </p>
+              )}
 
               {orgDetail.org.description && (
                 <div style={{ marginBottom: 22 }}>
@@ -5763,10 +6090,6 @@ function App() {
                       <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
                         <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.colOrgMembers}</div>
                         <div style={{ fontSize: 24, fontWeight: 800 }}>{p.memberCount}</div>
-                      </div>
-                      <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
-                        <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.partyLobbySpendLabel}</div>
-                        <div style={{ fontSize: 18, fontWeight: 800 }}>{formatExpenseBracket(p.expensesEuro)}</div>
                       </div>
                       <div
                         onClick={() => setPartyTab('donations')}

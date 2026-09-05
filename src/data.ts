@@ -106,12 +106,22 @@ export interface Translation {
   overviewSidejobsPreviewTitle: string; overviewSidejobsPreviewCountTemplate: string; overviewSidejobsPreviewEmpty: string;
   seeAll: string;
   orgsSectionTitle: string; orgsSectionSub: string; orgSearchPlaceholder: string; orgsNoResults: string;
+  orgScopeAll: string; orgScopeLinked: string; orgDirectoryLoading: string; orgDirectoryError: string;
+  statLobbySpendLabel: string; statLobbySpendValueTemplate: string; statLobbySpendNote: string;
+  statRegisterOrgsLabel: string; statTiedMembersLabel: string; statTiedMembersTemplate: string;
+  donationsOnlyLobbyistsLabel: string; orgDonatedBadge: string; colOrgDonated: string;
+  statDonationsSumYearsNote: string;
+  orgDirectoryOnlyNote: string;
   colOrgMembers: string; colOrgVotes: string; backToLobbyFinance: string; backToParties: string;
   orgSpendLabel: string; orgStaffLabel: string; orgFieldsLabel: string;
   orgDescriptionLabel: string; showMoreText: string;
   orgLobbiedBillsTitle: string; orgNoLobbiedBills: string;
   sectorChartTitle: string; sectorChartSub: string; sectorChartMembersTemplate: string; sectorChartOrgsTemplate: string;
-  sectorMetricMembers: string; sectorMetricOrgs: string; sectorMetricSpend: string;
+  sectorMetricMembers: string; sectorMetricOrgs: string;
+  spendChartTitle: string; spendChartSub: string; spendChartNote: string;
+  spendScopeAll: string; spendScopeLinked: string;
+  spendTotalLabel: string; spendStaffLabel: string; spendDeclaringTemplate: string;
+  spendOrgsTemplate: string; spendConcentrationTemplate: string;
   orgAffiliatedMembersTitle: string; orgNoAffiliatedMembers: string;
   orgConflictsTitle: string; orgTopicalTitle: string;
   orgDonorTitle: string; orgDonorNote: string;
@@ -126,9 +136,10 @@ export interface Translation {
   pollListSub: string; seeAllPolls: string; seeAllConflicts: string;
   partyLobbyTitle: string; partyLobbySub: string;
   partyLobbyOrgCountTemplate: string; partyLobbyMemberCountTemplate: string;
-  partyLobbyTopFieldsLabel: string; partyLobbySpendLabel: string;
+  partyLobbyTopFieldsLabel: string;
   lobbyOnCommitteeTemplate: string;
   lobbyTabOverview: string; lobbyTabParties: string; lobbyTabOrgs: string;
+  orgsShowMoreTemplate: string; orgsShownCountTemplate: string;
   lobbyTabConflicts: string; lobbyTabTopical: string; lobbyTabDonations: string;
   lobbySectionLabel: string;
   statOrgsReferencedLabel: string; statConflictsLabel: string;
@@ -145,7 +156,7 @@ export interface Translation {
   showMoreTemplate: string; showLess: string;
   infoVerflechtung: string; infoAuffaelligkeit: string; infoThemenfeld: string;
   lobbyPartiesSubTabNetwork: string; lobbyPartiesSubTabByParty: string;
-  lobbyOrgsSubTabDistribution: string; lobbyOrgsSubTabList: string;
+  lobbyOrgsSubTabDistribution: string; lobbyOrgsSubTabFields: string; lobbyOrgsSubTabList: string;
   lobbyConflictsSubTabDirect: string; lobbyConflictsSubTabTopical: string;
   lobbyDonationsSubTabTotals: string; lobbyDonationsSubTabTimeline: string;
   lobbyDonationsSubTabTopDonors: string; lobbyDonationsSubTabAll: string;
@@ -370,7 +381,19 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     overviewSidejobsPreviewEmpty: 'Keine Nebentätigkeiten gemeldet',
     seeAll: 'Alle ansehen',
     orgsSectionTitle: 'Organisationen durchsuchen',
-    orgsSectionSub: 'Alle Organisationen aus dem Lobbyregister, die mit mindestens einem Abgeordneten, einer Abstimmung oder einer Parteispende verknüpft sind.',
+    orgsSectionSub: 'Alle aktiven Eintragungen im Lobbyregister. Umschaltbar auf die Organisationen, die mit mindestens einem Abgeordneten, einer Abstimmung oder einer Parteispende verknüpft sind.',
+    orgScopeAll: 'Ganzes Register', orgScopeLinked: 'Mit Parlamentsbezug',
+    statLobbySpendLabel: 'Gemeldete Lobbyausgaben',
+    statLobbySpendValueTemplate: '≈ {n} Mio. €',
+    statLobbySpendNote: 'pro Jahr, laut Lobbyregister',
+    statRegisterOrgsLabel: 'Organisationen im Lobbyregister',
+    statTiedMembersLabel: 'Abgeordnete mit Funktion', statTiedMembersTemplate: '{n} von {total}',
+    donationsOnlyLobbyistsLabel: 'Nur Spender im Lobbyregister',
+    orgDonatedBadge: 'Parteispende', colOrgDonated: 'Parteispenden',
+    statDonationsSumYearsNote: 'über {n} Jahre',
+    orgDirectoryLoading: 'Register wird geladen…',
+    orgDirectoryError: 'Register konnte nicht geladen werden — es werden nur die verknüpften Organisationen angezeigt.',
+    orgDirectoryOnlyNote: 'Zu dieser Organisation liegt auf dieser Seite keine Verknüpfung zu einem Abgeordneten, einer Abstimmung oder einer Parteispende vor. Angezeigt werden die Angaben aus dem Lobbyregister; die vollständige Tätigkeitsbeschreibung steht im Registereintrag.',
     orgSearchPlaceholder: 'Organisation suchen…',
     orgsNoResults: 'Keine Organisationen gefunden.',
     colOrgMembers: 'Verflochtene Abgeordnete', colOrgVotes: 'Abstimmungen mit Interessenvertretung',
@@ -379,9 +402,16 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     orgFieldsLabel: 'Interessengebiete',
     orgDescriptionLabel: 'Beschreibung der Tätigkeit', showMoreText: 'Mehr anzeigen',
     sectorChartTitle: 'Interessengebiete mit den meisten Verflechtungen',
-    sectorChartSub: 'Interessengebiete, gerankt nach der gewählten Kennzahl. Anklicken filtert die Liste unten.',
+    sectorChartSub: 'Interessengebiete, gerankt nach der gewählten Kennzahl. Abgeordnete zählen einmal, auch bei mehreren Organisationen im selben Gebiet; Organisationen zählen in jedem Gebiet, das sie selbst angeben.',
     sectorChartMembersTemplate: '{n} Abgeordnete', sectorChartOrgsTemplate: '{n} Organisationen',
-    sectorMetricMembers: 'Abgeordnete', sectorMetricOrgs: 'Organisationen', sectorMetricSpend: 'Lobbyausgaben',
+    sectorMetricMembers: 'Abgeordnete', sectorMetricOrgs: 'Organisationen',
+    spendChartTitle: 'Gemeldete Lobbyausgaben nach Art der Organisation',
+    spendChartSub: 'Das Lobbyregister ordnet jeder Organisation genau eine Art zu — nur danach lassen sich die gemeldeten Ausgaben summieren.',
+    spendChartNote: 'Das Register verknüpft keinen Euro mit einer Partei, einem Gesetz oder einem Datum. Jede Angabe gilt für das letzte Geschäftsjahr der jeweiligen Organisation, ohne Jahresangabe — eine Auswertung nach Wahlperiode ist damit nicht möglich. Die Spanne entsteht nur dadurch, dass das Register in Stufen von 10.000 € meldet.',
+    spendScopeAll: 'Ganzes Register', spendScopeLinked: 'Mit Parlamentsbezug',
+    spendTotalLabel: 'Summe gemeldeter Ausgaben', spendStaffLabel: 'Vollzeitstellen für Interessenvertretung',
+    spendDeclaringTemplate: '{n} von {total} Organisationen machen eine Angabe',
+    spendOrgsTemplate: '{n} Organisationen', spendConcentrationTemplate: 'Auf die {n} größten Melder entfallen {pct} % der Summe.',
     orgLobbiedBillsTitle: 'Abstimmungen mit angemeldeter Interessenvertretung',
     orgNoLobbiedBills: 'Für diese Organisation ist zu keiner namentlichen Abstimmung dieser Wahlperiode Interessenvertretung angemeldet.',
     orgAffiliatedMembersTitle: 'Abgeordnete mit Funktion bei dieser Organisation',
@@ -405,9 +435,11 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     partyLobbyTitle: 'Lobbyverflechtungen nach Partei',
     partyLobbySub: 'Für jede Partei: die Organisationen, bei denen ihre Abgeordneten laut eigener Angabe eine Funktion ausüben, gruppiert nach deren Interessengebiet.',
     partyLobbyOrgCountTemplate: '{n} Organisationen', partyLobbyMemberCountTemplate: '{n} Abgeordnete mit Funktion',
-    partyLobbyTopFieldsLabel: 'Häufigste Interessengebiete', partyLobbySpendLabel: 'Summe gemeldeter Lobbyausgaben (grobe Schätzung)',
+    partyLobbyTopFieldsLabel: 'Häufigste Interessengebiete',
     lobbyOnCommitteeTemplate: 'Mitglied im zuständigen Ausschuss: {committee}',
     lobbyTabOverview: 'Übersicht', lobbyTabParties: 'Nach Partei', lobbyTabOrgs: 'Organisationen',
+    orgsShowMoreTemplate: 'Weitere {n} anzeigen',
+    orgsShownCountTemplate: '{shown} von {total} angezeigt',
     lobbyTabConflicts: 'Verflechtungen', lobbyTabTopical: 'Themenfeld', lobbyTabDonations: 'Parteispenden',
     lobbySectionLabel: 'Bereich',
     statOrgsReferencedLabel: 'Verknüpfte Organisationen', statConflictsLabel: 'Abstimmung trotz Verflechtung',
@@ -447,7 +479,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     infoThemenfeld:
       'Schwächerer Hinweis als eine Verflechtung: Die Organisation hat kein Interessengebiet angemeldet, das speziell auf diese Abstimmung verweist — nur ein allgemeines Interessengebiet, das laut Politblick-Redaktion zum Thema passt. Kein dokumentierter Bezug zu dieser Abstimmung.',
     lobbyPartiesSubTabNetwork: 'Netzwerk', lobbyPartiesSubTabByParty: 'Nach Partei',
-    lobbyOrgsSubTabDistribution: 'Verteilung', lobbyOrgsSubTabList: 'Organisationen',
+    lobbyOrgsSubTabDistribution: 'Lobbyausgaben', lobbyOrgsSubTabFields: 'Interessengebiete', lobbyOrgsSubTabList: 'Alle Organisationen',
     lobbyConflictsSubTabDirect: 'Direkte Verflechtungen', lobbyConflictsSubTabTopical: 'Thematische Nähe',
     lobbyDonationsSubTabTotals: 'Gesamtspenden', lobbyDonationsSubTabTimeline: 'Spenden über Zeit',
     lobbyDonationsSubTabTopDonors: 'Großspender', lobbyDonationsSubTabAll: 'Alle Spenden',
@@ -667,7 +699,19 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     overviewSidejobsPreviewEmpty: 'No outside income reported',
     seeAll: 'See all',
     orgsSectionTitle: 'Search organizations',
-    orgsSectionSub: 'Every organization from the lobby register tied to at least one MP, one vote, or one party donation.',
+    orgsSectionSub: 'Every active entry in the lobby register. Switchable to those tied to at least one MP, one vote, or one party donation.',
+    orgScopeAll: 'Whole register', orgScopeLinked: 'Linked to parliament',
+    statLobbySpendLabel: 'Declared lobbying spend',
+    statLobbySpendValueTemplate: '≈ €{n}M',
+    statLobbySpendNote: 'per year, per the lobby register',
+    statRegisterOrgsLabel: 'Organizations in the lobby register',
+    statTiedMembersLabel: 'MPs holding a role', statTiedMembersTemplate: '{n} of {total}',
+    donationsOnlyLobbyistsLabel: 'Only donors in the lobby register',
+    orgDonatedBadge: 'Party donation', colOrgDonated: 'Party donations',
+    statDonationsSumYearsNote: 'across {n} years',
+    orgDirectoryLoading: 'Loading the register…',
+    orgDirectoryError: 'The register could not be loaded — showing only the linked organizations.',
+    orgDirectoryOnlyNote: 'This site records no tie between this organization and any MP, vote or party donation. What follows is its lobby register entry; the full description of its activity is on the register itself.',
     orgSearchPlaceholder: 'Search an organization…',
     orgsNoResults: 'No organizations found.',
     colOrgMembers: 'Tied MPs', colOrgVotes: 'Votes with registered lobbying',
@@ -676,9 +720,16 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     orgFieldsLabel: 'Fields of interest',
     orgDescriptionLabel: 'Description of activity', showMoreText: 'Show more',
     sectorChartTitle: 'Fields of interest with the most ties',
-    sectorChartSub: 'Fields of interest, ranked by the selected metric. Click a bar to filter the list below.',
+    sectorChartSub: 'Fields of interest, ranked by the selected metric. An MP counts once even when tied to several organizations in the same field; an organization counts in every field it declares itself.',
     sectorChartMembersTemplate: '{n} MPs', sectorChartOrgsTemplate: '{n} organizations',
-    sectorMetricMembers: 'MPs', sectorMetricOrgs: 'Organizations', sectorMetricSpend: 'Lobbying spend',
+    sectorMetricMembers: 'MPs', sectorMetricOrgs: 'Organizations',
+    spendChartTitle: 'Declared lobbying spend by type of organization',
+    spendChartSub: 'The register assigns each organization exactly one type — the only grouping the declared figures can be summed over.',
+    spendChartNote: 'The register ties no euro to a party, a bill or a date. Each figure covers that organization’s own last financial year with no year recorded, so a breakdown by legislative term is not possible. The range exists only because the register reports in brackets of €10,000.',
+    spendScopeAll: 'Whole register', spendScopeLinked: 'Linked to parliament',
+    spendTotalLabel: 'Sum of declared expenditure', spendStaffLabel: 'Full-time staff on interest representation',
+    spendDeclaringTemplate: '{n} of {total} organizations report a figure',
+    spendOrgsTemplate: '{n} organizations', spendConcentrationTemplate: 'The {n} largest declarants account for {pct}% of the total.',
     orgLobbiedBillsTitle: 'Votes with registered lobbying',
     orgNoLobbiedBills: 'This organization has no registered lobbying on file for any roll-call vote this term.',
     orgAffiliatedMembersTitle: 'MPs holding a role at this organization',
@@ -702,9 +753,11 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     partyLobbyTitle: 'Lobby ties by party',
     partyLobbySub: 'For each party: the organizations its MPs declare holding a role at, grouped by that organization’s own field of interest.',
     partyLobbyOrgCountTemplate: '{n} organizations', partyLobbyMemberCountTemplate: '{n} MPs with a role',
-    partyLobbyTopFieldsLabel: 'Most common fields of interest', partyLobbySpendLabel: 'Sum of declared lobbying expenditure (rough estimate)',
+    partyLobbyTopFieldsLabel: 'Most common fields of interest',
     lobbyOnCommitteeTemplate: 'Sits on the responsible committee: {committee}',
     lobbyTabOverview: 'Overview', lobbyTabParties: 'By party', lobbyTabOrgs: 'Organizations',
+    orgsShowMoreTemplate: 'Show {n} more',
+    orgsShownCountTemplate: '{shown} of {total} shown',
     lobbyTabConflicts: 'Conflicts', lobbyTabTopical: 'Policy area', lobbyTabDonations: 'Party donations',
     lobbySectionLabel: 'Section',
     statOrgsReferencedLabel: 'Linked organizations', statConflictsLabel: 'Voted despite a tie',
@@ -744,7 +797,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     infoThemenfeld:
       "A weaker signal than a documented tie: the organization hasn't registered lobbying that specifically names this vote — only a general field of interest that Politblick's editors judged to match the topic. No documented link to this particular vote.",
     lobbyPartiesSubTabNetwork: 'Network', lobbyPartiesSubTabByParty: 'By party',
-    lobbyOrgsSubTabDistribution: 'Distribution', lobbyOrgsSubTabList: 'Organizations',
+    lobbyOrgsSubTabDistribution: 'Lobbying spend', lobbyOrgsSubTabFields: 'Fields of interest', lobbyOrgsSubTabList: 'All organizations',
     lobbyConflictsSubTabDirect: 'Direct ties', lobbyConflictsSubTabTopical: 'Topical ties',
     lobbyDonationsSubTabTotals: 'Total donations', lobbyDonationsSubTabTimeline: 'Donations over time',
     lobbyDonationsSubTabTopDonors: 'Top donors', lobbyDonationsSubTabAll: 'All donations',

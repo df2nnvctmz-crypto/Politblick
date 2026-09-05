@@ -368,15 +368,9 @@ async function main() {
     .map(([party, orgCounts]) => {
       const orgIds = [...orgCounts.keys()];
       const fieldOrgSets = new Map(); // field -> Set<orgId>
-      let expensesFromSum = 0;
-      let expensesToSum = 0;
       for (const id of orgIds) {
         const org = orgById.get(id);
         if (!org) continue;
-        if (org.expensesEuro) {
-          expensesFromSum += org.expensesEuro.from;
-          expensesToSum += org.expensesEuro.to;
-        }
         for (const field of org.fieldsOfInterest) {
           const set = fieldOrgSets.get(field) ?? new Set();
           set.add(id);
@@ -395,7 +389,6 @@ async function main() {
         party,
         orgCount: orgIds.length,
         memberCount: Object.entries(affiliations).filter(([mid]) => partyByMandate.get(mid) === party).length,
-        expensesEuro: { from: expensesFromSum, to: expensesToSum },
         byField,
         topOrgs,
       };
@@ -425,6 +418,88 @@ async function main() {
     };
   }
 
+  // ---- register-wide spending, aggregated only where an aggregate means something -------------
+  //
+  // `expensesEuro` is an attribute of an organisation and of nothing else. The register never
+  // attaches a euro to a bill, a member or a party, and each declaration covers that
+  // organisation's own last financial year with no date recorded — so there is no time axis here
+  // either, and no legislature can be sliced out of it.
+  //
+  // It may therefore only be summed over a partition every organisation belongs to exactly once:
+  // `actorType` (the register's own classification of what kind of interest representative this
+  // is) and the register as a whole. It must never be summed by field of interest — organisations
+  // declare 11.9 fields on average and each field would receive the organisation's entire budget,
+  // which overstates the true total by ~17x.
+  //
+  // Both scopes are reported: the whole register, and the subset this site links to parliament,
+  // so a reader can see for themselves how unrepresentative that subset is.
+  const spendSummary = (() => {
+    const scopeOf = (list) => {
+      const declaring = list.filter((o) => o.expensesEuro && o.expensesEuro.to > 0);
+      const byActorType = new Map();
+      for (const o of list) {
+        const key = o.actorType ?? 'Ohne Angabe';
+        const cur = byActorType.get(key) ?? { actorType: key, orgCount: 0, declaringCount: 0, from: 0, to: 0 };
+        cur.orgCount += 1;
+        if (o.expensesEuro && o.expensesEuro.to > 0) {
+          cur.declaringCount += 1;
+          cur.from += o.expensesEuro.from;
+          cur.to += o.expensesEuro.to;
+        }
+        byActorType.set(key, cur);
+      }
+      const ranked = [...declaring].sort((a, b) => b.expensesEuro.to - a.expensesEuro.to);
+      return {
+        orgCount: list.length,
+        declaringCount: declaring.length,
+        from: declaring.reduce((sum, o) => sum + o.expensesEuro.from, 0),
+        to: declaring.reduce((sum, o) => sum + o.expensesEuro.to, 0),
+        staffFte: Math.round(list.reduce((sum, o) => sum + (o.staffFte ?? 0), 0)),
+        byActorType: [...byActorType.values()].sort((a, b) => b.to - a.to),
+        concentration: [10, 25, 50, 100, 250, 500]
+          .filter((n) => n < ranked.length)
+          .map((n) => ({ n, to: ranked.slice(0, n).reduce((sum, o) => sum + o.expensesEuro.to, 0) })),
+      };
+    };
+    const active = register.filter((o) => o.active);
+    return {
+      // Every bracket the register reports is exactly this wide, so the from/to spread on a total
+      // is just accumulated bracket width — not uncertainty about the order of magnitude.
+      bracketWidthEuro: 9999,
+      all: scopeOf(active),
+      linked: scopeOf(active.filter((o) => referenced.has(o.id))),
+    };
+  })();
+  console.log(
+    `Spend summary: ${spendSummary.all.declaringCount} of ${spendSummary.all.orgCount} active organisations declare a lobbying budget`,
+  );
+
+  // ---- the browsable register directory --------------------------------------------------------
+  //
+  // Every active entry, not only the few hundred this site points at from somewhere. Descriptions
+  // are deliberately left out: they average about a thousand characters and would take the file
+  // from ~400 KB to ~2.3 MB gzipped, for prose that is only ever read one organisation at a time.
+  // An organisation outside `orgs` therefore shows what the register lists about it and links to
+  // its own register entry for the rest.
+  const directory = {
+    generatedAt: new Date().toISOString(),
+    orgs: register
+      .filter((o) => o.active)
+      .map((o) => ({
+        id: o.id,
+        name: o.name.trim(),
+        actorType: o.actorType,
+        city: o.city,
+        url: o.url,
+        expensesEuro: o.expensesEuro,
+        staffFte: o.staffFte,
+        fieldsOfInterest: o.fieldsOfInterest,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'de')),
+  };
+  await writeJsonFile('lobby-directory.json', directory);
+  console.log(`  ${directory.orgs.length} active organisations in the browsable directory`);
+
   const output = {
     orgs,
     pollLobbying,
@@ -434,6 +509,7 @@ async function main() {
     donorLinks,
     partyLobbySummary,
     committeeLobbySummary,
+    spendSummary,
     generatedAt: new Date().toISOString(),
     registerEntryCount: register.length,
   };

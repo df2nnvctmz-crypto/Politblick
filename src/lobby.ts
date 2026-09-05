@@ -1,4 +1,5 @@
-import { useSnapshot } from './snapshot';
+import { useEffect, useMemo, useState } from 'react';
+import { fetchLocalJson, useSnapshot } from './snapshot';
 import type { VoteChoice } from './polls';
 import type { RealMp } from './bundestag';
 
@@ -113,9 +114,48 @@ export interface PartyLobbySummary {
   party: string;
   orgCount: number;
   memberCount: number;
-  expensesEuro: { from: number; to: number };
   byField: PartyLobbyField[];
   topOrgs: PartyLobbyTopOrg[];
+}
+
+/**
+ * Declared lobbying spend, aggregated the only way the register permits.
+ *
+ * The register attaches a euro to an organisation and to nothing else — never to a bill, a
+ * member, a party, or a date. So this is grouped by `actorType` (the register's own
+ * classification, which every organisation has exactly one of) and never by field of interest:
+ * organisations declare ~12 fields each and would contribute their whole budget to every one,
+ * inflating the total roughly 17-fold. There is likewise no time axis to slice a legislature out
+ * of — each declaration covers that organisation's own last financial year, undated and
+ * different from the next organisation's.
+ */
+export interface ActorTypeSpend {
+  actorType: string;
+  orgCount: number;
+  /** Organisations in this group declaring a budget above zero — the rest report 0 or nothing. */
+  declaringCount: number;
+  from: number;
+  to: number;
+}
+
+export interface SpendScope {
+  orgCount: number;
+  declaringCount: number;
+  from: number;
+  to: number;
+  staffFte: number;
+  byActorType: ActorTypeSpend[];
+  /** Cumulative spend of the n largest declarants — how concentrated the total is. */
+  concentration: { n: number; to: number }[];
+}
+
+export interface SpendSummary {
+  /** Width of every bracket the register reports, so the UI can say the from/to spread is mechanical rather than uncertainty about magnitude. */
+  bracketWidthEuro: number;
+  /** Every active entry in the register. */
+  all: SpendScope;
+  /** Only those this site ties to a member, a vote or a party donation — a small, unrepresentative slice. */
+  linked: SpendScope;
 }
 
 export interface CommitteeLobbyTopOrg {
@@ -134,6 +174,7 @@ export interface LobbyLinks {
   partyLobbySummary: PartyLobbySummary[];
   /** Keyed by committee id (as a string, matching JSON key coercion). Top organisations by number of tied committee members — omitted for committees with no ties at all. */
   committeeLobbySummary: Record<string, CommitteeLobbyTopOrg[]>;
+  spendSummary: SpendSummary | null;
   generatedAt: string | null;
   registerEntryCount: number;
 }
@@ -147,6 +188,7 @@ export const EMPTY_LOBBY_LINKS: LobbyLinks = {
   donorLinks: {},
   partyLobbySummary: [],
   committeeLobbySummary: {},
+  spendSummary: null,
   generatedAt: null,
   registerEntryCount: 0,
 };
@@ -397,9 +439,80 @@ export function usePartyDonations(): {
   return { byFraction, all, donorTotals, loading, error };
 }
 
+/**
+ * One entry of the full register, as shipped in public/data/lobby-directory.json.
+ *
+ * This is every active registrant — not the few hundred that something on this site points at.
+ * It carries no `description`: at ~1,000 characters each those would take the file from ~400 KB
+ * to ~2.3 MB gzipped, for prose only ever read one organisation at a time. An organisation that
+ * exists only here therefore shows its register facts and links out for the rest.
+ */
+export interface DirectoryOrg {
+  id: string;
+  name: string;
+  actorType: string | null;
+  city: string | null;
+  url: string | null;
+  expensesEuro: { from: number; to: number } | null;
+  staffFte: number | null;
+  fieldsOfInterest: string[];
+}
+
+interface LobbyDirectoryFile {
+  generatedAt: string;
+  orgs: DirectoryOrg[];
+}
+
+let directoryPromise: Promise<LobbyDirectoryFile> | null = null;
+
+function loadDirectory(): Promise<LobbyDirectoryFile> {
+  if (!directoryPromise) {
+    directoryPromise = fetchLocalJson<LobbyDirectoryFile>('/data/lobby-directory.json').catch((e) => {
+      // Let a later visit retry rather than caching the failure for the whole session.
+      directoryPromise = null;
+      throw e;
+    });
+  }
+  return directoryPromise;
+}
+
+/**
+ * The full register, fetched only once something actually asks to browse it.
+ *
+ * Kept out of useSnapshot() for the same reason as the vote archive: it is ~400 KB gzipped and
+ * only the organisation list needs it, while the snapshot blocks the first paint of every page.
+ * Pass `enabled` false and a visitor who never opens that list never pays for it.
+ */
+export function useLobbyDirectory(enabled: boolean): { orgs: DirectoryOrg[] | null; loading: boolean; error: string | null } {
+  const [state, setState] = useState<{ orgs: DirectoryOrg[] | null; loading: boolean; error: string | null }>({
+    orgs: null,
+    loading: false,
+    error: null,
+  });
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
+    setState((prev) => (prev.orgs ? prev : { orgs: null, loading: true, error: null }));
+    loadDirectory().then(
+      (file) => {
+        if (!cancelled) setState({ orgs: file.orgs, loading: false, error: null });
+      },
+      (e: unknown) => {
+        if (!cancelled) setState({ orgs: null, loading: false, error: e instanceof Error ? e.message : String(e) });
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled]);
+  return state;
+}
+
 export interface OrgListEntry {
   org: LobbyOrg;
   affiliatedMemberCount: number;
+  /** Mandate ids of the tied members, so callers grouping organisations (e.g. by field of interest) can count distinct members rather than adding per-organisation counts that overlap. */
+  affiliatedMandateIds: string[];
   lobbiedPollCount: number;
   /** Distinct parties of affiliated members, biggest tie first — powers the party filter. */
   parties: string[];
@@ -411,38 +524,104 @@ export interface OrgListEntry {
  */
 export function useOrgList(): { orgs: OrgListEntry[]; loading: boolean; error: string | null } {
   const { snapshot, loading, error } = useSnapshot();
-  if (!snapshot) return { orgs: [], loading, error };
-  const links = snapshot.lobbyLinks;
+  // Memoised on the snapshot, and it has to be: this array seeds the register-wide merge and every
+  // filter and option list built on top of it. Returning a fresh one each render invalidates all of
+  // those memos on every keystroke, which is the difference between a responsive search box and a
+  // multi-second stall once the list runs to thousands of rows.
+  const orgs = useMemo<OrgListEntry[]>(() => {
+    if (!snapshot) return [];
+    const links = snapshot.lobbyLinks;
 
-  const memberCountByOrg = new Map<string, number>();
-  for (const orgLinks of Object.values(links.affiliations)) {
-    for (const link of orgLinks) memberCountByOrg.set(link.orgId, (memberCountByOrg.get(link.orgId) ?? 0) + 1);
-  }
-  const pollCountByOrg = new Map<string, number>();
-  for (const entries of Object.values(links.pollLobbying)) {
-    for (const entry of entries) pollCountByOrg.set(entry.orgId, (pollCountByOrg.get(entry.orgId) ?? 0) + 1);
-  }
-  const partyByMandate = new Map(snapshot.members.map((m) => [String(m.mandateId), m.party]));
-  const partyCountsByOrg = new Map<string, Map<string, number>>();
-  for (const [mandateId, orgLinks] of Object.entries(links.affiliations)) {
-    const party = partyByMandate.get(mandateId);
-    if (!party) continue;
-    for (const link of orgLinks) {
-      const counts = partyCountsByOrg.get(link.orgId) ?? new Map<string, number>();
-      counts.set(party, (counts.get(party) ?? 0) + 1);
-      partyCountsByOrg.set(link.orgId, counts);
+    const mandateIdsByOrg = new Map<string, string[]>();
+    for (const [mandateId, orgLinks] of Object.entries(links.affiliations)) {
+      for (const link of orgLinks) {
+        const list = mandateIdsByOrg.get(link.orgId) ?? [];
+        if (!list.includes(mandateId)) list.push(mandateId);
+        mandateIdsByOrg.set(link.orgId, list);
+      }
     }
-  }
+    const pollCountByOrg = new Map<string, number>();
+    for (const entries of Object.values(links.pollLobbying)) {
+      for (const entry of entries) pollCountByOrg.set(entry.orgId, (pollCountByOrg.get(entry.orgId) ?? 0) + 1);
+    }
+    const partyByMandate = new Map(snapshot.members.map((m) => [String(m.mandateId), m.party]));
+    const partyCountsByOrg = new Map<string, Map<string, number>>();
+    for (const [mandateId, orgLinks] of Object.entries(links.affiliations)) {
+      const party = partyByMandate.get(mandateId);
+      if (!party) continue;
+      for (const link of orgLinks) {
+        const counts = partyCountsByOrg.get(link.orgId) ?? new Map<string, number>();
+        counts.set(party, (counts.get(party) ?? 0) + 1);
+        partyCountsByOrg.set(link.orgId, counts);
+      }
+    }
 
-  const orgs = Object.values(links.orgs)
-    .map((org) => ({
-      org,
-      affiliatedMemberCount: memberCountByOrg.get(org.id) ?? 0,
-      lobbiedPollCount: pollCountByOrg.get(org.id) ?? 0,
-      parties: [...(partyCountsByOrg.get(org.id)?.entries() ?? [])].sort((a, b) => b[1] - a[1]).map(([party]) => party),
-    }))
-    .sort((a, b) => b.affiliatedMemberCount - a.affiliatedMemberCount || b.lobbiedPollCount - a.lobbiedPollCount || a.org.name.localeCompare(b.org.name, 'de'));
+    return Object.values(links.orgs)
+      .map((org) => ({
+        org,
+        affiliatedMandateIds: mandateIdsByOrg.get(org.id) ?? [],
+        affiliatedMemberCount: mandateIdsByOrg.get(org.id)?.length ?? 0,
+        lobbiedPollCount: pollCountByOrg.get(org.id) ?? 0,
+        parties: [...(partyCountsByOrg.get(org.id)?.entries() ?? [])].sort((a, b) => b[1] - a[1]).map(([party]) => party),
+      }))
+      .sort((a, b) => b.affiliatedMemberCount - a.affiliatedMemberCount || b.lobbiedPollCount - a.lobbiedPollCount || a.org.name.localeCompare(b.org.name, 'de'));
+  }, [snapshot]);
   return { orgs, loading, error };
+}
+
+/**
+ * The register-wide organisation list: everything from the directory, with the richer record
+ * (description, ties, lobbied votes) filled in for the organisations this site already knows.
+ *
+ * Deliberately NOT what `useOrgList()` returns, and not a replacement for it. The views built on
+ * ties — the field-of-interest chart, the party network — are about organisations connected to
+ * parliament, and quietly widening them to all 6,029 registrants would change what they claim.
+ * Only the browsable list uses this.
+ */
+/** A directory row seen as an ordinary organisation. `legalForm` and `description` are null because
+ * the directory omits them to stay small — not because the register lacks them, so anything
+ * rendering this must link out rather than present it as the whole record. */
+export function directoryToLobbyOrg(d: DirectoryOrg): LobbyOrg {
+  return {
+    id: d.id,
+    name: d.name,
+    legalForm: null,
+    description: null,
+    actorType: d.actorType,
+    city: d.city,
+    url: d.url,
+    expensesEuro: d.expensesEuro,
+    staffFte: d.staffFte,
+    fieldsOfInterest: d.fieldsOfInterest,
+  };
+}
+
+export function mergeDirectory(tied: OrgListEntry[], directory: DirectoryOrg[] | null): OrgListEntry[] {
+  if (!directory) return tied;
+  const tiedById = new Map(tied.map((e) => [e.org.id, e]));
+  const seen = new Set<string>();
+  const merged = directory.map((d) => {
+    seen.add(d.id);
+    return (
+      tiedById.get(d.id) ?? {
+        org: directoryToLobbyOrg(d),
+        affiliatedMandateIds: [],
+        affiliatedMemberCount: 0,
+        lobbiedPollCount: 0,
+        parties: [],
+      }
+    );
+  });
+  // A tied organisation the directory does not carry is one whose register entry is no longer
+  // active. It stays in the list: this site still points at it from a vote, a role or a donation,
+  // and dropping it would quietly shrink the very set the "linked" scope is supposed to show.
+  for (const e of tied) if (!seen.has(e.org.id)) merged.push(e);
+  return merged.sort(
+    (a, b) =>
+      b.affiliatedMemberCount - a.affiliatedMemberCount ||
+      b.lobbiedPollCount - a.lobbiedPollCount ||
+      a.org.name.localeCompare(b.org.name, 'de'),
+  );
 }
 
 export interface OrgLobbiedPoll {
@@ -473,13 +652,17 @@ export interface OrgDetailState {
 }
 
 /** Everything tied to one organisation — the reverse of the member-centric view. Pure lookup, no fetching: this is the same lobby-links.json data read from a different direction. */
-export function useOrgDetail(orgId: string | null): OrgDetailState {
+export function useOrgDetail(orgId: string | null, directory?: DirectoryOrg[] | null): OrgDetailState {
   const { snapshot, loading, error } = useSnapshot();
   const empty: OrgDetailState = { org: null, lobbiedPolls: [], affiliatedMembers: [], conflicts: [], topicalTies: [], donorNames: [], loading, error };
   if (orgId === null || !snapshot) return empty;
 
   const links = snapshot.lobbyLinks;
-  const org = links.orgs[orgId] ?? null;
+  // Organisations nothing on this site points at exist only in the directory, so a page for one
+  // falls back to its register facts. Every tie list below is then legitimately empty — that is
+  // the actual finding about such an organisation, not missing data.
+  const directoryOrg = directory?.find((d) => d.id === orgId) ?? null;
+  const org = links.orgs[orgId] ?? (directoryOrg ? directoryToLobbyOrg(directoryOrg) : null);
   if (!org) return empty;
 
   const memberByMandate = new Map(snapshot.members.map((m) => [m.mandateId, m]));
