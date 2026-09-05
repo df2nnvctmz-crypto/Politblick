@@ -1,0 +1,60 @@
+{
+  "comment": [
+    "Donor spellings from the published large-donation records that are the same legal entity as a",
+    "Lobbyregister entry but cannot be matched by normalised name, because the two sources use a",
+    "different form of the company's name (an abbreviation, a dropped acronym) rather than a",
+    "different punctuation of the same words.",
+    "",
+    "Every entry here is an assertion of identity that the data cannot make on its own, so each one",
+    "is hand-checked and carries the evidence for it. Add a line only after confirming the register",
+    "entry is the same legal person as the donor — a wrong line puts a false 'also a registered",
+    "lobbyist' claim next to a named company, which is worse than the undercount it fixes.",
+    "",
+    "Purely typographic variants do NOT belong here. normalizeOrgName() already folds those away;",
+    "if a spelling differs only in spacing or punctuation and still fails to match, fix the",
+    "normaliser instead. build-lobby-links.mjs prints unmatched donors with prefix candidates after",
+    "every run — that list is where new entries come from."
+  ],
+  "aliases": [
+    {
+      "donor": "Deutsche Vermögensberatung AG",
+      "orgId": "R005553",
+      "why": "Register entry 'Deutsche Vermögensberatung Aktiengesellschaft DVAG' is the same company; the donation records use the short form. Both give Frankfurt am Main as the seat. Not to be confused with R002013 'Deutscher Unternehmensverband Vermögensberatung e.V.', a trade association also seated in Frankfurt am Main — the donor is the Aktiengesellschaft, not the Verband."
+    },
+    {
+      "donor": "Deutsche Vermögensberatung",
+      "orgId": "R005553",
+      "why": "Same company, name given without any legal form. Frankfurt am Main in both sources; see the note above on R002013."
+    },
+    {
+      "donor": "Verband der Chemischen Industrie e.V. (VCI)",
+      "orgId": "R000476",
+      "why": "Identical to the register name apart from the trailing acronym. Frankfurt in both sources."
+    },
+    {
+      "donor": "Viessmann Generations Group GmbH+Co.KG",
+      "orgId": "R007353",
+      "why": "Identical to the register name; the donation record adds the legal form the register omits. Battenberg (Eder) in both sources."
+    },
+    {
+      "donor": "Coroplast Fritz Müller",
+      "orgId": "R007000",
+      "why": "Register entry 'Coroplast Fritz Müller GmbH & Co. KG'; the donation record drops the legal form. Wuppertal in both sources."
+    },
+    {
+      "donor": "Coroplast Fritz Müller GmbH & Co. KG Wittenerstr. 271",
+      "orgId": "R007000",
+      "why": "Same company; this donation record appends the street address to the name. Wuppertal in both sources."
+    },
+    {
+      "donor": "TRUMPF SE + Co. KG",
+      "orgId": "R000697",
+      "why": "Register entry 'TRUMPF SE + Co. KG (Holding)' — same legal person, with a descriptor appended in the register. Ditzingen in both sources."
+    },
+    {
+      "donor": "Trumpf SE + Co KG",
+      "orgId": "R000697",
+      "why": "As above, with the punctuation of the legal form dropped in the donation record."
+    }
+  ]
+}

@@ -345,7 +345,10 @@ export function normalizeOrgName(raw) {
   return String(raw || '')
     .toLowerCase()
     .replace(/[.,()/&+-]/g, ' ')
-    .replace(/\b(e\s?v|gmbh|mbh|ggmbh|ag|kgaa|kg|ohg|se|eg|mbb|partg|gbr)\b/g, ' ')
+    // `\s*`, not `\s?`: the line above turns every '.' into a space, so "e.V." arrives here as
+    // "e v" but "e. V." arrives as "e  v" — with a single optional space the second spelling kept
+    // its legal form and never matched the first. That silently cost 19 donation rows.
+    .replace(/\b(e\s*v|gmbh|mbh|ggmbh|ag|kgaa|kg|ohg|se|eg|mbb|partg|gbr)\b/g, ' ')
     .replace(/[^a-z0-9äöüß]/g, '');
 }
 

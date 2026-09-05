@@ -334,15 +334,62 @@ async function main() {
   );
 
   // ---- donors that are themselves registered lobbyists -------------------------------------------
+  //
+  // Matching is by normalised name, plus a small hand-curated alias file for the cases normalising
+  // cannot reach: where the two sources use genuinely different forms of a company's name rather
+  // than different punctuation of the same words ("Deutsche Vermögensberatung AG" against the
+  // register's "Deutsche Vermögensberatung Aktiengesellschaft DVAG"). Fuzzy matching is deliberately
+  // not used — a wrong link here asserts that a named company lobbies the parliament it donated to,
+  // and that claim has to be one a human checked, not one a similarity score guessed.
+  const aliasFile = await readSourceFile('donor-aliases.json', { aliases: [] });
+  const donorAliases = new Map();
+  for (const alias of aliasFile.aliases ?? []) {
+    if (!alias?.donor || !alias?.orgId) continue;
+    // A typo'd register id would silently drop the link it was added to create, so refuse to build.
+    if (!orgById.has(alias.orgId)) {
+      throw new Error(`data/donor-aliases.json: "${alias.donor}" points at unknown register id ${alias.orgId}`);
+    }
+    donorAliases.set(alias.donor, alias.orgId);
+  }
+
   const donorLinks = {};
+  const unmatchedDonors = new Map();
   for (const donation of donations) {
     if (!donation.donor) continue;
-    const org = orgByName.get(normalizeOrgName(donation.donor));
-    if (!org) continue;
+    const org = orgByName.get(normalizeOrgName(donation.donor)) ?? orgById.get(donorAliases.get(donation.donor));
+    if (!org) {
+      unmatchedDonors.set(donation.donor, (unmatchedDonors.get(donation.donor) ?? 0) + (donation.amountEuro ?? 0));
+      continue;
+    }
     donorLinks[donation.donor] = org.id;
     referenced.add(org.id);
   }
-  console.log(`${Object.keys(donorLinks).length} large-donation donors are themselves in the Lobbyregister`);
+  console.log(
+    `${new Set(Object.values(donorLinks)).size} large-donation donors are themselves in the Lobbyregister ` +
+      `(${Object.keys(donorLinks).length} spellings, ${donorAliases.size} via curated alias)`,
+  );
+
+  // Surface donors that matched nothing but whose normalised name is a prefix of a register entry's
+  // (or vice versa) — the shape every alias so far has had. These are candidates for a human to
+  // check, never links: printing them is what stops this from silently rotting as the Bundestag
+  // publishes new spellings.
+  const candidates = [];
+  for (const [donor, amount] of [...unmatchedDonors.entries()].sort((a, b) => b[1] - a[1])) {
+    const key = normalizeOrgName(donor);
+    if (!key) continue;
+    const hits = register.filter((o) => {
+      const k = normalizeOrgName(o.name);
+      return k && k !== key && (k.startsWith(key) || key.startsWith(k));
+    });
+    if (hits.length) candidates.push({ donor, amount, hits: hits.slice(0, 3) });
+  }
+  if (candidates.length) {
+    console.log(`  ${candidates.length} unmatched donor(s) look like a register entry — review, then add to data/donor-aliases.json:`);
+    for (const c of candidates) {
+      console.log(`    "${c.donor}" (${Math.round(c.amount).toLocaleString('de-DE')} €)`);
+      for (const h of c.hits) console.log(`        ${h.id} "${h.name.trim()}" (${h.city ?? '—'})`);
+    }
+  }
 
   // ---- party-level summary: which fields of interest are the orgs tied to each party's members
   // active in, and roughly how much declared lobbying spend sits behind them -----------------------
