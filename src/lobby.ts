@@ -413,32 +413,61 @@ export function usePartyDonations(): {
   /** Each donor's grand total across every party, not just the one on a given row — a donor
    * appearing on 5 rows for 3 different parties (Bitpanda-style) should read the same total on
    * all 5, so a reader sees the full picture from any single row without having to search or
-   * cross-reference. Keyed by the exact `donor` string, same as the search box matches on. */
+   * cross-reference. Look it up with `donorTotalFor`, never by the raw name: the published
+   * records spell one company several ways. */
   donorTotals: Map<string, number>;
+  /** That donor's grand total, resolved across every spelling of their name. */
+  donorTotalFor: (donor: string | null) => number;
+  /** `all`, with each donor renamed to one canonical spelling. Anything that GROUPS by donor —
+   * the top-donor Sankey, the per-donor timeline — must use this rather than `all`. */
+  allCanonical: PartyDonation[];
+  /** One spelling per donor, for grouping a subset (e.g. a single party's rows) by hand. */
+  canonicalDonor: (donor: string) => string;
   loading: boolean;
   error: string | null;
 } {
   const { snapshot, loading, error } = useSnapshot();
-  if (!snapshot) return { byFraction: [], all: [], donorTotals: new Map(), loading, error };
+  const empty = { byFraction: [], all: [], donorTotals: new Map<string, number>(), donorTotalFor: () => 0, allCanonical: [], canonicalDonor: (d: string) => d, loading, error };
+  if (!snapshot) return empty;
   const all = [...snapshot.partyDonations].sort((a, b) => b.amountEuro - a.amountEuro);
+
+  // The Bundestagspräsidentin publishes one company under several spellings — DVAG appears as
+  // "Deutsche Vermögensberatung AG", "…Aktiengesellschaft DVAG", one variant missing a space, and
+  // the bare name. Keying a donor's total on the literal string therefore splits one donor into
+  // several, and the same company shows a different "Spender insgesamt" depending on which row you
+  // happen to read. Resolve through donorLinks — which already reconciles those spellings against
+  // the Lobbyregister, curated aliases included — and fall back to the raw name otherwise.
+  const links = snapshot.lobbyLinks;
+  const canonicalName = (donor: string): string => {
+    const orgId = links.donorLinks[donor];
+    return orgId ? (links.orgs[orgId]?.name ?? donor) : donor;
+  };
+
   const grouped = new Map<string, PartyDonation[]>();
   const donorTotals = new Map<string, number>();
   for (const d of snapshot.partyDonations) {
     const list = grouped.get(d.fraction) ?? [];
     list.push(d);
     grouped.set(d.fraction, list);
-    if (d.donor) donorTotals.set(d.donor, (donorTotals.get(d.donor) ?? 0) + d.amountEuro);
+    if (d.donor) {
+      const key = canonicalName(d.donor);
+      donorTotals.set(key, (donorTotals.get(key) ?? 0) + d.amountEuro);
+    }
   }
   const byFraction = [...grouped.entries()]
     .map(([fraction, donations]) => ({
       fraction,
       total: donations.reduce((sum, d) => sum + d.amountEuro, 0),
       count: donations.length,
-      donorCount: new Set(donations.map((d) => d.donor)).size,
+      // Distinct donors, not distinct spellings.
+      donorCount: new Set(donations.map((d) => (d.donor ? canonicalName(d.donor) : null))).size,
       donations: [...donations].sort((a, b) => b.amountEuro - a.amountEuro),
     }))
     .sort((a, b) => b.total - a.total);
-  return { byFraction, all, donorTotals, loading, error };
+
+  const donorTotalFor = (donor: string | null) => (donor ? (donorTotals.get(canonicalName(donor)) ?? 0) : 0);
+  const allCanonical = all.map((d) => (d.donor && canonicalName(d.donor) !== d.donor ? { ...d, donor: canonicalName(d.donor) } : d));
+  return { byFraction, all, donorTotals, donorTotalFor, allCanonical, canonicalDonor: canonicalName, loading, error };
 }
 
 /**

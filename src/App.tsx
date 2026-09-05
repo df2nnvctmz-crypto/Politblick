@@ -5240,7 +5240,7 @@ function App() {
               <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.donationTimelineSub}</p>
               <div>
                 <DonationTimeline
-                  donations={partyDonations.all}
+                  donations={partyDonations.allCanonical}
                   filenameBase="politblick-grossspenden-alle-parteien"
                   exportLabels={exportLabels}
                   labels={{
@@ -5261,8 +5261,10 @@ function App() {
               <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>{t.donationSankeyTitle}</h3>
               <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.donationSankeySub}</p>
               <div>
+                {/* Canonical names: this ranks donors, and four spellings of DVAG would rank as
+                    four separate donors — each too small to make the cut. */}
                 <DonationSankey
-                  donations={partyDonations.all}
+                  donations={partyDonations.allCanonical}
                   fractionTotals={Object.fromEntries(partyDonations.byFraction.map((f) => [f.fraction, f.total]))}
                   onOpenParty={(party) => openParty(party, 'crossref')}
                   isPartyRoutable={(party) => routablePartyNames.has(party)}
@@ -5289,7 +5291,7 @@ function App() {
                     case 'donor': return d.donor;
                     case 'amount': return d.amountEuro;
                     case 'date': return d.receivedOn;
-                    case 'donorTotal': return d.donor ? (partyDonations.donorTotals.get(d.donor) ?? 0) : null;
+                    case 'donorTotal': return d.donor ? partyDonations.donorTotalFor(d.donor) : null;
                     default: return null;
                   }
                 };
@@ -5367,7 +5369,7 @@ function App() {
                           {sortedDonations.slice(0, donationsExpanded ? sortedDonations.length : 10).map((d, i) => {
                             const lobbyOrgId = d.donor ? snapshot?.lobbyLinks.donorLinks[d.donor] : undefined;
                             const lobbyOrg = lobbyOrgId ? snapshot?.lobbyLinks.orgs[lobbyOrgId] : undefined;
-                            const donorTotal = d.donor ? (partyDonations.donorTotals.get(d.donor) ?? d.amountEuro) : d.amountEuro;
+                            const donorTotal = d.donor ? (partyDonations.donorTotalFor(d.donor) || d.amountEuro) : d.amountEuro;
                             const isRepeatDonor = donorTotal > d.amountEuro;
                             return (
                               <tr key={`${d.publishedOn}-${d.donor}-${d.party}-${i}`} style={{ borderTop: '1px solid oklch(93% 0.006 260)' }}>
@@ -6055,6 +6057,9 @@ function App() {
             });
             const partyDonationSummary = partyDonations.byFraction.find((f) => f.fraction === p.party);
             const partyDonationList = partyDonations.all.filter((d) => d.fraction === p.party);
+            // The table shows each donation under the name it was published with; the timeline
+            // stacks BY donor, so it needs the spellings reconciled first.
+            const partyDonationListCanonical = partyDonations.allCanonical.filter((d) => d.fraction === p.party);
 
             const partyTabs: { key: PartyTab; label: string }[] = [
               { key: 'overview', label: t.tabOverview },
@@ -6651,16 +6656,20 @@ function App() {
                         // everything on it is about that party, so a total that silently included
                         // other parties' donations would read as inconsistent with the numbers
                         // visibly summing on the same page, not as a bonus cross-party insight.
+                        // Keyed on the canonical name, so a donor the register knows under
+                        // several spellings sums once rather than once per spelling.
                         const partyDonorTotals = new Map<string, number>();
                         for (const d of partyDonationList) {
-                          if (d.donor) partyDonorTotals.set(d.donor, (partyDonorTotals.get(d.donor) ?? 0) + d.amountEuro);
+                          if (!d.donor) continue;
+                          const key = partyDonations.canonicalDonor(d.donor);
+                          partyDonorTotals.set(key, (partyDonorTotals.get(key) ?? 0) + d.amountEuro);
                         }
                         const donationValue = (d: (typeof partyDonationList)[number], key: string): string | number | null => {
                           switch (key) {
                             case 'donor': return d.donor;
                             case 'amount': return d.amountEuro;
                             case 'date': return d.receivedOn;
-                            case 'donorTotal': return d.donor ? (partyDonorTotals.get(d.donor) ?? 0) : null;
+                            case 'donorTotal': return d.donor ? (partyDonorTotals.get(partyDonations.canonicalDonor(d.donor)) ?? 0) : null;
                             default: return null;
                           }
                         };
@@ -6680,7 +6689,7 @@ function App() {
                             <p style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', margin: '0 0 12px', maxWidth: 700 }}>{t.donationTimelinePartySub}</p>
                             <div style={{ marginBottom: 22 }}>
                               <DonationTimeline
-                                donations={partyDonationList}
+                                donations={partyDonationListCanonical}
                                 stackBy="donor"
                                 filenameBase={`politblick-grossspenden-${p.party}`}
                                 exportLabels={exportLabels}
