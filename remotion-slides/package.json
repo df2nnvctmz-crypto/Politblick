@@ -1,0 +1,26 @@
+{
+  "name": "politblick-lobby-slides",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "slides": "node render.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.520",
+    "@remotion/fonts": "4.0.520",
+    "@remotion/renderer": "4.0.520",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "remotion": "4.0.520"
+  },
+  "devDependencies": {
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@remotion/media": "^4.0.520",
+    "@remotion/media-parser": "^4.0.520",
+    "@remotion/studio": "^4.0.520",
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.0.10",
+    "typescript": "^5.7.3"
+  }
+}
