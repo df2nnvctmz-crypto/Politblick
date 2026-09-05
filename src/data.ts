@@ -94,7 +94,8 @@ export interface Translation {
    * two different numbers on two pages reads as a bug rather than two deliberately different
    * questions ("how much did they give in total" vs. "how much did they give to this party"). */
   donationsColDonorTotalAll: string; donationsColDonorTotalPartyTemplate: string;
-  donationsAlsoLobbyist: string; donationsSource: string;
+  donationsAlsoLobbyist: string; donationsAlsoLobbyistFormer: string; donationsSource: string;
+  orgInactiveNote: string;
   lobbyAsOfTemplate: string; donationsAsOfTemplate: string;
   crossrefTitle: string; crossrefEmpty: string; colOrg: string; colBill: string;
   topicalTiesTitle: string; topicalTiesSub: string; topicalTiesEmpty: string;
@@ -353,6 +354,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationsColParty: 'Partei', donationsColDonor: 'Spender', donationsColAmount: 'Betrag', donationsColDate: 'Eingang',
     donationsColDonorTotalAll: 'Spender insgesamt (alle Parteien)', donationsColDonorTotalPartyTemplate: 'Spender insgesamt bei {party}',
     donationsAlsoLobbyist: 'Auch im Lobbyregister eingetragen',
+    donationsAlsoLobbyistFormer: 'Früher im Lobbyregister eingetragen',
+    orgInactiveNote: 'Der Eintrag dieser Organisation im Lobbyregister ist beendet. Die hier gezeigten Angaben stammen aus dem letzten Stand des Eintrags.',
     donationsSource: 'Quelle: Veröffentlichungen der Bundestagspräsidentin nach § 25 Abs. 3 PartG.',
     lobbyAsOfTemplate: 'Lobbyregister: Stand {date}',
     donationsAsOfTemplate: 'Parteispenden: Stand {date}',
@@ -672,6 +675,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationsColParty: 'Party', donationsColDonor: 'Donor', donationsColAmount: 'Amount', donationsColDate: 'Received',
     donationsColDonorTotalAll: 'Donor total (all parties)', donationsColDonorTotalPartyTemplate: 'Donor total at {party}',
     donationsAlsoLobbyist: 'Also listed in the lobby register',
+    donationsAlsoLobbyistFormer: 'Formerly listed in the lobby register',
+    orgInactiveNote: 'This organization’s lobby register entry has ended. The figures shown are from the entry as it last stood.',
     donationsSource: 'Source: Publications by the President of the Bundestag under § 25 (3) PartG.',
     lobbyAsOfTemplate: 'Lobby register: as of {date}',
     donationsAsOfTemplate: 'Party donations: as of {date}',

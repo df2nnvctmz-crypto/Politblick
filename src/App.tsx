@@ -12,6 +12,7 @@ import {
   formatEuro,
   formatExpenseBracket,
   mergeDirectory,
+  countMembersWithFunction,
   useCommitteeLobbySummary,
   useCrossrefRows,
   useLobbyDirectory,
@@ -4527,7 +4528,7 @@ function App() {
                   <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statTiedMembersLabel}</div>
                   <div style={{ fontSize: 24, fontWeight: 800, whiteSpace: 'nowrap' }}>
                     {t.statTiedMembersTemplate
-                      .replace('{n}', String(Object.keys(snapshot?.lobbyLinks.affiliations ?? {}).length))
+                      .replace('{n}', String(countMembersWithFunction(snapshot?.lobbyLinks.affiliations ?? {})))
                       .replace('{total}', String(roster.members.length))}
                   </div>
                 </div>
@@ -5383,7 +5384,7 @@ function App() {
                                       onClick={stop(() => openOrg(lobbyOrg.id))}
                                       style={{ cursor: 'pointer', fontSize: 11.5, color: 'oklch(48% 0.14 60)', fontWeight: 600, textDecoration: 'none', display: 'block' }}
                                     >
-                                      ⬤ {t.donationsAlsoLobbyist}
+                                      ⬤ {lobbyOrg.active ? t.donationsAlsoLobbyist : t.donationsAlsoLobbyistFormer}
                                     </a>
                                   )}
                                 </td>
@@ -5440,6 +5441,14 @@ function App() {
               <div style={{ fontSize: 13.5, color: 'oklch(45% 0.01 260)', marginBottom: 20 }}>
                 {[orgDetail.org.legalForm, orgDetail.org.city].filter(Boolean).join(' · ')}
               </div>
+
+              {/* The entry has ended. Said plainly here because every figure below — spend, staff,
+                  fields of interest — is the entry as it last stood, not a current declaration. */}
+              {orgDetail.org.active === false && (
+                <p style={{ fontSize: 12.5, color: 'oklch(42% 0.09 60)', lineHeight: 1.55, background: 'oklch(96% 0.04 60)', border: '1px solid oklch(86% 0.08 60)', borderRadius: 12, padding: '12px 14px', marginBottom: 22, maxWidth: 720 }}>
+                  {t.orgInactiveNote}
+                </p>
+              )}
 
               {/* Reached from the widened list: an organisation the snapshot never carried. Saying
                   so beats an unexplained page of empty tie sections, which reads like missing data
@@ -6727,7 +6736,7 @@ function App() {
                                               onClick={stop(() => openOrg(lobbyOrg.id))}
                                               style={{ cursor: 'pointer', fontSize: 11.5, color: 'oklch(48% 0.14 60)', fontWeight: 600, textDecoration: 'none', display: 'block' }}
                                             >
-                                              ⬤ {t.donationsAlsoLobbyist}
+                                              ⬤ {lobbyOrg.active ? t.donationsAlsoLobbyist : t.donationsAlsoLobbyistFormer}
                                             </a>
                                           )}
                                         </td>

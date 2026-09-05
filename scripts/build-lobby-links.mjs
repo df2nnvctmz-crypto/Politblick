@@ -456,6 +456,9 @@ async function main() {
       city: org.city,
       url: org.url,
       description: org.description,
+      // Shipped so the UI can say "früher eingetragen" rather than claiming, in the present
+      // tense, that an organisation whose entry has lapsed is on the register today.
+      active: org.active !== false,
       expensesEuro: org.expensesEuro,
       staffFte: org.staffFte,
       // Capped, but generously: a topical tie's matchedField must show up in the org's own

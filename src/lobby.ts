@@ -28,6 +28,8 @@ export interface LobbyOrg {
   url: string | null;
   /** The organisation's own free-text account of its lobbying activity, verbatim from the register ("Beschreibung der Tätigkeit"). Null where not declared. */
   description: string | null;
+  /** False where the register entry has ended. The tie itself still stands — a member's declared role and a published donation are both historical facts — but nothing may claim in the present tense that this organisation is on the register. */
+  active: boolean;
   /** Declared annual lobbying spend, reported by the register as a bracket. */
   expensesEuro: { from: number; to: number } | null;
   staffFte: number | null;
@@ -508,6 +510,30 @@ export function useLobbyDirectory(enabled: boolean): { orgs: DirectoryOrg[] | nu
   return state;
 }
 
+/**
+ * The declared-tie categories that are actually a *function* — a seat on a board, a role in a
+ * public-law body, an agreed job after the mandate. Deliberately narrower than
+ * AFFILIATION_CATEGORIES in scripts/build-lobby-links.mjs, which also joins shareholdings,
+ * donations received and paid work: those are real ties and belong on the page, but "was given a
+ * donation by" is not "holds a function at", and a headline saying Funktion may only count these.
+ */
+const FUNCTION_CATEGORIES = new Set([
+  'Unternehmensfunktion',
+  'Funktion in einer öffentlich-rechtlichen Körperschaft',
+  'Vereins- oder Stiftungsfunktion',
+  'Zusage für eine Tätigkeit nach dem Mandat',
+]);
+
+/** Members holding at least one declared *function* at a registered organisation. Lower than the
+ * number of members with any tie at all — seven currently declare only a payment or paid work. */
+export function countMembersWithFunction(affiliations: Record<string, Affiliation[]>): number {
+  let n = 0;
+  for (const links of Object.values(affiliations)) {
+    if (links.some((l) => l.categories.some((c) => FUNCTION_CATEGORIES.has(c)))) n += 1;
+  }
+  return n;
+}
+
 export interface OrgListEntry {
   org: LobbyOrg;
   affiliatedMemberCount: number;
@@ -587,6 +613,8 @@ export function directoryToLobbyOrg(d: DirectoryOrg): LobbyOrg {
     name: d.name,
     legalForm: null,
     description: null,
+    // The directory only carries active entries, so anything reaching this path is active.
+    active: true,
     actorType: d.actorType,
     city: d.city,
     url: d.url,
