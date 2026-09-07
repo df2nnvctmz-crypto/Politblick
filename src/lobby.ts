@@ -406,6 +406,53 @@ export interface PartyDonationSummary {
   donations: PartyDonation[];
 }
 
+/**
+ * One canonical spelling per donor.
+ *
+ * The Bundestagspräsidentin publishes one company under several spellings — DVAG appears as
+ * "Deutsche Vermögensberatung AG", "…Aktiengesellschaft DVAG", one variant missing a space, and
+ * the bare name. Keying a donor's total on the literal string therefore splits one donor into
+ * several, and the same company shows a different "Spender insgesamt" depending on which row you
+ * happen to read. Resolve through donorLinks — which already reconciles those spellings against
+ * the Lobbyregister, curated aliases included — and fall back to the raw name otherwise.
+ */
+export function makeCanonicalDonorName(links: LobbyLinks): (donor: string) => string {
+  return (donor: string): string => {
+    const orgId = links.donorLinks[donor];
+    return orgId ? (links.orgs[orgId]?.name ?? donor) : donor;
+  };
+}
+
+/**
+ * Sum donations per donor, collapsing every spelling of one donor onto its canonical name.
+ *
+ * The returned map is keyed by CANONICAL name, so any lookup must canonicalise the raw row's
+ * `donor` first — reading it with the raw string silently misses for exactly the donors this
+ * function exists to reconcile, and a miss is indistinguishable from a legitimate "this donor
+ * gave once". Read it with `lookupDonorTotal`, never with a bare `.get()`.
+ */
+export function aggregateDonorTotals(
+  donations: readonly PartyDonation[],
+  canonicalName: (donor: string) => string,
+): Map<string, number> {
+  const totals = new Map<string, number>();
+  for (const d of donations) {
+    if (!d.donor) continue;
+    const key = canonicalName(d.donor);
+    totals.set(key, (totals.get(key) ?? 0) + d.amountEuro);
+  }
+  return totals;
+}
+
+/** Read a donor's total out of an `aggregateDonorTotals` map, canonicalising the raw name first. */
+export function lookupDonorTotal(
+  totals: Map<string, number>,
+  donor: string | null,
+  canonicalName: (donor: string) => string,
+): number {
+  return donor ? (totals.get(canonicalName(donor)) ?? 0) : 0;
+}
+
 /** Large donations grouped by party, biggest total first. */
 export function usePartyDonations(): {
   byFraction: PartyDonationSummary[];
@@ -431,29 +478,15 @@ export function usePartyDonations(): {
   if (!snapshot) return empty;
   const all = [...snapshot.partyDonations].sort((a, b) => b.amountEuro - a.amountEuro);
 
-  // The Bundestagspräsidentin publishes one company under several spellings — DVAG appears as
-  // "Deutsche Vermögensberatung AG", "…Aktiengesellschaft DVAG", one variant missing a space, and
-  // the bare name. Keying a donor's total on the literal string therefore splits one donor into
-  // several, and the same company shows a different "Spender insgesamt" depending on which row you
-  // happen to read. Resolve through donorLinks — which already reconciles those spellings against
-  // the Lobbyregister, curated aliases included — and fall back to the raw name otherwise.
-  const links = snapshot.lobbyLinks;
-  const canonicalName = (donor: string): string => {
-    const orgId = links.donorLinks[donor];
-    return orgId ? (links.orgs[orgId]?.name ?? donor) : donor;
-  };
+  const canonicalName = makeCanonicalDonorName(snapshot.lobbyLinks);
 
   const grouped = new Map<string, PartyDonation[]>();
-  const donorTotals = new Map<string, number>();
   for (const d of snapshot.partyDonations) {
     const list = grouped.get(d.fraction) ?? [];
     list.push(d);
     grouped.set(d.fraction, list);
-    if (d.donor) {
-      const key = canonicalName(d.donor);
-      donorTotals.set(key, (donorTotals.get(key) ?? 0) + d.amountEuro);
-    }
   }
+  const donorTotals = aggregateDonorTotals(snapshot.partyDonations, canonicalName);
   const byFraction = [...grouped.entries()]
     .map(([fraction, donations]) => ({
       fraction,
@@ -465,7 +498,7 @@ export function usePartyDonations(): {
     }))
     .sort((a, b) => b.total - a.total);
 
-  const donorTotalFor = (donor: string | null) => (donor ? (donorTotals.get(canonicalName(donor)) ?? 0) : 0);
+  const donorTotalFor = (donor: string | null) => lookupDonorTotal(donorTotals, donor, canonicalName);
   const allCanonical = all.map((d) => (d.donor && canonicalName(d.donor) !== d.donor ? { ...d, donor: canonicalName(d.donor) } : d));
   return { byFraction, all, donorTotals, donorTotalFor, allCanonical, canonicalDonor: canonicalName, loading, error };
 }

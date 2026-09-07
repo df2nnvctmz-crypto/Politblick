@@ -163,6 +163,44 @@ source-linked file, and it is the only thing that can make the site claim someon
 against this organisation's position". Where no curated stance exists, the organisation's own
 wording is shown and no direction is asserted.
 
+## Tests
+
+`npm test` (vitest, `npm run test:watch` to iterate). Every deploy runs it before `npm run
+build`, alongside `verify-vote-history-summary.mjs`, so a broken join key blocks the release
+rather than publishing a wrong figure about a named person.
+
+They cover the **pure functions that decide what the site asserts about an identifiable
+person** — not the rendering. Four things, and deliberately only those:
+
+| File | What it pins |
+| --- | --- |
+| `scripts/lib/common.test.mjs` | The join keys: which fraction a vote was cast under, and whether two spellings are one organisation |
+| `src/polls.test.ts` | What "Parteitreue" and "gegen die eigene Fraktion" count, and what they refuse to count |
+| `src/donations.test.ts` | That one donor is summed once across every spelling the Bundestag publishes them under |
+| `src/format.test.ts`, `src/sorting.test.ts`, `src/urlParams.test.ts` | Name transliteration, null ordering, and that already-shared URLs keep resolving |
+
+Most of the cases are regressions with the bug written into the comment, because the failures
+that matter here are all silent: a name that normalises wrong does not throw, it attaches a
+lobbying tie to the wrong politician, and the page looks exactly the same either way. The
+same reasoning as `verify-vote-history-summary.mjs`, one layer down.
+
+Two invariants are worth naming, because they are the ones a plausible-looking change breaks:
+
+- **`computeMemberAlignment` and `computeAllAlignments` must agree.** They are two
+  implementations of one rule — the per-member one for a profile, the batch one for the
+  630-row search list — and `src/polls.test.ts` asserts they return the same thing for the
+  same input. This is the same drift hazard `verify-vote-history-summary.mjs` exists to catch
+  between Node and the browser, except both copies live in one file.
+- **A donor-total map is keyed by the *canonical* name.** Reading it with a raw `donor` string
+  misses for exactly the donors the canonicalisation exists to reconcile, and the miss is
+  indistinguishable from a legitimate "this donor gave once" — so it silently prints a
+  too-small number next to a company and a party. Read it through `lookupDonorTotal`, never
+  with a bare `.get()`.
+
+Not covered: React components, routing end-to-end, and the fetch scripts' network handling.
+The prerender step in `npm run build` is the de-facto smoke test for rendering — it walks all
+~1,150 routes through a real browser and fails the build if any of them throw.
+
 ### API key
 
 `fetch-lobbyregister.mjs` needs a Lobbyregister API key. It tries, in order: the `LOBBY_API_KEY`

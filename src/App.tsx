@@ -7,10 +7,12 @@ import { buildMemberIncomeScores, useSidejobs } from './sidejobs';
 import { useSnapshot, type MemberHistorySummary } from './snapshot';
 import { useMemberVoteHistory, usePartyVoteHistory, type DivergenceKind } from './voteHistory';
 import {
+  aggregateDonorTotals,
   buildMemberTieCounts,
   drucksacheUrl,
   formatEuro,
   formatExpenseBracket,
+  lookupDonorTotal,
   mergeDirectory,
   countMembersWithFunction,
   useCommitteeLobbySummary,
@@ -4834,18 +4836,13 @@ function App() {
                         // visibly summing on the same page, not as a bonus cross-party insight.
                         // Keyed on the canonical name, so a donor the register knows under
                         // several spellings sums once rather than once per spelling.
-                        const partyDonorTotals = new Map<string, number>();
-                        for (const d of partyDonationList) {
-                          if (!d.donor) continue;
-                          const key = partyDonations.canonicalDonor(d.donor);
-                          partyDonorTotals.set(key, (partyDonorTotals.get(key) ?? 0) + d.amountEuro);
-                        }
+                        const partyDonorTotals = aggregateDonorTotals(partyDonationList, partyDonations.canonicalDonor);
                         const donationValue = (d: (typeof partyDonationList)[number], key: string): string | number | null => {
                           switch (key) {
                             case 'donor': return d.donor;
                             case 'amount': return d.amountEuro;
                             case 'date': return d.receivedOn;
-                            case 'donorTotal': return d.donor ? (partyDonorTotals.get(partyDonations.canonicalDonor(d.donor)) ?? 0) : null;
+                            case 'donorTotal': return d.donor ? lookupDonorTotal(partyDonorTotals, d.donor, partyDonations.canonicalDonor) : null;
                             default: return null;
                           }
                         };
@@ -4908,7 +4905,7 @@ function App() {
                                   {sortedPartyDonations.slice(0, partyDonationsExpanded ? sortedPartyDonations.length : 10).map((d, i) => {
                                     const lobbyOrgId = d.donor ? snapshot?.lobbyLinks.donorLinks[d.donor] : undefined;
                                     const lobbyOrg = lobbyOrgId ? snapshot?.lobbyLinks.orgs[lobbyOrgId] : undefined;
-                                    const donorTotal = d.donor ? (partyDonorTotals.get(d.donor) ?? d.amountEuro) : d.amountEuro;
+                                    const donorTotal = d.donor ? (lookupDonorTotal(partyDonorTotals, d.donor, partyDonations.canonicalDonor) || d.amountEuro) : d.amountEuro;
                                     const isRepeatDonor = donorTotal > d.amountEuro;
                                     return (
                                       <tr key={`${d.publishedOn}-${d.donor}-${i}`} style={{ borderTop: '1px solid oklch(93% 0.006 260)' }}>
