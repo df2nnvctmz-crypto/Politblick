@@ -25,7 +25,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Fetch sidejobs for every member
         run: node scripts/fetch-sidejobs.mjs

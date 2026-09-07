@@ -25,7 +25,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Fetch the full register
         # LOBBY_API_KEY is optional. The Lobbyregister publishes one shared API key openly, which

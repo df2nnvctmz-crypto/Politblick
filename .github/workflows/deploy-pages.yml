@@ -37,12 +37,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
       - run: npm ci
 
-      # Runs before the Chromium download because it is instant and needs no network: a stale
-      # summary should fail the job in seconds rather than after installing a browser.
+      # Both checks below run before the Chromium download because they are instant and need no
+      # network: a broken join key or a stale summary should fail the job in seconds rather than
+      # after installing a browser.
+
+      # Covers the pure functions that decide what the site asserts about a named person —
+      # which fraction a vote was cast under, whether it diverged from that fraction's line,
+      # and which donations belong to one donor. See src/*.test.ts.
+      - name: Unit tests
+        run: npm test
       #
       # The long-run figures come from a derived summary, and the rule that produces it is
       # necessarily restated in Node because the frontend's own copy runs in the browser. Two
