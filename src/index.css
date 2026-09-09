@@ -190,6 +190,36 @@ button {
   }
 }
 
+/* The bill page's Auffällige/Alle Stimmen switch. Deliberately NOT reusing
+   .pb-metric-toggle-buttons: that class is display:none below 480px because every other toggle
+   using it ships a <select> fallback alongside. This one has only two options and no fallback,
+   so borrowing the class made the full roll call unreachable on a phone — the reader was stuck
+   on the divergences with no visible way back. Here the pills stay, and go full width with equal
+   halves once the labels (which carry their counts) no longer fit side by side. */
+@media (max-width: 520px) {
+  .pb-vote-list-toggle {
+    display: flex !important;
+    width: 100%;
+  }
+  .pb-vote-list-toggle > button {
+    flex: 1;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+/* Bill titles are German legal compounds — "Gebäudemodernisierungsgesetz" is one word of 28
+   characters. At 28px that is wider than a phone, so it either overflows or gets chopped
+   mid-syllable. hyphens:auto on the element breaks it properly ("Gebäude-"), but only where the
+   browser actually ships a German hyphenation dictionary, which not all of them do. Dropping the
+   size on narrow screens is what makes it fit without depending on that. */
+@media (max-width: 520px) {
+  .pb-bill-title {
+    font-size: 22px !important;
+    line-height: 1.2;
+  }
+}
+
 /* Highlighted org↔party ties in the network graph: a travelling dash pattern
    reads as "flow" along the edge, toward the party, instead of a static line. */
 @keyframes pb-edge-flow {

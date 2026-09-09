@@ -809,6 +809,11 @@ function App() {
     }
 
     document.title = title;
+    // index.html ships lang="en", but German is the default and the whole UI switches. Keeping
+    // the document language honest is what makes CSS hyphenation work at all — without it a long
+    // compound like "Gebäudemodernisierungsgesetz" is chopped mid-syllable on a phone instead of
+    // broken at "Gebäude-" — and it is also what tells a screen reader which language to speak.
+    document.documentElement.lang = lang;
     const setMeta = (selector: string, attr: string, value: string) => document.querySelector(selector)?.setAttribute(attr, value);
     setMeta('meta[name="description"]', 'content', description);
     setMeta('meta[property="og:title"]', 'content', title);
@@ -1193,6 +1198,7 @@ function App() {
             onSubmit={() => setView('search')}
             members={roster.members}
             polls={pollsState.polls}
+            archivedPolls={snapshot?.archivedPolls ?? []}
             orgs={orgList.orgs}
             parties={roster.parties.filter((p) => routablePartyNames.has(p.name))}
             onSelectMp={(id) => openMp(String(id))}
@@ -2468,7 +2474,7 @@ function App() {
                       follow-up straight away: which Bundestag was this. Baseline-aligned and
                       wrapping, so it trails a long title instead of squeezing it. */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 12, margin: '0 0 16px' }}>
-                    <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0 }}>{pollDetail.result.poll.title}</h1>
+                    <h1 className="pb-bill-title" style={{ fontSize: 28, fontWeight: 800, margin: 0, minWidth: 0, hyphens: 'auto', overflowWrap: 'break-word' }}>{pollDetail.result.poll.title}</h1>
                     {isArchivedPoll && (
                       <span
                         style={{
@@ -2577,7 +2583,7 @@ function App() {
                       switch rather than each taking their own block — the counts on the buttons
                       say what each side holds before it is opened. Divergences stay the default:
                       they are the smaller set and the reason most people open a vote page. */}
-                  <div className="pb-metric-toggle-buttons" style={{ display: 'inline-flex', border: '1px solid oklch(90% 0.006 260)', borderRadius: 16, overflow: 'hidden', fontSize: 12, fontWeight: 600, marginBottom: 14 }}>
+                  <div className="pb-vote-list-toggle" style={{ display: 'inline-flex', border: '1px solid oklch(90% 0.006 260)', borderRadius: 16, overflow: 'hidden', fontSize: 12, fontWeight: 600, marginBottom: 14 }}>
                     <button onClick={() => setVoteListMode('flagged')} style={pillBtn(voteListMode === 'flagged')}>
                       {t.flaggedVotes} ({pollDetailDivergences.length})
                     </button>
