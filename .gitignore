@@ -30,3 +30,8 @@ public/sitemap.xml
 # Promo video renders — large binaries that would sit in git history forever and are not part of
 # the site build. Keep them locally or in release assets instead.
 marketing/
+
+# Social/promo slide renders and the Remotion project behind them — same reasoning as
+# marketing/: not part of the site build, and the figures on them are editorial drafts reworked
+# per post rather than versioned with the app. Keep them locally.
+remotion-slides/
