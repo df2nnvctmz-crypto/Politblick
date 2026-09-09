@@ -125,8 +125,41 @@ async function main() {
     members,
   });
 
+  // Second output, same input: just enough of each archived poll to find it and label it in a
+  // search result. The archive itself is 2,5 MB and lazy-loaded, so the global search box — which
+  // sits on every page — could never see into it; typing "Antidiskriminierungsgesetz" returned
+  // nothing even though the vote and its page exist. This index is ~17 KB gzipped, the same order
+  // as the member summary above, so it can ride along in the blocking snapshot.
+  //
+  // Unlike that summary this derives nothing: every field is copied straight from the archive,
+  // so there is no rule here to drift out of step with the frontend and nothing for
+  // verify-vote-history-summary.mjs to check. Topics are the CURRENT vocabulary
+  // (currentTopic/currentTopics, see data/topic-merge-map.json) so a search for a topic label
+  // matches archived and current polls alike.
+  const archivedPolls = [];
+  for (const period of sorted) {
+    for (const poll of period.polls) {
+      archivedPolls.push({
+        id: poll.id,
+        title: poll.title,
+        date: poll.date,
+        topic: poll.currentTopic ?? poll.topic,
+        topics: poll.currentTopics ?? poll.topics ?? [],
+        accepted: poll.accepted,
+        term: period.label,
+      });
+    }
+  }
+  archivedPolls.sort((a, b) => b.date.localeCompare(a.date) || a.id - b.id);
+
+  await writeJsonFile('poll-archive-index.json', {
+    // Same reasoning as above: inherited, so a rebuild of unchanged input is a no-op diff.
+    generatedAt: archive.generatedAt,
+    polls: archivedPolls,
+  });
   console.log(`${Object.keys(members).length} members summarised across ${sorted.length} terms / ${pollCount} polls`);
   console.log(`  coverage ${sorted[0].start} – ${sorted.at(-1).end}`);
+  console.log(`${archivedPolls.length} archived polls indexed for search`);
 }
 
 // Only run when invoked directly, so the verifier can import summariseArchive() without side effects.

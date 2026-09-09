@@ -56,10 +56,28 @@ export interface Snapshot {
   partyDonations: PartyDonation[];
   committees: Committee[];
   committeeMemberships: CommitteeMembership[];
+  /**
+   * Archived roll calls of the closed terms, newest first — title, date and topics only, no
+   * per-member votes. Enough for the global search box to offer a 2006 vote alongside a current
+   * one; the full record behind it is still lazy-loaded by the bill page. Empty when the derived
+   * index is absent.
+   */
+  archivedPolls: ArchivedPollIndexEntry[];
   /** Long-run voting aggregates per politician id. Empty when the derived summary is absent. */
   historyByPolitician: Map<number, MemberHistorySummary>;
   historyCoverage: VoteHistoryCoverage | null;
   meta: SnapshotMeta;
+}
+
+export interface ArchivedPollIndexEntry {
+  id: number;
+  title: string;
+  date: string;
+  topic: string;
+  topics: string[];
+  accepted: boolean;
+  /** The term this vote belongs to, e.g. "Bundestag 2005 - 2009" — shown so an archived hit is not mistaken for a current one. */
+  term: string;
 }
 
 interface RawVoteHistorySummary {
@@ -92,7 +110,7 @@ async function buildSnapshot(): Promise<Snapshot> {
   // Roster, polls and results are required — without them there is no site. Everything else
   // degrades to empty, so a member's profile still renders fully before the first
   // fetch-lobbyregister run has ever landed.
-  const [roster, polls, pollResultsRaw, sidejobsRaw, lobbyLinks, partyDonations, committeesRaw, historyRaw, meta] = await Promise.all([
+  const [roster, polls, pollResultsRaw, sidejobsRaw, lobbyLinks, partyDonations, committeesRaw, historyRaw, archiveIndexRaw, meta] = await Promise.all([
     fetchLocalJson<{ members: RealMp[]; parties: RealParty[] }>('/data/roster.json'),
     fetchLocalJson<RealPoll[]>('/data/polls.json'),
     fetchLocalJson<Record<string, RawPollResult>>('/data/poll-results.json'),
@@ -104,6 +122,10 @@ async function buildSnapshot(): Promise<Snapshot> {
     // snapshot and give the landing page long-run context without every visitor paying for the
     // full vote-by-vote record they will probably never open.
     fetchLocalJson<RawVoteHistorySummary>('/data/vote-history-summary.json').catch(() => null),
+    // Titles and dates of the archived roll calls, ~17 KB gzipped — the same trade as the summary
+    // above. Without it the search box can only see the current term, so a bill that has its own
+    // page is unfindable by name.
+    fetchLocalJson<{ polls: ArchivedPollIndexEntry[] }>('/data/poll-archive-index.json').catch(() => null),
     fetchLocalJson<SnapshotMeta>('/data/meta.json').catch(() => ({
       legislaturePeriodId: null,
       legislatureLabel: null,
@@ -166,6 +188,7 @@ async function buildSnapshot(): Promise<Snapshot> {
     partyDonations: partyDonations.map((d) => ({ ...d, sourceUrl: partyDonationSourceUrl(d.year) })),
     committees: committeesRaw.committees,
     committeeMemberships: committeesRaw.memberships,
+    archivedPolls: archiveIndexRaw?.polls ?? [],
     historyByPolitician,
     historyCoverage: historyRaw?.coverage ?? null,
     meta,

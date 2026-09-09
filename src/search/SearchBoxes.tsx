@@ -5,6 +5,7 @@ import type { RealMp } from '../bundestag';
 import { fuzzyIncludes } from '../helpers';
 import type { OrgListEntry } from '../lobby';
 import type { RealPoll } from '../polls';
+import type { ArchivedPollIndexEntry } from '../snapshot';
 import { stop } from '../ui/events';
 
 /**
@@ -135,12 +136,23 @@ export function FindMyMpBox({
  * Enter (or the "see all MPs" link) falls back to the existing MP browse/filter page, which is
  * the one entity type with a dedicated full-list view with its own filters.
  */
+/** One search hit in the bills group. `term` is set only for archived votes. */
+interface BillHit {
+  id: number;
+  title: string;
+  date: string;
+  topic: string;
+  topics: string[];
+  term: string | null;
+}
+
 export function GlobalSearchBox({
   query,
   onQueryChange,
   onSubmit,
   members,
   polls,
+  archivedPolls,
   orgs,
   parties,
   onSelectMp,
@@ -165,6 +177,8 @@ export function GlobalSearchBox({
   onSubmit: () => void;
   members: RealMp[];
   polls: RealPoll[];
+  /** Archived roll calls (closed terms) — searched alongside the current ones, labelled by term. */
+  archivedPolls: ArchivedPollIndexEntry[];
   orgs: OrgListEntry[];
   parties: { name: string; color: string; seats: number }[];
   onSelectMp: (id: number) => void;
@@ -201,13 +215,23 @@ export function GlobalSearchBox({
   // Searches every topic the poll carries, not just the displayed primary one — otherwise a
   // search for "Verkehr" finds nothing, because that label only ever appears as a poll's
   // second topic and so never reaches `topic`.
-  const billMatches = showDropdown
-    ? polls.filter((p) => fuzzyIncludes(p.title, q) || p.topics.some((topic) => fuzzyIncludes(topic, q))).slice(0, 4)
+  // Current and archived votes are searched as one list. A bill that has a page on this site
+  // should be findable by name whichever term it belongs to — before this, typing the exact
+  // title of a 2006 vote returned nothing while its page sat there. Sorted newest first, so
+  // the current term still leads for a broad query without archived votes being unreachable.
+  const billHits: BillHit[] = showDropdown
+    ? [
+        ...polls.map((p) => ({ id: p.id, title: p.title, date: p.date, topic: p.topic, topics: p.topics, term: null as string | null })),
+        ...archivedPolls.map((p) => ({ id: p.id, title: p.title, date: p.date, topic: p.topic, topics: p.topics, term: p.term })),
+      ]
+        .filter((p) => fuzzyIncludes(p.title, q) || p.topics.some((topic) => fuzzyIncludes(topic, q)))
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .slice(0, 4)
     : [];
   const orgMatches = showDropdown ? orgs.filter((e) => fuzzyIncludes(e.org.name, q)).slice(0, 4) : [];
   const partyMatches = showDropdown ? parties.filter((p) => fuzzyIncludes(p.name, q)).slice(0, 4) : [];
   const mpMatches = mpMatchesAll.slice(0, 4);
-  const hasResults = mpMatches.length + billMatches.length + orgMatches.length + partyMatches.length > 0;
+  const hasResults = mpMatches.length + billHits.length + orgMatches.length + partyMatches.length > 0;
 
   const submit = () => {
     onSubmit();
@@ -322,15 +346,17 @@ export function GlobalSearchBox({
                   ))}
                 </>
               )}
-              {billMatches.length > 0 && (
+              {billHits.length > 0 && (
                 <>
                   <div style={groupHeaderStyle}>{groupBillsLabel}</div>
-                  {billMatches.map((p) => (
+                  {billHits.map((p) => (
                     <a key={p.id} href={billHref(p.id)} onClick={stop(() => selectBill(p.id))} style={{ ...rowStyle, textDecoration: 'none', color: 'inherit' }}>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={titleStyle}>{p.title}</div>
                         <div style={subStyle}>
                           {p.topic} · {p.date}
+                          {/* Only archived hits carry a term, and it is what stops a 2006 vote reading as a current one. */}
+                          {p.term ? ` · ${p.term}` : ''}
                         </div>
                       </div>
                     </a>
