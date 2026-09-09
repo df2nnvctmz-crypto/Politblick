@@ -229,13 +229,24 @@ async function main() {
   // spread of unrelated fields. In production this was "Wirtschaftsforum der SPD e.V." — a
   // party-internal economic forum registered under 85 different fields of interest (nuclear
   // energy, foreign policy, care, labour market, integration, ...), which alone produced 1,813 of
-  // 5,006 topical ties, because it also has 35 affiliated MPs. Across the full register,
-  // fieldsOfInterest length is: median 8, p75 14, p90 22, p95 28 (max 132) — so a generalist org
-  // like that sits far out in the tail, not in the normal range a genuinely specialised interest
-  // group (a banking association, a farmers' union) occupies. Excluding orgs above this breadth
-  // cuts the failure mode at its structural cause instead of denylisting specific organisations,
-  // which wouldn't generalise to the next one like it.
-  const GENERALIST_FIELD_COUNT_THRESHOLD = 25;
+  // 5,006 topical ties, because it also has 35 affiliated MPs.
+  //
+  // This was first cut with a raw `fieldsOfInterest.length > 25` test, which measured the wrong
+  // thing. Breadth of *declared fields* is not breadth of *interest*: a single-sector industrial
+  // company can list 26 fields that all sit inside two or three policy areas. Lausitz Energie
+  // Bergbau AG (LEAG) declared 26 — one over the old cutoff — and was dropped entirely, taking
+  // with it the best-paid industry mandate in the data (two MPs on its supervisory board at
+  // 11,900 €/yr, one of them on the Wirtschaft und Energie committee) on exactly the energy bills
+  // its "Fossile Energien" / "Energienetze" / "Erneuerbare Energien" fields are about. Five other
+  // paid mandates (Rockwool, Bosch, Stadtwerke München, Deutscher Anwaltverein) went the same way.
+  //
+  // What actually distinguishes a generalist is how many *distinct mapped poll topics* its fields
+  // reach — an org that has a declared stake in nearly every policy area tells you nothing by
+  // matching one. Across the register that span is: median 2, p75 3, p90 5, p95 6 (max 14 of 14).
+  // Wirtschaftsforum der SPD spans 13; LEAG spans 6, Rockwool 5, Stadtwerke München 4. The cutoff
+  // below therefore drops the ~80 genuinely omnivorous entries and keeps specialised ones however
+  // many field boxes they happen to have ticked.
+  const GENERALIST_TOPIC_SPAN_THRESHOLD = 8;
   const topicMapFile = await readSourceFile('lobby-topic-map.json', { topics: {} });
 
   // ---- committee assignments: an official, verifiable fact that can strengthen a topical tie -----
@@ -259,9 +270,25 @@ async function main() {
   if (committeesFile.committees.length === 0) {
     console.warn('public/data/committees.json is empty or missing — run fetch-committees.mjs first. Topical ties will not be enriched with committee membership.');
   }
+  // Which mapped poll topics each field belongs to — the basis of the generalist test below.
+  const topicsByField = new Map();
+  for (const [topic, fields] of Object.entries(topicMapFile.topics ?? {})) {
+    for (const field of fields) {
+      if (!topicsByField.has(field)) topicsByField.set(field, new Set());
+      topicsByField.get(field).add(topic);
+    }
+  }
+  const topicSpanOf = (org) => {
+    const spanned = new Set();
+    for (const field of org.fieldsOfInterest) {
+      for (const topic of topicsByField.get(field) ?? []) spanned.add(topic);
+    }
+    return spanned.size;
+  };
+
   const orgIdsByField = new Map();
   for (const org of register) {
-    if (org.fieldsOfInterest.length > GENERALIST_FIELD_COUNT_THRESHOLD) continue;
+    if (topicSpanOf(org) > GENERALIST_TOPIC_SPAN_THRESHOLD) continue;
     for (const field of org.fieldsOfInterest) {
       const list = orgIdsByField.get(field) ?? [];
       list.push(org.id);
