@@ -15,22 +15,22 @@ export const Logo: React.FC<{ size?: number; textSize?: number; gap?: number }> 
         width: size,
         height: size,
         borderRadius: "50%",
-        background: COLORS.logoBlue,
+        background: "#ffffff",
         flexShrink: 0,
       }}
     >
       <div
         style={{
           position: "absolute",
-          inset: size * 0.16,
+          inset: size * 0.15,
           borderRadius: "50%",
-          background: "#ffffff",
+          background: COLORS.bg,
         }}
       />
       <div
         style={{
           position: "absolute",
-          inset: size * 0.4,
+          inset: size * 0.32,
           borderRadius: "50%",
           background: COLORS.logoBlue,
         }}

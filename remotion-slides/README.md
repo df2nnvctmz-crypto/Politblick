@@ -8,6 +8,29 @@ Politblick slide style (dark navy canvas, two-column layout, amber accents).
 - `SlideTies` → `out/politblick-lobby-2.png` — 204/630 Abgeordnete mit
   Interessenvertretungs-Funktion, mit den Organisationen mit den meisten
   Mandatsträgern und den Groß­spendern, die zugleich im Lobbyregister stehen.
+- `SlideDiscipline` → `out/politblick-disziplin.png` — Abweichungsquote von
+  der eigenen Fraktion je Wahlperiode, 2005-2025 (603 namentliche
+  Abstimmungen): 5,49 % → 0,35 %. Single-statement layout, no two-column
+  shell — see "Nur hier"-Serie below.
+- `SlideSplit` → `out/politblick-spaltung.png` — zwei namentliche
+  Abstimmungen aus November 2023, vier Wochen vor der Spaltung der Fraktion
+  DIE LINKE. am 15.12.2023, nach den beiden späteren Lagern aufgeschlüsselt.
+- `SlideBenchmark` → `out/politblick-bilanz.png` — Fraktionstreue eines
+  einzelnen Abgeordneten (Jan Dieren, SPD, 83,1 % über 148 Abstimmungen)
+  neben der Treuequote seiner eigenen Fraktion über dieselben Abstimmungen
+  (99,1 %).
+
+### "Nur hier"-Serie (SlideDiscipline / SlideSplit / SlideBenchmark)
+
+These three deliberately break from the `SlideSpend`/`SlideTies` two-column
+shell: no left text column, no `Pill`, no caveat paragraph, no footnote, no
+`FooterBlock`. Each carries exactly one statement and one image/number,
+built as a self-contained `AbsoluteFill` (see each file's own header
+comment for where its numbers come from — `SlideDiscipline` and
+`SlideBenchmark` are cross-checked against `public/data/vote-history-summary.json`).
+`render.mjs` accepts an optional list of composition ids
+(`node render.mjs SlideDiscipline SlideSplit`) to re-render just one or two
+while iterating, instead of all five.
 
 ## Usage
 
@@ -16,18 +39,24 @@ npm install
 npm run slides
 ```
 
-This bundles `src/index.ts` with `@remotion/bundler` and renders both stills
-with `@remotion/renderer`'s `renderStill`. On first run, Remotion downloads
-its own Chrome Headless Shell (a few hundred MB) if it isn't cached yet —
-this needs normal internet access once.
+This bundles `src/index.ts` with `@remotion/bundler` and renders all five
+stills with `@remotion/renderer`'s `renderStill`. On first run, Remotion
+downloads its own Chrome Headless Shell (a few hundred MB) if it isn't
+cached yet — this needs normal internet access once.
 
 If you're running this in a sandboxed environment where that download host
-isn't reachable, point Remotion at any locally installed Chromium/Chrome
-instead:
+isn't reachable (e.g. `https://www.remotion.dev/chrome-headless-shell`
+blocked by an egress allowlist), point Remotion at a locally installed
+`chrome-headless-shell` binary instead — a full Chrome/Chromium binary will
+fail with "Old Headless mode has been removed", it must be the standalone
+headless-shell build:
 
 ```bash
-REMOTION_BROWSER_EXECUTABLE=/path/to/chrome npm run slides
+REMOTION_BROWSER_EXECUTABLE=/path/to/chrome-headless-shell npm run slides
 ```
+
+(In a Claude cloud sandbox with Playwright preinstalled, that's typically
+`/opt/pw-browsers/chromium_headless_shell-<version>/chrome-linux/headless_shell`.)
 
 ## Where the numbers come from
 

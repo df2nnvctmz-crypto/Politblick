@@ -6,33 +6,37 @@ import { formatEUR, formatInt } from "./format";
 import { spendData } from "./data";
 import { Bar, Divider, SectionHeader, SlideShell } from "./components";
 
-const CompareRow: React.FC<{
+const HeroStat: React.FC<{
   label: string;
   note: string;
   value: number;
-  fraction: number;
-}> = ({ label, note, value, fraction }) => (
-  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-end",
-      }}
-    >
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <span style={{ fontFamily, fontWeight: 600, fontSize: 25, color: COLORS.white }}>
+  color: string;
+  valueSize: number;
+}> = ({ label, note, value, color, valueSize }) => (
+  <div style={{ display: "flex", gap: 22, alignItems: "stretch" }}>
+    <div style={{ width: 6, borderRadius: 3, background: color, flexShrink: 0 }} />
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
+        <span style={{ fontFamily, fontWeight: 600, fontSize: 24, color: COLORS.white }}>
           {label}
         </span>
-        <span style={{ fontFamily, fontWeight: 600, fontSize: 18, color: COLORS.grey }}>
+        <span style={{ fontFamily, fontWeight: 600, fontSize: 17, color: COLORS.grey }}>
           {note}
         </span>
       </div>
-      <span style={{ fontFamily, fontWeight: 700, fontSize: 36, color: COLORS.amber }}>
+      <span
+        style={{
+          fontFamily,
+          fontWeight: 700,
+          fontSize: valueSize,
+          color,
+          lineHeight: 1,
+          letterSpacing: -1,
+        }}
+      >
         {formatEUR(value)}
       </span>
     </div>
-    <Bar fraction={fraction} height={48} />
   </div>
 );
 
@@ -65,7 +69,6 @@ const BreakdownRow: React.FC<{
 
 export const SlideSpend: React.FC = () => {
   const { compare, breakdown } = spendData;
-  const maxCompare = Math.max(compare.donations.value, compare.lobbySpend.value);
   const maxBreakdown = Math.max(...breakdown.map((b) => b.betrag));
 
   return (
@@ -80,18 +83,20 @@ export const SlideSpend: React.FC = () => {
         leftColumnWidth={LEFT_COLUMN_WIDTH}
         margin={MARGIN}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-          <CompareRow
-            label={compare.donations.label}
-            note={compare.donations.note}
-            value={compare.donations.value}
-            fraction={compare.donations.value / maxCompare}
-          />
-          <CompareRow
+        <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
+          <HeroStat
             label={compare.lobbySpend.label}
             note={compare.lobbySpend.note}
             value={compare.lobbySpend.value}
-            fraction={compare.lobbySpend.value / maxCompare}
+            color={COLORS.amber}
+            valueSize={96}
+          />
+          <HeroStat
+            label={compare.donations.label}
+            note={compare.donations.note}
+            value={compare.donations.value}
+            color={COLORS.logoBlue}
+            valueSize={52}
           />
           <div
             style={{
@@ -106,7 +111,7 @@ export const SlideSpend: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ height: 34 }} />
+        <div style={{ height: 30 }} />
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, minHeight: 0 }}>
           <SectionHeader>{spendData.breakdownHeader}</SectionHeader>

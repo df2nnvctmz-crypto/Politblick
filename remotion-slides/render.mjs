@@ -5,10 +5,22 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const jobs = [
+const allJobs = [
   { id: "SlideSpend", output: "out/politblick-lobby-1.png" },
   { id: "SlideTies", output: "out/politblick-lobby-2.png" },
+  { id: "SlideDiscipline", output: "out/politblick-disziplin.png" },
+  { id: "SlideSplit", output: "out/politblick-spaltung.png" },
+  { id: "SlideBenchmark", output: "out/politblick-bilanz.png" },
+  { id: "SlideMerz", output: "out/politblick-merz.png" },
 ];
+
+// Optional CLI filter: `node render.mjs SlideDiscipline SlideSplit` renders
+// only the listed composition ids (useful for iterating on one slide at a
+// time). No args renders everything, unchanged from before.
+const requested = process.argv.slice(2);
+const jobs = requested.length
+  ? allJobs.filter((j) => requested.includes(j.id))
+  : allJobs;
 
 // Use the Playwright Chromium already installed in this environment instead
 // of letting Remotion download its own Chrome Headless Shell (that host is

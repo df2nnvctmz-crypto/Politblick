@@ -34,7 +34,7 @@ export const spendData = {
   // anything. It would also misdescribe its own contents — the second-largest declarant is the
   // Verbraucherzentrale Bundesverband, and Campact is eighth.
   pill: "WAS INTERESSENVERTRETUNG KOSTET",
-  headline: "Lobbyausgaben sind ein vielfaches der Großspenden.",
+  headline: "Lobbyausgaben sind ein Vielfaches der Großspenden.",
   subheadline: "Warum reden wir nicht darüber?",
   caveat:
     "Ausgaben, die Organisationen selbst im Lobbyregister melden. Das Register verknüpft keinen Euro mit einer Partei, einem Gesetz oder einem Datum.",
