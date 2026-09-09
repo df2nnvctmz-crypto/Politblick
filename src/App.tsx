@@ -5,7 +5,7 @@ import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealM
 import { computeAllAlignments, computeDivergences, computeMemberAlignment, isoWeekRange, useAllPollResults, useAllPolls, useMandateVotes, usePartyVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult } from './polls';
 import { buildMemberIncomeScores, useSidejobs } from './sidejobs';
 import { useSnapshot, type MemberHistorySummary } from './snapshot';
-import { useMemberVoteHistory, usePartyVoteHistory, type DivergenceKind } from './voteHistory';
+import { useArchivedPollResult, useMemberVoteHistory, usePartyVoteHistory, type DivergenceKind } from './voteHistory';
 import {
   aggregateDonorTotals,
   buildMemberTieCounts,
@@ -100,6 +100,7 @@ function App() {
   const [orgMembersShown, setOrgMembersShown] = useState(5);
   const [pollSummaryExpanded, setPollSummaryExpanded] = useState(false);
   const [flaggedVotesSearch, setFlaggedVotesSearch] = useState('');
+  const [allVotesSearch, setAllVotesSearch] = useState('');
   const [pollLobbyingSearch, setPollLobbyingSearch] = useState('');
   const [committeeMemberSearch, setCommitteeMemberSearch] = useState('');
   const [committeeListSearch, setCommitteeListSearch] = useState('');
@@ -111,6 +112,10 @@ function App() {
   const [historyKindFilter, setHistoryKindFilter] = useState<DivergenceKind | null>(null);
   const [historyTopicFilter, setHistoryTopicFilter] = useState<string | null>(null);
   const [flaggedVotesExpanded, setFlaggedVotesExpanded] = useState(false);
+  const [allVotesExpanded, setAllVotesExpanded] = useState(false);
+  /** Which roll-call list the bill page shows. Divergences first: they are the smaller, more
+   *  newsworthy set, and the full list is one click away for "how did my own MP vote". */
+  const [voteListMode, setVoteListMode] = useState<'flagged' | 'all'>('flagged');
   const [pollLobbyingExpanded, setPollLobbyingExpanded] = useState(false);
   // Multi-key, like the donations table: click order is priority order, so "Akteurstyp" then
   // "Gemeldete Lobbyausgaben" groups by type and orders by spend inside each group.
@@ -385,6 +390,9 @@ function App() {
     setPollLobbyingExpanded(false);
     setPollSummaryExpanded(false);
     setFlaggedVotesSearch('');
+    setAllVotesSearch('');
+    setAllVotesExpanded(false);
+    setVoteListMode('flagged');
     setPollLobbyingSearch('');
   };
   const openOrg = (id: string) => {
@@ -651,9 +659,24 @@ function App() {
   ];
 
   const realPollId = typeof selectedBillId === 'number' ? selectedBillId : null;
-  const pollDetail = usePollResult(realPollId);
+  const currentPollDetail = usePollResult(realPollId);
+  // A poll id that isn't in the current term's results is either an archived vote or nonsense.
+  // Poll ids are globally unique (the 603 archived ids and the 63 current ones don't overlap), so
+  // trying the snapshot first and the archive second resolves both without a term in the URL.
+  // Guarded on `loading` as well: the snapshot arriving late must not trigger a 2.5 MB archive
+  // fetch for a poll that is about to resolve from it anyway.
+  const archivedPollId = !currentPollDetail.loading && !currentPollDetail.result ? realPollId : null;
+  const archivedPollDetail = useArchivedPollResult(archivedPollId);
+  const isArchivedPoll = !currentPollDetail.result && archivedPollDetail.result !== null;
+  const pollDetail = currentPollDetail.result
+    ? currentPollDetail
+    : { result: archivedPollDetail.result, loading: currentPollDetail.loading || archivedPollDetail.loading, error: archivedPollDetail.error ? currentPollDetail.error ?? 'archive' : currentPollDetail.error };
   const pollDetailDivergences = pollDetail.result ? computeDivergences(pollDetail.result) : [];
   const filteredFlaggedVotes = pollDetailDivergences.filter((d) => fuzzyMatch(flaggedVotesSearch, `${d.member.name} ${d.member.party}`));
+  // The full roll call, not just the divergences. Sorted by name so the list is scannable for a
+  // specific person — the order votes arrive in is the API's, which is meaningless to a reader.
+  const allPollVotes = pollDetail.result ? [...pollDetail.result.votes].sort((a, b) => a.name.localeCompare(b.name, 'de')) : [];
+  const filteredAllVotes = allPollVotes.filter((v) => fuzzyMatch(allVotesSearch, `${v.name} ${v.party}`));
 
   // Real cross-references: a member voting on a bill that an organisation they are personally
   // tied to registered lobbying on. Sourced from the Lobbyregister + members' own declarations.
@@ -2108,7 +2131,12 @@ function App() {
                         </div>
                         {historyExpanded &&
                           (filteredDivergences.length > 0 ? (
-                            <LongTermDivergenceList divergences={filteredDivergences} t={t} />
+                            <LongTermDivergenceList
+                              divergences={filteredDivergences}
+                              t={t}
+                              billHref={(pollId, title) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'bill', billId: buildSlugParam(pollId, title) }), BASE_URL)}
+                              onOpenBill={openBill}
+                            />
                           ) : (
                             // Reachable by combining two chips that share no votes — say so rather
                             // than showing an empty area that reads as "no divergences at all".
@@ -2433,7 +2461,34 @@ function App() {
                       {pollDetail.result.poll.accepted ? t.pollAccepted : t.pollRejected}
                     </span>
                   </div>
-                  <h1 style={{ fontSize: 28, fontWeight: 800, margin: '0 0 16px' }}>{pollDetail.result.poll.title}</h1>
+                  {/* The term sits beside the title, not up in the meta line: an archived vote is
+                      otherwise indistinguishable from a current one at a glance — same layout, and
+                      several of the same party names — and the date alone is easy to skim past.
+                      Naming the actual term ("Bundestag 2005 - 2009") also answers the obvious
+                      follow-up straight away: which Bundestag was this. Baseline-aligned and
+                      wrapping, so it trails a long title instead of squeezing it. */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 12, margin: '0 0 16px' }}>
+                    <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0 }}>{pollDetail.result.poll.title}</h1>
+                    {isArchivedPoll && (
+                      <span
+                        style={{
+                          flexShrink: 0,
+                          padding: '4px 11px',
+                          borderRadius: 11,
+                          background: 'oklch(93% 0.02 90)',
+                          border: '1px solid oklch(82% 0.05 90)',
+                          color: 'oklch(40% 0.07 75)',
+                          fontSize: 12,
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.04em',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {archivedPollDetail.termLabel ?? t.pollArchivedBadge}
+                      </span>
+                    )}
+                  </div>
 
                   {pollDetail.result.poll.summary && (
                     <div style={{ margin: '0 0 22px', maxWidth: 640 }}>
@@ -2517,8 +2572,21 @@ function App() {
                     </div>
                   </div>
 
-                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>{t.flaggedVotes}</div>
-                  {pollDetailDivergences.length === 0 ? (
+                  {/* One roll call, two ways of reading it: who broke ranks, and how a particular
+                      member voted. They are the same data filtered differently, so they share a
+                      switch rather than each taking their own block — the counts on the buttons
+                      say what each side holds before it is opened. Divergences stay the default:
+                      they are the smaller set and the reason most people open a vote page. */}
+                  <div className="pb-metric-toggle-buttons" style={{ display: 'inline-flex', border: '1px solid oklch(90% 0.006 260)', borderRadius: 16, overflow: 'hidden', fontSize: 12, fontWeight: 600, marginBottom: 14 }}>
+                    <button onClick={() => setVoteListMode('flagged')} style={pillBtn(voteListMode === 'flagged')}>
+                      {t.flaggedVotes} ({pollDetailDivergences.length})
+                    </button>
+                    <button onClick={() => setVoteListMode('all')} style={pillBtn(voteListMode === 'all')}>
+                      {t.allVotes} ({allPollVotes.length})
+                    </button>
+                  </div>
+
+                  {voteListMode === 'flagged' && (pollDetailDivergences.length === 0 ? (
                     <p style={{ fontSize: 13, color: 'oklch(48% 0.01 260)', marginBottom: 20 }}>{t.noFlaggedVotes}</p>
                   ) : (
                   <div style={{ marginBottom: 20 }}>
@@ -2539,6 +2607,7 @@ function App() {
                       return (
                         <a
                           key={i}
+                          className="pb-flagged-vote-row"
                           href={rm ? mpHref(String(rm.id)) : undefined}
                           onClick={rm ? stop(() => openMp(String(rm.id))) : undefined}
                           style={{
@@ -2554,18 +2623,19 @@ function App() {
                             padding: '12px 16px',
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: REAL_PARTY_COLORS[d.member.party] || FALLBACK_PARTY_COLOR }} />
+                          <div className="pb-flagged-vote-who" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: REAL_PARTY_COLORS[d.member.party] || FALLBACK_PARTY_COLOR }} />
                             <span style={{ fontSize: 14, fontWeight: 600 }}>{d.member.name}</span>
                             <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{d.member.party}</span>
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div className="pb-flagged-vote-what" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                             <span
                               style={{
                                 fontSize: 11,
                                 fontWeight: 700,
                                 padding: '3px 10px',
                                 borderRadius: 10,
+                                flexShrink: 0,
                                 background: voteBg[d.member.vote],
                                 color: 'white',
                               }}
@@ -2591,10 +2661,107 @@ function App() {
                   </>
                   )}
                   </div>
+                  ))}
+
+                  {/* The full roll call. "Auffällige Stimmen" above only ever lists the
+                      divergences, so until now there was no way to answer the most obvious
+                      question a reader brings to a vote page — "how did MY MP vote on this?" —
+                      unless that MP happened to break ranks. Every member who held a mandate that
+                      day is here, including the ones who did not vote: a no-show is a fact about
+                      the vote, and omitting it would silently shrink the chamber. */}
+                  {voteListMode === 'all' && allPollVotes.length > 0 && (
+                    <div style={{ marginBottom: 20 }}>
+                      <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>
+                        {t.allVotesCountTemplate.replace('{n}', String(allPollVotes.length))}
+                      </p>
+                      <input
+                        type="text"
+                        value={allVotesSearch}
+                        onChange={(e) => setAllVotesSearch(e.target.value)}
+                        placeholder={t.allVotesSearchPlaceholder}
+                        style={{ width: '100%', maxWidth: 340, padding: '8px 11px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13, marginBottom: 10, boxSizing: 'border-box' }}
+                      />
+                      {filteredAllVotes.length === 0 ? (
+                        <p style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>{t.searchNoResults}</p>
+                      ) : (
+                        <>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {filteredAllVotes.slice(0, allVotesExpanded ? filteredAllVotes.length : 20).map((v) => {
+                              // Only resolves for sitting members: mandateToMember is built from the
+                              // current roster, so someone who left in 2013 stays unlinked rather
+                              // than pointing at a page that does not exist.
+                              const rm = mandateToMember.get(v.mandateId);
+                              const label = v.vote === 'yes' ? t.voteYes : v.vote === 'no' ? t.voteNo : v.vote === 'abstain' ? t.voteAbstain : t.voteNoShow;
+                              return (
+                                <a
+                                  key={v.mandateId}
+                                  href={rm ? mpHref(String(rm.id)) : undefined}
+                                  onClick={rm ? stop(() => openMp(String(rm.id))) : undefined}
+                                  style={{
+                                    cursor: rm ? 'pointer' : 'default',
+                                    textDecoration: 'none',
+                                    color: 'inherit',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    gap: 12,
+                                    background: 'white',
+                                    border: '1px solid oklch(92% 0.006 260)',
+                                    borderRadius: 9,
+                                    padding: '8px 14px',
+                                  }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                                    <span style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: REAL_PARTY_COLORS[v.party] || FALLBACK_PARTY_COLOR }} />
+                                    <span style={{ fontSize: 13.5, fontWeight: 600 }}>{v.name}</span>
+                                    <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>{v.party}</span>
+                                  </div>
+                                  <span
+                                    style={{
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                      padding: '3px 10px',
+                                      borderRadius: 10,
+                                      flexShrink: 0,
+                                      background: voteBg[v.vote],
+                                      // The two grey chips (abstain, no-show) are light, so white
+                                      // text on them fails contrast — those get dark ink instead.
+                                      color: v.vote === 'yes' || v.vote === 'no' ? 'white' : 'oklch(30% 0.01 260)',
+                                    }}
+                                  >
+                                    {label}
+                                  </span>
+                                </a>
+                              );
+                            })}
+                          </div>
+                          <ShowMoreButton
+                            total={filteredAllVotes.length}
+                            defaultCount={20}
+                            expanded={allVotesExpanded}
+                            onToggle={() => setAllVotesExpanded((v) => !v)}
+                            showMoreTemplate={t.showMoreTemplate}
+                            showLessLabel={t.showLess}
+                          />
+                        </>
+                      )}
+                    </div>
                   )}
+
                   {/* Interest groups that registered lobbying on this vote's Drucksachen. The
                       register says what each wanted, in its own words — never which way it
-                      wanted the vote to go, so no direction is shown here. */}
+                      wanted the vote to go, so no direction is shown here.
+
+                      Skipped entirely for an archived poll. The lobby join only covers the
+                      current term — the Lobbyregister did not exist before 2022, and
+                      lobby-links.json is built from polls.json alone — so `entries` is empty for
+                      every archived vote for a reason that has nothing to do with lobbying. The
+                      "none registered" line would therefore assert something false about a named
+                      bill: absence of data read out as absence of lobbying. */}
+                  {isArchivedPoll ? (
+                    <p style={{ fontSize: 12.5, color: 'oklch(55% 0.01 260)', marginBottom: 20 }}>{t.pollLobbyingArchived}</p>
+                  ) : (
+                  <>
                   <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>{t.pollLobbyingTitle}</div>
                   {pollLobbying.entries.length === 0 ? (
                     <p style={{ fontSize: 13, color: 'oklch(48% 0.01 260)', marginBottom: 20 }}>{t.pollLobbyingNone}</p>
@@ -2646,6 +2813,8 @@ function App() {
                       </>
                       )}
                     </>
+                  )}
+                  </>
                   )}
 
                   <a href={pollDetail.result.poll.url} target="_blank" rel="noreferrer" style={{ fontSize: 12.5, fontWeight: 700 }}>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { computeMemberAlignment, type PartyTally, type PollResult, type RealPoll, type VoteChoice } from './polls';
+import { computeMemberAlignment, type MemberVote, type PartyTally, type PollResult, type RealPoll, type VoteChoice } from './polls';
 import { fetchLocalJson } from './snapshot';
 
 /**
@@ -464,6 +464,110 @@ export function useMemberVoteHistory(politicianId: number | null): HistoricAlign
       cancelled = true;
     };
   }, [politicianId]);
+
+  return state;
+}
+
+/**
+ * The archived counterpart to usePollResult(): one closed-term poll, rebuilt into an ordinary
+ * PollResult so the bill page can render it with the same components as a current-term vote.
+ *
+ * Poll ids are globally unique across abgeordnetenwatch's API — verified against the committed
+ * data, where the 603 archived ids and the 63 current ones do not overlap at all — so
+ * /gesetze/<id> can serve both without a term qualifier in the URL, and the caller can simply
+ * try the snapshot first and fall back to here.
+ *
+ * Unlike pollResultForMember() above, this fills in every member's vote, because a bill page
+ * shows the whole roll call. The per-party tallies are NOT recomputed: partyBreakdown is stored
+ * with the archived poll and comes from the same majorityOf() that writes poll-results.json, so
+ * reusing it keeps one definition of a fraction's majority line across both code paths.
+ */
+export interface ArchivedPollState {
+  result: PollResult | null;
+  /** The term the poll belongs to ("Bundestag 2005 - 2009") — a bill page must say which one. */
+  termLabel: string | null;
+  loading: boolean;
+  error: boolean;
+}
+
+const EMPTY_ARCHIVED: ArchivedPollState = { result: null, termLabel: null, loading: false, error: false };
+
+function archivedPollResult(archive: VoteHistoryFile, pollId: number): ArchivedPollState {
+  for (const period of archive.periods) {
+    const poll = period.polls.find((p) => p.id === pollId);
+    if (!poll) continue;
+    // Same guard as pollResultForMember(): without a stored majority line the page would have to
+    // invent one, and the frontend never re-derives a majority of its own.
+    if (!poll.partyBreakdown) return { ...EMPTY_ARCHIVED, error: true };
+
+    const votes: MemberVote[] = [];
+    let totalYes = 0;
+    let totalNo = 0;
+    let totalAbstain = 0;
+    let totalNoShow = 0;
+    for (let slot = 0; slot < period.members.length; slot++) {
+      const voteChar = poll.votes[slot];
+      if (!voteChar || voteChar === NO_MANDATE) continue;
+      const vote = CHAR_TO_VOTE[voteChar];
+      if (!vote) continue;
+      const member = period.members[slot];
+      const partyChar = poll.parties[slot];
+      // The fraction held ON THE DAY of this vote, not the member's final one — see
+      // pollResultForMember(). A 2023 vote by someone who later joined another group must show
+      // the group they actually sat in when they cast it.
+      const party =
+        partyChar && partyChar !== NO_MANDATE ? (period.parties[parseInt(partyChar, 36)]?.name ?? member.party) : member.party;
+      votes.push({ mandateId: member.mandateId, name: member.name, party, vote });
+      if (vote === 'yes') totalYes++;
+      else if (vote === 'no') totalNo++;
+      else if (vote === 'abstain') totalAbstain++;
+      else totalNoShow++;
+    }
+
+    const cast = totalYes + totalNo + totalAbstain;
+    return {
+      result: {
+        poll,
+        totalYes,
+        totalNo,
+        totalAbstain,
+        totalNoShow,
+        // Same denominator as computePollResult(): share of the votes actually cast, so an
+        // archived poll's headline percentage means the same thing as a current one's.
+        yesPct: cast > 0 ? Math.round((totalYes / cast) * 100) : 0,
+        partyBreakdown: poll.partyBreakdown,
+        votes,
+      },
+      termLabel: period.label,
+      loading: false,
+      error: false,
+    };
+  }
+  return EMPTY_ARCHIVED;
+}
+
+/** Loads the archive (cached for the session) and rebuilds one poll. Pass null to skip entirely. */
+export function useArchivedPollResult(pollId: number | null): ArchivedPollState {
+  const [state, setState] = useState<ArchivedPollState>(EMPTY_ARCHIVED);
+
+  useEffect(() => {
+    if (pollId == null) {
+      setState(EMPTY_ARCHIVED);
+      return;
+    }
+    let cancelled = false;
+    setState({ ...EMPTY_ARCHIVED, loading: true });
+    loadArchive()
+      .then((archive) => {
+        if (!cancelled) setState(archivedPollResult(archive, pollId));
+      })
+      .catch(() => {
+        if (!cancelled) setState({ ...EMPTY_ARCHIVED, error: true });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [pollId]);
 
   return state;
 }

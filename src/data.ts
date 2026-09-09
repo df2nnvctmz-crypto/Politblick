@@ -39,6 +39,7 @@ export interface Translation {
   sortDivergences: string;
   voteBreakdown: string; voteYes: string; voteNo: string; voteAbstain: string; voteSplit: string;
   flaggedVotes: string; noFlaggedVotes: string; crossrefSub: string;
+  allVotes: string; allVotesSearchPlaceholder: string; allVotesCountTemplate: string; pollArchivedBadge: string;
   colMp: string; colDonor: string; colIndustry: string; colAmount: string; colVote: string; colFlag: string;
   flagged: string; footerNote: string; footerSources: string; footerDisclaimer: string; footerIconsSource: string;
   footerFeedbackLabel: string; footerFeedbackEmail: string; footerFeedbackGithub: string;
@@ -75,7 +76,7 @@ export interface Translation {
   lobbyAgainstPosition: string; lobbyAgainstFraction: string; lobbyAbstainedFraction: string; lobbyPositionSource: string;
   lobbyNoPositionNote: string; lobbyOrgSpend: string; lobbyOrgStaff: string;
   lobbyRegisterSource: string; lobbyNoContactsNote: string;
-  pollLobbyingTitle: string; pollLobbyingCountTemplate: string; pollLobbyingNone: string;
+  pollLobbyingTitle: string; pollLobbyingCountTemplate: string; pollLobbyingNone: string; pollLobbyingArchived: string;
   flaggedVotesSearchPlaceholder: string; pollLobbyingSearchPlaceholder: string; searchNoResults: string;
   donationSankeyTitle: string; donationSankeySub: string;
   donationSankeyNoteTemplate: string; donationSankeyExcludedTemplate: string;
@@ -260,6 +261,10 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     historyInfo:
       'Namentliche Abstimmungen früherer Wahlperioden, verglichen mit der Mehrheitslinie der Fraktion, der die Person am jeweiligen Abstimmungstag angehörte. Der Fraktionsschnitt daneben ist der entscheidende Vergleichswert: Eine Fraktionstreue von 97% bedeutet etwas völlig anderes, je nachdem ob die Kolleginnen und Kollegen bei 99% oder bei 95% liegen. Eine statistische Beobachtung, keine Unterstellung von Fehlverhalten.',
     voteBreakdown: 'Abstimmungsergebnis nach Partei', voteYes: 'Ja', voteNo: 'Nein', voteAbstain: 'Enthaltung', voteSplit: 'Kein Mehrheitsvotum',
+    allVotes: 'Alle Stimmen',
+    allVotesSearchPlaceholder: 'Name oder Partei suchen…',
+    allVotesCountTemplate: '{n} Abgeordnete, alphabetisch. Auch wer nicht abgestimmt hat, steht in der Liste.',
+    pollArchivedBadge: 'Frühere Wahlperiode',
     flaggedVotes: 'Auffällige Stimmen', noFlaggedVotes: 'Keine auffälligen Stimmen bei dieser Abstimmung.', crossrefSub: 'Abgeordnete, die über eine Funktion, Beteiligung oder Zuwendung mit einer Organisation verbunden sind, die zu genau dieser Abstimmung Interessenvertretung angemeldet hat — sowie die veröffentlichten Großspenden an die Parteien.',
     colMp: 'Abgeordnete/r', colDonor: 'Spender', colIndustry: 'Branche', colAmount: 'Betrag', colVote: 'Stimme', colFlag: 'Hinweis',
     flagged: 'Auffällig', footerNote: 'Nur öffentliche Daten. Kein Login, keine Cookies.', footerSources: 'Quellen: Abgeordnetenwatch, Bundestag, Lobbyregister',
@@ -332,6 +337,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     pollLobbyingTitle: 'Angemeldete Interessenvertretung zu dieser Abstimmung',
     pollLobbyingCountTemplate: '{n} Organisationen haben zu den Drucksachen dieser Abstimmung Interessenvertretung angemeldet.',
     pollLobbyingNone: 'Zu den Drucksachen dieser Abstimmung ist keine Interessenvertretung im Register angemeldet.',
+    pollLobbyingArchived: 'Für Abstimmungen aus abgeschlossenen Wahlperioden wird keine Interessenvertretung ausgewiesen: Das Lobbyregister besteht erst seit 2022, und die Verknüpfung von Organisationen zu Drucksachen deckt nur die laufende Wahlperiode ab. Dass hier nichts steht, sagt nichts über Lobbyarbeit zu diesem Gesetz aus.',
     flaggedVotesSearchPlaceholder: 'Name oder Partei suchen…', pollLobbyingSearchPlaceholder: 'Organisation suchen…',
     searchNoResults: 'Keine Treffer für diese Suche.',
     donationSankeyTitle: 'Geldfluss der größten Spender',
@@ -581,6 +587,10 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     historyInfo:
       "Recorded votes from earlier terms, compared against the majority line of whichever fraction the member belonged to on the day of each vote. The fraction average beside it is the number that matters: 97% loyalty means something entirely different depending on whether colleagues sat at 99% or at 95%. A statistical observation, not an accusation of wrongdoing.",
     voteBreakdown: 'Vote breakdown by party', voteYes: 'Yes', voteNo: 'No', voteAbstain: 'Abstain', voteSplit: 'No majority',
+    allVotes: 'All votes',
+    allVotesSearchPlaceholder: 'Search name or party…',
+    allVotesCountTemplate: '{n} MPs, alphabetically. Members who did not vote are listed too.',
+    pollArchivedBadge: 'Earlier term',
     flaggedVotes: 'Flagged votes', noFlaggedVotes: 'No flagged votes on this poll.', crossrefSub: 'MPs tied by a position, shareholding or donation to an organization that registered lobbying on that very vote — plus the published large donations to the parties.',
     colMp: 'MP', colDonor: 'Donor', colIndustry: 'Industry', colAmount: 'Amount', colVote: 'Vote', colFlag: 'Flag',
     flagged: 'Flagged', footerNote: 'Public data only. No login, no cookies.', footerSources: 'Sources: Abgeordnetenwatch, Bundestag, Lobbyregister',
@@ -653,6 +663,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     pollLobbyingTitle: 'Registered lobbying on this vote',
     pollLobbyingCountTemplate: '{n} organizations registered lobbying on the printed matters behind this vote.',
     pollLobbyingNone: 'No registered lobbying is on file for the printed matters behind this vote.',
+    pollLobbyingArchived: 'Lobbying is not shown for votes from completed terms: the Lobbyregister only exists since 2022, and the organisation-to-bill join covers the current term alone. The absence of entries here says nothing about lobbying on this bill.',
     flaggedVotesSearchPlaceholder: 'Search name or party…', pollLobbyingSearchPlaceholder: 'Search an organization…',
     searchNoResults: 'No matches for this search.',
     donationSankeyTitle: 'Money flow of the largest donors',

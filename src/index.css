@@ -144,6 +144,23 @@ button {
   }
 }
 
+/* A flagged-vote row is name + party on one side and vote chip + the sentence saying what
+   the member did on the other ("Stimmte gegen die Mehrheit der eigenen Fraktion (CDU/CSU)").
+   Side by side those need ~640px. Below that the four parts each got squeezed into their own
+   narrow column and every one of them wrapped — a long name broke to one word per line while
+   the sentence next to it became a six-line ribbon. Stack the two halves instead: who on the
+   first line, what they did on the second, each with the full width to wrap normally in. */
+@media (max-width: 640px) {
+  .pb-flagged-vote-row {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .pb-flagged-vote-who,
+  .pb-flagged-vote-what {
+    width: 100%;
+  }
+}
+
 /* Stat-tile grids (e.g. a party's Spenden tab: Großspenden gesamt / Anzahl Großspenden / Anzahl
    Spender) use `repeat(auto-fit, minmax(180px,1fr))`, which packs 3-up on desktop but drops to
    2-up once the container is under ~540px (3 × 180px) — an odd tile count then leaves a lone

@@ -6,6 +6,7 @@
 
 import type { ReactNode } from 'react';
 import type { Translation } from '../data';
+import { stop } from '../ui/events';
 import { InfoTooltip } from '../ui/primitives';
 import type { DivergenceKind, HistoricAlignment, HistoricDivergence } from '../voteHistory';
 
@@ -151,8 +152,26 @@ export function LongTermRecordCard({
   );
 }
 
-/** The vote-by-vote detail behind the card: every archived divergence, newest first. */
-export function LongTermDivergenceList({ divergences, t }: { divergences: HistoricDivergence[]; t: Translation }) {
+/**
+ * The vote-by-vote detail behind the card: every archived divergence, newest first.
+ *
+ * Each row links to this site's own bill page rather than out to abgeordnetenwatch. The archived
+ * poll resolves there through useArchivedPollResult(), so an eight-year-old vote gets the same
+ * page as last week's — with the full roll call, and the abgeordnetenwatch link still on it as
+ * the source. Sending readers off-site from here dropped them at the exact moment they were most
+ * interested, and it was the only place in the app that did.
+ */
+export function LongTermDivergenceList({
+  divergences,
+  t,
+  billHref,
+  onOpenBill,
+}: {
+  divergences: HistoricDivergence[];
+  t: Translation;
+  billHref: (pollId: number, title: string) => string;
+  onOpenBill: (pollId: number) => void;
+}) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
       {divergences.map((d) => {
@@ -167,9 +186,8 @@ export function LongTermDivergenceList({ divergences, t }: { divergences: Histor
         return (
           <a
             key={`${d.pollId}-${d.date}`}
-            href={d.url}
-            target="_blank"
-            rel="noreferrer"
+            href={billHref(d.pollId, d.title)}
+            onClick={stop(() => onOpenBill(d.pollId))}
             style={{ textDecoration: 'none', color: 'inherit', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
