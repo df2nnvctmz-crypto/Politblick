@@ -61,6 +61,14 @@ jobs:
       - name: Verify derived vote-history summary
         run: node scripts/verify-vote-history-summary.mjs
 
+      # The Sitzungswochen-Rückblick restates the divergence rule and partitions the donations
+      # by hand. This recomputes every issue from the raw inputs, shares no code with the
+      # builder, and also fails if the committed issues were built from a different snapshot
+      # than the one checked out (stale numbers about how a fraction voted). Exits 0 when there
+      # is no data, so it never blocks a data-less checkout.
+      - name: Verify Sitzungswochen-Rückblick
+        run: node scripts/verify-stories.mjs
+
       # scripts/prerender.mjs (part of `npm run build`) drives a headless Chromium to snapshot
       # every route to a real static file — see that script for why. --with-deps pulls in the
       # system libraries Chromium needs on a bare Ubuntu runner, not just the browser binary.

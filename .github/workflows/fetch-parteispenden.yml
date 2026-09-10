@@ -34,7 +34,11 @@ jobs:
       - name: Rebuild lobby cross-references
         run: node scripts/build-lobby-links.mjs
 
+      # New donations are accumulated into the Sitzungswochen-Briefing issues. No network.
+      - name: Rebuild Sitzungswochen-Briefing
+        run: node scripts/build-stories.mjs
+
       - uses: ./.github/actions/commit-data
         with:
           message: Update party donation data
-          paths: public/data/party-donations.json public/data/lobby-links.json public/data/meta.json
+          paths: public/data/party-donations.json public/data/lobby-links.json public/data/stories.json public/data/stories public/data/meta.json

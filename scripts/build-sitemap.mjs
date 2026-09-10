@@ -71,6 +71,12 @@ export function buildRoutes() {
     add(`/gesetze/${slugParam(p.id, p.title)}`, { changefreq: 'monthly', priority: '0.5' });
   }
 
+  // Sitzungswochen-Briefing detail pages — /sitzungswoche/<montag>, one per generated week.
+  const stories = readJson('stories.json');
+  for (const s of stories?.issues ?? []) {
+    add(`/sitzungswoche/${s.week}`, { changefreq: 'monthly', priority: '0.4' });
+  }
+
   // Committee pages — /ausschuesse/<committee id>-<name-slug>.
   const committees = readJson('committees.json');
   for (const c of committees?.committees ?? []) {

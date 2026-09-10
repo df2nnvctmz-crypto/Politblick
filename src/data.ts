@@ -177,6 +177,60 @@ export interface Translation {
   metaImpressumDescription: string;
   metaDatenschutzDescription: string;
   metaDisclaimerDescription: string;
+
+  // ── SITZUNGSWOCHE ────────────────────────────────────────────────────────────────────────
+  // The Sitzungswochen-Briefing on the landing page reads as prose, but not a word of it is
+  // written or generated at build or run time (see scripts/build-stories.mjs). Every sentence
+  // is one of these templates with `{slot}` placeholders filled from numbers in
+  // public/data/stories.json — the whole vocabulary of the feature is these keys, kept together
+  // so the entire text a reader can ever see fits on one screen and can be checked at a glance.
+  // The component picks which template applies from the data (one vote vs. several, some
+  // divergence vs. none, …) and never composes free text of its own.
+  swSectionTitle: string; swSectionSub: string;
+  swWeekRangeTemplate: string;
+  swVotes: string; swVotesTopics: string; swVotesOne: string;
+  swDivergenceSome: string; swDivergenceOne: string; swDivergenceNone: string;
+  swDivergenceSoloSome: string; swDivergenceSoloOne: string;
+  swClosest: string; swCohesion: string; swCohesionAll: string; swCohesionExplain: string; swCohesionExplainOne: string;
+  swMoneySome: string; swMoneyOne: string; swMoneyNone: string;
+  swMoneyRecordMarker: string; swMoneySinceMarker: string; swMoneyMultiMarker: string;
+  swYtd: string;
+  swAbsence: string; swAbsenceExplain: string;
+  swTopicsLabel: string; swVotesLabel: string; swSeeMore: string;
+  // Landing-page tile.
+  swTileCurrent: string;
+  swTileVotes: string; swTileVotesOne: string;
+  swTileDivergence: string; swTileDonations: string;
+  swTileVoteRatio: string; swTileAcceptedRejected: string; swTileAcceptedOnly: string; swTileRejectedOnly: string;
+  swTileClosest: string; swTileClosestMargin: string;
+  swTileLegendNote: string; swAllWeeks: string;
+  swOverviewVotes: string; swOverviewVotesOne: string;
+  swOverviewDivergence: string; swOverviewDivergenceNone: string;
+  swOverviewMoney: string; swOverviewMoneyNone: string;
+  // Expanded panel — the prose lives here, one lead sentence per chart. Still all templated.
+  swShowDetail: string; swHideDetail: string; swGoToBriefing: string;
+  swPrev: string; swNext: string; swNotFound: string; swLoading: string;
+  metaStoryDescTemplate: string;
+  swBlockVotes: string; swBlockCohesion: string; swBlockCohesionSub: string;
+  swBlockAbsence: string; swBlockAbsenceSub: string; swBlockMoney: string;
+  swColYes: string; swColNo: string; swColAbstain: string; swColNoShow: string;
+  swAccepted: string; swRejected: string;
+  swPollDivergence: string; swPollLobbying: string;
+  swLobbyingLabel: string; swMoreOrgs: string; swShowDetailedView: string;
+  swShowAllDonations: string; swShowFewerDonations: string;
+  swAlsoGives: string; swMarkerRecord: string; swMarkerSince: string;
+  swDonorUnknown: string; swDonationDates: string; swYtdLabel: string;
+  // ── Detail-page layout (editorial) ──────────────────────────────────────────────────────
+  swMastheadTemplate: string; swThisWeek: string; swBack: string;
+  swWeekInNumbers: string; swAsOf: string;
+  swStatPollsLong: string; swStatDivergenceLong: string; swStatAbsenceLong: string; swStatDonationsLong: string;
+  swBreakDown: string; swCollapse: string;
+  swByFraction: string; swVoteOrder: string;
+  swLobbyingOf: string; swLobbyingNoneLong: string; swAllOrgs: string; swToBillPage: string;
+  swClosestMargin: string;
+  swCohesionAxisNote: string; swCohesionRatioLabel: string;
+  swAbsenceScaleNote: string;
+  swYtdScaleNote: string; swAllDonationsYear: string; swDonationsSummary: string;
 }
 
 export const TRANSLATIONS: Record<Lang, Translation> = {
@@ -505,6 +559,111 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     metaImpressumDescription: 'Impressum und Kontaktangaben von Politblick.',
     metaDatenschutzDescription: 'Datenschutzerklärung von Politblick — welche Daten anfallen und wie sie verarbeitet werden.',
     metaDisclaimerDescription: 'Woher die Daten auf Politblick stammen und was ihre Grenzen sind.',
+
+    swSectionTitle: 'Sitzungswochen-Briefing',
+    swSectionSub: 'Was zuletzt im Bundestag zur Abstimmung stand — zusammengesetzt aus den Abstimmungs- und Spendendaten der jeweiligen Woche. Jede Zahl verlinkt auf die Quelle.',
+    swWeekRangeTemplate: '{start} – {end}',
+    swVotes: 'Der Bundestag stimmte {n}-mal namentlich ab.',
+    swVotesTopics: 'Der Bundestag stimmte {n}-mal namentlich ab, unter anderem zu {topics}.',
+    swVotesOne: 'Eine namentliche Abstimmung stand an: {title}.',
+    swDivergenceSome: '{n} Stimmen fielen gegen die eigene Fraktionslinie, die meisten davon ({count}) bei {title}.',
+    swDivergenceOne: 'Eine Stimme fiel gegen die eigene Fraktionslinie, bei {title}.',
+    swDivergenceNone: 'Keine Abgeordneten stimmten gegen ihre Fraktionslinie.',
+    swDivergenceSoloSome: '{n} Stimmen fielen gegen die eigene Fraktionslinie.',
+    swDivergenceSoloOne: 'Eine Stimme fiel gegen die eigene Fraktionslinie.',
+    swClosest: 'Am knappsten fiel {title} aus — {yes}:{no}, {margin} Stimmen Unterschied.',
+    swCohesion: 'Am geschlossensten stimmte die {topParty} ({topPct} %), am uneinigsten die {bottomParty} ({bottomPct} %).',
+    swCohesionAll: 'Alle Fraktionen stimmten nahezu geschlossen — mindestens {bottomPct} %.',
+    swCohesionExplain: 'Gezählt ist der Anteil der abgegebenen Stimmen, die mit der Fraktionsmehrheit gingen — über alle {polls} Abstimmungen der Woche.',
+    swCohesionExplainOne: 'Gezählt ist der Anteil der abgegebenen Stimmen, die mit der Fraktionsmehrheit gingen.',
+    swMoneySome: '{count} neue Großspenden an Parteien über zusammen {sum} wurden veröffentlicht — die größte {amount} von {donor} an {party}.',
+    swMoneyOne: 'Neu veröffentlicht: eine Großspende über {amount} von {donor} an {party}.',
+    swMoneyNone: 'Neue Großspenden an Parteien wurden nicht veröffentlicht.',
+    swMoneyRecordMarker: ' Das ist die größte je erfasste Spende an {party}.',
+    swMoneySinceMarker: ' So viel gab es zuletzt vor {months} Monaten für {party}.',
+    swMoneyMultiMarker: ' {donor} bedachte in derselben Woche {n} Parteien.',
+    swYtd: 'In der Spenden-Jahresbilanz {year} liegt {fraction} mit {sum} vorn.',
+    swAbsence: '{total} Abgeordnete nahmen an mindestens einer Abstimmung nicht teil, die meisten aus der Fraktion {party} ({noShow}).',
+    swAbsenceExplain: 'Nur je Fraktion aufgeschlüsselt — für ein einzelnes Fehlen gibt es keinen prüfbaren Grund, und eine Namensliste läse sich als Vorwurf.',
+    swTopicsLabel: 'Themen',
+    swVotesLabel: 'Abstimmungen',
+    swSeeMore: 'Alle Abstimmungen',
+    swTileCurrent: 'Aktuell',
+    swTileVotes: 'Abstimmungen',
+    swTileVotesOne: 'Abstimmung',
+    swTileDivergence: 'mal gegen die Fraktionslinie',
+    swTileDonations: 'neue Großspenden',
+    swTileVoteRatio: 'Stimmenverhältnis je Abstimmung',
+    swTileAcceptedRejected: '{a} angenommen · {r} abgelehnt',
+    swTileAcceptedOnly: '{a} angenommen',
+    swTileRejectedOnly: '{r} abgelehnt',
+    swTileClosest: 'Knappste Abstimmung',
+    swTileClosestMargin: '{yes}:{no} · {margin} Stimmen Unterschied',
+    swTileLegendNote: 'Alle Bänder auf 630 Sitze normiert.',
+    swAllWeeks: 'Alle Sitzungswochen',
+    swOverviewVotes: '{n} Abstimmungen',
+    swOverviewVotesOne: '1 Abstimmung',
+    swOverviewDivergence: '{n}-mal gegen die Fraktionslinie',
+    swOverviewDivergenceNone: 'keine Abweichung von der Fraktionslinie',
+    swOverviewMoney: '{count} neue Großspenden ({sum})',
+    swOverviewMoneyNone: 'keine neuen Großspenden',
+    swShowDetail: 'Vollständiges Briefing',
+    swHideDetail: 'Briefing schließen',
+    swGoToBriefing: 'Briefing anzeigen',
+    swPrev: 'Vorherige Woche',
+    swNext: 'Nächste Woche',
+    swNotFound: 'Für diese Sitzungswoche gibt es kein Briefing.',
+    swLoading: 'Briefing wird geladen …',
+    metaStoryDescTemplate: 'Sitzungswoche {range}: {polls} namentliche Abstimmungen, {donations} neue Parteispenden im Bundestag — mit Fraktionsgeschlossenheit und Abweichlern.',
+    swBlockVotes: 'Die Abstimmungen',
+    swBlockCohesion: 'Fraktionsgeschlossenheit',
+    swBlockCohesionSub: 'Anteil der abgegebenen Stimmen, die mit der Fraktionsmehrheit gingen.',
+    swBlockAbsence: 'Abwesenheit',
+    swBlockAbsenceSub: 'Nichtteilnahmen je Fraktion. Ohne Namen — für ein Fehlen gibt es keinen prüfbaren Grund.',
+    swBlockMoney: 'Neue Parteispenden',
+    swColYes: 'Ja',
+    swColNo: 'Nein',
+    swColAbstain: 'Enthaltung',
+    swColNoShow: 'nicht abg.',
+    swAccepted: 'angenommen',
+    swRejected: 'abgelehnt',
+    swPollDivergence: '{n} gegen die Fraktionslinie',
+    swPollLobbying: '{n} Organisationen mit gemeldeter Lobbyarbeit',
+    swLobbyingLabel: 'Lobbyarbeit gemeldet:',
+    swMoreOrgs: 'und {n} weitere',
+    swShowDetailedView: 'Detaillierte Ansicht',
+    swShowAllDonations: 'Alle {n} Spenden anzeigen',
+    swShowFewerDonations: 'Weniger anzeigen',
+    swAlsoGives: 'gibt auch an {parties}',
+    swMarkerRecord: 'größte je erfasste Spende an {party}',
+    swMarkerSince: 'größte an {party} seit {months} Monaten',
+    swDonorUnknown: 'Spender nicht angegeben',
+    swDonationDates: 'erhalten {received}, veröffentlicht {published}',
+    swYtdLabel: 'Jahresstand {year}',
+    swMastheadTemplate: 'Nr. {number} · KW {week} · {year}',
+    swThisWeek: 'diese Woche',
+    swBack: 'Zurück',
+    swWeekInNumbers: 'Die Woche in Zahlen',
+    swAsOf: 'Alle Zahlen aus öffentlichen Quellen. Stand {date}.',
+    swStatPollsLong: 'Namentliche Abstimmungen',
+    swStatDivergenceLong: 'Stimmen gegen die eigene Fraktionslinie',
+    swStatAbsenceLong: 'Abgeordnete fehlten bei mindestens einer Abstimmung',
+    swStatDonationsLong: 'Neue Großspenden',
+    swBreakDown: 'Aufschlüsseln',
+    swCollapse: 'Schließen',
+    swByFraction: 'Nach Fraktion',
+    swVoteOrder: 'Reihenfolge: Ja / Nein / Enthaltung / nicht abg.',
+    swLobbyingOf: 'Gemeldete Lobbyarbeit · {shown} von {total}',
+    swLobbyingNoneLong: 'Keine Organisation hat zu diesem Vorhaben Lobbyarbeit gemeldet.',
+    swAllOrgs: 'Alle {n} Organisationen',
+    swToBillPage: 'Zur Gesetzesseite',
+    swClosestMargin: '{n} Stimmen Unterschied',
+    swCohesionAxisNote: 'Skala beginnt bei {lo} %, nicht bei 0 — der Abstand zwischen erster und letzter Fraktion beträgt {spread} Prozentpunkte.',
+    swCohesionRatioLabel: 'Stimmen mit der Fraktionsmehrheit',
+    swAbsenceScaleNote: 'Gleiche Skala für alle Fraktionen, 0 bis {max}. Nicht größenbereinigt.',
+    swYtdScaleNote: 'Nur veröffentlichte Großspenden. Skala relativ zum Jahreshöchstwert.',
+    swAllDonationsYear: 'Alle Parteispenden {year}',
+    swDonationsSummary: '{n} Spenden · zusammen {sum}',
   },
   en: {
     navHome: 'Home', navParliament: 'Parliament', navMps: 'MPs', navMpsSearch: 'Search MPs', navParties: 'Parties', navCommittees: 'Committees', navPolls: 'Votes', navLobbyFinance: 'Lobby & Finance',
@@ -831,5 +990,110 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     metaImpressumDescription: 'Legal notice and contact details for Politblick.',
     metaDatenschutzDescription: "Politblick's privacy policy — what data is collected and how it's processed.",
     metaDisclaimerDescription: "Where Politblick's data comes from, and what its limits are.",
+
+    swSectionTitle: 'Sitting-week briefing',
+    swSectionSub: 'What the Bundestag last put to a vote — assembled from that week’s roll-call and donation data. Every number links to its source.',
+    swWeekRangeTemplate: '{start} – {end}',
+    swVotes: 'The Bundestag held {n} roll-call votes.',
+    swVotesTopics: 'The Bundestag held {n} roll-call votes, among them on {topics}.',
+    swVotesOne: 'One roll-call vote was on the agenda: {title}.',
+    swDivergenceSome: '{n} votes went against the member’s own fraction line, most of them ({count}) on {title}.',
+    swDivergenceOne: 'One vote went against the member’s own fraction line, on {title}.',
+    swDivergenceNone: 'No members voted against their fraction line.',
+    swDivergenceSoloSome: '{n} votes went against the member’s own fraction line.',
+    swDivergenceSoloOne: 'One vote went against the member’s own fraction line.',
+    swClosest: 'The closest was {title} — {yes}:{no}, {margin} votes apart.',
+    swCohesion: '{topParty} voted most tightly ({topPct} %), {bottomParty} least ({bottomPct} %).',
+    swCohesionAll: 'Every fraction voted almost as one — at least {bottomPct} %.',
+    swCohesionExplain: 'The figure is the share of cast votes that went with the fraction majority, across all {polls} votes of the week.',
+    swCohesionExplainOne: 'The figure is the share of cast votes that went with the fraction majority.',
+    swMoneySome: '{count} new large party donations totalling {sum} were published — the biggest {amount} from {donor} to {party}.',
+    swMoneyOne: 'Newly published: one large donation of {amount} from {donor} to {party}.',
+    swMoneyNone: 'No new large party donations were published.',
+    swMoneyRecordMarker: ' That is the largest donation to {party} on record.',
+    swMoneySinceMarker: ' The last donation that size to {party} was {months} months ago.',
+    swMoneyMultiMarker: ' {donor} gave to {n} parties in the same week.',
+    swYtd: 'In the {year} donation running total, {fraction} is ahead with {sum}.',
+    swAbsence: '{total} members missed at least one vote, most from the {party} fraction ({noShow}).',
+    swAbsenceExplain: 'Broken down by fraction only — a single absence has no checkable reason, and a list of names would read as an accusation.',
+    swTopicsLabel: 'Topics',
+    swVotesLabel: 'Votes',
+    swSeeMore: 'All votes',
+    swTileCurrent: 'Current',
+    swTileVotes: 'roll-call votes',
+    swTileVotesOne: 'roll-call vote',
+    swTileDivergence: 'against the fraction line',
+    swTileDonations: 'new large donations',
+    swTileVoteRatio: 'Vote split per vote',
+    swTileAcceptedRejected: '{a} accepted · {r} rejected',
+    swTileAcceptedOnly: '{a} accepted',
+    swTileRejectedOnly: '{r} rejected',
+    swTileClosest: 'Closest vote',
+    swTileClosestMargin: '{yes}:{no} · {margin} votes apart',
+    swTileLegendNote: 'All bands normalised to 630 seats.',
+    swAllWeeks: 'All sitting weeks',
+    swOverviewVotes: '{n} votes',
+    swOverviewVotesOne: '1 vote',
+    swOverviewDivergence: '{n} against the fraction line',
+    swOverviewDivergenceNone: 'no divergence from the fraction line',
+    swOverviewMoney: '{count} new large donations ({sum})',
+    swOverviewMoneyNone: 'no new large donations',
+    swShowDetail: 'Full briefing',
+    swHideDetail: 'Close briefing',
+    swGoToBriefing: 'Show briefing',
+    swPrev: 'Previous week',
+    swNext: 'Next week',
+    swNotFound: 'There is no briefing for this sitting week.',
+    swLoading: 'Loading briefing …',
+    metaStoryDescTemplate: 'Sitting week {range}: {polls} roll-call votes, {donations} newly published party donations in the Bundestag — with fraction cohesion and dissenters.',
+    swBlockVotes: 'The votes',
+    swBlockCohesion: 'Fraction cohesion',
+    swBlockCohesionSub: 'Share of cast votes that went with the fraction majority.',
+    swBlockAbsence: 'Absence',
+    swBlockAbsenceSub: 'Non-participations by fraction. No names — an absence has no checkable reason.',
+    swBlockMoney: 'New party donations',
+    swColYes: 'Yes',
+    swColNo: 'No',
+    swColAbstain: 'Abstain',
+    swColNoShow: 'absent',
+    swAccepted: 'accepted',
+    swRejected: 'rejected',
+    swPollDivergence: '{n} against the fraction line',
+    swPollLobbying: '{n} organisations reported lobbying',
+    swLobbyingLabel: 'Reported lobbying:',
+    swMoreOrgs: 'and {n} more',
+    swShowDetailedView: 'Detailed view',
+    swShowAllDonations: 'Show all {n} donations',
+    swShowFewerDonations: 'Show fewer',
+    swAlsoGives: 'also gives to {parties}',
+    swMarkerRecord: 'largest recorded donation to {party}',
+    swMarkerSince: 'largest to {party} in {months} months',
+    swDonorUnknown: 'Donor not stated',
+    swDonationDates: 'received {received}, published {published}',
+    swYtdLabel: 'Year to date {year}',
+    swMastheadTemplate: 'No. {number} · Week {week} · {year}',
+    swThisWeek: 'this week',
+    swBack: 'Back',
+    swWeekInNumbers: 'The week in numbers',
+    swAsOf: 'All figures from public sources. As of {date}.',
+    swStatPollsLong: 'Roll-call votes',
+    swStatDivergenceLong: 'Votes against the member’s own fraction line',
+    swStatAbsenceLong: 'Members who missed at least one vote',
+    swStatDonationsLong: 'New large donations',
+    swBreakDown: 'Break down',
+    swCollapse: 'Close',
+    swByFraction: 'By fraction',
+    swVoteOrder: 'Order: yes / no / abstain / absent.',
+    swLobbyingOf: 'Reported lobbying · {shown} of {total}',
+    swLobbyingNoneLong: 'No organisation reported lobbying on this bill.',
+    swAllOrgs: 'All {n} organisations',
+    swToBillPage: 'To the bill page',
+    swClosestMargin: '{n} votes apart',
+    swCohesionAxisNote: 'Scale starts at {lo} %, not 0 — the gap between the tightest and loosest fraction is {spread} percentage points.',
+    swCohesionRatioLabel: 'votes with the fraction majority',
+    swAbsenceScaleNote: 'Same scale for every fraction, 0 to {max}. Not size-adjusted.',
+    swYtdScaleNote: 'Published large donations only. Scale relative to the year’s highest.',
+    swAllDonationsYear: 'All {year} party donations',
+    swDonationsSummary: '{n} donations · {sum} in total',
   },
 };

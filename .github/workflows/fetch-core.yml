@@ -35,10 +35,15 @@ jobs:
       - name: Rebuild lobby cross-references
         run: node scripts/build-lobby-links.mjs
 
+      # New polls (and the lobby links just rebuilt) feed the Sitzungswochen-Briefing. No
+      # network — a pure derive over the files above, verified independently on every deploy.
+      - name: Rebuild Sitzungswochen-Briefing
+        run: node scripts/build-stories.mjs
+
       - uses: ./.github/actions/commit-data
         with:
           message: Update roster/polls/votes data
           paths: >-
             public/data/roster.json public/data/polls.json
             public/data/poll-results.json public/data/lobby-links.json
-            public/data/meta.json
+            public/data/stories.json public/data/stories public/data/meta.json

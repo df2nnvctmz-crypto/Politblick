@@ -276,3 +276,20 @@ button {
   background: oklch(45% 0.16 265);
   cursor: pointer;
 }
+
+/* Sitzungswochen-Briefing detail page — the two-column editorial layouts. Inline styles can't
+   express the < 880 px collapse, so the grid columns and the divider-to-top-border swap live
+   here (mirrors the design's own mobile rule). */
+.sw-hero { display: grid; grid-template-columns: minmax(0, 1.42fr) minmax(0, 1fr); gap: 0 44px; }
+.sw-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; }
+.sw-split > * + * { border-left: 1px solid oklch(92% 0.006 260); padding-left: 40px; }
+.sw-money { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 0 44px; }
+.sw-poll-panel { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+
+@media (max-width: 880px) {
+  .sw-hero, .sw-split, .sw-money, .sw-poll-panel { grid-template-columns: 1fr; }
+  .sw-hero .sw-rail { margin-top: 28px; }
+  .sw-split > * + * { border-left: 0; padding-left: 0; border-top: 2px solid oklch(24% 0.01 260); padding-top: 20px; margin-top: 6px; }
+  .sw-money > * + * { margin-top: 28px; }
+  .sw-poll-panel > * + * { border-left: 0 !important; border-top: 1px solid oklch(92% 0.006 260); }
+}

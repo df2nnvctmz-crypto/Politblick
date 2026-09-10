@@ -4,6 +4,7 @@ import type { PartyTally, MemberVote, RealPoll, PollResult } from './polls';
 import type { SidejobRecord } from './sidejobs';
 import { EMPTY_LOBBY_LINKS, partyDonationSourceUrl, type LobbyLinks, type PartyDonation } from './lobby';
 import type { Committee, CommitteeMembership } from './committees';
+import type { StoriesIndex, StoryIndexEntry } from './stories';
 
 /**
  * All real data (roster, polls, vote breakdowns, sidejobs, member photos) is pre-fetched by
@@ -66,6 +67,13 @@ export interface Snapshot {
   /** Long-run voting aggregates per politician id. Empty when the derived summary is absent. */
   historyByPolitician: Map<number, MemberHistorySummary>;
   historyCoverage: VoteHistoryCoverage | null;
+  /**
+   * Compact index of every Sitzungswochen-Briefing, newest first (~2 KB gzipped). Powers the
+   * landing-page tiles and the "Briefing anzeigen" buttons on /abstimmungen; each week's full
+   * briefing is lazy-loaded by its detail page (see src/stories.ts). Empty when the generated
+   * file is absent.
+   */
+  storyIndex: StoryIndexEntry[];
   meta: SnapshotMeta;
 }
 
@@ -110,7 +118,7 @@ async function buildSnapshot(): Promise<Snapshot> {
   // Roster, polls and results are required — without them there is no site. Everything else
   // degrades to empty, so a member's profile still renders fully before the first
   // fetch-lobbyregister run has ever landed.
-  const [roster, polls, pollResultsRaw, sidejobsRaw, lobbyLinks, partyDonations, committeesRaw, historyRaw, archiveIndexRaw, meta] = await Promise.all([
+  const [roster, polls, pollResultsRaw, sidejobsRaw, lobbyLinks, partyDonations, committeesRaw, historyRaw, archiveIndexRaw, storiesRaw, meta] = await Promise.all([
     fetchLocalJson<{ members: RealMp[]; parties: RealParty[] }>('/data/roster.json'),
     fetchLocalJson<RealPoll[]>('/data/polls.json'),
     fetchLocalJson<Record<string, RawPollResult>>('/data/poll-results.json'),
@@ -126,6 +134,9 @@ async function buildSnapshot(): Promise<Snapshot> {
     // above. Without it the search box can only see the current term, so a bill that has its own
     // page is unfindable by name.
     fetchLocalJson<{ polls: ArchivedPollIndexEntry[] }>('/data/poll-archive-index.json').catch(() => null),
+    // Compact index of the Sitzungswochen-Briefing — one row per week, so the landing page and
+    // the /abstimmungen buttons need no second request. Absent until the first build-stories run.
+    fetchLocalJson<StoriesIndex>('/data/stories.json').catch(() => null),
     fetchLocalJson<SnapshotMeta>('/data/meta.json').catch(() => ({
       legislaturePeriodId: null,
       legislatureLabel: null,
@@ -191,6 +202,7 @@ async function buildSnapshot(): Promise<Snapshot> {
     archivedPolls: archiveIndexRaw?.polls ?? [],
     historyByPolitician,
     historyCoverage: historyRaw?.coverage ?? null,
+    storyIndex: storiesRaw?.issues ?? [],
     meta,
   };
 }

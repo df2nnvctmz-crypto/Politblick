@@ -44,6 +44,8 @@ import { InfoTooltip, MpAvatar, MultiSelectFilter, MultiSortableTh, ScrollBox, S
 import { ActorTypeSpendChart, DonationBarChart, HemicycleChart, OrgInfluenceBarChart, SectorBarChart, TieMatrix, type MatrixCell, type SectorMetric } from './charts';
 import { FindMyMpBox, GlobalSearchBox } from './search/SearchBoxes';
 import { LongTermDivergenceList, LongTermRecordCard } from './profile/LongTermRecord';
+import { SitzungswochenBriefing, StoryDetailPage } from './stories/Briefing';
+import { useStoryDetail } from './stories';
 
 /** Mirrors scripts/build-sitemap.mjs's SITE_URL — used to build the canonical/OG URL for the page currently on screen. */
 const SITE_URL = 'https://politblick.de';
@@ -69,6 +71,7 @@ function App() {
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(extractLeadingId(initialRoute.orgId));
   const [selectedParty, setSelectedParty] = useState<string | null>(initialRoute.party);
   const [selectedCommitteeId, setSelectedCommitteeId] = useState<string | null>(extractLeadingId(initialRoute.committeeId));
+  const [selectedStoryWeek, setSelectedStoryWeek] = useState<string | null>(initialRoute.storyWeek);
   const [orgSearchQuery, setOrgSearchQuery] = useState('');
   const [sectorMetric, setSectorMetric] = useState<SectorMetric>('members');
   const [spendScope, setSpendScope] = useState<'all' | 'linked'>('all');
@@ -255,6 +258,7 @@ function App() {
       setSelectedOrgId(extractLeadingId(r.orgId));
       setSelectedParty(r.party);
       setSelectedCommitteeId(extractLeadingId(r.committeeId));
+      setSelectedStoryWeek(r.storyWeek);
       setProfileTab(r.profileTab);
       setLobbyTab(r.lobbyTab);
       setPartyTab(r.partyTab);
@@ -274,7 +278,7 @@ function App() {
     // selected ids/tabs rather than the routeToPath() output below, since that output changes
     // (bare id -> full slug) once `snapshot` loads even though the page itself hasn't changed.
     const prevPageKey = pageKeyRef.current;
-    const pageKey = [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId].join('|');
+    const pageKey = [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek].join('|');
     pageKeyRef.current = pageKey;
     const returningToListFromProfile = view === 'search' && prevView === 'profile' && searchScrollYRef.current !== null;
     // A client-side pushState never triggers the browser's own scroll reset the way a real page
@@ -309,6 +313,7 @@ function App() {
       committeeId: selectedCommitteeId
         ? buildSlugParam(selectedCommitteeId, snapshot?.committees.find((c) => String(c.id) === selectedCommitteeId)?.name)
         : null,
+      storyWeek: selectedStoryWeek,
     });
     const fullPath = withBase(path, import.meta.env.BASE_URL);
     if (window.location.pathname !== fullPath) {
@@ -330,11 +335,13 @@ function App() {
     partyTab,
     lobbyTab,
     selectedCommitteeId,
+    selectedStoryWeek,
     roster.members,
     pollsState.polls,
     snapshot,
   ]);
   const weekly = useWeeklyResults(pollsState.polls);
+  const storyDetail = useStoryDetail(view === 'story' ? selectedStoryWeek : null);
   // Shared across the whole app: the search list computes every visible member's alignment
   // from this same fetch (no per-row network calls), and the profile page reuses it too.
   const recentPolls = useRecentPollResults(pollsState.polls);
@@ -361,6 +368,10 @@ function App() {
     setCommitteeListSearch('');
   };
   const goPollList = () => setView('pollList');
+  const openStory = (week: string) => {
+    setView('story');
+    setSelectedStoryWeek(week);
+  };
   const openCommittee = (id: string) => {
     setView('committee');
     setSelectedCommitteeId(id);
@@ -413,6 +424,11 @@ function App() {
     setPartyTopicalExpanded(false);
     setPartyOrigin(origin);
   };
+  /** Opens a party page straight on its donations tab — used by the Sitzungswochen-Briefing. */
+  const openPartyDonations = (party: string) => {
+    openParty(party);
+    setPartyTab('donations');
+  };
   // Real hrefs for every client-side-routed target, computed the same way the address-bar sync
   // effect above does. Paired with the openX()/goX() state setters via stop(): the href lets
   // ctrl/cmd/middle-click and long-press-to-open-in-new-tab work like a normal link, while a plain
@@ -424,6 +440,7 @@ function App() {
   const partyListHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'partyList' }), BASE_URL);
   const committeeListHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'committeeList' }), BASE_URL);
   const pollListHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'pollList' }), BASE_URL);
+  const storyHref = (week: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'story', storyWeek: week }), BASE_URL);
   const impressumHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'impressum' }), BASE_URL);
   const disclaimerHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'disclaimer' }), BASE_URL);
   const datenschutzHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'datenschutz' }), BASE_URL);
@@ -774,6 +791,19 @@ function App() {
         title = `${t.navPolls} – Politblick`;
         description = t.pollListSub;
         break;
+      case 'story':
+        if (storyDetail.issue) {
+          const range = `${storyDetail.issue.dateRange.start} – ${storyDetail.issue.dateRange.end}`;
+          title = `${t.swSectionTitle} ${range} – Politblick`;
+          description = t.metaStoryDescTemplate
+            .replace('{range}', range)
+            .replace('{polls}', String(storyDetail.issue.pollCount))
+            .replace('{donations}', String(storyDetail.issue.donations.count));
+        } else {
+          title = `${t.swSectionTitle} – Politblick`;
+          description = t.swSectionSub;
+        }
+        break;
       case 'committee':
         if (committeeDetail.detail) {
           title = `${committeeDetail.detail.committee.name} – Politblick`;
@@ -837,13 +867,13 @@ function App() {
     // doesn't count anything itself: that page was already counted by count.js's own on-load
     // beacon moments earlier, however its title read at that point (see index.html) — this only
     // ever fires for a page reached by an in-app navigation, which that beacon could never see.
-    const pageKey = [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId].join('|');
+    const pageKey = [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek].join('|');
     if (lastCountedPageKeyRef.current !== null && lastCountedPageKeyRef.current !== pageKey) {
       window.goatcounter?.count?.({ path: window.location.pathname, title });
     }
     lastCountedPageKeyRef.current = pageKey;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, profile, pollDetail.result, orgDetail.org, committeeDetail.detail]);
+  }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek, profile, pollDetail.result, orgDetail.org, committeeDetail.detail, storyDetail.issue]);
   // "Linked" means exactly what orgsSectionSub claims: something on this site points at it — a
   // member's role, a lobbied vote, a committee, or a large donation. Re-deriving it from member
   // and vote counts alone would silently drop the donation-only ties.
@@ -1388,6 +1418,21 @@ function App() {
               </div>
             </div>
           </section>
+
+          {(snapshot?.storyIndex.length ?? 0) > 0 && (
+            <SitzungswochenBriefing
+              issues={snapshot!.storyIndex}
+              t={t}
+              lang={lang}
+              storyHref={storyHref}
+              onOpenStory={openStory}
+              pollListHref={pollListHref}
+              onOpenPollList={goPollList}
+              billHref={billHref}
+              onOpenBill={openBill}
+              stop={stop}
+            />
+          )}
 
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '12px 32px 8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
@@ -4164,12 +4209,26 @@ function App() {
             <div style={{ position: 'relative' }}>
               <div style={{ position: 'absolute', left: 5, top: 6, bottom: 6, width: 2, background: 'oklch(90% 0.006 260)', borderRadius: 1 }} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 32, paddingLeft: 28 }}>
-              {pollWeekGroups.map((group) => (
+              {pollWeekGroups.map((group) => {
+                const weekKey = group.range.start.toISOString().slice(0, 10);
+                const hasBriefing = snapshot?.storyIndex.some((s) => s.week === weekKey) ?? false;
+                return (
                 <div key={group.range.start.toISOString()} style={{ position: 'relative' }}>
                   <div style={{ position: 'absolute', left: -28, top: 2, width: 12, height: 12, borderRadius: '50%', background: 'white', border: '2px solid oklch(45% 0.16 265)' }} />
-                  <h3 style={{ fontSize: 13, fontWeight: 700, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>
-                    {t.weekOf} {formatWeekRange(group.range, lang)}
-                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap', margin: '0 0 12px' }}>
+                    <h3 style={{ fontSize: 13, fontWeight: 700, color: 'oklch(48% 0.01 260)', margin: 0 }}>
+                      {t.weekOf} {formatWeekRange(group.range, lang)}
+                    </h3>
+                    {hasBriefing && (
+                      <a
+                        href={storyHref(weekKey)}
+                        onClick={stop(() => openStory(weekKey))}
+                        style={{ fontSize: 12, fontWeight: 700, color: 'oklch(48% 0.12 250)', whiteSpace: 'nowrap' }}
+                      >
+                        {t.swGoToBriefing} →
+                      </a>
+                    )}
+                  </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px,1fr))', gap: 16 }}>
                     {group.results.map((r) => (
                       <a
@@ -4212,7 +4271,8 @@ function App() {
                     ))}
                   </div>
                 </div>
-              ))}
+                );
+              })}
               </div>
             </div>
           )}
@@ -5137,6 +5197,37 @@ function App() {
             );
           })()}
         </main>
+      )}
+
+      {view === 'story' && (
+        storyDetail.issue ? (
+          <StoryDetailPage
+            issue={storyDetail.issue}
+            t={t}
+            lang={lang}
+            storyHref={storyHref}
+            onOpenStory={openStory}
+            pollListHref={pollListHref}
+            onOpenPollList={goPollList}
+            onBack={() => goBack(goHome)}
+            backHref={homeHref}
+            billHref={billHref}
+            onOpenBill={openBill}
+            orgHref={orgHref}
+            onOpenOrg={openOrg}
+            partyDonationsHref={(p) => partyHref(p, 'donations')}
+            onOpenPartyDonations={openPartyDonations}
+            isPartyRoutable={(p) => routablePartyNames.has(p)}
+            stop={stop}
+          />
+        ) : (
+          <main style={{ flex: 1, maxWidth: 780, margin: '0 auto', width: '100%', padding: 32 }}>
+            <a href={pollListHref} onClick={stop(goPollList)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+              ← {t.navPolls}
+            </a>
+            <p style={{ fontSize: 14, color: 'oklch(48% 0.01 260)', marginTop: 24 }}>{storyDetail.error ? t.swNotFound : t.swLoading}</p>
+          </main>
+        )
       )}
 
       {view === 'impressum' && (

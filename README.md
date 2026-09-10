@@ -16,6 +16,8 @@ this repo, and served as static JSON — so visitor traffic never reaches the up
 | `build-vote-history-summary.mjs` | *(no network)* | `public/data/vote-history-summary.json` | same job as `fetch-history` |
 | `verify-vote-history-summary.mjs` | *(no network)* | *(checks only)* | that job **and** every deploy |
 | `build-lobby-links.mjs` | *(no network)* | `public/data/lobby-links.json` | after every fetch |
+| `build-stories.mjs` | *(no network)* | `public/data/stories.json` | after `fetch-core` and `fetch-parteispenden` |
+| `verify-stories.mjs` | *(no network)* | *(checks only)* | every deploy |
 
 `data/` is **not** served — it holds the ~5 MB register snapshot that only the derive step
 reads. Only `public/data/` reaches the browser.
@@ -163,11 +165,47 @@ source-linked file, and it is the only thing that can make the site claim someon
 against this organisation's position". Where no curated stance exists, the organisation's own
 wording is shown and no direction is asserted.
 
+## Sitzungswochen-Briefing
+
+`build-stories.mjs` writes one briefing per *Sitzungswoche* — an ISO week (keyed by its Monday)
+in which at least one roll-call vote happened, read straight off `polls.json`. There is no
+hand-kept sitting calendar. Output is:
+
+- `public/data/stories.json` — a compact index of every week (~2 KB gzipped). It rides in the
+  blocking snapshot and powers the landing-page tiles (three most recent) and the "Briefing
+  anzeigen" buttons on `/abstimmungen` (every week).
+- `public/data/stories/<montag>.json` — one week's full briefing. Its page
+  (`/sitzungswoche/<montag>`, prerendered like the rest) lazy-loads it on first use.
+
+The landing-page tile is an overview only — a line of key numbers. The detail page is where the
+prose lives: a lead sentence sits next to each chart so the text explains the numbers where
+they are shown.
+
+Donations are partitioned across the weeks by publication date: week *i* owns everything
+published in `[Monday(i), Monday(i+1))`, and the newest week owns everything from its Monday
+on. Nothing published in a sitting break is lost — it falls into the next week. Donations
+published before the term's first sitting week belong to no week (no "previous week" for them
+to be *since*), which is also why the term's first sitting week is the only one allowed to
+carry no new donation.
+
+**No prose is written here.** The briefing reads as sentences, but every one of them is a
+template with number slots in `src/data.ts` (`TRANSLATIONS`, the `SITZUNGSWOCHE` block) — the
+component only picks which template applies (one vote vs. several, some divergence vs. none, …)
+and fills the slots. The whole value is that each number checks against a source, so a
+generated sentence — one nobody verified — costs more than it adds. `build-stories.mjs` emits
+numbers, ids, and labels that are themselves data.
+
+Like `build-vote-history-summary.mjs`, it restates a frontend rule (`computeDivergences`) in
+Node and inherits `generatedAt` from its inputs so an unchanged rebuild is an empty diff.
+`verify-stories.mjs` recomputes every issue's divergence counts and donation sums from the raw
+snapshots, shares no code with the builder, and fails the deploy on any disagreement or on a
+stale build.
+
 ## Tests
 
 `npm test` (vitest, `npm run test:watch` to iterate). Every deploy runs it before `npm run
-build`, alongside `verify-vote-history-summary.mjs`, so a broken join key blocks the release
-rather than publishing a wrong figure about a named person.
+build`, alongside `verify-vote-history-summary.mjs` and `verify-stories.mjs`, so a broken join
+key blocks the release rather than publishing a wrong figure about a named person.
 
 They cover the **pure functions that decide what the site asserts about an identifiable
 person** — not the rendering. Four things, and deliberately only those:

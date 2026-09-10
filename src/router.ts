@@ -9,7 +9,7 @@
  * spa-github-pages redirect trick in public/404.html + index.html.
  */
 
-export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'partyList' | 'party' | 'committeeList' | 'committee' | 'pollList' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten';
+export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'partyList' | 'party' | 'committeeList' | 'committee' | 'pollList' | 'story' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten';
 export type ProfileTab = 'overview' | 'votes' | 'lobby' | 'finance';
 export type LobbyTab = 'overview' | 'ties' | 'orgs' | 'donations';
 export type PartyTab = 'overview' | 'votes' | 'ties' | 'donations';
@@ -24,10 +24,12 @@ export interface RouteState {
   partyTab: PartyTab;
   lobbyTab: LobbyTab;
   committeeId: string | null;
+  /** Monday (YYYY-MM-DD) of a Sitzungswochen-Briefing detail page. */
+  storyWeek: string | null;
 }
 
 export const DEFAULT_ROUTE: RouteState = {
-  view: 'home', mpId: null, profileTab: 'overview', billId: null, orgId: null, party: null, partyTab: 'overview', lobbyTab: 'overview', committeeId: null,
+  view: 'home', mpId: null, profileTab: 'overview', billId: null, orgId: null, party: null, partyTab: 'overview', lobbyTab: 'overview', committeeId: null, storyWeek: null,
 };
 
 const PROFILE_TAB_TO_SEGMENT: Record<ProfileTab, string | null> = { overview: null, votes: 'stimmen', lobby: 'lobby', finance: 'finanzen' };
@@ -66,6 +68,8 @@ export function routeToPath(r: RouteState): string {
       return r.committeeId ? `/ausschuesse/${encodeURIComponent(r.committeeId)}` : '/ausschuesse';
     case 'pollList':
       return '/abstimmungen';
+    case 'story':
+      return r.storyWeek ? `/sitzungswoche/${encodeURIComponent(r.storyWeek)}` : '/abstimmungen';
     case 'party': {
       if (!r.party) return '/parteien';
       const seg = PARTY_TAB_TO_SEGMENT[r.partyTab];
@@ -113,6 +117,10 @@ export function pathToRoute(pathname: string): RouteState {
     return { ...DEFAULT_ROUTE, view: 'party', party: second, partyTab: third ? SEGMENT_TO_PARTY_TAB[third] ?? 'overview' : 'overview' };
   }
   if (first === 'abstimmungen') return { ...DEFAULT_ROUTE, view: 'pollList' };
+  if (first === 'sitzungswoche') {
+    if (!second) return { ...DEFAULT_ROUTE, view: 'pollList' };
+    return { ...DEFAULT_ROUTE, view: 'story', storyWeek: second };
+  }
   if (first === 'lobby-finanzen') {
     return { ...DEFAULT_ROUTE, view: 'crossref', lobbyTab: second ? SEGMENT_TO_LOBBY_TAB[second] ?? 'overview' : 'overview' };
   }
