@@ -2,10 +2,10 @@ name: Fetch Lobbyregister
 
 on:
   schedule:
-    # Weekly. The register is a registration database, not a feed — entries change when an
-    # organisation updates its filing, so daily polling would mostly re-download identical data.
-    # The crawl is ~140 cursor-paginated requests and takes about three minutes.
-    - cron: '0 2 * * 0'
+    # Twice weekly (Sun/Wed). The register is a registration database, not a feed — entries
+    # change when an organisation updates its filing, so daily polling would mostly re-download
+    # identical data. The crawl is ~140 cursor-paginated requests and takes about three minutes.
+    - cron: '0 2 * * 0,3'
   workflow_dispatch: {}
 
 permissions:
