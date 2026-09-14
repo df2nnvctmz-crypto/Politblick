@@ -35,7 +35,15 @@ jobs:
       - name: Rebuild lobby cross-references
         run: node scripts/build-lobby-links.mjs
 
+      # The Sitzungswochen-Briefing inherits its generatedAt from lobby-links.json too, so the
+      # rebuild above leaves it stale — and verify-stories.mjs fails the next deploy on a
+      # data-less checkout only when polls.json is present, otherwise it's a no-op.
+      - name: Rebuild Sitzungswochen-Briefing
+        run: node scripts/build-stories.mjs
+
       - uses: ./.github/actions/commit-data
         with:
           message: Update sidejobs data
-          paths: public/data/sidejobs.json public/data/lobby-links.json public/data/meta.json
+          paths: >-
+            public/data/sidejobs.json public/data/lobby-links.json
+            public/data/stories.json public/data/stories public/data/meta.json
