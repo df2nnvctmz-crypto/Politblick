@@ -56,10 +56,13 @@ export function buildMemberIncomeScores(sidejobsByMandate: Map<number, SidejobRe
   return scores;
 }
 export interface SidejobIncomeSummary {
-  /** Every exactly disclosed amount added up: recurring ones annualized, plus one-off and undated ones. */
+  /** Every exactly disclosed amount added up: rates annualized, plus one-off and undated ones. */
   total: number;
-  /** Recurring incomes (monthly × 12 + annual) — the part of the total that comes back every year. */
-  recurringAnnual: number;
+  /**
+   * Amounts disclosed as a rate (monthly × 12 + annual). NOT "recurring": 109 monthly rates in the
+   * data belong to activities that have already ended, so this only says how it was disclosed.
+   */
+  rateAnnualized: number;
   /** One-off payments and amounts disclosed without any interval (e.g. per-client fees). */
   oneOffOrUndated: number;
   /** Disclosures that are paid at all — with an exact amount or at least an income level. */
@@ -70,7 +73,7 @@ export interface SidejobIncomeSummary {
 
 /** Disclosed outside income totals for the profile — exact figures only, bracket midpoints never enter a shown sum. */
 export function summarizeSidejobIncome(records: SidejobRecord[]): SidejobIncomeSummary {
-  const summary: SidejobIncomeSummary = { total: 0, recurringAnnual: 0, oneOffOrUndated: 0, paidCount: 0, bracketOnlyCount: 0 };
+  const summary: SidejobIncomeSummary = { total: 0, rateAnnualized: 0, oneOffOrUndated: 0, paidCount: 0, bracketOnlyCount: 0 };
   for (const r of records) {
     if (r.income === null) {
       if (r.incomeLevel !== null) {
@@ -80,10 +83,10 @@ export function summarizeSidejobIncome(records: SidejobRecord[]): SidejobIncomeS
       continue;
     }
     summary.paidCount++;
-    if (r.interval === 'monthly') summary.recurringAnnual += r.income * 12;
-    else if (r.interval === 'annual') summary.recurringAnnual += r.income;
+    if (r.interval === 'monthly') summary.rateAnnualized += r.income * 12;
+    else if (r.interval === 'annual') summary.rateAnnualized += r.income;
     else summary.oneOffOrUndated += r.income;
   }
-  summary.total = summary.recurringAnnual + summary.oneOffOrUndated;
+  summary.total = summary.rateAnnualized + summary.oneOffOrUndated;
   return summary;
 }

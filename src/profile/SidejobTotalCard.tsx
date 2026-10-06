@@ -13,7 +13,7 @@ export function SidejobTotalCard({ records, t, lang }: { records: SidejobRecord[
   const locale = lang === 'de' ? 'de-DE' : 'en-US';
   const fmt = (n: number) => `${Math.round(n).toLocaleString(locale)} €`;
   // Only spell out the split when both parts exist — "davon 100 %" adds nothing.
-  const showSplit = sum.recurringAnnual > 0 && sum.oneOffOrUndated > 0;
+  const showSplit = sum.rateAnnualized > 0 && sum.oneOffOrUndated > 0;
 
   return (
     <div style={{ background: 'oklch(97% 0.012 250)', border: '1px solid oklch(85% 0.04 250)', borderRadius: 12, padding: '18px 20px', marginBottom: 6 }}>
@@ -39,7 +39,7 @@ export function SidejobTotalCard({ records, t, lang }: { records: SidejobRecord[
           {sum.paidCount === 0 && records.length > 0 && t.sidejobsTotalNone}
           {showSplit && (
             <>
-              {t.sidejobsTotalRecurringTemplate.replace('{amount}', fmt(sum.recurringAnnual))}
+              {t.sidejobsTotalRecurringTemplate.replace('{amount}', fmt(sum.rateAnnualized))}
               {' · '}
               {t.sidejobsTotalOneOffTemplate.replace('{amount}', fmt(sum.oneOffOrUndated))}
               {'. '}
