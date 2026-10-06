@@ -55,28 +55,35 @@ export function buildMemberIncomeScores(sidejobsByMandate: Map<number, SidejobRe
   for (const [mandateId, records] of sidejobsByMandate) scores.set(mandateId, estimateIncomeScore(records));
   return scores;
 }
-
 export interface SidejobIncomeSummary {
-  /** Annualized sum of exactly disclosed recurring incomes (monthly × 12 + annual). */
-  annualTotal: number;
-  annualCount: number;
-  /** Sum of exactly disclosed one-off payments — kept apart, since it isn't a yearly figure. */
-  onceTotal: number;
-  /** Paid sidejobs disclosed only as a bracket — excluded from every sum, only counted. */
+  /** Every exactly disclosed amount added up: recurring ones annualized, plus one-off and undated ones. */
+  total: number;
+  /** Recurring incomes (monthly × 12 + annual) — the part of the total that comes back every year. */
+  recurringAnnual: number;
+  /** One-off payments and amounts disclosed without any interval (e.g. per-client fees). */
+  oneOffOrUndated: number;
+  /** Disclosures that are paid at all — with an exact amount or at least an income level. */
+  paidCount: number;
+  /** Paid disclosures given only as a level — counted, but never turned into a euro amount. */
   bracketOnlyCount: number;
 }
 
-/** Disclosed outside income totals for the profile header — exact figures only, bracket midpoints never enter a shown sum. */
+/** Disclosed outside income totals for the profile — exact figures only, bracket midpoints never enter a shown sum. */
 export function summarizeSidejobIncome(records: SidejobRecord[]): SidejobIncomeSummary {
-  const summary: SidejobIncomeSummary = { annualTotal: 0, annualCount: 0, onceTotal: 0, bracketOnlyCount: 0 };
+  const summary: SidejobIncomeSummary = { total: 0, recurringAnnual: 0, oneOffOrUndated: 0, paidCount: 0, bracketOnlyCount: 0 };
   for (const r of records) {
     if (r.income === null) {
-      if (r.incomeLevel !== null) summary.bracketOnlyCount++;
-    } else if (r.interval === 'once') summary.onceTotal += r.income;
-    else if (r.interval === 'monthly' || r.interval === 'annual') {
-      summary.annualTotal += r.interval === 'monthly' ? r.income * 12 : r.income;
-      summary.annualCount++;
+      if (r.incomeLevel !== null) {
+        summary.paidCount++;
+        summary.bracketOnlyCount++;
+      }
+      continue;
     }
+    summary.paidCount++;
+    if (r.interval === 'monthly') summary.recurringAnnual += r.income * 12;
+    else if (r.interval === 'annual') summary.recurringAnnual += r.income;
+    else summary.oneOffOrUndated += r.income;
   }
+  summary.total = summary.recurringAnnual + summary.oneOffOrUndated;
   return summary;
 }

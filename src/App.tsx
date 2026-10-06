@@ -3,7 +3,7 @@ import { TRANSLATIONS, type Lang } from './data';
 import { fuzzyIncludes } from './helpers';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealMp } from './bundestag';
 import { computeAllAlignments, computeDivergences, computeMemberAlignment, isoWeekRange, useAllPollResults, useAllPolls, useMandateVotes, usePartyVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult } from './polls';
-import { buildMemberIncomeScores, summarizeSidejobIncome, useSidejobs } from './sidejobs';
+import { buildMemberIncomeScores, useSidejobs } from './sidejobs';
 import { useSnapshot, type MemberHistorySummary } from './snapshot';
 import { useArchivedPollResult, useMemberVoteHistory, usePartyVoteHistory, type DivergenceKind } from './voteHistory';
 import {
@@ -44,6 +44,7 @@ import { InfoTooltip, MpAvatar, MultiSelectFilter, MultiSortableTh, ScrollBox, S
 import { ActorTypeSpendChart, DonationBarChart, HemicycleChart, OrgInfluenceBarChart, SectorBarChart, TieMatrix, type MatrixCell, type SectorMetric } from './charts';
 import { FindMyMpBox, GlobalSearchBox } from './search/SearchBoxes';
 import { LongTermDivergenceList, LongTermRecordCard } from './profile/LongTermRecord';
+import { SidejobTotalCard } from './profile/SidejobTotalCard';
 import { SitzungswochenBriefing, StoryDetailPage } from './stories/Briefing';
 import { useStoryDetail } from './stories';
 
@@ -85,7 +86,7 @@ function App() {
   const [partyTab, setPartyTab] = useState<PartyTab>(initialRoute.partyTab);
   const [searchQuery, setSearchQuery] = useState('');
   const [partyFilter, setPartyFilter] = useState<Record<string, boolean>>({});
-  const [rosterSort, setRosterSort] = useState<'default' | 'income' | 'ties' | 'loyalty' | 'divergences'>('default');
+  const [rosterSort, setRosterSort] = useState<'default' | 'income' | 'sidejobCount' | 'ties' | 'loyalty' | 'divergences'>('default');
   const [following, setFollowing] = useState<Record<string, boolean>>({});
   const [hoveredAlignmentPoint, setHoveredAlignmentPoint] = useState<number | null>(null);
   const alignmentSvgRef = useRef<SVGSVGElement>(null);
@@ -492,6 +493,7 @@ function App() {
     })
     .sort((a, b) => {
       if (rosterSort === 'income') return (incomeScoreByMandate.get(b.mandateId) ?? 0) - (incomeScoreByMandate.get(a.mandateId) ?? 0);
+      if (rosterSort === 'sidejobCount') return (snapshot?.sidejobsByMandate.get(b.mandateId)?.length ?? 0) - (snapshot?.sidejobsByMandate.get(a.mandateId)?.length ?? 0);
       if (rosterSort === 'ties') return (tieCountByMandate.get(b.mandateId) ?? 0) - (tieCountByMandate.get(a.mandateId) ?? 0);
       if (rosterSort === 'loyalty') {
         // Sorts on the LONG-RUN figure only. The ten-vote number this list used to show is 100%
@@ -1643,6 +1645,7 @@ function App() {
               >
                 <option value="default">{t.sortDefault}</option>
                 <option value="income">{t.sortIncome}</option>
+                <option value="sidejobCount">{t.sortSidejobCount}</option>
                 <option value="ties">{t.sortTies}</option>
                 <option value="loyalty">{t.sortLoyalty}</option>
                 <option value="divergences">{t.sortDivergences}</option>
@@ -2437,31 +2440,13 @@ function App() {
                 ) : sidejobs.error ? (
                   <p style={{ fontSize: 13.5, color: 'oklch(48% 0.16 40)' }}>{t.sidejobsError}</p>
                 ) : sidejobs.records.length === 0 ? (
-                  <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.noFinanceData}</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <SidejobTotalCard records={sidejobs.records} t={t} lang={lang} />
+                    <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.noFinanceData}</p>
+                  </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {(() => {
-                      const sum = summarizeSidejobIncome(sidejobs.records);
-                      if (sum.annualCount === 0 && sum.onceTotal === 0) return null;
-                      const fmt = (n: number) => `${Math.round(n).toLocaleString(lang === 'de' ? 'de-DE' : 'en-US')} €`;
-                      const headlineIsAnnual = sum.annualCount > 0;
-                      return (
-                        <div style={{ background: 'oklch(97% 0.012 250)', border: '1px solid oklch(85% 0.04 250)', borderRadius: 12, padding: '18px 20px', marginBottom: 6 }}>
-                          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', color: 'oklch(45% 0.08 250)' }}>
-                            {t.sidejobsTotalLabel}
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
-                            <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: -0.5 }}>{fmt(headlineIsAnnual ? sum.annualTotal : sum.onceTotal)}</span>
-                            <span style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>{headlineIsAnnual ? t.sidejobsTotalPerYear : t.sidejobOnce}</span>
-                          </div>
-                          <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginTop: 6, lineHeight: 1.55 }}>
-                            {headlineIsAnnual && t.sidejobsTotalBasisTemplate.replace('{n}', String(sum.annualCount))}
-                            {headlineIsAnnual && sum.onceTotal > 0 && ` ${t.sidejobsTotalOnceTemplate.replace('{amount}', fmt(sum.onceTotal))}`}
-                            {sum.bracketOnlyCount > 0 && ` ${t.sidejobsTotalBracketsTemplate.replace('{n}', String(sum.bracketOnlyCount))}`}
-                          </div>
-                        </div>
-                      );
-                    })()}
+                    <SidejobTotalCard records={sidejobs.records} t={t} lang={lang} />
                     {sidejobs.records.map((s) => {
                       const intervalLabel =
                         s.interval === 'once' ? t.sidejobOnce : s.interval === 'monthly' ? t.sidejobMonthly : s.interval === 'annual' ? t.sidejobAnnual : null;

@@ -12,7 +12,7 @@ export interface Translation {
   featuredKicker: string; readMore: string;
   feedTitle: string; feedSub: string;
   filterParty: string; results: string;
-  filterSort: string; sortDefault: string; sortIncome: string; sortTies: string;
+  filterSort: string; sortDefault: string; sortIncome: string; sortSidejobCount: string; sortTies: string;
   filterActorType: string; filterFieldOfInterest: string; filterAllLabel: string;
   filterSelectedCountTemplate: string; clearAllFilters: string; filterSearchPlaceholder: string;
   flagsLabel: string; backToSearch: string; backToHome: string;
@@ -69,8 +69,9 @@ export interface Translation {
   noMandateVotesYet: string;
   tabSidejobs: string; sidejobOnce: string; sidejobMonthly: string; sidejobAnnual: string; sidejobsSourceNote: string;
   sidejobIncomeLevelPrefix: string;
-  sidejobsTotalLabel: string; sidejobsTotalPerYear: string; sidejobsTotalBasisTemplate: string;
-  sidejobsTotalOnceTemplate: string; sidejobsTotalBracketsTemplate: string;
+  sidejobsTotalLabel: string; sidejobsTotalGross: string; sidejobsCountLabel: string; sidejobsCountOfTemplate: string; sidejobsCountOfOne: string;
+  sidejobsTotalRecurringTemplate: string; sidejobsTotalOneOffTemplate: string; sidejobsTotalBracketsTemplate: string;
+  sidejobsTotalNone: string;
   alignmentTrendRealTemplate: string; photoCredit: string;
   dataAsOfTemplate: string; sidejobsAsOfTemplate: string;
   lobbyAffiliationsTitle: string; lobbyAffiliationsSub: string; lobbyNoAffiliations: string;
@@ -255,7 +256,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     featuredKicker: 'Im Fokus', readMore: 'Vollständige Analyse lesen',
     feedTitle: 'Aktuelle Abstimmungen', feedSub: 'Kürzlich abgeschlossene Abstimmungen im Bundestag',
     filterParty: 'Partei', results: 'Ergebnisse',
-    filterSort: 'Sortierung', sortDefault: 'Standard', sortIncome: 'Nebeneinkünfte (höchste zuerst)', sortTies: 'Verflechtungen (meiste zuerst)',
+    filterSort: 'Sortierung', sortDefault: 'Standard', sortIncome: 'Nebeneinkünfte (höchste zuerst)', sortSidejobCount: 'Nebentätigkeiten (meiste zuerst)', sortTies: 'Verflechtungen (meiste zuerst)',
     filterActorType: 'Akteurstyp', filterFieldOfInterest: 'Interessengebiet', filterAllLabel: 'Alle',
     filterSelectedCountTemplate: '{n} ausgewählt', clearAllFilters: 'Filter zurücksetzen', filterSearchPlaceholder: 'Suchen…',
     flagsLabel: 'Hinweise', backToSearch: 'Zurück zur Suche', backToHome: 'Zurück zur Startseite',
@@ -367,10 +368,14 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     sidejobsSourceNote: 'Quelle: Angaben gemäß den Verhaltensregeln für Mitglieder des Deutschen Bundestages. Keine Nebeneinkünfte gemeldet bedeutet nicht zwingend, dass keine bestehen — nur, dass keine meldepflichtige Tätigkeit vorliegt.',
     sidejobIncomeLevelPrefix: 'Stufe',
     sidejobsTotalLabel: 'Gesamte Nebeneinkünfte',
-    sidejobsTotalPerYear: 'pro Jahr, brutto',
-    sidejobsTotalBasisTemplate: 'Summe aus {n} laufenden Einkünften mit exakt gemeldetem Betrag (monatliche Beträge × 12).',
-    sidejobsTotalOnceTemplate: 'Zusätzlich einmalig: {amount}.',
-    sidejobsTotalBracketsTemplate: '{n} weitere Einkünfte nur als Stufe gemeldet — nicht in der Summe enthalten.',
+    sidejobsTotalGross: 'brutto, Summe aller exakt gemeldeten Beträge',
+    sidejobsCountLabel: 'Gemeldete Nebeneinkünfte',
+    sidejobsCountOfTemplate: 'von {n} Nebentätigkeiten bezahlt',
+    sidejobsCountOfOne: 'von 1 Nebentätigkeit bezahlt',
+    sidejobsTotalRecurringTemplate: 'davon {amount} jährlich wiederkehrend (monatliche Beträge × 12)',
+    sidejobsTotalOneOffTemplate: 'davon {amount} einmalig oder ohne Zeitraum gemeldet',
+    sidejobsTotalBracketsTemplate: '{n} Einkünfte nur als Stufe gemeldet — nicht in der Summe enthalten.',
+    sidejobsTotalNone: 'Keine bezahlte Nebentätigkeit gemeldet.',
     alignmentTrendRealTemplate: 'Parteitreue der letzten {n} Abstimmungen',
     photoCredit: 'Foto: Wikimedia Commons',
     dataAsOfTemplate: 'Abgeordnete, Abstimmungen: Stand {date}',
@@ -691,7 +696,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     featuredKicker: 'In focus', readMore: 'Read the full analysis',
     feedTitle: 'Recent votes', feedSub: 'Recently concluded roll-call votes in the Bundestag',
     filterParty: 'Party', results: 'results',
-    filterSort: 'Sort by', sortDefault: 'Default', sortIncome: 'Outside income (highest first)', sortTies: 'Lobby ties (most first)',
+    filterSort: 'Sort by', sortDefault: 'Default', sortIncome: 'Outside income (highest first)', sortSidejobCount: 'Outside activities (most first)', sortTies: 'Lobby ties (most first)',
     filterActorType: 'Actor type', filterFieldOfInterest: 'Field of interest', filterAllLabel: 'All',
     filterSelectedCountTemplate: '{n} selected', clearAllFilters: 'Clear filters', filterSearchPlaceholder: 'Search…',
     flagsLabel: 'flags', backToSearch: 'Back to search', backToHome: 'Back to home',
@@ -803,10 +808,14 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     sidejobsSourceNote: 'Source: Disclosures under the Bundestag members’ code of conduct. No reported outside income does not necessarily mean none exists — only that no disclosable activity is on file.',
     sidejobIncomeLevelPrefix: 'Level',
     sidejobsTotalLabel: 'Total outside income',
-    sidejobsTotalPerYear: 'per year, gross',
-    sidejobsTotalBasisTemplate: 'Sum of {n} recurring incomes with an exact disclosed amount (monthly amounts × 12).',
-    sidejobsTotalOnceTemplate: 'Plus one-off: {amount}.',
-    sidejobsTotalBracketsTemplate: '{n} more incomes disclosed only as a level — not included in the total.',
+    sidejobsTotalGross: 'gross, sum of all exactly disclosed amounts',
+    sidejobsCountLabel: 'Disclosed paid activities',
+    sidejobsCountOfTemplate: 'of {n} outside activities are paid',
+    sidejobsCountOfOne: 'of 1 outside activity is paid',
+    sidejobsTotalRecurringTemplate: '{amount} of it recurring every year (monthly amounts × 12)',
+    sidejobsTotalOneOffTemplate: '{amount} of it one-off or disclosed without a period',
+    sidejobsTotalBracketsTemplate: '{n} incomes disclosed only as a level — not included in the total.',
+    sidejobsTotalNone: 'No paid outside activity disclosed.',
     alignmentTrendRealTemplate: 'Party alignment over the last {n} votes',
     photoCredit: 'Photo: Wikimedia Commons',
     dataAsOfTemplate: 'MPs, votes: as of {date}',
