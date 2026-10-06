@@ -55,3 +55,28 @@ export function buildMemberIncomeScores(sidejobsByMandate: Map<number, SidejobRe
   for (const [mandateId, records] of sidejobsByMandate) scores.set(mandateId, estimateIncomeScore(records));
   return scores;
 }
+
+export interface SidejobIncomeSummary {
+  /** Annualized sum of exactly disclosed recurring incomes (monthly × 12 + annual). */
+  annualTotal: number;
+  annualCount: number;
+  /** Sum of exactly disclosed one-off payments — kept apart, since it isn't a yearly figure. */
+  onceTotal: number;
+  /** Paid sidejobs disclosed only as a bracket — excluded from every sum, only counted. */
+  bracketOnlyCount: number;
+}
+
+/** Disclosed outside income totals for the profile header — exact figures only, bracket midpoints never enter a shown sum. */
+export function summarizeSidejobIncome(records: SidejobRecord[]): SidejobIncomeSummary {
+  const summary: SidejobIncomeSummary = { annualTotal: 0, annualCount: 0, onceTotal: 0, bracketOnlyCount: 0 };
+  for (const r of records) {
+    if (r.income === null) {
+      if (r.incomeLevel !== null) summary.bracketOnlyCount++;
+    } else if (r.interval === 'once') summary.onceTotal += r.income;
+    else if (r.interval === 'monthly' || r.interval === 'annual') {
+      summary.annualTotal += r.interval === 'monthly' ? r.income * 12 : r.income;
+      summary.annualCount++;
+    }
+  }
+  return summary;
+}

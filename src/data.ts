@@ -69,6 +69,8 @@ export interface Translation {
   noMandateVotesYet: string;
   tabSidejobs: string; sidejobOnce: string; sidejobMonthly: string; sidejobAnnual: string; sidejobsSourceNote: string;
   sidejobIncomeLevelPrefix: string;
+  sidejobsTotalLabel: string; sidejobsTotalPerYear: string; sidejobsTotalBasisTemplate: string;
+  sidejobsTotalOnceTemplate: string; sidejobsTotalBracketsTemplate: string;
   alignmentTrendRealTemplate: string; photoCredit: string;
   dataAsOfTemplate: string; sidejobsAsOfTemplate: string;
   lobbyAffiliationsTitle: string; lobbyAffiliationsSub: string; lobbyNoAffiliations: string;
@@ -364,6 +366,11 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     tabSidejobs: 'Nebentätigkeiten', sidejobOnce: 'einmalig', sidejobMonthly: 'monatlich', sidejobAnnual: 'jährlich',
     sidejobsSourceNote: 'Quelle: Angaben gemäß den Verhaltensregeln für Mitglieder des Deutschen Bundestages. Keine Nebeneinkünfte gemeldet bedeutet nicht zwingend, dass keine bestehen — nur, dass keine meldepflichtige Tätigkeit vorliegt.',
     sidejobIncomeLevelPrefix: 'Stufe',
+    sidejobsTotalLabel: 'Gesamte Nebeneinkünfte',
+    sidejobsTotalPerYear: 'pro Jahr, brutto',
+    sidejobsTotalBasisTemplate: 'Summe aus {n} laufenden Einkünften mit exakt gemeldetem Betrag (monatliche Beträge × 12).',
+    sidejobsTotalOnceTemplate: 'Zusätzlich einmalig: {amount}.',
+    sidejobsTotalBracketsTemplate: '{n} weitere Einkünfte nur als Stufe gemeldet — nicht in der Summe enthalten.',
     alignmentTrendRealTemplate: 'Parteitreue der letzten {n} Abstimmungen',
     photoCredit: 'Foto: Wikimedia Commons',
     dataAsOfTemplate: 'Abgeordnete, Abstimmungen: Stand {date}',
@@ -795,6 +802,11 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     tabSidejobs: 'Outside income', sidejobOnce: 'one-time', sidejobMonthly: 'monthly', sidejobAnnual: 'annual',
     sidejobsSourceNote: 'Source: Disclosures under the Bundestag members’ code of conduct. No reported outside income does not necessarily mean none exists — only that no disclosable activity is on file.',
     sidejobIncomeLevelPrefix: 'Level',
+    sidejobsTotalLabel: 'Total outside income',
+    sidejobsTotalPerYear: 'per year, gross',
+    sidejobsTotalBasisTemplate: 'Sum of {n} recurring incomes with an exact disclosed amount (monthly amounts × 12).',
+    sidejobsTotalOnceTemplate: 'Plus one-off: {amount}.',
+    sidejobsTotalBracketsTemplate: '{n} more incomes disclosed only as a level — not included in the total.',
     alignmentTrendRealTemplate: 'Party alignment over the last {n} votes',
     photoCredit: 'Photo: Wikimedia Commons',
     dataAsOfTemplate: 'MPs, votes: as of {date}',
