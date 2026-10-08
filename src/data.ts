@@ -133,7 +133,7 @@ export interface Translation {
   orgNotFound: string;
   committeesTitle: string; committeesSub: string; committeeMembersCountLabel: string; committeeTopicsLabel: string;
   backToCommittees: string; committeeNotFound: string; committeesEmpty: string;
-  committeeRoleChair: string; committeeRoleForeperson: string; committeeRoleViceChair: string; committeeRoleSpokesperson: string; committeeRoleAlternate: string;
+  committeeRoleChair: string; committeeRoleActingChair: string; committeeRoleForeperson: string; committeeRoleViceChair: string; committeeRoleSpokesperson: string; committeeRoleAlternate: string;
   profileCommitteesTitle: string;
   committeeMemberSearchPlaceholder: string; committeeLobbyTitle: string; committeeLobbySub: string;
   committeeListSearchPlaceholder: string;
@@ -500,7 +500,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     committeesTitle: 'Ausschüsse', committeesSub: 'Alle Ausschüsse und Gremien des Bundestags mit ihrer aktuellen Besetzung.',
     committeeMembersCountLabel: 'Mitglieder', committeeTopicsLabel: 'Themenfelder',
     backToCommittees: 'Zurück zu Ausschüsse', committeeNotFound: 'Ausschuss nicht gefunden.', committeesEmpty: 'Keine Ausschüsse gefunden.',
-    committeeRoleChair: 'Vorsitz', committeeRoleForeperson: 'Obmann/Obfrau', committeeRoleViceChair: 'Stellv. Vorsitz', committeeRoleSpokesperson: 'Sprecher:in', committeeRoleAlternate: 'Stellv. Mitglied',
+    committeeRoleChair: 'Vorsitz', committeeRoleActingChair: 'Amt. Vorsitz', committeeRoleForeperson: 'Obmann/Obfrau', committeeRoleViceChair: 'Stellv. Vorsitz', committeeRoleSpokesperson: 'Sprecher:in', committeeRoleAlternate: 'Stellv. Mitglied',
     profileCommitteesTitle: 'Ausschüsse',
     committeeMemberSearchPlaceholder: 'Name oder Partei suchen…',
     committeeLobbyTitle: 'Organisationen mit den meisten Verflechtungen in diesem Ausschuss',
@@ -940,7 +940,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     committeesTitle: 'Committees', committeesSub: 'Every Bundestag committee and body, with its current membership.',
     committeeMembersCountLabel: 'Members', committeeTopicsLabel: 'Topics',
     backToCommittees: 'Back to committees', committeeNotFound: 'Committee not found.', committeesEmpty: 'No committees found.',
-    committeeRoleChair: 'Chair', committeeRoleForeperson: 'Group coordinator', committeeRoleViceChair: 'Vice chair', committeeRoleSpokesperson: 'Spokesperson', committeeRoleAlternate: 'Alternate member',
+    committeeRoleChair: 'Chair', committeeRoleActingChair: 'Acting chair', committeeRoleForeperson: 'Group coordinator', committeeRoleViceChair: 'Vice chair', committeeRoleSpokesperson: 'Spokesperson', committeeRoleAlternate: 'Alternate member',
     profileCommitteesTitle: 'Committees',
     committeeMemberSearchPlaceholder: 'Search name or party…',
     committeeLobbyTitle: 'Organizations with the most ties on this committee',

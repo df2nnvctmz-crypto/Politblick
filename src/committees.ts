@@ -8,7 +8,7 @@ export interface Committee {
   url: string | null;
 }
 
-export type CommitteeRole = 'member' | 'chairperson' | 'vice_chairperson' | 'foreperson' | 'spokesperson' | 'alternate_member';
+export type CommitteeRole = 'member' | 'chairperson' | 'acting_chairperson' | 'vice_chairperson' | 'foreperson' | 'spokesperson' | 'alternate_member';
 
 export interface CommitteeMembership {
   mandateId: number;
@@ -24,6 +24,7 @@ export interface CommitteeMembership {
  * exactly one "chairperson". Ranking it with the chair once labelled 115 members "Vorsitz". */
 const ROLE_RANK: Record<string, number> = {
   chairperson: 0,
+  acting_chairperson: 0,
   vice_chairperson: 1,
   foreperson: 2,
   spokesperson: 2,

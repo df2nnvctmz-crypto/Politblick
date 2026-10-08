@@ -2082,6 +2082,7 @@ function App() {
                           {memberCommittees.rows.map((r) => {
                             const roleLabel =
                               r.role === 'chairperson' ? t.committeeRoleChair
+                              : r.role === 'acting_chairperson' ? t.committeeRoleActingChair
                               : r.role === 'foreperson' ? t.committeeRoleForeperson
                               : r.role === 'vice_chairperson' ? t.committeeRoleViceChair
                               : r.role === 'spokesperson' ? t.committeeRoleSpokesperson
@@ -4349,6 +4350,7 @@ function App() {
                 {filteredCommitteeMembers.slice(0, committeeMembersExpanded ? filteredCommitteeMembers.length : 12).map((row) => {
                   const roleLabel =
                     row.role === 'chairperson' ? t.committeeRoleChair
+                    : row.role === 'acting_chairperson' ? t.committeeRoleActingChair
                     : row.role === 'foreperson' ? t.committeeRoleForeperson
                     : row.role === 'vice_chairperson' ? t.committeeRoleViceChair
                     : row.role === 'spokesperson' ? t.committeeRoleSpokesperson

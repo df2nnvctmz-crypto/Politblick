@@ -4,6 +4,7 @@ import type { PartyTally, MemberVote, RealPoll, PollResult } from './polls';
 import type { SidejobRecord } from './sidejobs';
 import { EMPTY_LOBBY_LINKS, partyDonationSourceUrl, type LobbyLinks, type PartyDonation } from './lobby';
 import type { Committee, CommitteeMembership } from './committees';
+import { correctCommitteeRoles } from './committeeCorrections';
 import type { StoriesIndex, StoryIndexEntry } from './stories';
 
 /**
@@ -198,7 +199,7 @@ async function buildSnapshot(): Promise<Snapshot> {
     lobbyLinks,
     partyDonations: partyDonations.map((d) => ({ ...d, sourceUrl: partyDonationSourceUrl(d.year) })),
     committees: committeesRaw.committees,
-    committeeMemberships: committeesRaw.memberships,
+    committeeMemberships: correctCommitteeRoles(committeesRaw.memberships),
     archivedPolls: archiveIndexRaw?.polls ?? [],
     historyByPolitician,
     historyCoverage: historyRaw?.coverage ?? null,
