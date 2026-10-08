@@ -17,11 +17,15 @@ export interface CommitteeMembership {
 }
 
 /** Lower sorts first — leadership roles surface above the plain membership list. Unknown roles
- * (the API adds new ones occasionally) sort last rather than crashing. */
+ * (the API adds new ones occasionally) sort last rather than crashing.
+ *
+ * "foreperson" is abgeordnetenwatch's term for a parliamentary group's Obmann/Obfrau in the
+ * committee — one per group (115 across all committees), NOT the chair. Every committee has
+ * exactly one "chairperson". Ranking it with the chair once labelled 115 members "Vorsitz". */
 const ROLE_RANK: Record<string, number> = {
   chairperson: 0,
-  foreperson: 0,
   vice_chairperson: 1,
+  foreperson: 2,
   spokesperson: 2,
   member: 3,
   alternate_member: 4,

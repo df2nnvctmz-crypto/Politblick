@@ -2081,7 +2081,8 @@ function App() {
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                           {memberCommittees.rows.map((r) => {
                             const roleLabel =
-                              r.role === 'chairperson' || r.role === 'foreperson' ? t.committeeRoleChair
+                              r.role === 'chairperson' ? t.committeeRoleChair
+                              : r.role === 'foreperson' ? t.committeeRoleForeperson
                               : r.role === 'vice_chairperson' ? t.committeeRoleViceChair
                               : r.role === 'spokesperson' ? t.committeeRoleSpokesperson
                               : r.role === 'alternate_member' ? t.committeeRoleAlternate
@@ -4347,7 +4348,8 @@ function App() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px,1fr))', gap: 12 }}>
                 {filteredCommitteeMembers.slice(0, committeeMembersExpanded ? filteredCommitteeMembers.length : 12).map((row) => {
                   const roleLabel =
-                    row.role === 'chairperson' || row.role === 'foreperson' ? t.committeeRoleChair
+                    row.role === 'chairperson' ? t.committeeRoleChair
+                    : row.role === 'foreperson' ? t.committeeRoleForeperson
                     : row.role === 'vice_chairperson' ? t.committeeRoleViceChair
                     : row.role === 'spokesperson' ? t.committeeRoleSpokesperson
                     : row.role === 'alternate_member' ? t.committeeRoleAlternate
