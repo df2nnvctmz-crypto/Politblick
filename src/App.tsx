@@ -87,7 +87,6 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [partyFilter, setPartyFilter] = useState<Record<string, boolean>>({});
   const [rosterSort, setRosterSort] = useState<'default' | 'income' | 'sidejobCount' | 'ties' | 'loyalty' | 'divergences'>('default');
-  const [following, setFollowing] = useState<Record<string, boolean>>({});
   const [hoveredAlignmentPoint, setHoveredAlignmentPoint] = useState<number | null>(null);
   const alignmentSvgRef = useRef<SVGSVGElement>(null);
   const [tieMatrixFilter, setTieMatrixFilter] = useState<MatrixCell | null>(null);
@@ -462,11 +461,6 @@ function App() {
   };
   const setLangDe = () => setLang('de');
   const setLangEn = () => setLang('en');
-  const toggleFollow = () => {
-    if (!selectedMpId) return;
-    const id = selectedMpId;
-    setFollowing((f) => ({ ...f, [id]: !f[id] }));
-  };
   const togglePartyFilter = (party: string) => {
     setPartyFilter((f) => ({ ...f, [party]: f[party] === false ? true : false }));
   };
@@ -668,7 +662,6 @@ function App() {
     setHistoryKindFilter(null);
     setHistoryTopicFilter(null);
   };
-  const isFollowing = !!(selectedMpId && following[selectedMpId]);
 
   const profileTabs: { key: ProfileTab; label: string }[] = [
     { key: 'overview', label: t.tabOverview },
@@ -1793,21 +1786,6 @@ function App() {
                     <div style={{ fontSize: 10.5, color: 'oklch(60% 0.006 260)', marginTop: 2 }}>{t.photoCredit}</div>
                   )}
                 </div>
-                <button
-                  onClick={toggleFollow}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: 8,
-                    border: '1px solid oklch(88% 0.006 260)',
-                    background: isFollowing ? 'oklch(45% 0.16 265)' : 'white',
-                    color: isFollowing ? 'white' : 'oklch(20% 0.01 260)',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {isFollowing ? t.following : t.follow}
-                </button>
               </div>
 
               <div

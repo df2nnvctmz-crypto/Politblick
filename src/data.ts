@@ -45,7 +45,6 @@ export interface Translation {
   footerFeedbackLabel: string; footerFeedbackEmail: string; footerFeedbackGithub: string;
   disclaimerFeedbackTitle: string; disclaimerFeedbackBody: string;
   tabOverview: string; tabVotes: string; tabLobby: string; tabFinance: string;
-  follow: string; following: string;
   statBillsVoted: string; statAttendance: string; statPartyAlignment: string; statFlags: string;
   reasonPartyLine: string; abstainedFractionLine: string;
   impressumTitle: string; impressumBody: string;
@@ -331,7 +330,6 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     disclaimerFeedbackTitle: 'Fehler gefunden oder Feedback?',
     disclaimerFeedbackBody: 'Politblick führt Daten aus mehreren automatisierten Quellen zusammen — Übertragungsfehler sind nicht ausgeschlossen. Wenn Ihnen eine falsche Zahl, ein falsch zugeordneter Beleg oder ein technisches Problem auffällt, freuen wir uns über eine Nachricht: per E-Mail für alle, oder als Issue auf GitHub für alle, die technisch versiert sind und ein Problem direkt dokumentieren möchten.',
     tabOverview: 'Übersicht', tabVotes: 'Abstimmungen', tabLobby: 'Lobbyverflechtungen', tabFinance: 'Parteifinanzen',
-    follow: 'Folgen', following: 'Gefolgt',
     statBillsVoted: 'Abstimmungen', statAttendance: 'Anwesenheit', statPartyAlignment: 'Parteitreue', statFlags: 'Hinweise',
     reasonPartyLine: 'Stimmte gegen die Mehrheit der eigenen Fraktion',
     abstainedFractionLine: 'Enthielt sich, während die Mehrheit der eigenen Fraktion abstimmte',
@@ -771,7 +769,6 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     disclaimerFeedbackTitle: 'Found an error, or have feedback?',
     disclaimerFeedbackBody: 'Politblick merges data from several automated sources — transcription errors are possible. If you spot a wrong figure, a misattributed record, or a technical problem, we’d appreciate a message: by email for anyone, or as a GitHub issue if you’re technical and want to document the problem directly.',
     tabOverview: 'Overview', tabVotes: 'Voting record', tabLobby: 'Lobby ties', tabFinance: 'Campaign finance',
-    follow: 'Follow', following: 'Following',
     statBillsVoted: 'Bills voted', statAttendance: 'Attendance', statPartyAlignment: 'Party alignment', statFlags: 'Flags',
     reasonPartyLine: 'Voted against own party’s majority',
     abstainedFractionLine: 'Abstained while their own fraction’s majority voted',
