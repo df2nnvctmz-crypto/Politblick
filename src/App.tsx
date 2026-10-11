@@ -3,7 +3,7 @@ import { TRANSLATIONS, type Lang } from './data';
 import { fuzzyIncludes } from './helpers';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealMp } from './bundestag';
 import { computeAllAlignments, computeDivergences, computeMemberAlignment, isoWeekRange, useAllPollResults, useAllPolls, useMandateVotes, usePartyVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult } from './polls';
-import { buildMemberIncomeScores, useSidejobs } from './sidejobs';
+import { buildMemberIncomeScores, buildMpMetaDescription, formatIncomeEuro, summarizeSidejobIncome, useSidejobs } from './sidejobs';
 import { useSnapshot, type MemberHistorySummary } from './snapshot';
 import { useArchivedPollResult, useMemberVoteHistory, usePartyVoteHistory, type DivergenceKind } from './voteHistory';
 import {
@@ -744,8 +744,8 @@ function App() {
         break;
       case 'profile':
         if (profile.kind === 'real') {
-          title = `${profile.mp.name} – Politblick`;
-          description = t.metaMpDescTemplate.replace('{name}', profile.mp.name).replace('{party}', profile.mp.party);
+          title = t.metaMpTitleTemplate.replace('{name}', profile.mp.name).replace('{party}', profile.mp.party);
+          description = buildMpMetaDescription(profile.mp.name, profile.mp.party, sidejobs.records, t, lang);
         }
         break;
       case 'bill': {
@@ -868,7 +868,7 @@ function App() {
     }
     lastCountedPageKeyRef.current = pageKey;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek, profile, pollDetail.result, orgDetail.org, committeeDetail.detail, storyDetail.issue]);
+  }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek, profile, sidejobs.records, pollDetail.result, orgDetail.org, committeeDetail.detail, storyDetail.issue]);
   // "Linked" means exactly what orgsSectionSub claims: something on this site points at it — a
   // member's role, a lobbied vote, a committee, or a large donation. Re-deriving it from member
   // and vote counts alone would silently drop the donation-only ties.
@@ -2110,6 +2110,20 @@ function App() {
                             ? t.overviewSidejobsPreviewCountTemplate.replace('{n}', String(sidejobs.records.length))
                             : t.overviewSidejobsPreviewEmpty}
                         </div>
+                        {/* The disclosed total, so it is in the prerendered overview HTML and not only
+                            behind the Nebentätigkeiten tab. Exact amounts only, as on the tab's card. */}
+                        {(() => {
+                          const total = summarizeSidejobIncome(sidejobs.records).total;
+                          if (total <= 0) return null;
+                          return (
+                            <div style={{ marginBottom: 8 }}>
+                              <div style={{ fontSize: 13 }}>
+                                {t.sidejobsTotalLabel}: <strong>{formatIncomeEuro(total, lang)}</strong>
+                              </div>
+                              <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)' }}>{t.sidejobsTotalGross}</div>
+                            </div>
+                          );
+                        })()}
                         {sidejobs.records.length > 0 && (
                           <div style={{ fontSize: 12, color: 'oklch(45% 0.01 260)', marginBottom: 8 }}>
                             {sidejobs.records.slice(0, 2).map((r) => r.organization ?? r.title).join(' · ')}

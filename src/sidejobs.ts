@@ -1,4 +1,5 @@
 import { useSnapshot } from './snapshot';
+import type { Translation } from './data';
 
 export type SidejobInterval = 'once' | 'monthly' | 'annual';
 
@@ -71,6 +72,11 @@ export interface SidejobIncomeSummary {
   bracketOnlyCount: number;
 }
 
+/** A disclosed euro amount the way the profile shows it — whole euros, locale grouping ("1.234.567 €"). */
+export function formatIncomeEuro(n: number, lang: 'de' | 'en'): string {
+  return `${Math.round(n).toLocaleString(lang === 'de' ? 'de-DE' : 'en-US')} €`;
+}
+
 /** Disclosed outside income totals for the profile — exact figures only, bracket midpoints never enter a shown sum. */
 export function summarizeSidejobIncome(records: SidejobRecord[]): SidejobIncomeSummary {
   const summary: SidejobIncomeSummary = { total: 0, rateAnnualized: 0, oneOffOrUndated: 0, paidCount: 0, bracketOnlyCount: 0 };
@@ -89,4 +95,25 @@ export function summarizeSidejobIncome(records: SidejobRecord[]): SidejobIncomeS
   }
   summary.total = summary.rateAnnualized + summary.oneOffOrUndated;
   return summary;
+}
+
+const META_DESC_MAX = 155;
+
+/**
+ * The per-member <meta description>: the disclosed sum and how many activities it covers, so a
+ * search snippet carries a real figure instead of the same sentence on all 630 profiles. Only
+ * exact amounts count — bracket-only disclosures stay out of both the sum and {n}. With nothing
+ * exactly disclosed it falls back to the generic text.
+ */
+export function buildMpMetaDescription(name: string, party: string, records: SidejobRecord[], t: Translation, lang: 'de' | 'en'): string {
+  const sum = summarizeSidejobIncome(records);
+  const exactCount = sum.paidCount - sum.bracketOnlyCount;
+  if (sum.total <= 0 || exactCount === 0) return t.metaMpDescTemplate.replace('{name}', name).replace('{party}', party);
+  const base = (exactCount === 1 ? t.metaMpDescIncomeOneTemplate : t.metaMpDescIncomeTemplate)
+    .replace('{name}', name)
+    .replace('{party}', party)
+    .replace('{amount}', formatIncomeEuro(sum.total, lang))
+    .replace('{n}', exactCount.toLocaleString(lang === 'de' ? 'de-DE' : 'en-US'));
+  const full = base + t.metaMpDescIncomeSuffix;
+  return full.length <= META_DESC_MAX ? full : base;
 }

@@ -171,7 +171,12 @@ export interface Translation {
    * instead of the generic "Politblick" on every single one of the ~1000+ deep-linkable pages. */
   metaHomeDescription: string;
   metaSearchDescription: string;
+  metaMpTitleTemplate: string;
   metaMpDescTemplate: string;
+  /** Per-member description when exact outside income was disclosed; {amount} is pre-formatted. */
+  metaMpDescIncomeTemplate: string; metaMpDescIncomeOneTemplate: string;
+  /** Appended to the income description only while the whole text stays under ~155 characters. */
+  metaMpDescIncomeSuffix: string;
   metaBillDescTemplate: string;
   metaOrgDescTemplate: string;
   metaCommitteeDescTemplate: string;
@@ -561,6 +566,10 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     metaHomeDescription:
       'Politblick zeigt, wie Bundestagsabgeordnete abgestimmt haben, welche Nebeneinkünfte, Lobbykontakte und Parteispenden dahinterstehen — kostenlos, werbefrei und ohne Tracking.',
     metaSearchDescription: 'Alle Bundestagsabgeordneten durchsuchen und filtern — nach Partei, Wahlkreis und mehr.',
+    metaMpTitleTemplate: '{name} ({party}): Nebeneinkünfte, Abstimmungen, Lobby – Politblick',
+    metaMpDescIncomeTemplate: '{name} ({party}) meldet {amount} Nebeneinkünfte aus {n} bezahlten Tätigkeiten.',
+    metaMpDescIncomeOneTemplate: '{name} ({party}) meldet {amount} Nebeneinkünfte aus einer bezahlten Tätigkeit.',
+    metaMpDescIncomeSuffix: ' Dazu Abstimmungen und Lobbykontakte im Überblick.',
     metaMpDescTemplate: 'Abstimmungen, Nebeneinkünfte und Lobbykontakte von {name} ({party}) im Bundestag.',
     metaBillDescTemplate: 'Wie hat der Bundestag über „{title}“ abgestimmt? Alle Stimmen, aufgeschlüsselt nach Fraktion.',
     metaOrgDescTemplate: 'Lobbyregister-Eintrag, verflochtene Abgeordnete und gemeldete Ausgaben von {name} auf Politblick',
@@ -1000,6 +1009,10 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     metaHomeDescription:
       'Politblick shows how German Bundestag MPs voted, and what side income, lobby ties, and party donations sit behind it — free, ad-free, and tracking-free.',
     metaSearchDescription: 'Search and filter every Bundestag MP — by party, constituency, and more.',
+    metaMpTitleTemplate: '{name} ({party}): Side income, votes, lobbying – Politblick',
+    metaMpDescIncomeTemplate: '{name} ({party}) reports {amount} in side income from {n} paid activities.',
+    metaMpDescIncomeOneTemplate: '{name} ({party}) reports {amount} in side income from one paid activity.',
+    metaMpDescIncomeSuffix: ' Plus votes and lobby ties at a glance.',
     metaMpDescTemplate: 'Votes, side income, and lobby ties of {name} ({party}) in the Bundestag.',
     metaBillDescTemplate: 'How did the Bundestag vote on "{title}"? Every vote, broken down by fraction.',
     metaOrgDescTemplate: 'Lobby register entry, tied MPs, and reported spending for {name} on Politblick',

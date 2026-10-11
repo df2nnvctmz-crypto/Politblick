@@ -6,12 +6,12 @@
  */
 
 import type { Lang, Translation } from '../data';
-import { summarizeSidejobIncome, type SidejobRecord } from '../sidejobs';
+import { formatIncomeEuro, summarizeSidejobIncome, type SidejobRecord } from '../sidejobs';
 
 export function SidejobTotalCard({ records, t, lang }: { records: SidejobRecord[]; t: Translation; lang: Lang }) {
   const sum = summarizeSidejobIncome(records);
   const locale = lang === 'de' ? 'de-DE' : 'en-US';
-  const fmt = (n: number) => `${Math.round(n).toLocaleString(locale)} €`;
+  const fmt = (n: number) => formatIncomeEuro(n, lang);
   // Only spell out the split when both parts exist — "davon 100 %" adds nothing.
   const showSplit = sum.rateAnnualized > 0 && sum.oneOffOrUndated > 0;
 
