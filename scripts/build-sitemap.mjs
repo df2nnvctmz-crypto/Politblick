@@ -43,8 +43,10 @@ function slugParam(id, name) {
 /** Every path the app serves, mirroring src/router.ts's routeToPath exactly. Relative (no SITE_URL prefix) so callers can reuse it for a sitemap, a prerender pass, or anything else. */
 export function buildRoutes() {
   const routes = [];
-  function add(path, { changefreq, priority } = {}) {
-    routes.push({ path, changefreq, priority });
+  // waitFor: optional CSS selector scripts/prerender.mjs waits for before saving the page, for
+  // routes whose title can be set before their main content has rendered.
+  function add(path, { changefreq, priority, waitFor } = {}) {
+    routes.push({ path, changefreq, priority, waitFor });
   }
 
   // Static pages.
@@ -60,9 +62,18 @@ export function buildRoutes() {
   add('/datenschutz', { changefreq: 'yearly', priority: '0.1' });
 
   // MP profile pages — /abgeordnete/<id>-<name-slug>, one per current member.
+  // Plus their Nebentätigkeiten tab (/finanzen — src/router.ts's PROFILE_TAB_TO_SEGMENT.finance),
+  // but only for members with at least one disclosed entry: an empty tab is a thin page that
+  // would only dilute the profile itself. sidejobs.json is keyed by mandate id, like the app's
+  // useSidejobs().
   const roster = readJson('roster.json');
+  const sidejobs = readJson('sidejobs.json') ?? {};
   for (const m of roster?.members ?? []) {
-    add(`/abgeordnete/${slugParam(m.id, m.name)}`, { changefreq: 'weekly', priority: '0.6' });
+    const profilePath = `/abgeordnete/${slugParam(m.id, m.name)}`;
+    add(profilePath, { changefreq: 'weekly', priority: '0.6' });
+    if ((sidejobs[m.mandateId] ?? []).length > 0) {
+      add(`${profilePath}/finanzen`, { changefreq: 'weekly', priority: '0.5', waitFor: '[data-sidejob-list]' });
+    }
   }
 
   // Bill/vote pages — /gesetze/<poll id>-<title-slug>.

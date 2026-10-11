@@ -103,17 +103,20 @@ const META_DESC_MAX = 155;
  * The per-member <meta description>: the disclosed sum and how many activities it covers, so a
  * search snippet carries a real figure instead of the same sentence on all 630 profiles. Only
  * exact amounts count — bracket-only disclosures stay out of both the sum and {n}. With nothing
- * exactly disclosed it falls back to the generic text.
+ * exactly disclosed it falls back to the generic text. `finance` is the Nebentätigkeiten tab's
+ * variant: same figure, but the rest of the text describes that page's entries.
  */
-export function buildMpMetaDescription(name: string, party: string, records: SidejobRecord[], t: Translation, lang: 'de' | 'en'): string {
+export function buildMpMetaDescription(name: string, party: string, records: SidejobRecord[], t: Translation, lang: 'de' | 'en', finance = false): string {
   const sum = summarizeSidejobIncome(records);
   const exactCount = sum.paidCount - sum.bracketOnlyCount;
-  if (sum.total <= 0 || exactCount === 0) return t.metaMpDescTemplate.replace('{name}', name).replace('{party}', party);
+  if (sum.total <= 0 || exactCount === 0) {
+    return (finance ? t.metaMpFinanceDescTemplate : t.metaMpDescTemplate).replace('{name}', name).replace('{party}', party);
+  }
   const base = (exactCount === 1 ? t.metaMpDescIncomeOneTemplate : t.metaMpDescIncomeTemplate)
     .replace('{name}', name)
     .replace('{party}', party)
     .replace('{amount}', formatIncomeEuro(sum.total, lang))
     .replace('{n}', exactCount.toLocaleString(lang === 'de' ? 'de-DE' : 'en-US'));
-  const full = base + t.metaMpDescIncomeSuffix;
+  const full = base + (finance ? t.metaMpFinanceDescIncomeSuffix : t.metaMpDescIncomeSuffix);
   return full.length <= META_DESC_MAX ? full : base;
 }

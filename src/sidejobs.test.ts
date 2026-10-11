@@ -38,6 +38,15 @@ describe('buildMpMetaDescription', () => {
     expect(buildMpMetaDescription('A', 'B', [rec({ income: 100 })], de, 'de')).toContain('aus einer bezahlten Tätigkeit.');
   });
 
+  it('describes the Nebentätigkeiten page in its finance variant', () => {
+    expect(buildMpMetaDescription('Erika Muster', 'SPD', [rec({ income: 500 })], de, 'de', true)).toBe(
+      'Erika Muster (SPD) meldet 500 € Nebeneinkünfte aus einer bezahlten Tätigkeit. Alle Einträge mit Organisation und Betrag.',
+    );
+    expect(buildMpMetaDescription('Erika Muster', 'SPD', [rec({ incomeLevel: '2' })], de, 'de', true)).toBe(
+      'Gemeldete Nebentätigkeiten von Erika Muster (SPD): Organisationen, Funktionen und Beträge im Überblick.',
+    );
+  });
+
   it('drops the suffix rather than exceeding 155 characters', () => {
     const out = buildMpMetaDescription('Dr. Hans-Joachim Mustermann-Beispielhausen', 'BÜNDNIS 90/DIE GRÜNEN', [rec({ income: 123456789 })], de, 'de');
     expect(out.length).toBeLessThanOrEqual(155);

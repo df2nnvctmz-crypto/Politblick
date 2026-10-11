@@ -60,6 +60,13 @@ async function renderRoute(browser, baseUrl, route, stats) {
     await page
       .waitForFunction(() => document.title !== 'Politblick' || location.pathname === '/', { timeout: 10000 })
       .catch(() => {});
+    // A set title only proves the member resolved — on routes that name a content selector (the
+    // Nebentätigkeiten tab), also wait for that content, so the saved file carries the entries
+    // themselves. Unlike the title wait this one is strict: a /finanzen page saved without its
+    // list is exactly the thin page the route exists to avoid, so let it fail loudly.
+    if (route.waitFor) {
+      await page.waitForSelector(route.waitFor, { timeout: 10000 });
+    }
     const html = await page.content();
     const outPath = outputPath(route.path);
     mkdirSync(dirname(outPath), { recursive: true });
@@ -79,7 +86,10 @@ async function renderRoute(browser, baseUrl, route, stats) {
 }
 
 async function main() {
-  const routes = buildRoutes();
+  // PRERENDER_FILTER (a regex on the path) renders just a few routes for a quick local check,
+  // e.g. PRERENDER_FILTER='^/abgeordnete/123031-' — unset in CI, where every route renders.
+  const filter = process.env.PRERENDER_FILTER ? new RegExp(process.env.PRERENDER_FILTER) : null;
+  const routes = buildRoutes().filter((r) => !filter || filter.test(r.path));
   console.log(`Prerendering ${routes.length} routes…`);
 
   const server = await preview({ preview: { port: PORT, strictPort: true }, logLevel: 'error' });

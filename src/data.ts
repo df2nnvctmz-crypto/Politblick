@@ -177,6 +177,8 @@ export interface Translation {
   metaMpDescIncomeTemplate: string; metaMpDescIncomeOneTemplate: string;
   /** Appended to the income description only while the whole text stays under ~155 characters. */
   metaMpDescIncomeSuffix: string;
+  /** The Nebentätigkeiten tab (/finanzen) as its own indexed page — see buildMpMetaDescription(). */
+  metaMpFinanceTitleTemplate: string; metaMpFinanceDescTemplate: string; metaMpFinanceDescIncomeSuffix: string;
   metaBillDescTemplate: string;
   metaOrgDescTemplate: string;
   metaCommitteeDescTemplate: string;
@@ -570,6 +572,9 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     metaMpDescIncomeTemplate: '{name} ({party}) meldet {amount} Nebeneinkünfte aus {n} bezahlten Tätigkeiten.',
     metaMpDescIncomeOneTemplate: '{name} ({party}) meldet {amount} Nebeneinkünfte aus einer bezahlten Tätigkeit.',
     metaMpDescIncomeSuffix: ' Dazu Abstimmungen und Lobbykontakte im Überblick.',
+    metaMpFinanceTitleTemplate: '{name} ({party}): Nebeneinkünfte und Nebentätigkeiten – Politblick',
+    metaMpFinanceDescTemplate: 'Gemeldete Nebentätigkeiten von {name} ({party}): Organisationen, Funktionen und Beträge im Überblick.',
+    metaMpFinanceDescIncomeSuffix: ' Alle Einträge mit Organisation und Betrag.',
     metaMpDescTemplate: 'Abstimmungen, Nebeneinkünfte und Lobbykontakte von {name} ({party}) im Bundestag.',
     metaBillDescTemplate: 'Wie hat der Bundestag über „{title}“ abgestimmt? Alle Stimmen, aufgeschlüsselt nach Fraktion.',
     metaOrgDescTemplate: 'Lobbyregister-Eintrag, verflochtene Abgeordnete und gemeldete Ausgaben von {name} auf Politblick',
@@ -1013,6 +1018,9 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     metaMpDescIncomeTemplate: '{name} ({party}) reports {amount} in side income from {n} paid activities.',
     metaMpDescIncomeOneTemplate: '{name} ({party}) reports {amount} in side income from one paid activity.',
     metaMpDescIncomeSuffix: ' Plus votes and lobby ties at a glance.',
+    metaMpFinanceTitleTemplate: '{name} ({party}): Side income and outside activities – Politblick',
+    metaMpFinanceDescTemplate: 'Declared outside activities of {name} ({party}): organizations, roles, and amounts at a glance.',
+    metaMpFinanceDescIncomeSuffix: ' Every entry with organization and amount.',
     metaMpDescTemplate: 'Votes, side income, and lobby ties of {name} ({party}) in the Bundestag.',
     metaBillDescTemplate: 'How did the Bundestag vote on "{title}"? Every vote, broken down by fraction.',
     metaOrgDescTemplate: 'Lobby register entry, tied MPs, and reported spending for {name} on Politblick',

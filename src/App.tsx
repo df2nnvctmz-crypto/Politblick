@@ -447,6 +447,8 @@ function App() {
   const datenHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'daten' }), BASE_URL);
   const crossrefHref = (tab: LobbyTab = 'overview') => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'crossref', lobbyTab: tab }), BASE_URL);
   const mpHref = (id: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'profile', mpId: buildMpUrlParam(id, roster.members) }), BASE_URL);
+  const mpTabHref = (id: string, tab: ProfileTab) =>
+    withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'profile', mpId: buildMpUrlParam(id, roster.members), profileTab: tab }), BASE_URL);
   const billHref = (id: BillId) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'bill', billId: buildBillUrlParam(id, pollsState.polls) }), BASE_URL);
   const orgHref = (id: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'org', orgId: buildSlugParam(id, snapshot?.lobbyLinks.orgs[id]?.name) }), BASE_URL);
   const partyHref = (party: string, tab: PartyTab = 'overview') => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'party', party, partyTab: tab }), BASE_URL);
@@ -744,8 +746,13 @@ function App() {
         break;
       case 'profile':
         if (profile.kind === 'real') {
-          title = t.metaMpTitleTemplate.replace('{name}', profile.mp.name).replace('{party}', profile.mp.party);
-          description = buildMpMetaDescription(profile.mp.name, profile.mp.party, sidejobs.records, t, lang);
+          // The Nebentätigkeiten tab is its own prerendered, indexed page (/finanzen), so it gets
+          // its own title and description rather than repeating the overview's.
+          const isFinance = profileTab === 'finance';
+          title = (isFinance ? t.metaMpFinanceTitleTemplate : t.metaMpTitleTemplate)
+            .replace('{name}', profile.mp.name)
+            .replace('{party}', profile.mp.party);
+          description = buildMpMetaDescription(profile.mp.name, profile.mp.party, sidejobs.records, t, lang, isFinance);
         }
         break;
       case 'bill': {
@@ -1799,14 +1806,18 @@ function App() {
                   WebkitOverflowScrolling: 'touch',
                 }}
               >
+                {/* Real links, not buttons: the tab URLs (/finanzen etc.) are prerendered pages,
+                    and a crawler only follows an <a href>. stop() keeps plain clicks client-side. */}
                 {profileTabs.map((tab) => (
-                  <button
+                  <a
                     key={tab.key}
-                    onClick={() => setProfileTab(tab.key)}
+                    href={selectedMpId ? mpTabHref(selectedMpId, tab.key) : undefined}
+                    onClick={stop(() => setProfileTab(tab.key))}
+                    aria-current={profileTab === tab.key ? 'page' : undefined}
                     style={{
+                      display: 'inline-block',
                       padding: '10px 4px',
-                      border: 'none',
-                      background: 'none',
+                      textDecoration: 'none',
                       cursor: 'pointer',
                       fontSize: 13.5,
                       fontWeight: 600,
@@ -1817,7 +1828,7 @@ function App() {
                     }}
                   >
                     {tab.label}
-                  </button>
+                  </a>
                 ))}
               </div>
 
@@ -2439,7 +2450,8 @@ function App() {
                     <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.noFinanceData}</p>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  // data-sidejob-list: scripts/prerender.mjs waits for it before saving a /finanzen page.
+                  <div data-sidejob-list="" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     <SidejobTotalCard records={sidejobs.records} t={t} lang={lang} />
                     {sidejobs.records.map((s) => {
                       const intervalLabel =
