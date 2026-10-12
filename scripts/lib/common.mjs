@@ -372,6 +372,17 @@ export function transformMandate(raw) {
   };
 }
 
+/**
+ * Polls where abgeordnetenwatch's API `field_accepted` contradicts the result abgeordnetenwatch
+ * itself reports on the poll page. Applied on every fetch (polls.json is rebuilt from scratch each
+ * run, so editing the JSON by hand would not stick). Only add an entry with a source.
+ *
+ *   6724 "Dritter Gesetzentwurf: Steuerfreiheit für Kryptogewinne nach einem Jahr abschaffen"
+ *        (08.10.2026, Drucksache 21/5752): API says accepted, but 132 Ja / 445 Nein, and the poll
+ *        page reads "mit 132 Ja-Stimmen zu 445 Nein-Stimmen bei keinen Enthaltungen abgelehnt".
+ */
+const POLL_ACCEPTED_CORRECTIONS = new Map([[6724, false]]);
+
 export function transformPoll(raw) {
   return {
     id: raw.id,
@@ -388,7 +399,7 @@ export function transformPoll(raw) {
     // committee. `topic` is kept as the primary label for display; `topics` is what matching
     // should use.
     topics: (raw.field_topics || []).map((t) => t.label),
-    accepted: !!raw.field_accepted,
+    accepted: POLL_ACCEPTED_CORRECTIONS.get(raw.id) ?? !!raw.field_accepted,
     url: raw.abgeordnetenwatch_url,
     // The Drucksachen the poll's intro links to. This is the join key to the Lobbyregister,
     // which records the printed matter each interest group declares it lobbied on. Free —
