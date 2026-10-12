@@ -1,0 +1,51 @@
+name: Send Sitzungswochen-Briefing newsletter
+
+on:
+  schedule:
+    # Saturday 07:00 UTC (09:00 summer / 08:00 winter time), after the sitting week ended.
+    # No briefing for the current week = no sitting week = the script exits without sending.
+    - cron: '0 7 * * 6'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'send = mail the list · test = only create a draft in Brevo'
+        type: choice
+        options: [send, test]
+        default: send
+      week:
+        description: 'Monday of the sitting week (YYYY-MM-DD). Empty = the current week.'
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: send-newsletter
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # Same independent recomputation the deploy runs: never mail numbers that fail it.
+      - name: Verify Sitzungswochen-Briefing
+        run: node scripts/verify-stories.mjs
+
+      # Each week's campaign is sent at most once (the script checks Brevo first), so a re-run
+      # or a manual run for an already-sent week does nothing.
+      - name: Build and send newsletter
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_LIST_ID: ${{ vars.BREVO_LIST_ID }}
+          # Manual runs use the chosen mode; scheduled runs send, unless the repository variable
+          # NEWSLETTER_MODE is set to "test" (Settings → Variables) to pause automatic sending.
+          NEWSLETTER_MODE: ${{ inputs.mode || vars.NEWSLETTER_MODE || 'send' }}
+          NEWSLETTER_WEEK: ${{ inputs.week }}
+        run: node scripts/send-newsletter.mjs

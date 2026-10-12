@@ -35,3 +35,6 @@ marketing/
 # marketing/: not part of the site build, and the figures on them are editorial drafts reworked
 # per post rather than versioned with the app. Keep them locally.
 remotion-slides/
+
+# Local newsletter preview (scripts/send-newsletter.mjs --mode preview)
+newsletter-preview.html
