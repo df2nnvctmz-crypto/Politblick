@@ -321,6 +321,10 @@ export function StoryDetailPage(props: DetailPageProps) {
             {t.swNext} →
           </a>
         )}
+        {/* Jump to the newsletter sign-up rendered below the briefing (App.tsx). */}
+        <a href="#newsletter" style={{ marginLeft: 'auto', fontWeight: 600, color: MUTED }}>
+          ✉ {t.newsletterJumpLink} ↓
+        </a>
       </div>
 
       {/* Lead summary + the week's key numbers */}

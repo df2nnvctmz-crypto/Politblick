@@ -45,6 +45,7 @@ import { ActorTypeSpendChart, DonationBarChart, HemicycleChart, OrgInfluenceBarC
 import { FindMyMpBox, GlobalSearchBox } from './search/SearchBoxes';
 import { LongTermDivergenceList, LongTermRecordCard } from './profile/LongTermRecord';
 import { SidejobTotalCard } from './profile/SidejobTotalCard';
+import { NewsletterSignup } from './NewsletterSignup';
 import { SitzungswochenBriefing, StoryDetailPage } from './stories/Briefing';
 import { useStoryDetail } from './stories';
 
@@ -1435,6 +1436,8 @@ function App() {
               stop={stop}
             />
           )}
+
+          <NewsletterSignup t={t} privacyHref={datenschutzHref} onOpenPrivacy={stop(goDatenschutz)} />
 
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '12px 32px 8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
@@ -2902,6 +2905,7 @@ function App() {
               )}
             </>
           )}
+          <NewsletterSignup compact t={t} privacyHref={datenschutzHref} onOpenPrivacy={stop(goDatenschutz)} />
         </main>
       )}
 
@@ -4289,6 +4293,7 @@ function App() {
               </div>
             </div>
           )}
+          <NewsletterSignup compact t={t} privacyHref={datenschutzHref} onOpenPrivacy={stop(goDatenschutz)} />
         </main>
       )}
 
@@ -5216,6 +5221,7 @@ function App() {
 
       {view === 'story' && (
         storyDetail.issue ? (
+          <>
           <StoryDetailPage
             issue={storyDetail.issue}
             t={t}
@@ -5235,6 +5241,8 @@ function App() {
             isPartyRoutable={(p) => routablePartyNames.has(p)}
             stop={stop}
           />
+          <NewsletterSignup t={t} privacyHref={datenschutzHref} onOpenPrivacy={stop(goDatenschutz)} />
+          </>
         ) : (
           <main style={{ flex: 1, maxWidth: 780, margin: '0 auto', width: '100%', padding: 32 }}>
             <a href={pollListHref} onClick={stop(goPollList)} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
