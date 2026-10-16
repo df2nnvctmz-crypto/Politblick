@@ -80,7 +80,7 @@ button {
   display: none;
 }
 
-/* Keeps the MP list's party filter + sort sidebar in view while the (often 600+ row) results
+/* Keeps the MP list's and search page's sidebars in view while the (often 600+ row) results
    column scrolls past it — 84px clears the sticky header (66px tall on desktop) plus a little
    breathing room. Reverts to normal flow below the width where the sidebar already wraps onto
    its own line above the results (see the search view's flex-wrap), since sticking a full-width
@@ -294,22 +294,21 @@ button {
   .sw-poll-panel > * + * { border-left: 0 !important; border-top: 1px solid oklch(92% 0.006 260); }
 }
 
-/* Phone layout for list pages (MP list, search results): filter pills / sidebar give way to
-   menu buttons, and the bar holding them stays pinned under the header (--pb-header-offset, set by
-   App.tsx). Scrolling down slides the bar away behind the header; scrolling up brings it back. */
-.pb-results-filter-menu,
+/* Phone layout for list pages (MP list, search results): the sidebar gives way to menu buttons,
+   and the bar holding them stays pinned under the header (--pb-header-offset, set by App.tsx).
+   Scrolling down slides the bar away behind the header; scrolling up brings it back. The search
+   page's search field lives in the sidebar on wide screens and above the results on phones. */
+.pb-results-mobile-search,
 .pb-results-mobile-bar,
 .pb-mp-toolbar {
   display: none;
 }
 
 @media (max-width: 720px) {
-  .pb-results-filter-pills,
-  .pb-results-tabs,
   .pb-search-sidebar {
     display: none !important;
   }
-  .pb-results-filter-menu,
+  .pb-results-mobile-search,
   .pb-results-mobile-bar,
   .pb-mp-toolbar {
     display: block;
