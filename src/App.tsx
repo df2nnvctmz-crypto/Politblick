@@ -257,31 +257,45 @@ function App() {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
   }, []);
 
-  // Phones only: while scrolling down, the header folds its search + DE/EN row away (logo and
-  // navigation stay) and the pinned filter/sort bars (.pb-mobile-sticky) slide away behind it, to
-  // free the screen for the content; the first scroll up brings both back. --pb-header-offset is
-  // where the bars pin (the header's current height).
+  // Phones only: while scrolling down, first the pinned filter/sort bars (.pb-mobile-sticky) slide
+  // away behind the header, then the header folds its search + DE/EN row away too (logo and
+  // navigation stay), to free the screen for the content; the first scroll up brings both back.
+  // State classes on <html>: pb-filters-hidden and pb-scrolled-down. --pb-header-offset is where
+  // the bars pin (the header's current height).
   const headerRef = useRef<HTMLElement>(null);
-  const [filterBarsHidden, setFilterBarsHidden] = useState(false);
   useEffect(() => {
     const narrow = window.matchMedia('(max-width: 720px)');
-    // The bar only leaves after a sustained scroll down (about half a phone screen in one go), so
-    // it stays at hand while someone browses the first results; any real scroll up brings it back.
-    const HIDE_AFTER_PX = 400;
+    const root = document.documentElement;
+    // Both only leave after a sustained scroll down, so they stay at hand while someone browses
+    // the first results: the filter bar after about half a phone screen in one go, the search row
+    // 150px later, so the two fold one after the other rather than together.
+    const HIDE_FILTERS_AFTER_PX = 400;
+    const FOLD_SEARCH_AFTER_PX = 550;
     // Folding the search row changes the header's height, and the browser answers that layout
     // shift by nudging scrollY (scroll anchoring) — which looked like a scroll up and unfolded the
     // row again: it vanished and popped straight back. So for the length of the animation after
-    // each fold/unfold, scroll events only re-baseline instead of deciding anything.
+    // each fold/unfold, scroll events only re-baseline instead of deciding anything. (The filter
+    // bar only slides, which shifts no layout, so it needs no settling.)
     const SETTLE_MS = 450;
-    let hidden = false;
+    let filtersHidden = false;
+    let folded = false;
     let settleUntil = 0;
     let lastY = window.scrollY;
     let downRunStart = lastY;
-    const set = (next: boolean) => {
-      if (next === hidden) return;
-      hidden = next;
+    const setFiltersHidden = (next: boolean) => {
+      if (next === filtersHidden) return;
+      filtersHidden = next;
+      root.classList.toggle('pb-filters-hidden', next);
+    };
+    const setFolded = (next: boolean) => {
+      if (next === folded) return;
+      folded = next;
       settleUntil = performance.now() + SETTLE_MS;
-      setFilterBarsHidden(next);
+      root.classList.toggle('pb-scrolled-down', next);
+    };
+    const showAll = () => {
+      setFiltersHidden(false);
+      setFolded(false);
     };
     const onScroll = () => {
       const y = window.scrollY;
@@ -291,15 +305,17 @@ function App() {
         return;
       }
       if (!narrow.matches || y < 140) {
-        set(false);
+        showAll();
         downRunStart = y;
       } else if (y < lastY - 15) {
         // 15px, not less: iOS momentum and rubber-banding produce small upward bounces.
-        set(false);
+        showAll();
         downRunStart = y;
-      } else if (y - downRunStart > HIDE_AFTER_PX) {
+      } else {
+        const run = y - downRunStart;
+        if (run > HIDE_FILTERS_AFTER_PX) setFiltersHidden(true);
         // Never fold the search row away while someone is typing in it.
-        if (!document.activeElement?.closest('.pb-header-collapsible')) set(true);
+        if (run > FOLD_SEARCH_AFTER_PX && !document.activeElement?.closest('.pb-header-collapsible')) setFolded(true);
       }
       // Small jitters (momentum scrolling, address bar resizing) are ignored.
       if (Math.abs(y - lastY) > 6 || y < 140) lastY = y;
@@ -309,6 +325,7 @@ function App() {
     return () => {
       window.removeEventListener('scroll', onScroll);
       narrow.removeEventListener('change', onScroll);
+      root.classList.remove('pb-filters-hidden', 'pb-scrolled-down');
     };
   }, []);
   useEffect(() => {
@@ -321,9 +338,6 @@ function App() {
     ro.observe(header);
     return () => ro.disconnect();
   }, []);
-  useEffect(() => {
-    document.documentElement.classList.toggle('pb-scrolled-down', filterBarsHidden);
-  }, [filterBarsHidden]);
   useEffect(() => {
     const onPopState = () => {
       isPopStateRef.current = true;

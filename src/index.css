@@ -332,7 +332,7 @@ button {
   .pb-mp-toolbar {
     width: calc(100% + 64px) !important;
   }
-  .pb-scrolled-down .pb-mobile-sticky {
+  .pb-filters-hidden .pb-mobile-sticky {
     transform: translateY(calc(-100% - 2px));
   }
 }
