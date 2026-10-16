@@ -82,18 +82,22 @@ export interface ExportLegendItem {
 export interface ExportInfo {
   title: string;
   subtitle?: string;
+  /** Context the chart can't be read fairly without, once it leaves the page — e.g. that a
+   * "tie" is a self-declared link and no claim of influence. Printed above the source line. */
+  caveat?: string;
   source: string;
 }
 
 /**
  * Everything an exported graphic carries besides the chart itself, so it stands on its own when
  * shared: title, optional subtitle (the current filter/range/metric), a legend built from what is
- * on screen right now, and the data source with its date. Charts build this at click time, so the
- * legend always matches the data shown.
+ * on screen right now, an optional caveat, and the data source with its date. Charts build this
+ * at click time, so the legend always matches the data shown.
  */
 export interface ExportFrame {
   title: string;
   subtitle?: string;
+  caveat?: string;
   legend?: ExportLegendItem[];
   source: string;
 }
@@ -235,6 +239,15 @@ async function composeExport(chart: ChartSvgExport, frame: ExportFrame): Promise
       x += w + 20;
     }
     y = rowY + ROW;
+  }
+
+  // Caveat: the context the page gives this chart, so it travels with the image.
+  if (frame.caveat) {
+    y += 16;
+    for (const line of wrapText(frame.caveat, contentW, 12.5)) {
+      parts.push(`<text x="${PAD}" y="${y + 13}" font-size="12.5" fill="${MUTED}">${esc(line)}</text>`);
+      y += 18;
+    }
   }
 
   // Footer: source on the left, politblick.de on the right

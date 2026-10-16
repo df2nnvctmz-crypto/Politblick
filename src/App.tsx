@@ -41,7 +41,7 @@ import { buildBillUrlParam, buildMpUrlParam, buildSlugParam, extractLeadingId, e
 import { navStyle, pillBtn, voteBg } from './ui/styles';
 import { stop } from './ui/events';
 import { InfoTooltip, MpAvatar, MultiSelectFilter, MultiSortableTh, ScrollBox, SortableTh, SubTabBar } from './ui/primitives';
-import { ActorTypeSpendChart, DonationBarChart, HemicycleChart, OrgInfluenceBarChart, SectorBarChart, TieMatrix, type MatrixCell, type SectorMetric } from './charts';
+import { ActorTypeSpendChart, DonationBarChart, HemicycleChart, OrgInfluenceBarChart, SectorBarChart, TieMatrix, VoteResultChart, type MatrixCell, type SectorMetric } from './charts';
 import { FindMyMpBox } from './search/SearchBoxes';
 import { GlobalSearchBox } from './search/GlobalSearchBox';
 import { SearchResultsPage, type SearchResultsLinks } from './search/SearchResultsPage';
@@ -443,10 +443,11 @@ function App() {
   const exportLabels: ChartExportLabels = { buttonLabel: t.chartExportLabel, csv: t.chartExportCsv, svg: t.chartExportSvg, png: t.chartExportPng };
   /** Source line for an exported chart: each dataset it draws on, with the date of the snapshot it
    * comes from, e.g. "Quelle: Lobbyregister des Deutschen Bundestages, Stand 11.10.2026". */
-  const exportSource = (...datasets: ('core' | 'sidejobs' | 'lobby' | 'donations' | 'committees')[]) => {
+  const exportSource = (...datasets: ('core' | 'history' | 'sidejobs' | 'lobby' | 'donations' | 'committees')[]) => {
     const meta = snapshot?.meta;
     const info = {
       core: [t.exportSrcCore, meta?.coreGeneratedAt],
+      history: [t.exportSrcHistory, meta?.voteHistoryGeneratedAt],
       sidejobs: [t.exportSrcSidejobs, meta?.sidejobsGeneratedAt],
       lobby: [t.exportSrcLobby, meta?.lobbyRegisterGeneratedAt],
       donations: [t.exportSrcDonations, meta?.partyDonationsGeneratedAt],
@@ -2149,6 +2150,7 @@ function App() {
                             ];
                             return {
                               title: `${profile.kind === 'real' ? `${profile.mp.name}: ` : ''}${t.alignmentTrendRealTemplate.replace('{n}', String(alignment.windowSize))}`,
+                              caveat: t.exportCaveatAlignment,
                               source: exportSource('core'),
                               legend: items.filter((i) => i.n > 0).map((i) => ({ label: i.label, value: String(i.n), color: i.color })),
                             };
@@ -2813,54 +2815,34 @@ function App() {
                     </div>
                   )}
 
-                  <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 14, padding: 20, marginBottom: 24 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>{t.voteBreakdown}</div>
-                    {pollDetail.result.partyBreakdown.map((pb) => {
-                      const total = pb.yes + pb.no + pb.abstain + pb.noShow || 1;
-                      return (
-                        <div key={pb.party} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                          {routablePartyNames.has(pb.party) ? (
-                            <a
-                              href={partyHref(pb.party)}
-                              onClick={stop(() => openParty(pb.party))}
-                              style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)', color: 'inherit' }}
-                            >
-                              {pb.party}
-                            </a>
-                          ) : (
-                            <span style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0 }}>{pb.party}</span>
-                          )}
-                          <div style={{ flex: 1, height: 14, borderRadius: 7, overflow: 'hidden', display: 'flex', background: 'oklch(90% 0.006 260)' }}>
-                            <div style={{ width: `${(pb.yes / total) * 100}%`, background: 'oklch(50% 0.14 155)' }} />
-                            <div style={{ width: `${(pb.no / total) * 100}%`, background: 'oklch(55% 0.16 40)' }} />
-                            <div style={{ width: `${(pb.abstain / total) * 100}%`, background: 'oklch(85% 0.006 260)' }} />
-                            <div style={{ width: `${(pb.noShow / total) * 100}%`, background: 'oklch(93% 0.006 260)' }} />
-                          </div>
-                          <span style={{ width: 90, fontSize: 11, color: 'oklch(48% 0.01 260)', textAlign: 'right', flexShrink: 0 }}>
-                            {pb.yes}/{pb.no}/{pb.abstain}/{pb.noShow}
-                          </span>
-                        </div>
-                      );
-                    })}
-                    <div style={{ display: 'flex', gap: 14, fontSize: 11, color: 'oklch(48% 0.01 260)', marginTop: 10, flexWrap: 'wrap' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <span style={{ width: 9, height: 9, background: 'oklch(50% 0.14 155)', display: 'inline-block', borderRadius: 2 }} />
-                        {t.voteYes} ({pollDetail.result.totalYes})
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <span style={{ width: 9, height: 9, background: 'oklch(55% 0.16 40)', display: 'inline-block', borderRadius: 2 }} />
-                        {t.voteNo} ({pollDetail.result.totalNo})
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <span style={{ width: 9, height: 9, background: 'oklch(85% 0.006 260)', display: 'inline-block', borderRadius: 2 }} />
-                        {t.voteAbstain} ({pollDetail.result.totalAbstain})
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <span style={{ width: 9, height: 9, background: 'oklch(93% 0.006 260)', display: 'inline-block', borderRadius: 2 }} />
-                        {t.voteNoShow} ({pollDetail.result.totalNoShow})
-                      </div>
-                    </div>
-                  </div>
+                  <VoteResultChart
+                    rows={pollDetail.result.partyBreakdown}
+                    totals={{
+                      yes: pollDetail.result.totalYes,
+                      no: pollDetail.result.totalNo,
+                      abstain: pollDetail.result.totalAbstain,
+                      noShow: pollDetail.result.totalNoShow,
+                    }}
+                    labels={{ title: t.voteBreakdown, yes: t.voteYes, no: t.voteNo, abstain: t.voteAbstain, noShow: t.voteNoShow, order: t.swVoteOrder }}
+                    isPartyRoutable={(party) => routablePartyNames.has(party)}
+                    partyHref={partyHref}
+                    onOpenParty={(party) => openParty(party)}
+                    filenameBase={`politblick-abstimmung-${pollDetail.result.poll.id}`}
+                    exportLabels={exportLabels}
+                    exportInfo={{
+                      title: pollDetail.result.poll.title,
+                      subtitle: [
+                        pollDetail.result.poll.topic,
+                        pollDetail.result.poll.date,
+                        pollDetail.result.poll.accepted ? t.pollAccepted : t.pollRejected,
+                        ...(isArchivedPoll ? [archivedPollDetail.termLabel ?? t.pollArchivedBadge] : []),
+                      ]
+                        .filter(Boolean)
+                        .join(' · '),
+                      caveat: t.exportCaveatVotes,
+                      source: exportSource(isArchivedPoll ? 'history' : 'core'),
+                    }}
+                  />
 
                   {/* One roll call, two ways of reading it: who broke ranks, and how a particular
                       member voted. They are the same data filtered differently, so they share a
@@ -3245,7 +3227,7 @@ function App() {
                   isPartyRoutable={(party) => routablePartyNames.has(party)}
                   filenameBase="politblick-lobby-netzwerk"
                   exportLabels={exportLabels}
-                  exportInfo={{ title: t.exportTitleNetwork, source: exportSource('sidejobs', 'lobby') }}
+                  exportInfo={{ title: t.exportTitleNetwork, caveat: t.exportCaveatTies, source: exportSource('sidejobs', 'lobby') }}
                   labels={{
                     sub: t.networkSub,
                     crossPartyToggle: t.networkToggleCrossParty,
@@ -3361,7 +3343,7 @@ function App() {
                     orgsTemplate={t.spendOrgsTemplate}
                     filenameBase="politblick-lobbyausgaben"
                     exportLabels={exportLabels}
-                    exportInfo={{ title: t.spendChartTitle, subtitle: spendScope === 'all' ? t.spendScopeAll : t.spendScopeLinked, source: exportSource('lobby') }}
+                    exportInfo={{ title: t.spendChartTitle, subtitle: spendScope === 'all' ? t.spendScopeAll : t.spendScopeLinked, caveat: t.spendChartNote, source: exportSource('lobby') }}
                   />
                   <p style={{ fontSize: 11.5, color: 'oklch(50% 0.01 260)', margin: '14px 0 0', maxWidth: 700, lineHeight: 1.5 }}>{t.spendChartNote}</p>
                 </div>
@@ -3407,6 +3389,7 @@ function App() {
                     exportInfo={{
                       title: t.sectorChartTitle,
                       subtitle: t.exportSortedByTemplate.replace('{metric}', sectorMetric === 'members' ? t.sectorMetricMembers : t.sectorMetricOrgs),
+                      caveat: t.exportCaveatTies,
                       source: exportSource('sidejobs', 'lobby'),
                     }}
                     selectedLabel={t.exportLegendSelected}
@@ -3582,7 +3565,7 @@ function App() {
                     scrollHintText={t.scrollHintText}
                     filenameBase="politblick-verflechtungs-matrix"
                     exportLabels={exportLabels}
-                    exportInfo={{ title: t.exportTitleTieMatrix, source: exportSource('core', 'sidejobs', 'lobby') }}
+                    exportInfo={{ title: t.exportTitleTieMatrix, caveat: t.exportCaveatTies, source: exportSource('core', 'sidejobs', 'lobby') }}
                     selectedLabel={t.exportLegendSelected}
                   />
                   {tieMatrixFilter && (
@@ -3890,7 +3873,7 @@ function App() {
                     data={partyDonations.byFraction}
                     filenameBase="politblick-grossspenden-nach-partei"
                     exportLabels={exportLabels}
-                    exportInfo={{ title: t.exportTitleDonationsByParty, source: exportSource('donations') }}
+                    exportInfo={{ title: t.exportTitleDonationsByParty, caveat: t.donationsSub, source: exportSource('donations') }}
                   />
                 </div>
               )}
@@ -3904,7 +3887,7 @@ function App() {
                   donations={partyDonations.allCanonical}
                   filenameBase="politblick-grossspenden-alle-parteien"
                   exportLabels={exportLabels}
-                  exportInfo={{ title: t.donationTimelineTitle, source: exportSource('donations') }}
+                  exportInfo={{ title: t.donationTimelineTitle, caveat: t.donationsSub, source: exportSource('donations') }}
                   labels={{
                     axisMaxTemplate: t.donationTimelineAxisMaxTemplate,
                     excludedTemplate: t.donationTimelineExcludedTemplate,
@@ -3933,7 +3916,7 @@ function App() {
                   isPartyRoutable={(party) => routablePartyNames.has(party)}
                   filenameBase="politblick-spenden-nach-partei-und-spender"
                   exportLabels={exportLabels}
-                  exportInfo={{ title: t.donationSankeyTitle, source: exportSource('donations') }}
+                  exportInfo={{ title: t.donationSankeyTitle, caveat: t.donationsSub, source: exportSource('donations') }}
                   labels={{
                     noteTemplate: t.donationSankeyNoteTemplate,
                     excludedTemplate: t.donationSankeyExcludedTemplate,
@@ -4585,7 +4568,7 @@ function App() {
                       membersTemplate={t.sectorChartMembersTemplate}
                       filenameBase={`politblick-ausschuss-verflechtungen-${committeeDetail.detail.committee.id}`}
                       exportLabels={exportLabels}
-                      exportInfo={{ title: t.committeeLobbyTitle, subtitle: committeeDetail.detail.committee.name, source: exportSource('committees', 'sidejobs', 'lobby') }}
+                      exportInfo={{ title: t.committeeLobbyTitle, subtitle: committeeDetail.detail.committee.name, caveat: t.exportCaveatTies, source: exportSource('committees', 'sidejobs', 'lobby') }}
                     />
                   </div>
                 </div>
@@ -5371,7 +5354,7 @@ function App() {
                                 stackBy="donor"
                                 filenameBase={`politblick-grossspenden-${p.party}`}
                                 exportLabels={exportLabels}
-                                exportInfo={{ title: `${t.donationTimelineTitle}: ${p.party}`, source: exportSource('donations') }}
+                                exportInfo={{ title: `${t.donationTimelineTitle}: ${p.party}`, caveat: t.donationsSub, source: exportSource('donations') }}
                                 labels={{
                                   axisMaxTemplate: t.donationTimelineAxisMaxTemplate,
                                   excludedTemplate: t.donationTimelineExcludedTemplate,
