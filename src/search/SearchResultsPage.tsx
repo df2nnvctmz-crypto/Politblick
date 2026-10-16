@@ -1,15 +1,13 @@
 /**
- * The full search results page (/suche?q=…). Laid out like the site's other list pages: heading
- * with an intro line, a tab bar to narrow by type (with counts), filter pills where a type has a
- * useful second dimension, and white cards in a grid. The header dropdown only previews the
+ * The full search results page (/suche?q=…). Laid out like the MP list: a sticky sidebar with the
+ * search field, the result types to narrow by (with counts) and filters where a type has a useful
+ * second dimension, next to a heading and white cards in a grid. The header dropdown only previews the
  * first few hits of each group; this is where all of them live.
  */
 import { useEffect, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import type { Lang, Translation } from '../data';
 import { formatEuro } from '../lobby';
 import { ShowMoreButton } from '../ShowMoreButton';
-import { SubTabBar } from '../ui/primitives';
-import { pillBtn } from '../ui/styles';
 import { FilterMenu, type SingleFilterGroup } from '../ui/FilterMenu';
 import { MIN_QUERY_LENGTH, type SearchBill, type SearchOrg, type SearchResults } from './searchModel';
 
@@ -61,20 +59,10 @@ const chip = (text: string, bg = 'oklch(95% 0.008 260)', color = 'oklch(40% 0.01
 );
 const dot = (color: string) => <span style={{ width: 9, height: 9, borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />;
 
-function PillGroup<K extends string>({ options, active, onChange }: { options: { key: K; label: string }[]; active: K; onChange: (k: K) => void }) {
-  return (
-    <div style={{ display: 'inline-flex', border: '1px solid oklch(90% 0.006 260)', borderRadius: 16, overflow: 'hidden', fontSize: 12, fontWeight: 600 }}>
-      {options.map((o) => (
-        <button key={o.key} onClick={() => onChange(o.key)} style={pillBtn(active === o.key)}>
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
-}
+const sidebarHeading: CSSProperties = { fontSize: 12, fontWeight: 700, color: 'oklch(45% 0.01 260)', marginBottom: 10 };
 
 const Grid = ({ children }: { children: ReactNode }) => (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: 12 }}>{children}</div>
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 260px), 1fr))', gap: 12 }}>{children}</div>
 );
 
 export function SearchResultsPage({
@@ -94,7 +82,16 @@ export function SearchResultsPage({
   t: Translation;
   lang: Lang;
 }) {
-  const [type, setType] = useState<TypeKey>('all');
+  const [type, setTypeState] = useState<TypeKey>('all');
+  // The category and filter controls stay on screen while the results scroll (sticky sidebar,
+  // pinned phone bar), so a change can come from deep down the list: start the new list at its top.
+  const toTop = () => {
+    if (window.scrollY > 0) window.scrollTo({ top: 0 });
+  };
+  const setType = (k: TypeKey) => {
+    setTypeState(k);
+    toTop();
+  };
   const [orgScope, setOrgScope] = useState<OrgScope>('all');
   const [orgSort, setOrgSort] = useState<OrgSort>('relevance');
   const [billScope, setBillScope] = useState<BillScope>('all');
@@ -233,9 +230,9 @@ export function SearchResultsPage({
     </div>
   );
 
-  // The filters a type offers, as data: rendered as pill groups on wide screens and as a menu
+  // The filters a type offers, as data: rendered in the sidebar on wide screens and as a menu
   // behind a filter icon on phones, where several pill rows would push the results off screen.
-  const filterGroups: SingleFilterGroup[] = (() => {
+  const filterGroups: SingleFilterGroup[] = ((): SingleFilterGroup[] => {
     if (activeType === 'orgs')
       return [
         {
@@ -280,91 +277,171 @@ export function SearchResultsPage({
         },
       ];
     return [];
-  })();
+  })().map((g) => ({
+    ...g,
+    onChange: (k) => {
+      g.onChange(k);
+      toTop();
+    },
+  }));
 
+  const searchInput = (style: CSSProperties) => (
+    <input
+      type="search"
+      value={query}
+      autoFocus={tooShort}
+      onChange={(e) => onQueryChange(e.target.value)}
+      placeholder={t.searchPlaceholder}
+      aria-label={t.resultsTitle}
+      style={{ width: '100%', padding: '9px 12px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13.5, boxSizing: 'border-box', fontFamily: 'inherit', background: 'white', ...style }}
+    />
+  );
+  const categories = [
+    { key: 'all' as TypeKey, label: t.resultsAll, count: results.total },
+    ...order.filter((k) => counts[k] > 0).map((k) => ({ key: k as TypeKey, label: labels[k], count: counts[k] })),
+  ];
+
+  // Wide screens, like the MP list: a sticky sidebar on the left with the search field, the
+  // categories and the active category's filters, so all of it stays at hand while the results
+  // scroll. Phones hide the sidebar (index.css) and use the search field above the results plus
+  // the pinned [Kategorie] [Filter] bar instead.
   return (
-    <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', width: '100%', padding: 32, boxSizing: 'border-box' }}>
-      <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{tooShort ? t.resultsTitle : t.resultsHeadingTemplate.replace('{query}', q)}</h1>
-      <p style={{ fontSize: 14, color: 'oklch(45% 0.01 260)', margin: '0 0 18px', maxWidth: 640 }}>
-        {tooShort
-          ? t.resultsPrompt
-          : `${results.total === 1 ? t.resultsCountOne : t.resultsCountTemplate.replace('{n}', fmtInt(results.total))}${loadingOrgs ? ` · ${t.searchLoadingOrgs}` : ''}`}
-      </p>
-      <input
-        type="search"
-        value={query}
-        autoFocus={tooShort}
-        onChange={(e) => onQueryChange(e.target.value)}
-        placeholder={t.searchPlaceholder}
-        aria-label={t.resultsTitle}
-        style={{ width: '100%', maxWidth: 480, padding: '9px 12px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13.5, marginBottom: 22, boxSizing: 'border-box', fontFamily: 'inherit' }}
-      />
-
-      {!tooShort && results.total === 0 && !loadingOrgs && <p style={{ fontSize: 13.5, color: MUTED }}>{t.resultsNoneTemplate.replace('{query}', q)}</p>}
-
-      {!tooShort && results.total > 0 && (
-        <>
-          {/* Wide screens: the tab bar. Phones: the same choice as a category button next to the
-              filter button — the pattern of the MP list's [Partei] [Sortierung] — pinned under
-              the header. */}
-          <div className="pb-results-tabs">
-            <SubTabBar tabs={tabs} active={activeType} onChange={setType} />
-          </div>
-          <div className="pb-mobile-sticky pb-results-mobile-bar">
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', padding: '8px 0' }}>
-              <FilterMenu
-                neutral
-                icon="category"
-                buttonLabel={tabs.find((tab) => tab.key === activeType)?.label ?? t.resultsAll}
-                groups={[{ label: t.resultsCategory, options: tabs, active: activeType, onChange: (k) => setType(k as TypeKey) }]}
-              />
-              {activeType !== 'all' && filterGroups.length > 0 && <FilterMenu groups={filterGroups} buttonLabel={t.resultsFilterButton} />}
+    <main style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: 32, boxSizing: 'border-box', display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      <aside className="pb-search-sidebar" style={{ width: 220, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 22 }}>
+        {searchInput({})}
+        {!tooShort && results.total > 0 && (
+          <>
+            <div>
+              <div style={sidebarHeading}>{t.resultsCategory}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {categories.map((c) => {
+                  const on = c.key === activeType;
+                  return (
+                    <button
+                      key={c.key}
+                      onClick={() => setType(c.key)}
+                      aria-pressed={on}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        gap: 10,
+                        padding: '7px 10px',
+                        border: 'none',
+                        borderRadius: 8,
+                        background: on ? 'oklch(45% 0.16 265 / 0.09)' : 'transparent',
+                        color: on ? ACCENT : 'oklch(25% 0.01 260)',
+                        fontSize: 13.5,
+                        fontWeight: on ? 700 : 500,
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      <span>{c.label}</span>
+                      <span style={{ color: on ? ACCENT : 'oklch(55% 0.01 260)', fontWeight: 600 }}>{fmtInt(c.count)}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-
-          {activeType === 'all' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 30 }}>
-              {order
-                .filter((k) => counts[k] > 0)
-                .map((k) => (
-                  <section key={k}>
-                    {sectionHeader(k)}
-                    <Grid>{render[k]().slice(0, PREVIEW_IN_ALL)}</Grid>
-                  </section>
-                ))}
-            </div>
-          ) : (
-            <>
-              {filterGroups.length > 0 && (
-                <div style={{ marginBottom: 16 }}>
-                  <div className="pb-results-filter-pills" style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                    {filterGroups.map((g) => (
-                      <PillGroup key={g.label} options={g.options} active={g.active} onChange={g.onChange} />
-                    ))}
+            {activeType !== 'all' &&
+              filterGroups.map((g) =>
+                // Sorting is a dropdown and narrowing a list of options, as on the MP list (Partei / Sortierung).
+                g.label === t.resultsFilterSort || g.options.length > 4 ? (
+                  <div key={g.label}>
+                    <div style={sidebarHeading}>{g.label}</div>
+                    <select
+                      value={g.active}
+                      onChange={(e) => g.onChange(e.target.value)}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid oklch(90% 0.006 260)', fontSize: 13.5, background: 'white', fontFamily: 'inherit' }}
+                    >
+                      {g.options.map((o) => (
+                        <option key={o.key} value={o.key}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                </div>
+                ) : (
+                  <div key={g.label}>
+                    <div style={sidebarHeading}>{g.label}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {g.options.map((o) => (
+                        <label key={o.key} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, cursor: 'pointer' }}>
+                          <input type="radio" name={`search-filter-${g.label}`} checked={g.active === o.key} onChange={() => g.onChange(o.key)} style={{ accentColor: ACCENT, margin: 0 }} />
+                          {o.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ),
               )}
-              {(() => {
-                const cards = render[activeType]();
-                if (cards.length === 0) return <p style={{ fontSize: 13.5, color: MUTED }}>{t.searchNoResults}</p>;
-                return (
-                  <>
-                    <Grid>{cards.slice(0, shown)}</Grid>
-                    <ShowMoreButton
-                      total={cards.length}
-                      defaultCount={shown}
-                      expanded={false}
-                      onToggle={() => setShown((n) => n + PAGE * 3)}
-                      showMoreTemplate={t.resultsShowMoreTemplate.replace('{rest}', fmtInt(cards.length - shown))}
-                      showLessLabel={t.showLess}
-                    />
-                  </>
-                );
-              })()}
-            </>
-          )}
-        </>
-      )}
+          </>
+        )}
+      </aside>
+
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{tooShort ? t.resultsTitle : t.resultsHeadingTemplate.replace('{query}', q)}</h1>
+        <p style={{ fontSize: 14, color: 'oklch(45% 0.01 260)', margin: '0 0 18px', maxWidth: 640 }}>
+          {tooShort
+            ? t.resultsPrompt
+            : `${results.total === 1 ? t.resultsCountOne : t.resultsCountTemplate.replace('{n}', fmtInt(results.total))}${loadingOrgs ? ` · ${t.searchLoadingOrgs}` : ''}`}
+        </p>
+        <div className="pb-results-mobile-search">{searchInput({ marginBottom: 22 })}</div>
+
+        {!tooShort && results.total === 0 && !loadingOrgs && <p style={{ fontSize: 13.5, color: MUTED }}>{t.resultsNoneTemplate.replace('{query}', q)}</p>}
+
+        {!tooShort && results.total > 0 && (
+          <>
+            {/* Phones: the sidebar's choices as a category button next to a filter button — the
+                pattern of the MP list's [Partei] [Sortierung] — pinned under the header. */}
+            <div className="pb-mobile-sticky pb-results-mobile-bar">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', padding: '8px 0' }}>
+                <FilterMenu
+                  neutral
+                  icon="category"
+                  buttonLabel={tabs.find((tab) => tab.key === activeType)?.label ?? t.resultsAll}
+                  groups={[{ label: t.resultsCategory, options: tabs, active: activeType, onChange: (k) => setType(k as TypeKey) }]}
+                />
+                {activeType !== 'all' && filterGroups.length > 0 && <FilterMenu groups={filterGroups} buttonLabel={t.resultsFilterButton} />}
+              </div>
+            </div>
+
+            {activeType === 'all' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 30 }}>
+                {order
+                  .filter((k) => counts[k] > 0)
+                  .map((k) => (
+                    <section key={k}>
+                      {sectionHeader(k)}
+                      <Grid>{render[k]().slice(0, PREVIEW_IN_ALL)}</Grid>
+                    </section>
+                  ))}
+              </div>
+            ) : (
+              <>
+                {(() => {
+                  const cards = render[activeType]();
+                  if (cards.length === 0) return <p style={{ fontSize: 13.5, color: MUTED }}>{t.searchNoResults}</p>;
+                  return (
+                    <>
+                      <Grid>{cards.slice(0, shown)}</Grid>
+                      <ShowMoreButton
+                        total={cards.length}
+                        defaultCount={shown}
+                        expanded={false}
+                        onToggle={() => setShown((n) => n + PAGE * 3)}
+                        showMoreTemplate={t.resultsShowMoreTemplate.replace('{rest}', fmtInt(cards.length - shown))}
+                        showLessLabel={t.showLess}
+                      />
+                    </>
+                  );
+                })()}
+              </>
+            )}
+          </>
+        )}
+      </div>
     </main>
   );
 }
