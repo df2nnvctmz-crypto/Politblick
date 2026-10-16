@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
-import { cloneSvgForExport, downloadCsv, downloadPng, downloadSvg, type ChartCsvExport, type ChartSvgExport } from './chartExport';
+import { cloneSvgForExport, downloadCsv, downloadPng, downloadSvg, type ChartCsvExport, type ChartSvgExport, type ExportFrame } from './chartExport';
 
 export interface ChartExportLabels {
   buttonLabel: string;
@@ -27,18 +27,24 @@ const menuItemStyle: CSSProperties = {
  * when the chart already renders a real <svg> (the export just clones the live node); give it
  * `getSvg` instead for charts built out of HTML/CSS (the two bar charts) or an HTML table (the
  * tie matrix), where a matching SVG has to be hand-built at export time.
+ *
+ * `getFrame` supplies the title, legend and source the image is framed with. It is called at
+ * click time, so the legend describes exactly what the chart shows right then (current range,
+ * filter, selection) rather than a fixed list.
  */
 export function ChartExportMenu({
   filenameBase,
   getCsv,
   svgRef,
   getSvg,
+  getFrame,
   labels,
 }: {
   filenameBase: string;
   getCsv: () => ChartCsvExport;
   svgRef?: RefObject<SVGSVGElement | null>;
   getSvg?: () => ChartSvgExport;
+  getFrame: () => ExportFrame;
   labels: ChartExportLabels;
 }) {
   const [open, setOpen] = useState(false);
@@ -117,7 +123,7 @@ export function ChartExportMenu({
             onClick={(e) => {
               e.stopPropagation();
               const s = resolveSvg();
-              if (s) downloadSvg(`${filenameBase}.svg`, s);
+              if (s) void downloadSvg(`${filenameBase}.svg`, s, getFrame());
               setOpen(false);
             }}
             style={menuItemStyle}
@@ -128,7 +134,7 @@ export function ChartExportMenu({
             onClick={(e) => {
               e.stopPropagation();
               const s = resolveSvg();
-              if (s) downloadPng(`${filenameBase}.png`, s);
+              if (s) void downloadPng(`${filenameBase}.png`, s, getFrame());
               setOpen(false);
             }}
             style={menuItemStyle}

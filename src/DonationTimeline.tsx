@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS } from './bundestag';
 import { formatEuro } from './lobby';
 import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
+import type { ExportFrame, ExportInfo } from './chartExport';
 
 const BAR_WIDTH = 26;
 const GAP = 12;
@@ -93,6 +94,7 @@ export function DonationTimeline({
   stackBy = 'fraction',
   filenameBase,
   exportLabels,
+  exportInfo,
 }: {
   donations: DonationRow[];
   labels: {
@@ -102,6 +104,8 @@ export function DonationTimeline({
     quarterTotalLabel: string;
     rangeLabelTemplate: string;
     otherDonorsLabel: string;
+    /** Legend entry (exports only) for several stacked keys that share one colour. */
+    otherGroupsLabel: string;
   };
   /** 'fraction' stacks each bar by receiving party (used where a mix of parties can appear in
    * the same dataset); 'donor' stacks by the individual donor instead — for a single-party view,
@@ -109,6 +113,7 @@ export function DonationTimeline({
   stackBy?: 'fraction' | 'donor';
   filenameBase: string;
   exportLabels: ChartExportLabels;
+  exportInfo: ExportInfo;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [active, setActive] = useState<number | null>(null);
@@ -161,6 +166,32 @@ export function DonationTimeline({
     headers: ['Quarter', stackBy === 'donor' ? 'Donor' : 'Party', 'Amount (EUR)'],
     rows: visibleQuarters.flatMap((q) => q.segments.map((s) => [q.label, s.key, s.amount])),
   });
+
+  // Legend for exactly what the export shows: only the parties/donors that appear in the selected
+  // quarter range, in stacking order, each with its total over that range; the range is the subtitle.
+  const getFrame = (): ExportFrame => {
+    const totals = new Map<string, number>();
+    for (const q of visibleQuarters) for (const sg of q.segments) totals.set(sg.key, (totals.get(sg.key) ?? 0) + sg.amount);
+    // Keys that share a colour (the small parties without one of their own all get the same grey)
+    // would be indistinguishable swatches, so they collapse into one "others" entry naming them.
+    const legendItems = () => {
+      const shown = stackOrder.filter((k) => (totals.get(k) ?? 0) > 0);
+      const byColor = new Map<string, string[]>();
+      for (const k of shown) byColor.set(colorFor(k), [...(byColor.get(colorFor(k)) ?? []), k]);
+      // Single-colour keys first (in stacking order), the merged "others" entry last.
+      return [...byColor.entries()].sort((a, b) => Number(a[1].length > 1) - Number(b[1].length > 1)).map(([color, keys]) => {
+        const sum = keys.reduce((acc, k) => acc + (totals.get(k) ?? 0), 0);
+        return keys.length === 1
+          ? { label: keys[0], value: formatEuro(sum), color }
+          : { label: labels.otherGroupsLabel, value: `${formatEuro(sum)} · ${keys.join(', ')}`, color };
+      });
+    };
+    return {
+      ...exportInfo,
+      subtitle: labels.rangeLabelTemplate.replace('{from}', quarters[rangeStart].label).replace('{to}', quarters[rangeEnd].label),
+      legend: legendItems(),
+    };
+  };
 
   const max = Math.max(1, ...visibleQuarters.map((q) => q.total));
   // Total width is pinned to the FULL quarter count, not the visible subset — that keeps the
@@ -240,7 +271,7 @@ export function DonationTimeline({
         </div>
       )}
       <div style={{ position: 'relative', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', padding: 16 }}>
-        <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} svgRef={svgRef} labels={exportLabels} />
+        <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} svgRef={svgRef} getFrame={getFrame} labels={exportLabels} />
         <svg
           ref={svgRef}
           viewBox={`0 0 ${width} ${height}`}

@@ -8,7 +8,7 @@
 import { useRef } from 'react';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS } from '../bundestag';
 import { ChartExportMenu, type ChartExportLabels } from '../ChartExportMenu';
-import type { ChartSvgExport } from '../chartExport';
+import type { ChartSvgExport, ExportFrame, ExportInfo } from '../chartExport';
 import { escapeXml, truncateLabel } from '../format';
 import { computeHemicycleSeats } from '../helpers';
 import { formatEuro, formatExpenseBracket, type CrossrefRow, type LobbyOrg, type SpendScope } from '../lobby';
@@ -25,6 +25,8 @@ export function TieMatrix({
   scrollHintText,
   filenameBase,
   exportLabels,
+  exportInfo,
+  selectedLabel,
 }: {
   rows: CrossrefRow[];
   partyOrder: { name: string; color: string }[];
@@ -33,6 +35,8 @@ export function TieMatrix({
   scrollHintText: string;
   filenameBase: string;
   exportLabels: ChartExportLabels;
+  exportInfo: ExportInfo;
+  selectedLabel: string;
 }) {
   const counts = new Map<string, number>();
   const topicTotals = new Map<string, number>();
@@ -97,9 +101,16 @@ export function TieMatrix({
     return { svgString, width, height };
   };
 
+  // Every cell prints its count, so a colour scale would only repeat it. The one thing the image
+  // can't say on its own is what the blue outline marks — that entry appears only while a cell is selected.
+  const getFrame = (): ExportFrame => ({
+    ...exportInfo,
+    legend: selected ? [{ label: `${selectedLabel}: ${selected.party} · ${selected.topic}`, color: '#284cac', shape: 'ring' }] : undefined,
+  });
+
   return (
     <div style={{ position: 'relative' }}>
-      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} getFrame={getFrame} labels={exportLabels} />
       <ScrollBox hintText={scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, marginTop: 44, marginBottom: 14 }}>
       <table style={{ borderCollapse: 'collapse', fontSize: 12.5, background: 'white' }}>
         <thead>
@@ -166,6 +177,7 @@ export function HemicycleChart({
   isPartyRoutable,
   filenameBase,
   exportLabels,
+  exportInfo,
 }: {
   parties: { name: string; seats: number; color: string }[];
   seatsLabel: string;
@@ -174,14 +186,19 @@ export function HemicycleChart({
   isPartyRoutable: (party: string) => boolean;
   filenameBase: string;
   exportLabels: ChartExportLabels;
+  exportInfo: ExportInfo;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const seats = computeHemicycleSeats(parties, { rows: 9, rMin: 55, rMax: 200, cx: 260, cy: 220 });
   const total = parties.reduce((sum, p) => sum + p.seats, 0);
   const getCsv = () => ({ headers: ['Party', 'Seats'], rows: parties.map((p) => [p.name, p.seats]) });
+  const getFrame = (): ExportFrame => ({
+    ...exportInfo,
+    legend: parties.filter((p) => p.seats > 0).map((p) => ({ label: p.name, value: String(p.seats), color: p.color })),
+  });
   return (
     <div style={{ position: 'relative', background: 'oklch(97% 0.006 260)', borderRadius: 14, padding: '18px 18px 14px', height: '100%' }}>
-      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} svgRef={svgRef} labels={exportLabels} />
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} svgRef={svgRef} getFrame={getFrame} labels={exportLabels} />
       <svg ref={svgRef} viewBox="0 0 520 250" style={{ width: '100%', height: 'auto', display: 'block' }}>
         {seats.map((s, i) => {
           const routable = isPartyRoutable(s.party);
@@ -235,10 +252,12 @@ export function DonationBarChart({
   data,
   filenameBase,
   exportLabels,
+  exportInfo,
 }: {
   data: { fraction: string; total: number; count: number }[];
   filenameBase: string;
   exportLabels: ChartExportLabels;
+  exportInfo: ExportInfo;
 }) {
   if (data.length === 0) return null;
   const max = data[0].total;
@@ -259,7 +278,7 @@ export function DonationBarChart({
         const barW = (pct / 100) * PLOT_W;
         const color = REAL_PARTY_COLORS[p.fraction] || FALLBACK_PARTY_COLOR;
         return `<circle cx="${PAD + 5}" cy="${y + BAR_H / 2}" r="4.5" fill="${color}"/>
-          <text x="${PAD + 16}" y="${y + BAR_H / 2}" dominant-baseline="middle" font-size="12.5" font-weight="600" fill="#1a1d23">${escapeXml(p.fraction)}</text>
+          <text x="${PAD + 16}" y="${y + BAR_H / 2}" dominant-baseline="middle" font-size="12.5" font-weight="600" fill="#1a1d23">${escapeXml(truncateLabel(p.fraction, 21))}</text>
           <rect x="${PAD + LABEL_W}" y="${y}" width="${PLOT_W}" height="${BAR_H}" rx="4" fill="#eef0f2"/>
           <rect x="${PAD + LABEL_W}" y="${y}" width="${barW}" height="${BAR_H}" rx="4" fill="${color}"/>
           <text x="${PAD + LABEL_W + PLOT_W + 10}" y="${y + BAR_H / 2}" dominant-baseline="middle" font-size="11.5" fill="#6b7280">${escapeXml(formatEuro(p.total))} · ${p.count}×</text>`;
@@ -270,7 +289,8 @@ export function DonationBarChart({
   };
   return (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 9, paddingTop: 44 }}>
-      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
+      {/* Every bar is labelled, so colour adds nothing a legend could explain: title + source only. */}
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} getFrame={() => exportInfo} labels={exportLabels} />
       {data.map((p) => {
         const pct = Math.max(1, (p.total / max) * 100);
         return (
@@ -317,11 +337,13 @@ export function ActorTypeSpendChart({
   orgsTemplate,
   filenameBase,
   exportLabels,
+  exportInfo,
 }: {
   scope: SpendScope;
   orgsTemplate: string;
   filenameBase: string;
   exportLabels: ChartExportLabels;
+  exportInfo: ExportInfo;
 }) {
   const rows = scope.byActorType.filter((a) => a.to > 0);
   if (rows.length === 0) return null;
@@ -354,7 +376,8 @@ export function ActorTypeSpendChart({
   };
   return (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 44 }}>
-      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
+      {/* Every bar is labelled, so colour adds nothing a legend could explain: title + source only. */}
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} getFrame={() => exportInfo} labels={exportLabels} />
       {rows.map((a) => (
         <div key={a.actorType}>
           <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 5 }}>{a.actorType}</div>
@@ -396,6 +419,8 @@ export function SectorBarChart({
   orgsTemplate,
   filenameBase,
   exportLabels,
+  exportInfo,
+  selectedLabel,
 }: {
   data: { field: string; memberCount: number; orgCount: number }[];
   metric: SectorMetric;
@@ -405,6 +430,8 @@ export function SectorBarChart({
   orgsTemplate: string;
   filenameBase: string;
   exportLabels: ChartExportLabels;
+  exportInfo: ExportInfo;
+  selectedLabel: string;
 }) {
   if (data.length === 0) return null;
   const valueFor = (d: (typeof data)[number]) => (metric === 'members' ? d.memberCount : d.orgCount);
@@ -438,9 +465,14 @@ export function SectorBarChart({
     const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" font-family="'IBM Plex Sans', sans-serif">${body}</svg>`;
     return { svgString, width, height };
   };
+  // Bars are labelled; colour only means something once fields are highlighted (darker bars).
+  const getFrame = (): ExportFrame => ({
+    ...exportInfo,
+    legend: selected.size > 0 ? [{ label: selectedLabel, value: [...selected].join(', '), color: '#284cac' }] : undefined,
+  });
   return (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 44 }}>
-      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} getFrame={getFrame} labels={exportLabels} />
       {data.map((d) => {
         const pct = Math.max(1, (valueFor(d) / max) * 100);
         const isSelected = selected.has(d.field);
@@ -484,6 +516,7 @@ export function OrgInfluenceBarChart({
   membersTemplate,
   filenameBase,
   exportLabels,
+  exportInfo,
 }: {
   data: { org: LobbyOrg; memberCount: number }[];
   orgHref: (id: string) => string;
@@ -491,6 +524,7 @@ export function OrgInfluenceBarChart({
   membersTemplate: string;
   filenameBase: string;
   exportLabels: ChartExportLabels;
+  exportInfo: ExportInfo;
 }) {
   if (data.length === 0) return null;
   const max = data[0].memberCount;
@@ -513,7 +547,7 @@ export function OrgInfluenceBarChart({
         const pct = Math.max(1, (d.memberCount / max) * 100);
         const barW = (pct / 100) * PLOT_W;
         return `<circle cx="${PAD + 5}" cy="${y + BAR_H / 2}" r="4.5" fill="#5c86d6"/>
-          <text x="${PAD + 16}" y="${y + BAR_H / 2}" dominant-baseline="middle" font-size="12.5" font-weight="600" fill="#1a1d23">${escapeXml(d.org.name)}</text>
+          <text x="${PAD + 16}" y="${y + BAR_H / 2}" dominant-baseline="middle" font-size="12.5" font-weight="600" fill="#1a1d23">${escapeXml(truncateLabel(d.org.name, 28))}</text>
           <rect x="${PAD + LABEL_W}" y="${y}" width="${PLOT_W}" height="${BAR_H}" rx="4" fill="#eef0f2"/>
           <rect x="${PAD + LABEL_W}" y="${y}" width="${barW}" height="${BAR_H}" rx="4" fill="#5c86d6"/>
           <text x="${PAD + LABEL_W + PLOT_W + 10}" y="${y + BAR_H / 2}" dominant-baseline="middle" font-size="11.5" fill="#6b7280">${escapeXml(membersTemplate.replace('{n}', String(d.memberCount)))}</text>`;
@@ -524,7 +558,8 @@ export function OrgInfluenceBarChart({
   };
   return (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 9, paddingTop: 44 }}>
-      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} labels={exportLabels} />
+      {/* Every bar is labelled, so colour adds nothing a legend could explain: title + source only. */}
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} getFrame={() => exportInfo} labels={exportLabels} />
       {data.map((d) => {
         const pct = Math.max(1, (d.memberCount / max) * 100);
         return (

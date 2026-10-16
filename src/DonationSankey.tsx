@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS } from './bundestag';
 import { formatEuro } from './lobby';
 import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
+import type { ExportInfo } from './chartExport';
 
 const WIDTH = 760;
 const NODE_WIDTH = 12;
@@ -184,6 +185,7 @@ export function DonationSankey({
   labels,
   filenameBase,
   exportLabels,
+  exportInfo,
 }: {
   donations: DonationRow[];
   /** Each party's true total across ALL donors (not just the ones drawn here) — lets every party
@@ -207,6 +209,7 @@ export function DonationSankey({
   };
   filenameBase: string;
   exportLabels: ChartExportLabels;
+  exportInfo: ExportInfo;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [hovered, setHovered] = useState<{ kind: 'donor' | 'party'; id: string } | null>(null);
@@ -249,7 +252,15 @@ export function DonationSankey({
         {excludedCount > 0 && ` ${labels.excludedTemplate.replace('{n}', String(excludedCount)).replace('{amount}', formatEuro(excludedTotal))}`}
       </p>
       <div style={{ position: 'relative', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', padding: 16 }}>
-        <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} svgRef={svgRef} labels={exportLabels} />
+        {/* Donors and parties are labelled on the nodes themselves, so no colour legend; the subtitle
+            records how many donors the export shows (the slider setting). */}
+        <ChartExportMenu
+          filenameBase={filenameBase}
+          getCsv={getCsv}
+          svgRef={svgRef}
+          getFrame={() => ({ ...exportInfo, subtitle: labels.sliderLabelTemplate.replace('{n}', String(topN)) })}
+          labels={exportLabels}
+        />
         <svg
           ref={svgRef}
           viewBox={`0 0 ${WIDTH} ${height}`}

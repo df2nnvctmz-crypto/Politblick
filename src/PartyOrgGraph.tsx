@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import type { OrgNetworkNode } from './lobby';
 import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
+import type { ExportFrame, ExportInfo } from './chartExport';
 
 /** Same modifier-aware nav-click wrapper as App.tsx's stop(): lets ctrl/cmd/middle-click and
  * long-press fall through to the real href instead of always intercepting the click. */
@@ -391,6 +392,7 @@ export function PartyOrgGraph({
   labels,
   filenameBase,
   exportLabels,
+  exportInfo,
 }: {
   orgs: OrgNetworkNode[];
   parties: { name: string; color: string; seats: number }[];
@@ -408,9 +410,18 @@ export function PartyOrgGraph({
     viewOrg: string;
     viewParty: string;
     empty: string;
+    legendOrg: string;
+    legendTie: string;
+    legendSelected: string;
+    legendTiedTo: string;
+    legendOtherOrgs: string;
+    legendPartyTie: string;
+    selectedTemplate: string;
+    membersTemplate: string;
   };
   filenameBase: string;
   exportLabels: ChartExportLabels;
+  exportInfo: ExportInfo;
 }) {
   const [crossPartyOnly, setCrossPartyOnly] = useState(true);
   // A Set, not a single string: clicking a second party narrows the highlight to
@@ -611,6 +622,56 @@ export function PartyOrgGraph({
         )
       : null;
 
+  // Built at click time, so the export describes the graph exactly as it is on screen. The party
+  // bubbles are labelled and get no entries of their own; what the legend explains depends on the
+  // selection:
+  // - nothing selected: what the grey dots and lines are;
+  // - parties clicked: the dashed lines in each party's colour, how many organisations are tied
+  //   to all of them (blue), and that the rest is dimmed;
+  // - an organisation clicked: its full name (the chart truncates it) and, per tied party, how
+  //   many of its MPs hold a role there — the same numbers printed on the lines.
+  const getFrame = (): ExportFrame => {
+    const ORG_GREY = 'oklch(78% 0.01 260)';
+    const HIGHLIGHT = 'oklch(45% 0.16 265)';
+    const DIMMED = 'oklch(93% 0.004 260)';
+    const base = `${crossPartyOnly ? labels.crossPartyToggle : labels.allToggle} · ${labels.orgCountTemplate.replace('{n}', String(orgCount))}`;
+    const partyColor = (name: string) => graph.nodes.find((n) => n.kind === 'party' && n.label === name)?.color ?? ORG_GREY;
+    const activeOrg = activeOrgId ? graph.nodes.find((n) => n.orgId === activeOrgId) : undefined;
+
+    if (activeOrg) {
+      const ties = graph.edges.filter((e) => e.target === activeOrg.id).sort((x, y) => y.weight - x.weight);
+      return {
+        ...exportInfo,
+        subtitle: `${base} · ${labels.selectedTemplate.replace('{name}', activeOrg.label)}`,
+        legend: [
+          { label: labels.legendSelected, color: HIGHLIGHT },
+          ...ties.map((e) => ({ label: e.party, value: labels.membersTemplate.replace('{n}', String(e.weight)), color: partyColor(e.party), shape: 'dashed' as const })),
+          { label: labels.legendOtherOrgs, color: DIMMED },
+        ],
+      };
+    }
+    if (activeParties.size > 0) {
+      const parties = [...activeParties];
+      return {
+        ...exportInfo,
+        subtitle: base,
+        legend: [
+          { label: labels.legendTiedTo.replace('{n}', String(matchedOrgIds?.size ?? 0)).replace('{parties}', parties.join(' + ')), color: HIGHLIGHT },
+          ...parties.map((p) => ({ label: labels.legendPartyTie.replace('{party}', p), color: partyColor(p), shape: 'dashed' as const })),
+          { label: labels.legendOtherOrgs, color: DIMMED },
+        ],
+      };
+    }
+    return {
+      ...exportInfo,
+      subtitle: base,
+      legend: [
+        { label: labels.legendOrg, color: ORG_GREY },
+        { label: labels.legendTie, color: 'oklch(70% 0.006 260)', shape: 'line' },
+      ],
+    };
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 8 }}>
@@ -633,7 +694,7 @@ export function PartyOrgGraph({
           key={`${orgsKey}|${partiesKey}|${crossPartyOnly}`}
           style={{ position: 'relative', border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', overflow: 'hidden' }}
         >
-          <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} svgRef={svgRef} labels={exportLabels} />
+          <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} svgRef={svgRef} getFrame={getFrame} labels={exportLabels} />
           <svg
             ref={svgRef}
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
