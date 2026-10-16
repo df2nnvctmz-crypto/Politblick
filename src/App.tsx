@@ -1147,6 +1147,7 @@ function App() {
     >
       <header
         ref={headerRef}
+        className="pb-header"
         style={{
           position: 'sticky',
           top: 0,
@@ -5592,7 +5593,7 @@ function App() {
           }}
         >
           <span>{t.footerNote}</span>
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 16px' }}>
             <a href={disclaimerHref} onClick={stop(goDisclaimer)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.disclaimerTitle}
             </a>

@@ -10,6 +10,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 const ACCENT = 'oklch(45% 0.16 265)';
+const MIN_WIDTH = 240;
 
 export interface SingleFilterGroup {
   label: string;
@@ -73,6 +74,26 @@ export function FilterMenu({
     document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
   }, [open]);
+  // The menu hangs off its button, so a button near the right edge (the filter button next to
+  // the category button) pushed it past the screen: the page grew sideways and lost its centring,
+  // and phones keep that width even after the menu moves back. So the side it opens to and its
+  // width cap are fixed from the button's position before it renders, never corrected after.
+  const [placement, setPlacement] = useState<{ side: 'left' | 'right'; maxWidth: number } | null>(null);
+  const toggle = () => {
+    if (open || !ref.current) {
+      setOpen(false);
+      return;
+    }
+    const EDGE = 12;
+    const r = ref.current.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;
+    const roomLeftAligned = vw - EDGE - r.left;
+    const roomRightAligned = r.right - EDGE;
+    const preferred = align === 'left' ? roomLeftAligned : roomRightAligned;
+    const side = preferred >= MIN_WIDTH ? align : roomLeftAligned >= roomRightAligned ? 'left' : 'right';
+    setPlacement({ side, maxWidth: side === 'left' ? roomLeftAligned : roomRightAligned });
+    setOpen(true);
+  };
   const changed = neutral ? 0 : groups.filter(isChanged).length;
 
   const itemStyle = (on: boolean) => ({
@@ -94,7 +115,7 @@ export function FilterMenu({
   return (
     <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}>
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggle}
         aria-expanded={open}
         aria-haspopup="menu"
         style={{
@@ -130,9 +151,10 @@ export function FilterMenu({
           style={{
             position: 'absolute',
             top: '100%',
-            [align]: 0,
+            [placement?.side ?? align]: 0,
             marginTop: 6,
-            minWidth: 240,
+            minWidth: Math.min(MIN_WIDTH, placement?.maxWidth ?? MIN_WIDTH),
+            maxWidth: placement?.maxWidth,
             maxHeight: '60vh',
             overflowY: 'auto',
             background: 'white',
