@@ -257,9 +257,10 @@ function App() {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
   }, []);
 
-  // Phones only: the pinned filter/sort bars (.pb-mobile-sticky) sit under the always-visible
-  // header. While scrolling down they slide away behind it to free the screen for the list, and
-  // the first scroll up brings them back. --pb-header-offset is where they pin (header height).
+  // Phones only: while scrolling down, the header folds its search + DE/EN row away (logo and
+  // navigation stay) and the pinned filter/sort bars (.pb-mobile-sticky) slide away behind it, to
+  // free the screen for the content; the first scroll up brings both back. --pb-header-offset is
+  // where the bars pin (the header's current height).
   const headerRef = useRef<HTMLElement>(null);
   const [filterBarsHidden, setFilterBarsHidden] = useState(false);
   useEffect(() => {
@@ -267,18 +268,38 @@ function App() {
     // The bar only leaves after a sustained scroll down (about half a phone screen in one go), so
     // it stays at hand while someone browses the first results; any real scroll up brings it back.
     const HIDE_AFTER_PX = 400;
+    // Folding the search row changes the header's height, and the browser answers that layout
+    // shift by nudging scrollY (scroll anchoring) — which looked like a scroll up and unfolded the
+    // row again: it vanished and popped straight back. So for the length of the animation after
+    // each fold/unfold, scroll events only re-baseline instead of deciding anything.
+    const SETTLE_MS = 450;
+    let hidden = false;
+    let settleUntil = 0;
     let lastY = window.scrollY;
     let downRunStart = lastY;
+    const set = (next: boolean) => {
+      if (next === hidden) return;
+      hidden = next;
+      settleUntil = performance.now() + SETTLE_MS;
+      setFilterBarsHidden(next);
+    };
     const onScroll = () => {
       const y = window.scrollY;
-      if (!narrow.matches || y < 140) {
-        setFilterBarsHidden(false);
+      if (performance.now() < settleUntil) {
+        lastY = y;
         downRunStart = y;
-      } else if (y < lastY - 6) {
-        setFilterBarsHidden(false);
+        return;
+      }
+      if (!narrow.matches || y < 140) {
+        set(false);
+        downRunStart = y;
+      } else if (y < lastY - 15) {
+        // 15px, not less: iOS momentum and rubber-banding produce small upward bounces.
+        set(false);
         downRunStart = y;
       } else if (y - downRunStart > HIDE_AFTER_PX) {
-        setFilterBarsHidden(true);
+        // Never fold the search row away while someone is typing in it.
+        if (!document.activeElement?.closest('.pb-header-collapsible')) set(true);
       }
       // Small jitters (momentum scrolling, address bar resizing) are ignored.
       if (Math.abs(y - lastY) > 6 || y < 140) lastY = y;
@@ -301,7 +322,7 @@ function App() {
     return () => ro.disconnect();
   }, []);
   useEffect(() => {
-    document.documentElement.classList.toggle('pb-filter-bars-hidden', filterBarsHidden);
+    document.documentElement.classList.toggle('pb-scrolled-down', filterBarsHidden);
   }, [filterBarsHidden]);
   useEffect(() => {
     const onPopState = () => {
@@ -1354,7 +1375,7 @@ function App() {
             )}
           </div>
         </nav>
-        <div style={{ flex: 1, minWidth: 160, display: 'flex', justifyContent: 'center' }}>
+        <div className="pb-header-collapsible" style={{ flex: 1, minWidth: 160, display: 'flex', justifyContent: 'center' }}>
           <GlobalSearchBox
             query={searchQuery}
             onQueryChange={setSearchQuery}
@@ -1366,7 +1387,7 @@ function App() {
             t={t}
           />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
+        <div className="pb-header-collapsible" style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
           <div
             style={{
               display: 'flex',

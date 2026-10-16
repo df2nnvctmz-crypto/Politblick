@@ -333,7 +333,28 @@ button {
   .pb-mp-toolbar {
     width: calc(100% + 64px) !important;
   }
-  .pb-filter-bars-hidden .pb-mobile-sticky {
+  .pb-scrolled-down .pb-mobile-sticky {
     transform: translateY(calc(-100% - 2px));
+  }
+}
+
+/* Phones: the header's second row (search box, DE/EN) folds away while scrolling down - logo and
+   navigation stay - and returns on scroll up (state class set by App.tsx). The negative margin
+   cancels the header's 24px wrap gap so no empty strip is left behind. */
+@media (max-width: 720px) {
+  .pb-header-collapsible {
+    max-height: 64px;
+    transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.25s ease;
+  }
+  .pb-scrolled-down .pb-header-collapsible {
+    max-height: 0;
+    opacity: 0;
+    margin-top: -24px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  /* The MP list starts with its filter bar: no page padding between it and the header. */
+  .pb-mp-toolbar {
+    margin-top: -32px;
   }
 }
