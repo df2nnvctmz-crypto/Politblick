@@ -11,6 +11,7 @@
 // that matters (GitHub Pages 404s any path this list doesn't cover, sitemap or not).
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 export const SITE_URL = 'https://politblick.de';
 const DATA_DIR = 'public/data';
@@ -110,6 +111,11 @@ export function buildRoutes() {
   return routes;
 }
 
+/** Mirrors src/router.ts indexablePath: GitHub Pages 301s <path> to <path>/, so only the slash form returns 200. */
+function indexablePath(path) {
+  return path === '/' ? '/' : `${path.replace(/\/+$/, '')}/`;
+}
+
 function xmlEscape(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
@@ -119,7 +125,7 @@ function writeSitemap() {
   const body = routes
     .map(
       (r) =>
-        `  <url>\n    <loc>${xmlEscape(`${SITE_URL}${r.path}`)}</loc>\n    <changefreq>${r.changefreq}</changefreq>\n    <priority>${r.priority}</priority>\n  </url>`,
+        `  <url>\n    <loc>${xmlEscape(`${SITE_URL}${indexablePath(r.path)}`)}</loc>\n    <changefreq>${r.changefreq}</changefreq>\n    <priority>${r.priority}</priority>\n  </url>`,
     )
     .join('\n');
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
@@ -129,6 +135,6 @@ function writeSitemap() {
 
 // Only run the sitemap-writing side effect when this file is executed directly (`node
 // scripts/build-sitemap.mjs`) — scripts/prerender.mjs imports buildRoutes() without wanting that.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   writeSitemap();
 }

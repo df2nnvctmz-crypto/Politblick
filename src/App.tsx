@@ -34,7 +34,7 @@ import { DonationSankey } from './DonationSankey';
 import { DonationTimeline } from './DonationTimeline';
 import { ShowMoreButton } from './ShowMoreButton';
 import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
-import { DEFAULT_ROUTE, pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
+import { DEFAULT_ROUTE, indexablePath, pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
 import { countOptions, divergenceLabel, firstParagraph, formatDateTime, formatMillions, formatWeekRange, fuzzyMatch } from './format';
 import { compareMultiSortValues, compareSortValues, toggleInSet, toggleMultiSort, toggleSort, type MultiSortState, type SortState } from './sorting';
 import { buildBillUrlParam, buildMpUrlParam, buildSlugParam, extractLeadingId, extractMpId, parseBillId, type BillId } from './urlParams';
@@ -856,7 +856,7 @@ function App() {
     // window.location.pathname is already correct by the time this runs — either the browser
     // itself updated it before this render (initial load, popstate back/forward) or the URL-sync
     // effect above (declared earlier, so it commits first) already called pushState this commit.
-    const canonicalUrl = `${SITE_URL}${window.location.pathname}`;
+    const canonicalUrl = `${SITE_URL}${indexablePath(window.location.pathname)}`;
     setMeta('link[rel="canonical"]', 'href', canonicalUrl);
     setMeta('meta[property="og:url"]', 'content', canonicalUrl);
 

@@ -138,6 +138,17 @@ export function stripBase(pathname: string, base: string): string {
 }
 
 /** Re-adds the Vite BASE_URL prefix to an app-relative path, for writing back to the browser's address bar. */
+/**
+ * The form of a path search engines should index. Every page is prerendered as
+ * <path>/index.html, and GitHub Pages answers a request for <path> with a 301 to <path>/ — so
+ * the slash form is the only one that returns 200. Canonical tags and the sitemap must name that
+ * form, or every URL they list is a redirect (Google then reports "Seite mit Weiterleitung" and
+ * leaves it out of the index). In-app routing keeps the slash-less paths; both parse the same.
+ */
+export function indexablePath(path: string): string {
+  return path === '/' ? '/' : `${path.replace(/\/+$/, '')}/`;
+}
+
 export function withBase(path: string, base: string): string {
   if (base === '/') return path;
   const trimmedBase = base.endsWith('/') ? base.slice(0, -1) : base;
