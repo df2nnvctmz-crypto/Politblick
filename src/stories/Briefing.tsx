@@ -526,8 +526,8 @@ function PollRow({ poll, index, last, t, fmt, billHref, onOpenBill, orgHref, onO
   );
 
   return (
-    <article style={{ borderBottom: last ? RULE : HAIR, padding: '20px 0 16px', display: 'grid', gridTemplateColumns: '42px minmax(0,1fr)', gap: '0 16px' }}>
-      <div style={{ ...DISPLAY, fontSize: 15, fontWeight: 700, color: open ? INK : 'oklch(76% 0.02 260)', lineHeight: 1, paddingTop: 5 }}>{ord}</div>
+    <article className="sw-poll-row" style={{ borderBottom: last ? RULE : HAIR, padding: '20px 0 16px', display: 'grid', gridTemplateColumns: '42px minmax(0,1fr)', gap: '0 16px' }}>
+      <div className="sw-poll-ord" style={{ ...DISPLAY, fontSize: 15, fontWeight: 700, color: open ? INK : 'oklch(76% 0.02 260)', lineHeight: 1, paddingTop: 5 }}>{ord}</div>
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 18, flexWrap: 'wrap' }}>
           <a
@@ -574,14 +574,14 @@ function PollRow({ poll, index, last, t, fmt, billHref, onOpenBill, orgHref, onO
         {open && (
           <div style={{ marginTop: 16, background: 'oklch(97.5% 0.006 260)', border: HAIR, borderRadius: 12 }}>
             <div className="sw-poll-panel">
-              <div style={{ padding: '16px 20px 14px' }}>
+              <div className="sw-poll-pane" style={{ padding: '16px 20px 14px' }}>
                 <div style={{ ...RUBRIK, fontSize: 11, color: MUTED, marginBottom: 12 }}>{t.swByFraction}</div>
                 {poll.partyBreakdown.map((pb) => (
                   <FractionRow key={pb.party} pb={pb} fmt={fmt} />
                 ))}
                 <div style={{ fontSize: 11, color: FAINT, marginTop: 10 }}>{t.swVoteOrder}</div>
               </div>
-              <div style={{ padding: '16px 20px 14px', borderLeft: HAIR }}>
+              <div className="sw-poll-pane" style={{ padding: '16px 20px 14px', borderLeft: HAIR }}>
                 <div style={{ ...RUBRIK, fontSize: 11, color: MUTED, marginBottom: 12 }}>
                   {poll.lobbyingOrgCount > 0 ? fillStr(t.swLobbyingOf, { shown: poll.lobbyingOrgs.length, total: poll.lobbyingOrgCount }) : t.swLobbyingLabel}
                 </div>
@@ -619,15 +619,15 @@ function FractionRow({ pb, fmt }: { pb: StoryPartyTally; fmt: Fmt }) {
   const seats = pb.yes + pb.no + pb.abstain + pb.noShow || 1;
   const seg = (n: number, c: string) => (n > 0 ? <span style={{ width: `${(n / seats) * 100}%`, background: c }} /> : null);
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderBottom: HAIR }}>
+    <div className="sw-frac-row" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderBottom: HAIR }}>
       <i style={{ width: 9, height: 9, borderRadius: '50%', background: partyColor(pb.party), display: 'block', flex: 'none' }} />
-      <span style={{ fontSize: 12.5, fontWeight: 600, width: 84, flex: 'none' }}>{pb.party}</span>
-      <span style={{ display: 'flex', flex: 1, minWidth: 40, ...track(9, 3) }}>
+      <span className="sw-frac-name" style={{ fontSize: 12.5, fontWeight: 600, width: 84, flex: 'none' }}>{pb.party}</span>
+      <span className="sw-frac-bar" style={{ display: 'flex', flex: 1, minWidth: 40, ...track(9, 3) }}>
         {seg(pb.yes, VOTE_YES)}
         {seg(pb.no, VOTE_NO)}
         {seg(pb.abstain, VOTE_ABSTAIN)}
       </span>
-      <span style={{ fontSize: 11.5, color: MUTED, width: 96, textAlign: 'right', flex: 'none' }}>
+      <span className="sw-frac-nums" style={{ fontSize: 11.5, color: MUTED, width: 96, textAlign: 'right', flex: 'none', whiteSpace: 'nowrap' }}>
         {fmt.int(pb.yes)}&thinsp;/&thinsp;{fmt.int(pb.no)}&thinsp;/&thinsp;{fmt.int(pb.abstain)}&thinsp;/&thinsp;{fmt.int(pb.noShow)}
       </span>
     </div>
