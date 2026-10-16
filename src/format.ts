@@ -7,9 +7,15 @@
 
 import type { Lang } from './data';
 
+/** "23. Juni – 29. Juni 2025". The year is always there: the vote list spans several years, and
+ * without it a June week of 2025 and one of 2026 read the same. A week across New Year gets
+ * both years ("29. Dez. 2025 – 4. Jan. 2026"). */
 export function formatWeekRange(range: { start: Date; end: Date }, lang: Lang): string {
-  const fmt = new Intl.DateTimeFormat(lang === 'de' ? 'de-DE' : 'en-US', { day: 'numeric', month: 'short' });
-  return `${fmt.format(range.start)} – ${fmt.format(range.end)}`;
+  const locale = lang === 'de' ? 'de-DE' : 'en-US';
+  const dayMonth = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' });
+  const withYear = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+  const start = range.start.getFullYear() === range.end.getFullYear() ? dayMonth.format(range.start) : withYear.format(range.start);
+  return `${start} – ${withYear.format(range.end)}`;
 }
 
 export function formatDateTime(iso: string, lang: Lang): string {

@@ -597,3 +597,121 @@ export function OrgInfluenceBarChart({
     </div>
   );
 }
+
+/**
+ * Roll-call result of one vote, by parliamentary group: a stacked bar per group (yes / no /
+ * abstain / did not vote) with the raw counts beside it, and the four totals as the legend.
+ * Party names link to the party page where one exists.
+ */
+export function VoteResultChart({
+  rows,
+  totals,
+  labels,
+  isPartyRoutable,
+  partyHref,
+  onOpenParty,
+  filenameBase,
+  exportLabels,
+  exportInfo,
+}: {
+  rows: { party: string; color: string; yes: number; no: number; abstain: number; noShow: number }[];
+  totals: { yes: number; no: number; abstain: number; noShow: number };
+  labels: { title: string; yes: string; no: string; abstain: string; noShow: string; order: string };
+  isPartyRoutable: (party: string) => boolean;
+  partyHref: (party: string) => string;
+  onOpenParty: (party: string) => void;
+  filenameBase: string;
+  exportLabels: ChartExportLabels;
+  exportInfo: ExportInfo;
+}) {
+  // Same colours as the page has always used for this breakdown.
+  const SEGMENTS = [
+    { key: 'yes', label: labels.yes, color: 'oklch(50% 0.14 155)' },
+    { key: 'no', label: labels.no, color: 'oklch(55% 0.16 40)' },
+    { key: 'abstain', label: labels.abstain, color: 'oklch(85% 0.006 260)' },
+    { key: 'noShow', label: labels.noShow, color: 'oklch(93% 0.006 260)' },
+  ] as const;
+  const getCsv = () => ({
+    headers: ['Party', 'Yes', 'No', 'Abstain', 'Did not vote'],
+    rows: rows.map((r) => [r.party, r.yes, r.no, r.abstain, r.noShow]),
+  });
+  const getSvg = (): ChartSvgExport => {
+    const ROW_H = 30;
+    const BAR_H = 14;
+    const LABEL_W = 180;
+    const PLOT_W = 360;
+    const VALUE_W = 110;
+    const PAD = 10;
+    const NOTE_H = 22;
+    const width = PAD * 2 + LABEL_W + PLOT_W + VALUE_W;
+    const height = PAD * 2 + rows.length * ROW_H + NOTE_H;
+    const body = rows
+      .map((r, i) => {
+        const y = PAD + i * ROW_H;
+        const total = r.yes + r.no + r.abstain + r.noShow || 1;
+        let x = PAD + LABEL_W;
+        const segs = SEGMENTS.map((sg) => {
+          const w = (r[sg.key] / total) * PLOT_W;
+          const rect = w > 0 ? `<rect x="${x}" y="${y}" width="${w}" height="${BAR_H}" fill="${sg.color}"/>` : '';
+          x += w;
+          return rect;
+        }).join('');
+        return `<circle cx="${PAD + 5}" cy="${y + BAR_H / 2}" r="4.5" fill="${r.color}"/>
+          <text x="${PAD + 16}" y="${y + BAR_H / 2}" dominant-baseline="middle" font-size="12.5" font-weight="600" fill="#1a1d23">${escapeXml(truncateLabel(r.party, 24))}</text>
+          <clipPath id="vr${i}"><rect x="${PAD + LABEL_W}" y="${y}" width="${PLOT_W}" height="${BAR_H}" rx="7"/></clipPath>
+          <g clip-path="url(#vr${i})"><rect x="${PAD + LABEL_W}" y="${y}" width="${PLOT_W}" height="${BAR_H}" fill="#e4e6ea"/>${segs}</g>
+          <text x="${PAD + LABEL_W + PLOT_W + VALUE_W - 4}" y="${y + BAR_H / 2}" text-anchor="end" dominant-baseline="middle" font-size="11.5" fill="#6b7280">${r.yes}/${r.no}/${r.abstain}/${r.noShow}</text>`;
+      })
+      .join('');
+    const note = `<text x="${PAD + LABEL_W + PLOT_W + VALUE_W - 4}" y="${PAD + rows.length * ROW_H + 8}" text-anchor="end" font-size="10.5" fill="#878c96">${escapeXml(labels.order)}</text>`;
+    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" font-family="'IBM Plex Sans', sans-serif">${body}${note}</svg>`;
+    return { svgString, width, height };
+  };
+  // The four outcomes with their totals for this vote — the legend the page shows under the bars.
+  const getFrame = (): ExportFrame => ({
+    ...exportInfo,
+    legend: SEGMENTS.map((sg) => ({ label: sg.label, value: String(totals[sg.key]), color: sg.color })),
+  });
+
+  return (
+    <div style={{ position: 'relative', background: 'oklch(97% 0.006 260)', borderRadius: 14, padding: 20, marginBottom: 24 }}>
+      <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} getFrame={getFrame} labels={exportLabels} />
+      <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14, paddingRight: 40 }}>{labels.title}</div>
+      {rows.map((r) => {
+        const total = r.yes + r.no + r.abstain + r.noShow || 1;
+        const nameStyle = { width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0 } as const;
+        return (
+          <div key={r.party} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            {isPartyRoutable(r.party) ? (
+              <a
+                href={partyHref(r.party)}
+                onClick={stop(() => onOpenParty(r.party))}
+                style={{ ...nameStyle, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)', color: 'inherit' }}
+              >
+                {r.party}
+              </a>
+            ) : (
+              <span style={nameStyle}>{r.party}</span>
+            )}
+            <div style={{ flex: 1, height: 14, borderRadius: 7, overflow: 'hidden', display: 'flex', background: 'oklch(90% 0.006 260)' }}>
+              {SEGMENTS.map((sg) => (
+                <div key={sg.key} style={{ width: `${(r[sg.key] / total) * 100}%`, background: sg.color }} />
+              ))}
+            </div>
+            <span style={{ width: 90, fontSize: 11, color: 'oklch(48% 0.01 260)', textAlign: 'right', flexShrink: 0 }}>
+              {r.yes}/{r.no}/{r.abstain}/{r.noShow}
+            </span>
+          </div>
+        );
+      })}
+      <div style={{ display: 'flex', gap: 14, fontSize: 11, color: 'oklch(48% 0.01 260)', marginTop: 10, flexWrap: 'wrap' }}>
+        {SEGMENTS.map((sg) => (
+          <div key={sg.key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ width: 9, height: 9, background: sg.color, display: 'inline-block', borderRadius: 2 }} />
+            {sg.label} ({totals[sg.key]})
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countOptions, escapeXml, firstParagraph, fuzzyMatch, normalizeSearchText, slugify, truncateLabel } from './format';
+import { countOptions, escapeXml, firstParagraph, formatWeekRange, fuzzyMatch, normalizeSearchText, slugify, truncateLabel } from './format';
 
 describe('slugify', () => {
   it('transliterates umlauts rather than dropping them', () => {
@@ -119,5 +119,16 @@ describe('countOptions', () => {
 
   it('returns nothing for no values', () => {
     expect(countOptions([])).toEqual([]);
+  });
+});
+
+describe('formatWeekRange', () => {
+  it('always names the year, once when the week sits in one year', () => {
+    expect(formatWeekRange({ start: new Date(2025, 5, 23), end: new Date(2025, 5, 29) }, 'de')).toBe('23. Juni – 29. Juni 2025');
+    expect(formatWeekRange({ start: new Date(2025, 5, 23), end: new Date(2025, 5, 29) }, 'en')).toBe('Jun 23 – Jun 29, 2025');
+  });
+
+  it('names both years for a week across New Year', () => {
+    expect(formatWeekRange({ start: new Date(2025, 11, 29), end: new Date(2026, 0, 4) }, 'de')).toBe('29. Dez. 2025 – 4. Jan. 2026');
   });
 });
