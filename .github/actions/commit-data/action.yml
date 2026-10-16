@@ -69,13 +69,17 @@ runs:
             exit 0
           fi
           echo "Push rejected (attempt $attempt) — another data job pushed first. Rebasing…"
-          if git pull --rebase origin "${GITHUB_REF_NAME}"; then
+          # --autostash: the fetch scripts can leave other files modified (outputs another job owns);
+          # without it the pull refuses outright and the data of a 50-minute run is lost.
+          if git pull --rebase --autostash origin "${GITHUB_REF_NAME}"; then
             sleep $((attempt * 5))
             continue
           fi
 
           echo "Rebase conflict on a shared derived file — replaying just our own paths onto the new main."
-          git rebase --abort
+          # Only abort if a rebase actually started — after a refused pull there is none, and an
+          # unguarded abort fails the whole job under `set -e`.
+          if [ -d "$(git rev-parse --git-path rebase-merge)" ] || [ -d "$(git rev-parse --git-path rebase-apply)" ]; then git rebase --abort; fi
           git fetch origin "${GITHUB_REF_NAME}"
           git reset --hard "origin/${GITHUB_REF_NAME}"
           # Pulls only our own listed paths out of the commit we made earlier (still intact in

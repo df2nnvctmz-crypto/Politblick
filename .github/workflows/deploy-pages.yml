@@ -25,7 +25,10 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  # A run triggered by a FAILED fetch skips its build job (see below), so it gets a group of its
+  # own: otherwise it cancels a real deploy that happens to be in progress and then does nothing
+  # itself, leaving the site on the old version.
+  group: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'success' && format('pages-skip-{0}', github.run_id) || 'pages' }}
   cancel-in-progress: true
 
 jobs:
