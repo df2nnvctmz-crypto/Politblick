@@ -42,9 +42,13 @@ import { navStyle, pillBtn, voteBg } from './ui/styles';
 import { stop } from './ui/events';
 import { InfoTooltip, MpAvatar, MultiSelectFilter, MultiSortableTh, ScrollBox, SortableTh, SubTabBar } from './ui/primitives';
 import { ActorTypeSpendChart, DonationBarChart, HemicycleChart, OrgInfluenceBarChart, SectorBarChart, TieMatrix, type MatrixCell, type SectorMetric } from './charts';
-import { FindMyMpBox, GlobalSearchBox } from './search/SearchBoxes';
+import { FindMyMpBox } from './search/SearchBoxes';
+import { GlobalSearchBox } from './search/GlobalSearchBox';
+import { SearchResultsPage, type SearchResultsLinks } from './search/SearchResultsPage';
+import { MIN_QUERY_LENGTH, isoWeekOf, searchAll, type SearchSources } from './search/searchModel';
 import { LongTermDivergenceList, LongTermRecordCard } from './profile/LongTermRecord';
 import { SidejobTotalCard } from './profile/SidejobTotalCard';
+import { FilterMenu } from './ui/FilterMenu';
 import { NewsletterSignup } from './NewsletterSignup';
 import { SitzungswochenBriefing, StoryDetailPage } from './stories/Briefing';
 import { useStoryDetail } from './stories';
@@ -86,6 +90,9 @@ function App() {
   const [lobbyDonationsSubTab, setLobbyDonationsSubTab] = useState<'totals' | 'timeline' | 'topDonors' | 'all'>('totals');
   const [partyTab, setPartyTab] = useState<PartyTab>(initialRoute.partyTab);
   const [searchQuery, setSearchQuery] = useState('');
+  // The query of the /suche results page. Kept apart from the header box's live text (which also
+  // filters the MP list) and mirrored into ?q=, so a results page can be shared and reloaded.
+  const [resultsQuery, setResultsQuery] = useState(() => (initialRoute.view === 'results' ? new URLSearchParams(window.location.search).get('q') ?? '' : ''));
   const [partyFilter, setPartyFilter] = useState<Record<string, boolean>>({});
   const [rosterSort, setRosterSort] = useState<'default' | 'income' | 'sidejobCount' | 'ties' | 'loyalty' | 'divergences'>('default');
   const [hoveredAlignmentPoint, setHoveredAlignmentPoint] = useState<number | null>(null);
@@ -249,6 +256,53 @@ function App() {
   useEffect(() => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
   }, []);
+
+  // Phones only: the pinned filter/sort bars (.pb-mobile-sticky) sit under the always-visible
+  // header. While scrolling down they slide away behind it to free the screen for the list, and
+  // the first scroll up brings them back. --pb-header-offset is where they pin (header height).
+  const headerRef = useRef<HTMLElement>(null);
+  const [filterBarsHidden, setFilterBarsHidden] = useState(false);
+  useEffect(() => {
+    const narrow = window.matchMedia('(max-width: 720px)');
+    // The bar only leaves after a sustained scroll down (about half a phone screen in one go), so
+    // it stays at hand while someone browses the first results; any real scroll up brings it back.
+    const HIDE_AFTER_PX = 400;
+    let lastY = window.scrollY;
+    let downRunStart = lastY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (!narrow.matches || y < 140) {
+        setFilterBarsHidden(false);
+        downRunStart = y;
+      } else if (y < lastY - 6) {
+        setFilterBarsHidden(false);
+        downRunStart = y;
+      } else if (y - downRunStart > HIDE_AFTER_PX) {
+        setFilterBarsHidden(true);
+      }
+      // Small jitters (momentum scrolling, address bar resizing) are ignored.
+      if (Math.abs(y - lastY) > 6 || y < 140) lastY = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    narrow.addEventListener('change', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      narrow.removeEventListener('change', onScroll);
+    };
+  }, []);
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const update = () => document.documentElement.style.setProperty('--pb-header-offset', `${header.offsetHeight}px`);
+    update();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(update);
+    ro.observe(header);
+    return () => ro.disconnect();
+  }, []);
+  useEffect(() => {
+    document.documentElement.classList.toggle('pb-filter-bars-hidden', filterBarsHidden);
+  }, [filterBarsHidden]);
   useEffect(() => {
     const onPopState = () => {
       isPopStateRef.current = true;
@@ -264,6 +318,7 @@ function App() {
       setLobbyTab(r.lobbyTab);
       setPartyTab(r.partyTab);
       setPartyOrigin('partyList');
+      if (r.view === 'results') setResultsQuery(new URLSearchParams(window.location.search).get('q') ?? '');
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -379,6 +434,10 @@ function App() {
     setCommitteeMemberSearch('');
     setCommitteeMembersExpanded(false);
   };
+  const openResults = (q: string) => {
+    setResultsQuery(q.trim());
+    setView('results');
+  };
   const goImpressum = () => setView('impressum');
   const goDisclaimer = () => setView('disclaimer');
   const goDatenschutz = () => setView('datenschutz');
@@ -446,6 +505,21 @@ function App() {
   const disclaimerHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'disclaimer' }), BASE_URL);
   const datenschutzHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'datenschutz' }), BASE_URL);
   const datenHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'daten' }), BASE_URL);
+  const searchLinks: SearchResultsLinks = {
+    mpHref: (id) => mpHref(String(id)),
+    onMp: (id) => stop(() => openMp(String(id))),
+    billHref: (id) => billHref(id),
+    onBill: (id) => stop(() => openBill(id)),
+    orgHref: (id) => orgHref(id),
+    onOrg: (id) => stop(() => openOrg(id)),
+    partyHref: (name) => partyHref(name),
+    onParty: (name) => stop(() => openParty(name)),
+    committeeHref: (id) => committeeHref(id),
+    onCommittee: (id) => stop(() => openCommittee(id)),
+    storyHref: (week) => storyHref(week),
+    onStory: (week) => stop(() => openStory(week)),
+  };
+  const resultsHref = (q: string) => `${withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'results' }), BASE_URL)}?q=${encodeURIComponent(q.trim())}`;
   const crossrefHref = (tab: LobbyTab = 'overview') => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'crossref', lobbyTab: tab }), BASE_URL);
   const mpHref = (id: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'profile', mpId: buildMpUrlParam(id, roster.members) }), BASE_URL);
   const mpTabHref = (id: string, tab: ProfileTab) =>
@@ -711,9 +785,13 @@ function App() {
   const orgList = useOrgList();
   // The full register is fetched only where it is actually browsed: the organisation list, and an
   // organisation page whose id is not one of the few hundred the snapshot already carries.
+  // Search covers the whole register too, so it starts loading on the first real keystroke — it
+  // is ~450 KB over the wire and usually done before the query is.
   const needsDirectory =
     (view === 'crossref' && lobbyTab === 'orgs' && lobbyOrgsSubTab === 'list') ||
-    (view === 'org' && selectedOrgId !== null && !snapshot?.lobbyLinks.orgs[selectedOrgId]);
+    (view === 'org' && selectedOrgId !== null && !snapshot?.lobbyLinks.orgs[selectedOrgId]) ||
+    view === 'results' ||
+    searchQuery.trim().length >= MIN_QUERY_LENGTH;
   const lobbyDirectory = useLobbyDirectory(needsDirectory);
   const orgDetail = useOrgDetail(selectedOrgId, lobbyDirectory.orgs);
   // Only the browsable list widens to the whole register; tie-based views keep their own scope.
@@ -721,6 +799,32 @@ function App() {
   // keystroke in the search box.
   const directoryOrgs = useMemo(() => mergeDirectory(orgList.orgs, lobbyDirectory.orgs), [orgList.orgs, lobbyDirectory.orgs]);
   const committeeList = useCommitteeList();
+  // Everything the site-wide search looks through, flattened once per data change rather than
+  // per keystroke.
+  const searchSources = useMemo<SearchSources>(
+    () => ({
+      mps: roster.members.map((m) => ({ id: m.id, name: m.name, party: m.party, constituency: m.constituency, color: m.color })),
+      bills: [
+        ...pollsState.polls.map((p) => ({ id: p.id, title: p.title, date: p.date, topic: p.topic, topics: p.topics, term: null, accepted: p.accepted })),
+        ...(snapshot?.archivedPolls ?? []).map((p) => ({ id: p.id, title: p.title, date: p.date, topic: p.topic, topics: p.topics, term: p.term, accepted: p.accepted })),
+      ],
+      orgs: directoryOrgs.map((e) => ({
+        id: e.org.id,
+        name: e.org.name,
+        city: e.org.city,
+        spendFrom: e.org.expensesEuro?.from ?? null,
+        spendTo: e.org.expensesEuro?.to ?? null,
+        linked: Boolean(snapshot?.lobbyLinks.orgs[e.org.id]),
+      })),
+      parties: roster.parties.filter((p) => routablePartyNames.has(p.name)).map((p) => ({ name: p.name, color: p.color })),
+      committees: committeeList.entries.map((e) => ({ id: String(e.committee.id), name: e.committee.name, memberCount: e.memberCount })),
+      briefings: (snapshot?.storyIndex ?? []).map((s) => ({ week: s.week, start: s.dateRange.start, end: s.dateRange.end, isoWeek: isoWeekOf(s.week), pollCount: s.pollCount })),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [roster.members, roster.parties, pollsState.polls, snapshot, directoryOrgs, committeeList.entries.length, partyLobby.summaries],
+  );
+  const headerResults = useMemo(() => searchAll(searchQuery, searchSources), [searchQuery, searchSources]);
+  const pageResults = useMemo(() => (view === 'results' ? searchAll(resultsQuery, searchSources) : null), [view, resultsQuery, searchSources]);
   const committeeDetail = useCommitteeDetail(selectedCommitteeId);
   const committeeLobby = useCommitteeLobbySummary(selectedCommitteeId);
   const filteredCommitteeMembers = (committeeDetail.detail?.members ?? []).filter((row) =>
@@ -839,6 +943,10 @@ function App() {
         title = `${t.datenTitle} – Politblick`;
         description = t.datenIntro;
         break;
+      case 'results':
+        title = `${resultsQuery.trim() ? t.resultsHeadingTemplate.replace('{query}', resultsQuery.trim()) : t.resultsTitle} – Politblick`;
+        description = t.metaResultsDescription;
+        break;
     }
 
     document.title = title;
@@ -859,6 +967,17 @@ function App() {
     const canonicalUrl = `${SITE_URL}${indexablePath(window.location.pathname)}`;
     setMeta('link[rel="canonical"]', 'href', canonicalUrl);
     setMeta('meta[property="og:url"]', 'content', canonicalUrl);
+    // Search results pages are endless and thin; search engines should index the pages they link
+    // to, not the result lists themselves.
+    let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (view === 'results') {
+      if (!robots) {
+        robots = document.createElement('meta');
+        robots.name = 'robots';
+        document.head.appendChild(robots);
+      }
+      robots.content = 'noindex, follow';
+    } else robots?.remove();
 
     // GoatCounter's count.js only ever fires its own pageview beacon once, on script load, for
     // whichever page a real browser navigation landed on — client-side route changes afterward
@@ -876,7 +995,17 @@ function App() {
     }
     lastCountedPageKeyRef.current = pageKey;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek, profile, sidejobs.records, pollDetail.result, orgDetail.org, committeeDetail.detail, storyDetail.issue]);
+  }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek, profile, sidejobs.records, pollDetail.result, orgDetail.org, committeeDetail.detail, storyDetail.issue, resultsQuery]);
+
+  // Mirrors the results page's query into ?q=. Runs after the address-bar sync above (declared
+  // later, so it commits later): that one pushes /suche when the page is entered, this one only
+  // replaces the query string — typing on the results page must not add a history entry per key.
+  useEffect(() => {
+    if (view !== 'results') return;
+    const q = resultsQuery.trim();
+    const search = q ? `?q=${encodeURIComponent(q)}` : '';
+    if (window.location.search !== search) window.history.replaceState(null, '', `${window.location.pathname}${search}`);
+  }, [view, resultsQuery]);
   // "Linked" means exactly what orgsSectionSub claims: something on this site points at it — a
   // member's role, a lobbied vote, a committee, or a large donation. Re-deriving it from member
   // and vote counts alone would silently drop the donation-only ties.
@@ -996,6 +1125,7 @@ function App() {
       }}
     >
       <header
+        ref={headerRef}
         style={{
           position: 'sticky',
           top: 0,
@@ -1228,28 +1358,12 @@ function App() {
           <GlobalSearchBox
             query={searchQuery}
             onQueryChange={setSearchQuery}
-            onSubmit={() => setView('search')}
-            members={roster.members}
-            polls={pollsState.polls}
-            archivedPolls={snapshot?.archivedPolls ?? []}
-            orgs={orgList.orgs}
-            parties={roster.parties.filter((p) => routablePartyNames.has(p.name))}
-            onSelectMp={(id) => openMp(String(id))}
-            onSelectBill={openBill}
-            onSelectOrg={openOrg}
-            onSelectParty={(name) => openParty(name)}
-            searchHref={searchHref}
-            mpHref={mpHref}
-            billHref={billHref}
-            orgHref={orgHref}
-            partyHref={partyHref}
-            placeholder={t.searchPlaceholder}
-            groupMpsLabel={t.searchGroupMps}
-            groupBillsLabel={t.searchGroupBills}
-            groupOrgsLabel={t.searchGroupOrgs}
-            groupPartiesLabel={t.searchGroupParties}
-            noResultsTemplate={t.findMpNoResultsTemplate}
-            seeAllMpsTemplate={t.searchSeeAllMpsTemplate}
+            results={headerResults}
+            loadingOrgs={lobbyDirectory.loading}
+            links={searchLinks}
+            resultsHref={resultsHref}
+            onShowAll={openResults}
+            t={t}
           />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
@@ -1626,6 +1740,45 @@ function App() {
 
       {view === 'search' && (
         <main style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: 32, display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          {/* Phones: the sidebar below would fill the whole first screen, so party filter and sort
+              collapse into two menu buttons in a bar that stays pinned under the header. */}
+          <div className="pb-mobile-sticky pb-mp-toolbar" style={{ width: '100%' }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '8px 0' }}>
+              <FilterMenu
+                buttonLabel={t.filterParty}
+                groups={[
+                  {
+                    label: t.filterParty,
+                    multi: true,
+                    options: roster.parties.map((p) => ({ key: p.name, label: p.name, color: p.color })),
+                    selected: new Set(parties.filter((p) => p.checked).map((p) => p.name)),
+                    onToggle: togglePartyFilter,
+                    onAll: () => setPartyFilter({}),
+                    allLabel: t.resultsAllParties,
+                  },
+                ]}
+              />
+              <FilterMenu
+                icon="sort"
+                buttonLabel={t.filterSort}
+                groups={[
+                  {
+                    label: t.filterSort,
+                    options: [
+                      { key: 'default', label: t.sortDefault },
+                      { key: 'income', label: t.sortIncome },
+                      { key: 'sidejobCount', label: t.sortSidejobCount },
+                      { key: 'ties', label: t.sortTies },
+                      { key: 'loyalty', label: t.sortLoyalty },
+                      { key: 'divergences', label: t.sortDivergences },
+                    ],
+                    active: rosterSort,
+                    onChange: (k) => setRosterSort(k as typeof rosterSort),
+                  },
+                ]}
+              />
+            </div>
+          </div>
           <aside className="pb-search-sidebar" style={{ width: 220, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 22 }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'oklch(45% 0.01 260)', marginBottom: 10 }}>{t.filterParty}</div>
@@ -5307,6 +5460,18 @@ function App() {
           <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 16px' }}>{t.datenschutzTitle}</h1>
           <p style={{ fontSize: 14, color: 'oklch(35% 0.01 260)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{t.datenschutzBody}</p>
         </main>
+      )}
+
+      {view === 'results' && pageResults && (
+        <SearchResultsPage
+          query={resultsQuery}
+          onQueryChange={setResultsQuery}
+          results={pageResults}
+          loadingOrgs={lobbyDirectory.loading}
+          links={searchLinks}
+          t={t}
+          lang={lang}
+        />
       )}
 
       {view === 'daten' && (

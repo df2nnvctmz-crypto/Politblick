@@ -293,3 +293,47 @@ button {
   .sw-money > * + * { margin-top: 28px; }
   .sw-poll-panel > * + * { border-left: 0 !important; border-top: 1px solid oklch(92% 0.006 260); }
 }
+
+/* Phone layout for list pages (MP list, search results): filter pills / sidebar give way to
+   menu buttons, and the bar holding them stays pinned under the header (--pb-header-offset, set by
+   App.tsx). Scrolling down slides the bar away behind the header; scrolling up brings it back. */
+.pb-results-filter-menu,
+.pb-results-mobile-bar,
+.pb-mp-toolbar {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .pb-results-filter-pills,
+  .pb-results-tabs,
+  .pb-search-sidebar {
+    display: none !important;
+  }
+  .pb-results-filter-menu,
+  .pb-results-mobile-bar,
+  .pb-mp-toolbar {
+    display: block;
+  }
+  .pb-results-mobile-bar {
+    margin-bottom: 16px;
+  }
+  .pb-mobile-sticky {
+    position: sticky;
+    top: var(--pb-header-offset, 0px);
+    z-index: 15;
+    background: oklch(99% 0.003 260);
+    transition: transform 0.25s ease;
+    /* Edge to edge (the pages pad their content by 32px), so list cards never peek out at the sides. */
+    margin-left: -32px;
+    margin-right: -32px;
+    padding-left: 32px;
+    padding-right: 32px;
+    border-bottom: 1px solid oklch(92% 0.006 260);
+  }
+  .pb-mp-toolbar {
+    width: calc(100% + 64px) !important;
+  }
+  .pb-filter-bars-hidden .pb-mobile-sticky {
+    transform: translateY(calc(-100% - 2px));
+  }
+}

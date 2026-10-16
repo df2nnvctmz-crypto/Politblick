@@ -9,7 +9,7 @@
  * spa-github-pages redirect trick in public/404.html + index.html.
  */
 
-export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'partyList' | 'party' | 'committeeList' | 'committee' | 'pollList' | 'story' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten';
+export type View = 'home' | 'search' | 'profile' | 'bill' | 'crossref' | 'org' | 'partyList' | 'party' | 'committeeList' | 'committee' | 'pollList' | 'story' | 'impressum' | 'disclaimer' | 'datenschutz' | 'daten' | 'results';
 export type ProfileTab = 'overview' | 'votes' | 'lobby' | 'finance';
 export type LobbyTab = 'overview' | 'ties' | 'orgs' | 'donations';
 export type PartyTab = 'overview' | 'votes' | 'ties' | 'donations';
@@ -87,6 +87,9 @@ export function routeToPath(r: RouteState): string {
       return '/datenschutz';
     case 'daten':
       return '/daten';
+    case 'results':
+      // The query itself rides in ?q= (see App.tsx), like on any other search results page.
+      return '/suche';
   }
 }
 
@@ -128,6 +131,7 @@ export function pathToRoute(pathname: string): RouteState {
   if (first === 'datenschutz') return { ...DEFAULT_ROUTE, view: 'datenschutz' };
   if (first === 'hinweis-zu-den-daten') return { ...DEFAULT_ROUTE, view: 'disclaimer' };
   if (first === 'daten') return { ...DEFAULT_ROUTE, view: 'daten' };
+  if (first === 'suche') return { ...DEFAULT_ROUTE, view: 'results' };
   return { ...DEFAULT_ROUTE };
 }
 
