@@ -339,17 +339,28 @@ button {
 }
 
 /* Phones: the header's second row (search box, DE/EN) folds away while scrolling down - logo and
-   navigation stay - and returns on scroll up (state class set by App.tsx). The negative margin
-   cancels the header's 24px wrap gap so no empty strip is left behind. */
+   navigation stay - and returns on scroll up (state class set by App.tsx). The header's wrap gap
+   would survive a folded row (an empty flex line still gets its row gap), so on phones the rows
+   are spaced by margins instead, and the folded row's margin goes to 0 with it. */
 @media (max-width: 720px) {
+  .pb-header {
+    row-gap: 0 !important;
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+  }
+  /* Symmetric, so logo and nav stay centred when they share a line on wider phones. */
+  .pb-header > :not(.pb-header-collapsible) {
+    margin-block: 5px;
+  }
   .pb-header-collapsible {
     max-height: 64px;
+    margin-top: 8px;
     transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.25s ease;
   }
   .pb-scrolled-down .pb-header-collapsible {
     max-height: 0;
     opacity: 0;
-    margin-top: -24px;
+    margin-top: 0;
     overflow: hidden;
     pointer-events: none;
   }
