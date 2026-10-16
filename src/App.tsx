@@ -736,7 +736,7 @@ function App() {
   // every one of the ~1000+ prerendered static files gets its own real title/description instead
   // of the same generic one on all of them.
   useEffect(() => {
-    let title = 'Politblick';
+    let title = t.metaHomeTitle;
     let description = t.metaHomeDescription;
     switch (view) {
       case 'home':

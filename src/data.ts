@@ -3,7 +3,7 @@ export type Lang = 'de' | 'en';
 export interface Translation {
   navHome: string; navParliament: string; navMps: string; navMpsSearch: string; navParties: string; navCommittees: string; navPolls: string; navLobbyFinance: string;
   searchPlaceholder: string;
-  heroKicker: string; heroTitle: string; heroSub: string;
+  heroKicker: string; heroTitle: string; heroSub: string; metaHomeTitle: string;
   heroCta: string; heroCta2: string;
   findMpKicker: string; findMpPlaceholder: string; findMpNoResultsTemplate: string; findMpBrowseAll: string;
   searchGroupMps: string; searchGroupBills: string; searchGroupOrgs: string; searchGroupParties: string; searchSeeAllMpsTemplate: string;
@@ -254,6 +254,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     searchPlaceholder: 'Abgeordnete, Themen, Gesetze suchen…',
     heroKicker: 'Öffentliche Daten, an einem Ort',
     heroTitle: 'Jede Abstimmung. Jede Verbindung.',
+    metaHomeTitle: 'Politblick – Abstimmungen, Nebeneinkünfte und Lobby im Bundestag',
     heroSub: 'Politblick bringt Abstimmungen, Lobbyregister-Einträge und Parteispenden aus öffentlichen Quellen in eine durchsuchbare Ansicht — ohne Login, ohne Cookies.',
     heroCta: 'Abgeordnete durchsuchen', heroCta2: 'Lobby & Finanzen ansehen',
     findMpKicker: 'Wer vertritt dich im Bundestag?',
@@ -723,6 +724,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     searchPlaceholder: 'Search MPs, topics, bills…',
     heroKicker: 'Public data, one place',
     heroTitle: 'Every vote. Every connection.',
+    metaHomeTitle: 'Politblick – votes, outside income and lobbying in the Bundestag',
     heroSub: 'Politblick brings votes, lobbying contacts and campaign donations from a dozen public sources into one searchable view — no login, no cookies.',
     heroCta: 'Search MPs', heroCta2: 'View lobby & finance',
     findMpKicker: 'Who represents you in the Bundestag?',
