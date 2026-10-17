@@ -173,6 +173,8 @@ export interface Translation {
   partyTabDonations: string; partyDonationsEmpty: string; partyDonationsCountLabel: string; partyDonorsCountLabel: string; donorSearchPlaceholder: string;
   partyVotesEmpty: string;
   scrollHintText: string;
+  /** Prefix for a card table's sort chips on phones, where its column headers become a row of chips. */
+  sortByLabel: string;
   tieMatrixSub: string; matrixFilteredTemplate: string; matrixClearFilter: string;
   seatsLabel: string;
   networkSub: string; networkToggleCrossParty: string; networkToggleAll: string;
@@ -629,6 +631,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     partyDonationSourceTemplate: 'Quelle: Veröffentlichung der Bundestagspräsidentin für {year}',
     noMandateVotesYet: 'Für dieses Mitglied sind noch keine namentlichen Abstimmungen aus der laufenden Wahlperiode erfasst.',
     scrollHintText: 'Wischen für weitere Spalten',
+    sortByLabel: 'Sortieren:',
     tieMatrixSub: 'Anzahl der Überschneidungen nach Partei und Themenfeld. Auf eine Zelle klicken, um die Tabelle unten zu filtern.',
     matrixFilteredTemplate: 'Gefiltert: {party} · {topic}',
     matrixClearFilter: 'Filter zurücksetzen',
@@ -1142,6 +1145,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     partyDonationSourceTemplate: 'Source: Bundestag President’s publication for {year}',
     noMandateVotesYet: 'No roll-call votes are on file yet for this member in the current term.',
     scrollHintText: 'Swipe for more columns',
+    sortByLabel: 'Sort by:',
     tieMatrixSub: 'Count of overlaps by party and policy area. Click a cell to filter the table below.',
     matrixFilteredTemplate: 'Filtered: {party} · {topic}',
     matrixClearFilter: 'Clear filter',

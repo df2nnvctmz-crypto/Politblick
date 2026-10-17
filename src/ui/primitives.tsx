@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import type { MultiSortState, SortState } from '../sorting';
+import { stop } from './events';
 
 /** Photo is pre-resolved at fetch time (see fetch-core.mjs) and just a static URL now — falls back to colored initials if there's no Wikidata portrait, or if the Commons URL fails to load. */
 export function MpAvatar({ photoUrl, name, color, initials, size }: { photoUrl: string | null; name: string; color: string; initials: string; size: number }) {
@@ -43,10 +44,29 @@ export function MpAvatar({ photoUrl, name, color, initials, size }: { photoUrl: 
  * gives no hint that there's more off to the side, so the right-hand columns just look
  * missing on mobile. This adds a small "swipe" caption (mobile only, via .pb-scroll-hint's
  * media query) plus edge shadows that fade in/out based on actual scroll position.
+ *
+ * With `cards`, a list table stops scrolling sideways on phones altogether: .pb-card-table in
+ * index.css turns each row into a stacked card and the sort headers into a row of chips. A card
+ * cell has no column above it any more, so after every render the header labels are copied onto
+ * the body cells as data-label, which the CSS prints above each value. The first cell is the
+ * card's title (a name) and needs no label.
  */
-export function ScrollBox({ children, style, hintText }: { children: ReactNode; style: CSSProperties; hintText: string }) {
+export function ScrollBox({ children, style, hintText, cards, sortLabel }: { children: ReactNode; style: CSSProperties; hintText: string; cards?: boolean; sortLabel?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ left: false, right: false });
+
+  useEffect(() => {
+    const table = cards ? ref.current?.querySelector('table') : null;
+    if (!table) return;
+    const headRow = table.querySelector('thead tr');
+    if (headRow && sortLabel) headRow.setAttribute('data-label', sortLabel);
+    const labels = [...(headRow?.children ?? [])].map((th) => th.childNodes[0]?.textContent?.trim() ?? '');
+    for (const row of table.querySelectorAll('tbody tr')) {
+      [...row.children].forEach((td, i) => {
+        if (i > 0 && labels[i]) td.setAttribute('data-label', labels[i]);
+      });
+    }
+  });
 
   const updateEdges = () => {
     const el = ref.current;
@@ -69,7 +89,7 @@ export function ScrollBox({ children, style, hintText }: { children: ReactNode; 
   }, []);
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className={cards ? 'pb-card-table' : undefined} style={{ position: 'relative' }}>
       <div className="pb-scroll-hint" style={{ alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 600, color: 'oklch(50% 0.14 265)', marginBottom: 6 }}>
         <span aria-hidden>↔</span>
         {hintText}
@@ -202,7 +222,7 @@ export function InfoTooltip({ text }: { text: string }) {
  * desktop either fits every tab or has an always-visible native scrollbar, so the hint would just
  * be noise there.
  */
-export function SubTabBar<K extends string>({ tabs, active, onChange }: { tabs: { key: K; label: string }[]; active: K; onChange: (key: K) => void }) {
+export function SubTabBar<K extends string>({ tabs, active, onChange }: { tabs: { key: K; label: string; href?: string }[]; active: K; onChange: (key: K) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -237,26 +257,32 @@ export function SubTabBar<K extends string>({ tabs, active, onChange }: { tabs: 
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => onChange(tab.key)}
-            style={{
-              padding: '10px 4px',
-              border: 'none',
-              background: 'none',
-              cursor: 'pointer',
-              fontSize: 13.5,
-              fontWeight: 600,
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              borderBottom: `2px solid ${active === tab.key ? 'oklch(45% 0.16 265)' : 'transparent'}`,
-              color: active === tab.key ? 'oklch(20% 0.01 260)' : 'oklch(50% 0.01 260)',
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {tabs.map((tab) => {
+          const style: CSSProperties = {
+            padding: '10px 4px',
+            border: 'none',
+            background: 'none',
+            cursor: 'pointer',
+            fontSize: 13.5,
+            fontWeight: 600,
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            textDecoration: 'none',
+            borderBottom: `2px solid ${active === tab.key ? 'oklch(45% 0.16 265)' : 'transparent'}`,
+            color: active === tab.key ? 'oklch(20% 0.01 260)' : 'oklch(50% 0.01 260)',
+          };
+          // A tab with its own URL is a real link, not a button: those pages are prerendered and a
+          // crawler only follows an <a href>. stop() keeps plain clicks client-side.
+          return tab.href ? (
+            <a key={tab.key} href={tab.href} onClick={stop(() => onChange(tab.key))} aria-current={active === tab.key ? 'page' : undefined} style={{ ...style, display: 'inline-block' }}>
+              {tab.label}
+            </a>
+          ) : (
+            <button key={tab.key} onClick={() => onChange(tab.key)} style={style}>
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
       {canScrollRight && (
         <span

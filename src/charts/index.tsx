@@ -5,7 +5,7 @@
  * standalone SVG string for ChartExportMenu — so what a reader downloads is what they saw.
  */
 
-import { useRef } from 'react';
+import { Fragment, useRef } from 'react';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS } from '../bundestag';
 import { ChartExportMenu, type ChartExportLabels } from '../ChartExportMenu';
 import type { ChartSvgExport, ExportFrame, ExportInfo } from '../chartExport';
@@ -108,9 +108,62 @@ export function TieMatrix({
     legend: selected ? [{ label: `${selectedLabel}: ${selected.party} · ${selected.topic}`, color: '#284cac', shape: 'ring' }] : undefined,
   });
 
+  const cellButton = (party: string, topic: string) => {
+    const n = counts.get(`${party}|${topic}`) ?? 0;
+    const { bg, fg } = heat(n);
+    const isSelected = selected?.party === party && selected?.topic === topic;
+    return (
+      <button
+        disabled={n === 0}
+        onClick={() => onSelect(isSelected ? null : { party, topic })}
+        style={{
+          width: 34,
+          height: 28,
+          border: isSelected ? '2px solid oklch(45% 0.16 265)' : '1px solid transparent',
+          borderRadius: 7,
+          background: bg,
+          color: fg,
+          fontWeight: 700,
+          fontSize: 12,
+          cursor: n === 0 ? 'default' : 'pointer',
+        }}
+      >
+        {n || ''}
+      </button>
+    );
+  };
+
   return (
-    <div style={{ position: 'relative' }}>
+    // flow-root keeps the matrix's 44px top margin inside this box, so the export button above it
+    // (absolute, top-right of this box) never lands on the first header row.
+    <div style={{ position: 'relative', display: 'flow-root' }}>
       <ChartExportMenu filenameBase={filenameBase} getCsv={getCsv} getSvg={getSvg} getFrame={getFrame} labels={exportLabels} />
+      {/* Phones get the matrix flipped (see .pb-matrix-tall in index.css): there are only a handful
+          of parties but dozens of topics, so parties fit across a phone as columns while topics
+          run down the page, each name on its own full-width line above its row of cells. */}
+      <div className="pb-matrix-tall" style={{ marginTop: 44, marginBottom: 14, border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, background: 'white', padding: '10px 8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${activeParties.length}, minmax(0, 1fr))`, alignItems: 'end' }}>
+          {activeParties.map((p) => (
+            <div key={p.name} style={{ textAlign: 'center', fontSize: 10.5, fontWeight: 700, lineHeight: 1.25, padding: '0 2px 8px' }}>
+              <span style={{ display: 'block', width: 8, height: 8, borderRadius: '50%', background: p.color, margin: '0 auto 3px' }} />
+              {p.name}
+            </div>
+          ))}
+          {topics.map((topic) => (
+            <Fragment key={topic}>
+              <div style={{ gridColumn: '1 / -1', borderTop: '1px solid oklch(93% 0.006 260)', padding: '8px 4px 4px', fontSize: 10.5, fontWeight: 700, color: 'oklch(45% 0.01 260)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                {topic}
+              </div>
+              {activeParties.map((p) => (
+                <div key={p.name} style={{ textAlign: 'center', paddingBottom: 8 }}>
+                  {cellButton(p.name, topic)}
+                </div>
+              ))}
+            </Fragment>
+          ))}
+        </div>
+      </div>
+      <div className="pb-matrix-wide">
       <ScrollBox hintText={scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, marginTop: 44, marginBottom: 14 }}>
       <table style={{ borderCollapse: 'collapse', fontSize: 12.5, background: 'white' }}>
         <thead>
@@ -133,37 +186,17 @@ export function TieMatrix({
                 <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: p.color, marginRight: 6 }} />
                 {p.name}
               </td>
-              {topics.map((topic) => {
-                const n = counts.get(`${p.name}|${topic}`) ?? 0;
-                const { bg, fg } = heat(n);
-                const isSelected = selected?.party === p.name && selected?.topic === topic;
-                return (
-                  <td key={topic} style={{ padding: 4, borderTop: '1px solid oklch(93% 0.006 260)', textAlign: 'center' }}>
-                    <button
-                      disabled={n === 0}
-                      onClick={() => onSelect(isSelected ? null : { party: p.name, topic })}
-                      style={{
-                        width: 34,
-                        height: 28,
-                        border: isSelected ? '2px solid oklch(45% 0.16 265)' : '1px solid transparent',
-                        borderRadius: 7,
-                        background: bg,
-                        color: fg,
-                        fontWeight: 700,
-                        fontSize: 12,
-                        cursor: n === 0 ? 'default' : 'pointer',
-                      }}
-                    >
-                      {n || ''}
-                    </button>
-                  </td>
-                );
-              })}
+              {topics.map((topic) => (
+                <td key={topic} style={{ padding: 4, borderTop: '1px solid oklch(93% 0.006 260)', textAlign: 'center' }}>
+                  {cellButton(p.name, topic)}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>
       </table>
     </ScrollBox>
+      </div>
     </div>
   );
 }
@@ -294,12 +327,12 @@ export function DonationBarChart({
       {data.map((p) => {
         const pct = Math.max(1, (p.total / max) * 100);
         return (
-          <div key={p.fraction} className="donation-row" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div key={p.fraction} className="donation-row pb-bar-row" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div className="donation-label" style={{ width: 168, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600 }}>
               <span style={{ width: 9, height: 9, borderRadius: '50%', background: REAL_PARTY_COLORS[p.fraction] || FALLBACK_PARTY_COLOR, flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.fraction}</span>
             </div>
-            <div style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
+            <div className="pb-bar-track" style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
               <div
                 style={{
                   height: 18,
@@ -311,7 +344,7 @@ export function DonationBarChart({
                 }}
               />
             </div>
-            <span className="donation-value" style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', whiteSpace: 'nowrap', flexShrink: 0, width: 150 }}>
+            <span className="donation-value pb-bar-value" style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', whiteSpace: 'nowrap', flexShrink: 0, width: 150 }}>
               {formatEuro(p.total)} · {p.count}×
             </span>
           </div>
@@ -381,8 +414,8 @@ export function ActorTypeSpendChart({
       {rows.map((a) => (
         <div key={a.actorType}>
           <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 5 }}>{a.actorType}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
+          <div className="pb-bar-row" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="pb-bar-track" style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
               <div
                 style={{
                   height: 18,
@@ -396,7 +429,7 @@ export function ActorTypeSpendChart({
             </div>
             {/* Same fixed-width trailing column as SectorBarChart, so every bar track is the
                 same length regardless of how long that row's own value text runs. */}
-            <span style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', width: 240, flexShrink: 0 }}>
+            <span className="pb-bar-value" style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', width: 240, flexShrink: 0 }}>
               {orgsTemplate.replace('{n}', String(a.declaringCount))} · {formatExpenseBracket({ from: a.from, to: a.to })}
             </span>
           </div>
@@ -479,8 +512,8 @@ export function SectorBarChart({
         return (
           <div key={d.field} onClick={() => onSelect(d.field)} style={{ cursor: 'pointer' }}>
             <div style={{ fontSize: 12.5, fontWeight: isSelected ? 700 : 600, marginBottom: 5 }}>{d.field}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
+            <div className="pb-bar-row" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className="pb-bar-track" style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
                 <div
                   style={{
                     height: 18,
@@ -495,7 +528,7 @@ export function SectorBarChart({
               {/* Fixed width (not nowrap) so every row reserves the same trailing space —
                   otherwise the flex:1 bar track above ends up a different length on every row,
                   since its remaining space depends on how long that row's own value text is. */}
-              <span style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', width: 220, flexShrink: 0 }}>
+              <span className="pb-bar-value" style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', width: 220, flexShrink: 0 }}>
                 {membersTemplate.replace('{n}', String(d.memberCount))} · {orgsTemplate.replace('{n}', String(d.orgCount))}
               </span>
             </div>
@@ -567,7 +600,7 @@ export function OrgInfluenceBarChart({
             key={d.org.id}
             href={orgHref(d.org.id)}
             onClick={stop(() => onSelectOrg(d.org.id))}
-            className="org-bar-row"
+            className="org-bar-row pb-bar-row"
             style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
           >
             <div className="org-bar-label" style={{ width: 200, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600 }}>
@@ -576,7 +609,7 @@ export function OrgInfluenceBarChart({
                 {d.org.name}
               </span>
             </div>
-            <div style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
+            <div className="pb-bar-track" style={{ flex: 1, minWidth: 0, background: 'oklch(95% 0.006 260)', borderRadius: 4 }}>
               <div
                 style={{
                   height: 18,
@@ -588,7 +621,7 @@ export function OrgInfluenceBarChart({
                 }}
               />
             </div>
-            <span className="org-bar-value" style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', whiteSpace: 'nowrap', flexShrink: 0, width: 100 }}>
+            <span className="org-bar-value pb-bar-value" style={{ fontSize: 11.5, color: 'oklch(45% 0.01 260)', whiteSpace: 'nowrap', flexShrink: 0, width: 100 }}>
               {membersTemplate.replace('{n}', String(d.memberCount))}
             </span>
           </a>

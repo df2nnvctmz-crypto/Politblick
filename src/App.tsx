@@ -2008,42 +2008,11 @@ function App() {
                 </div>
               </div>
 
-              <div
-                className="pb-scroll"
-                style={{
-                  display: 'flex',
-                  gap: 8,
-                  borderBottom: '1px solid oklch(90% 0.006 260)',
-                  marginBottom: 24,
-                  overflowX: 'auto',
-                  WebkitOverflowScrolling: 'touch',
-                }}
-              >
-                {/* Real links, not buttons: the tab URLs (/finanzen etc.) are prerendered pages,
-                    and a crawler only follows an <a href>. stop() keeps plain clicks client-side. */}
-                {profileTabs.map((tab) => (
-                  <a
-                    key={tab.key}
-                    href={selectedMpId ? mpTabHref(selectedMpId, tab.key) : undefined}
-                    onClick={stop(() => setProfileTab(tab.key))}
-                    aria-current={profileTab === tab.key ? 'page' : undefined}
-                    style={{
-                      display: 'inline-block',
-                      padding: '10px 4px',
-                      textDecoration: 'none',
-                      cursor: 'pointer',
-                      fontSize: 13.5,
-                      fontWeight: 600,
-                      whiteSpace: 'nowrap',
-                      flexShrink: 0,
-                      borderBottom: `2px solid ${profileTab === tab.key ? 'oklch(45% 0.16 265)' : 'transparent'}`,
-                      color: profileTab === tab.key ? 'oklch(20% 0.01 260)' : 'oklch(50% 0.01 260)',
-                    }}
-                  >
-                    {tab.label}
-                  </a>
-                ))}
-              </div>
+              <SubTabBar
+                tabs={profileTabs.map((tab) => ({ ...tab, href: selectedMpId ? mpTabHref(selectedMpId, tab.key) : undefined }))}
+                active={profileTab}
+                onChange={setProfileTab}
+              />
 
               {profileTab === 'overview' &&
                 (mandateVotes.loading && mandateVotes.votes.length === 0 ? (
@@ -2466,7 +2435,7 @@ function App() {
                           >
                             <div style={{ minWidth: 0 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span style={{ fontSize: 14, fontWeight: 600 }}>{v.poll.title}</span>
+                                <span style={{ fontSize: 14, fontWeight: 600, minWidth: 0 }}>{v.poll.title}</span>
                                 {lobbyHit?.hasConflict && (
                                   <span title={t.lobbyIndicatorConflict} style={{ fontSize: 11, fontWeight: 700, color: 'oklch(48% 0.16 40)', flexShrink: 0 }}>
                                     ⬤
@@ -3475,7 +3444,7 @@ function App() {
                 (() => {
                   return (
                     <>
-                      <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
+                      <ScrollBox cards sortLabel={t.sortByLabel} hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                           <thead>
                             <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
@@ -3600,7 +3569,7 @@ function App() {
                       : baseRows;
                     return (
                       <>
-                        <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
+                        <ScrollBox cards sortLabel={t.sortByLabel} hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
                           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                             <thead>
                               <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
@@ -3770,7 +3739,7 @@ function App() {
                     : filteredTopicalRows;
                   return (
                 <>
-                  <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(88% 0.02 90)', borderRadius: 14 }}>
+                  <ScrollBox cards sortLabel={t.sortByLabel} hintText={t.scrollHintText} style={{ border: '1px solid oklch(88% 0.02 90)', borderRadius: 14 }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'oklch(97% 0.008 90)' }}>
                       <thead>
                         <tr style={{ background: 'oklch(94% 0.015 90)', textAlign: 'left' }}>
@@ -4001,7 +3970,7 @@ function App() {
                         </span>
                       )}
                     </div>
-                    <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
+                    <ScrollBox cards sortLabel={t.sortByLabel} hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                         <thead>
                           <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
@@ -5113,7 +5082,7 @@ function App() {
                         ? [...resolvedTopOrgs].sort((a, b) => compareSortValues(topOrgValue(a, partyOrgsSort.key), topOrgValue(b, partyOrgsSort.key), partyOrgsSort.dir))
                         : resolvedTopOrgs;
                       return (
-                        <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, marginBottom: 26 }}>
+                        <ScrollBox cards sortLabel={t.sortByLabel} hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14, marginBottom: 26 }}>
                           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                             <thead>
                               <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>
@@ -5381,7 +5350,7 @@ function App() {
                                 </span>
                               )}
                             </div>
-                            <ScrollBox hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
+                            <ScrollBox cards sortLabel={t.sortByLabel} hintText={t.scrollHintText} style={{ border: '1px solid oklch(90% 0.006 260)', borderRadius: 14 }}>
                               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: 'white' }}>
                                 <thead>
                                   <tr style={{ background: 'oklch(97% 0.006 260)', textAlign: 'left' }}>

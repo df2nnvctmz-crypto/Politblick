@@ -44,6 +44,18 @@ html, body {
   min-height: 100vh;
 }
 
+/* German bill titles are long compounds ("Brennstoffemissionshandelsgesetzes" is 34 characters).
+   On a phone such a word is wider than its column, and in a flex row it can't shrink below its
+   own width, so it ran under the vote chip next to it. Hyphenate long words (10+ characters, so
+   ordinary prose keeps its shape) using the document language App.tsx sets, and break anything
+   still too wide rather than letting it overflow. */
+body {
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  hyphenate-limit-chars: 10 4 4;
+  overflow-wrap: break-word;
+}
+
 ::selection {
   background: oklch(45% 0.16 265 / 0.2);
 }
@@ -107,40 +119,25 @@ button {
   }
 }
 
-/* Below this width there isn't room for name + bar + value side by side — the
-   bar itself would get squeezed to nothing. Stack the name above bar + value.
-   The value keeps a fixed (smaller) width rather than going auto: auto sizes it
-   to each row's own text, which made the bar track next to it a different width
-   per row and let the longest values spill past the card edge. A shared fixed
-   width keeps every bar the same length and every value safely inside its box. */
-@media (max-width: 480px) {
-  .donation-row {
+/* Bar charts (sector, actor-type, donation and org-influence charts) put a value text next to
+   each bar. On a phone that text took 100-240px of a ~280px row and left the bar a stub, too short
+   to compare rows by. Below this width the bar gets the full row and its value moves underneath;
+   the label (where it sat beside the bar) moves above. Every bar is then the same full length. */
+@media (max-width: 640px) {
+  .pb-bar-row {
     flex-wrap: wrap;
     row-gap: 4px;
   }
-  .donation-row .donation-label {
-    width: 100% !important;
+  .pb-bar-row .pb-bar-track {
+    flex-basis: 100% !important;
   }
-  .donation-row .donation-value {
-    width: 108px !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .pb-bar-row .pb-bar-value {
+    width: auto !important;
+    white-space: normal !important;
   }
-
-  /* Same problem, same fix, for the committee-page "tied organisations" bar chart
-     (OrgInfluenceBarChart) — its label+value columns are wider than donation-row's,
-     so on a narrow phone the bar was being squeezed down to a sliver. */
-  .org-bar-row {
-    flex-wrap: wrap;
-    row-gap: 4px;
-  }
+  .donation-row .donation-label,
   .org-bar-row .org-bar-label {
     width: 100% !important;
-  }
-  .org-bar-row .org-bar-value {
-    width: 90px !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 }
 
@@ -382,5 +379,84 @@ button {
   /* The MP list starts with its filter bar: no page padding between it and the header. */
   .pb-mp-toolbar {
     margin-top: -32px;
+  }
+}
+
+/* List tables on phones (ScrollBox with `cards`). Five columns side by side on a 300px screen gave
+   each one a word or two per line and hid the rest behind a sideways swipe. Below 720px each row
+   becomes a stacked card instead: first cell (the name) as its title, every other cell under the
+   column label ScrollBox copies onto it. The header row stays for sorting, wrapped into a row of
+   chips. Inline cell padding and the header's nowrap need !important to be overridden. */
+@media (max-width: 720px) {
+  .pb-card-table .pb-scroll-hint {
+    display: none !important;
+  }
+  .pb-card-table table,
+  .pb-card-table tbody,
+  .pb-card-table tr,
+  .pb-card-table td {
+    display: block;
+    width: 100%;
+  }
+  .pb-card-table thead tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+  }
+  .pb-card-table thead tr[data-label]::before {
+    content: attr(data-label);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: oklch(48% 0.01 260);
+    margin-right: 2px;
+  }
+  .pb-card-table th {
+    padding: 4px 10px !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    font-size: 10.5px !important;
+    background: white;
+    border: 1px solid oklch(88% 0.006 260);
+    border-radius: 12px;
+  }
+  .pb-card-table tbody tr {
+    padding: 12px 14px;
+  }
+  .pb-card-table td {
+    padding: 0 !important;
+  }
+  .pb-card-table td + td {
+    margin-top: 8px;
+  }
+  .pb-card-table td:empty {
+    display: none;
+  }
+  .pb-card-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 1px;
+    font-size: 10.5px;
+    font-weight: 700;
+    font-style: normal;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: oklch(58% 0.01 260);
+  }
+}
+
+/* Party × topic matrix: the wide grid (parties down, topics across) on desktop, the flipped one
+   (TieMatrix's .pb-matrix-tall) on phones, where only one topic column fit on screen at a time. */
+.pb-matrix-tall {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .pb-matrix-wide {
+    display: none;
+  }
+  .pb-matrix-tall {
+    display: block;
   }
 }
