@@ -130,6 +130,7 @@ export function SitzungswochenBriefing({ issues, t, lang, storyHref, onOpenStory
           return (
             <div
               key={issue.week}
+              className={idx > 0 ? 'sw-tile-older' : undefined}
               style={{
                 background: idx === 0 ? 'oklch(97% 0.008 262)' : 'oklch(97.5% 0.006 260)',
                 border: `1px solid ${idx === 0 ? 'oklch(88% 0.03 262)' : 'oklch(91% 0.006 260)'}`,
@@ -196,6 +197,32 @@ export function SitzungswochenBriefing({ issues, t, lang, storyHref, onOpenStory
           );
         })}
       </div>
+
+      {/* Phones only (.sw-compact-list in index.css): stacked one per row, three full tiles came to
+          ~1,600px — two screens of scrolling. There the older weeks swap their tiles for one
+          tappable row each (dates + the two headline counts), opening the same briefing. */}
+      {shown.length > 1 && (
+        <div className="sw-compact-list" style={{ marginTop: 12, border: '1px solid oklch(91% 0.006 260)', borderRadius: 14, background: 'oklch(97.5% 0.006 260)' }}>
+          {shown.slice(1).map((issue, i) => (
+            <a
+              key={issue.week}
+              href={storyHref(issue.week)}
+              onClick={stop(() => onOpenStory(issue.week))}
+              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderTop: i > 0 ? HAIR : 'none', color: 'inherit', textDecoration: 'none' }}
+            >
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', fontSize: 12.5, fontWeight: 800, letterSpacing: '0.02em', textTransform: 'uppercase', color: ACCENT_C }}>
+                  {fmt.range(issue.dateRange.start, issue.dateRange.end)}
+                </span>
+                <span style={{ display: 'block', fontSize: 12.5, color: MUTED, marginTop: 2 }}>
+                  {fmt.int(issue.pollCount)} {issue.pollCount === 1 ? t.swTileVotesOne : t.swTileVotes} · {fmt.int(issue.divergingTotal)} {t.swTileDivergence}
+                </span>
+              </span>
+              <span aria-hidden style={{ fontSize: 16, fontWeight: 700, color: ACCENT_C }}>→</span>
+            </a>
+          ))}
+        </div>
+      )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginTop: 14, fontSize: 11.5, color: MUTED }}>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>

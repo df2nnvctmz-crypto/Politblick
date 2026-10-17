@@ -158,15 +158,30 @@ button {
   }
 }
 
-/* Stat-tile grids (e.g. a party's Spenden tab: Großspenden gesamt / Anzahl Großspenden / Anzahl
-   Spender) use `repeat(auto-fit, minmax(180px,1fr))`, which packs 3-up on desktop but drops to
-   2-up once the container is under ~540px (3 × 180px) — an odd tile count then leaves a lone
-   last card sitting half-width with empty space next to it, reading as unfinished rather than a
-   deliberate layout. Below that same width, stretch a lone last-and-odd card across both columns
-   instead. Left alone above it, where 3-up already fills the row with nothing left over. */
-@media (max-width: 539px) {
+/* Stat tiles (an MP's Abstimmungen / Anwesenheit / Parteitreue / Hinweise, a party's seats and
+   donations, an org's figures). Their grids ask for 150-200px per tile, so a ~310px phone fit only
+   one per row and four short numbers filled a whole screen. On phones they go 2-up with tighter
+   padding; a lone last tile of an odd count stretches across both columns rather than sitting
+   half-width next to empty space. The Lobby & Finanzen overview lays its tiles out with flex
+   (.pb-stat-flex), where flex-grow already stretches a lone last tile. */
+@media (max-width: 720px) {
+  .pb-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
   .pb-stat-grid > *:last-child:nth-child(odd) {
     grid-column: 1 / -1;
+  }
+  .pb-stat-flex {
+    gap: 10px !important;
+  }
+  .pb-stat-flex > * {
+    flex-basis: calc(50% - 5px) !important;
+    min-width: 0;
+  }
+  .pb-stat-grid > *,
+  .pb-stat-flex > * {
+    padding: 12px 14px !important;
   }
 }
 
@@ -458,5 +473,74 @@ button {
   }
   .pb-matrix-tall {
     display: block;
+  }
+}
+
+/* Home page Sitzungswochen-Briefing on phones: the current week keeps its full tile, older weeks
+   become one compact row each (Briefing.tsx). 640px is where the tile grid (minmax 288px) has
+   already dropped to one column, so hiding the older tiles never leaves the current one half-width. */
+.sw-compact-list {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .sw-tile-older {
+    display: none !important;
+  }
+  .sw-compact-list {
+    display: block;
+  }
+}
+
+/* Newsletter signup card on phones (NewsletterSignup.tsx): ~500px tall, a full screen. A
+   one-sentence pitch, the field and a shorter button in one row, the visible label dropped (the
+   placeholder says the same; the label stays for screen readers), tighter padding and a slightly
+   smaller privacy note. The note itself is kept in full: it says where the address goes before
+   anyone submits it. */
+.pb-nl-body-short,
+.pb-nl-submit-short {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .pb-nl-card {
+    padding: 16px 16px 14px !important;
+    gap: 12px !important;
+  }
+  .pb-nl-card h2 {
+    font-size: 19px !important;
+    margin-bottom: 6px !important;
+  }
+  .pb-nl-body-full,
+  .pb-nl-submit-full {
+    display: none;
+  }
+  .pb-nl-body-short,
+  .pb-nl-submit-short {
+    display: inline;
+  }
+  .pb-nl-body-short {
+    display: block;
+  }
+  .pb-nl-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .pb-nl-row {
+    flex-wrap: nowrap !important;
+  }
+  .pb-nl-row input {
+    flex: 1 1 0 !important;
+  }
+  .pb-nl-row button {
+    flex-shrink: 0;
+  }
+  .pb-nl-note {
+    font-size: 10px !important;
+    margin-top: 8px !important;
   }
 }

@@ -72,6 +72,7 @@ export function NewsletterSignup({
   return (
     <section id="newsletter" style={compact ? { marginTop: 48 } : { maxWidth: 1100, margin: '0 auto', padding: '8px 32px 32px', scrollMarginTop: 80 }}>
       <div
+        className={compact ? undefined : 'pb-nl-card'}
         style={{
           ...(compact
             ? { borderTop: '1px solid oklch(90% 0.006 260)', padding: '24px 0 0' }
@@ -94,7 +95,10 @@ export function NewsletterSignup({
                 {t.newsletterKicker}
               </div>
               <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 8px' }}>{t.newsletterTitle}</h2>
-              <p style={{ fontSize: 14, color: 'oklch(38% 0.01 260)', lineHeight: 1.55, margin: 0 }}>{t.newsletterBody}</p>
+              {/* Phones get a one-sentence pitch (.pb-nl-* in index.css): the full one ran to six
+                  lines and, with the form below it, made the card a whole screen tall. */}
+              <p className="pb-nl-body-full" style={{ fontSize: 14, color: 'oklch(38% 0.01 260)', lineHeight: 1.55, margin: 0 }}>{t.newsletterBody}</p>
+              <p className="pb-nl-body-short" style={{ fontSize: 14, color: 'oklch(38% 0.01 260)', lineHeight: 1.5, margin: 0 }}>{t.newsletterBodyShort}</p>
             </>
           )}
         </div>
@@ -117,10 +121,10 @@ export function NewsletterSignup({
             </div>
           ) : (
             <form onSubmit={submit} noValidate>
-              <label htmlFor="newsletter-email" style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
+              <label htmlFor="newsletter-email" className={compact ? undefined : 'pb-nl-label'} style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
                 {unsub ? t.newsletterUnsubLabel : t.newsletterEmailLabel}
               </label>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div className={compact ? undefined : 'pb-nl-row'} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <input
                   id="newsletter-email"
                   type="email"
@@ -160,7 +164,16 @@ export function NewsletterSignup({
                     fontFamily: 'inherit',
                   }}
                 >
-                  {status === 'sending' ? t.newsletterSending : unsub ? t.newsletterUnsubSubmit : t.newsletterSubmit}
+                  {status === 'sending' ? (
+                    t.newsletterSending
+                  ) : unsub ? (
+                    t.newsletterUnsubSubmit
+                  ) : (
+                    <>
+                      <span className="pb-nl-submit-full">{t.newsletterSubmit}</span>
+                      <span className="pb-nl-submit-short">{t.newsletterSubmitShort}</span>
+                    </>
+                  )}
                 </button>
               </div>
               {/* Honeypot — off-screen rather than display:none, as bots skip hidden inputs. */}
@@ -188,7 +201,7 @@ export function NewsletterSignup({
                   .
                 </div>
               )}
-              <p style={{ fontSize: 12, color: MUTED, lineHeight: 1.5, margin: '10px 0 0' }}>
+              <p className={compact ? undefined : 'pb-nl-note'} style={{ fontSize: 12, color: MUTED, lineHeight: 1.5, margin: '10px 0 0' }}>
                 {unsub ? (
                   t.newsletterUnsubHint
                 ) : (

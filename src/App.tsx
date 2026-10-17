@@ -1524,7 +1524,7 @@ function App() {
                 exportInfo={{ title: t.exportTitleSeats, source: exportSource('core') }}
               />
             </div>
-            <div style={{ flex: '1 1 200px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, alignContent: 'start' }}>
+            <div className="pb-stat-grid" style={{ flex: '1 1 200px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, alignContent: 'start' }}>
               <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 18 }}>
                 <div style={{ fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statMpsLabel}</div>
                 <div style={{ fontSize: 26, fontWeight: 800 }}>{roster.loading && roster.members.length === 0 ? '…' : roster.members.length}</div>
@@ -2022,7 +2022,7 @@ function App() {
                 ) : (
                   <>
                     {mandateVotes.votes.length > 0 ? (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14, marginBottom: 20 }}>
+                      <div className="pb-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14, marginBottom: 20 }}>
                         <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
                           <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statBillsVoted}</div>
                           <div style={{ fontSize: 24, fontWeight: 800 }}>{realMpBillsVoted}</div>
@@ -3093,7 +3093,7 @@ function App() {
               {/* Flex rather than grid: with seven tiles an auto-fit grid leaves the last row
                   half-empty, which reads as missing data. Letting the tiles grow means each row
                   fills the width whatever the count and the viewport. */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 28 }}>
+              <div className="pb-stat-flex" style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 28 }}>
                 {/* The register's own size and spend come first: everything else on this page is a
                     slice of parliament's contact with it, and those two say how large the thing
                     being sliced actually is. */}
@@ -3115,11 +3115,18 @@ function App() {
                 )}
                 <div onClick={() => goCrossref('ties')} style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16, flex: '1 1 200px' }}>
                   <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statTiedMembersLabel}</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, whiteSpace: 'nowrap' }}>
-                    {t.statTiedMembersTemplate
-                      .replace('{n}', String(countMembersWithFunction(snapshot?.lobbyLinks.affiliations ?? {})))
-                      .replace('{total}', String(roster.members.length))}
-                  </div>
+                  {/* The count is the headline; "von 630" is context, set smaller so the tile still
+                      fits half a phone's width (at 24px the whole phrase ran into the tile edge). */}
+                  {(() => {
+                    const [before, after] = t.statTiedMembersTemplate.split('{n}');
+                    return (
+                      <div style={{ fontSize: 24, fontWeight: 800, whiteSpace: 'nowrap' }}>
+                        {before}
+                        {countMembersWithFunction(snapshot?.lobbyLinks.affiliations ?? {})}
+                        <span style={{ fontSize: 15, fontWeight: 600, color: 'oklch(48% 0.01 260)' }}>{after.replace('{total}', String(roster.members.length))}</span>
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div onClick={() => goCrossref('orgs')} style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16, flex: '1 1 200px' }}>
                   <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.statOrgsReferencedLabel}</div>
@@ -4111,6 +4118,8 @@ function App() {
                 </div>
               )}
 
+              {/* Not .pb-stat-grid (2-up on phones): the spend bracket ("9.880.001 € – 9.890.000 €")
+                  is too long for a half-width tile and broke into three ragged lines. */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14, marginBottom: 20 }}>
                 <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}>
                   <div style={{ fontSize: 12, color: 'oklch(48% 0.01 260)', marginBottom: 6 }}>{t.orgSpendLabel}</div>
@@ -4714,7 +4723,7 @@ function App() {
 
                 {partyTab === 'overview' && (
                   <>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 14, marginBottom: 26 }}>
+                    <div className="pb-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 14, marginBottom: 26 }}>
                       <div
                         onClick={() => viewPartyMembers(p.party)}
                         style={{ cursor: 'pointer', background: 'oklch(97% 0.006 260)', borderRadius: 12, padding: 16 }}

@@ -82,6 +82,8 @@ export interface Translation {
   newsletterSubmit: string; newsletterSending: string; newsletterConsentTemplate: string; newsletterPrivacyLink: string;
   newsletterSuccess: string; newsletterInvalid: string; newsletterError: string; newsletterFallbackLink: string;
   newsletterCompactTitle: string; newsletterCompactBody: string; newsletterJumpLink: string;
+  /** Phone versions of the signup card's pitch and button, where the full ones take three lines / don't fit beside the field. */
+  newsletterBodyShort: string; newsletterSubmitShort: string;
   newsletterUnsubLink: string; newsletterBackToSubscribe: string; newsletterUnsubLabel: string; newsletterUnsubSubmit: string;
   newsletterUnsubHint: string; newsletterUnsubSuccess: string; newsletterUnsubFallbackLink: string;
   alignmentTrendRealTemplate: string; photoCredit: string;
@@ -443,6 +445,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     newsletterEmailLabel: 'E-Mail-Adresse',
     newsletterPlaceholder: 'name@beispiel.de',
     newsletterSubmit: 'Kostenlos anmelden',
+    newsletterBodyShort: 'Nach jeder Sitzungswoche: die wichtigsten Abstimmungen, Abweichler und neue Großspenden.',
+    newsletterSubmitShort: 'Anmelden',
     newsletterSending: 'Wird gesendet …',
     newsletterConsentTemplate: 'Deine E-Mail-Adresse wird erst beim Absenden zum Versand an unseren Dienstleister Brevo (Brevo GmbH, Berlin) übermittelt. Du bekommst zuerst eine Bestätigungsmail. Abmelden kannst du dich jederzeit über den Link in jeder Ausgabe. Mehr in der {privacy}.',
     newsletterPrivacyLink: 'Datenschutzerklärung',
@@ -957,6 +961,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     newsletterEmailLabel: 'Email address',
     newsletterPlaceholder: 'name@example.com',
     newsletterSubmit: 'Subscribe for free',
+    newsletterBodyShort: 'After every sitting week: the key votes, rebels and new large donations.',
+    newsletterSubmitShort: 'Subscribe',
     newsletterSending: 'Sending …',
     newsletterConsentTemplate: 'Your email address is only sent to our mailing provider Brevo (Brevo GmbH, Berlin) when you submit. You will first get a confirmation email. You can unsubscribe at any time via the link in every issue. Details in the {privacy}.',
     newsletterPrivacyLink: 'privacy policy',
