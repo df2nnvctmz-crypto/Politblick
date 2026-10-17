@@ -1,6 +1,6 @@
 /** Presentational building blocks with no knowledge of any particular dataset. */
 
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import type { MultiSortState, SortState } from '../sorting';
 import { stop } from './events';
 
@@ -139,6 +139,20 @@ export function ScrollBox({ children, style, hintText, cards, sortLabel }: { chi
 export function InfoTooltip({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLSpanElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  // The popup hangs from the icon's left edge, so an icon right of centre on a phone pushed most
+  // of it off-screen. Before it paints, slide it left just enough to keep a 12px margin to the
+  // viewport edge (and never past the left edge either).
+  useLayoutEffect(() => {
+    const popup = popupRef.current;
+    const anchor = containerRef.current;
+    if (!open || !popup || !anchor) return;
+    const margin = 12;
+    const anchorLeft = anchor.getBoundingClientRect().left;
+    const maxLeft = document.documentElement.clientWidth - margin - popup.offsetWidth;
+    popup.style.left = `${Math.max(margin, Math.min(anchorLeft, maxLeft)) - anchorLeft}px`;
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -185,13 +199,14 @@ export function InfoTooltip({ text }: { text: string }) {
       </button>
       {open && (
         <div
+          ref={popupRef}
           onClick={(e) => e.stopPropagation()}
           style={{
             position: 'absolute',
             top: '100%',
             left: 0,
             marginTop: 6,
-            width: 260,
+            width: 'min(260px, calc(100vw - 24px))',
             background: 'white',
             border: '1px solid oklch(88% 0.006 260)',
             borderRadius: 10,
