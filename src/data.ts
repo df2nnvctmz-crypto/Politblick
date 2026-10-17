@@ -102,6 +102,12 @@ export interface Translation {
   donationTimelineEmpty: string; donationTimelineQuarterTotalLabel: string; donationTimelineRangeLabelTemplate: string;
   donationTimelineOtherDonorsLabel: string;
   chartExportLabel: string; chartExportCsv: string; chartExportSvg: string; chartExportPng: string;
+  exportSourceTemplate: string; exportAsOfTemplate: string;
+  exportSrcCore: string; exportSrcSidejobs: string; exportSrcLobby: string; exportSrcDonations: string; exportSrcCommittees: string;
+  exportTitleSeats: string; exportTitleNetwork: string; exportTitleTieMatrix: string; exportTitleDonationsByParty: string;
+  exportLegendAligned: string; exportLegendDiverged: string; exportLegendUnrated: string;
+  exportLegendOrg: string; exportLegendTie: string; exportLegendSelected: string; exportLegendTiedTo: string; exportLegendOtherOrgs: string; exportLegendPartyTie: string; exportSelectedTemplate: string;
+  exportCaveatTies: string; exportCaveatAlignment: string; exportCaveatVotes: string; exportSrcHistory: string; exportSortedByTemplate: string; exportLegendOthers: string;
   donationsTitle: string; donationsSub: string; donationsColParty: string;
   donationsColDonor: string; donationsColAmount: string; donationsColDate: string;
   /** Same underlying idea (a donor's summed total), but the two tables scope it differently — the
@@ -497,6 +503,15 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationTimelineRangeLabelTemplate: 'Zeitraum: {from} – {to}',
     donationTimelineOtherDonorsLabel: 'Weitere Spender',
     chartExportLabel: 'Diagramm herunterladen', chartExportCsv: 'Rohdaten als CSV', chartExportSvg: 'Als SVG herunterladen', chartExportPng: 'Als PNG herunterladen',
+    exportSourceTemplate: 'Quelle: {sources}', exportAsOfTemplate: '{source}, Stand {date}',
+    exportSrcCore: 'abgeordnetenwatch.de (Abgeordnete, Abstimmungen)', exportSrcSidejobs: 'abgeordnetenwatch.de (Nebentätigkeiten)', exportSrcLobby: 'Lobbyregister des Deutschen Bundestages', exportSrcDonations: 'Deutscher Bundestag (Großspenden an Parteien)', exportSrcCommittees: 'abgeordnetenwatch.de (Ausschüsse)',
+    exportTitleSeats: 'Sitzverteilung im Bundestag', exportTitleNetwork: 'Organisationen, in denen Abgeordnete eine Funktion ausüben — nach Fraktion', exportTitleTieMatrix: 'Abstimmungen trotz eigener Verflechtung — nach Partei und Themenfeld', exportTitleDonationsByParty: 'Großspenden nach Partei',
+    exportLegendAligned: 'Mit der Fraktion gestimmt', exportLegendDiverged: 'Gegen die Fraktion gestimmt', exportLegendUnrated: 'Nicht bewertet (keine Fraktionslinie)',
+    exportLegendOrg: 'Organisation', exportLegendTie: 'Abgeordnete:r dieser Fraktion übt dort eine Funktion aus', exportLegendSelected: 'Ausgewählt', exportLegendTiedTo: '{n} Organisationen mit Bezug zu {parties}', exportLegendOtherOrgs: 'Weitere Organisationen (ausgeblendet)', exportLegendPartyTie: '{party}: Abgeordnete:r übt dort eine Funktion aus', exportSelectedTemplate: 'Ausgewählt: {name}',
+    exportCaveatTies: 'Grundlage sind Eigenangaben: Abgeordnete melden ihre Funktionen, Organisationen ihre Lobbyarbeit im Lobbyregister. Eine Verflechtung ist eine statistische Beobachtung, keine Aussage über Einfluss oder Absicht.',
+    exportCaveatAlignment: 'Fraktionstreue: Die Stimme folgte der Mehrheit der eigenen Fraktion. Bei Gewissensentscheidungen gibt es oft keine Fraktionslinie; Nicht-Abstimmungen zählen nicht. Eine Abweichung ist für sich genommen weder ungewöhnlich noch vorwerfbar.',
+    exportCaveatVotes: '„Nicht abgestimmt“ umfasst alle nicht abgegebenen Stimmen, gleich aus welchem Grund (z. B. Krankheit, Mutterschutz, Termine).',
+    exportSrcHistory: 'abgeordnetenwatch.de (Abstimmungsarchiv 2005–2025)', exportSortedByTemplate: 'Sortiert nach: {metric}', exportLegendOthers: 'Weitere',
     donationsTitle: 'Großspenden an Parteien',
     donationsSub: 'Einzelspenden über 35.000 € (bis März 2024: über 50.000 €), veröffentlicht von der Bundestagspräsidentin.',
     donationsColParty: 'Partei', donationsColDonor: 'Spender', donationsColAmount: 'Betrag', donationsColDate: 'Eingang',
@@ -1001,6 +1016,15 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     donationTimelineRangeLabelTemplate: 'Time range: {from} – {to}',
     donationTimelineOtherDonorsLabel: 'Other donors',
     chartExportLabel: 'Download chart', chartExportCsv: 'Raw data as CSV', chartExportSvg: 'Download as SVG', chartExportPng: 'Download as PNG',
+    exportSourceTemplate: 'Source: {sources}', exportAsOfTemplate: '{source}, as of {date}',
+    exportSrcCore: 'abgeordnetenwatch.de (MPs, votes)', exportSrcSidejobs: 'abgeordnetenwatch.de (side jobs)', exportSrcLobby: 'Lobby register of the German Bundestag', exportSrcDonations: 'German Bundestag (large party donations)', exportSrcCommittees: 'abgeordnetenwatch.de (committees)',
+    exportTitleSeats: 'Seats in the Bundestag', exportTitleNetwork: 'Organizations where MPs hold a role — by parliamentary group', exportTitleTieMatrix: 'Votes despite their own ties — by party and policy area', exportTitleDonationsByParty: 'Large donations by party',
+    exportLegendAligned: 'Voted with party', exportLegendDiverged: 'Voted against party', exportLegendUnrated: 'Not rated (no party line)',
+    exportLegendOrg: 'Organization', exportLegendTie: 'An MP of this group holds a role there', exportLegendSelected: 'Selected', exportLegendTiedTo: '{n} organizations tied to {parties}', exportLegendOtherOrgs: 'Other organizations (dimmed)', exportLegendPartyTie: '{party}: an MP holds a role there', exportSelectedTemplate: 'Selected: {name}',
+    exportCaveatTies: 'Based on self-declarations: MPs report their roles, organizations report their lobbying in the lobby register. A tie is a statistical observation, not a claim of influence or intent.',
+    exportCaveatAlignment: 'Party alignment: the vote followed the majority of the MP\'s own group. Free votes often have no party line; votes not cast are not counted. A deviation is in itself neither unusual nor wrong.',
+    exportCaveatVotes: '"Did not vote" covers every vote not cast, for whatever reason (e.g. illness, parental leave, other duties).',
+    exportSrcHistory: 'abgeordnetenwatch.de (vote archive 2005–2025)', exportSortedByTemplate: 'Sorted by: {metric}', exportLegendOthers: 'Others',
     donationsTitle: 'Large donations to parties',
     donationsSub: 'Single donations above €35,000 (before March 2024: above €50,000), published by the President of the Bundestag.',
     donationsColParty: 'Party', donationsColDonor: 'Donor', donationsColAmount: 'Amount', donationsColDate: 'Received',

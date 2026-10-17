@@ -80,7 +80,7 @@ button {
   display: none;
 }
 
-/* Keeps the MP list's party filter + sort sidebar in view while the (often 600+ row) results
+/* Keeps the MP list's and search page's sidebars in view while the (often 600+ row) results
    column scrolls past it — 84px clears the sticky header (66px tall on desktop) plus a little
    breathing room. Reverts to normal flow below the width where the sidebar already wraps onto
    its own line above the results (see the search view's flex-wrap), since sticking a full-width
@@ -287,29 +287,44 @@ button {
 .sw-poll-panel { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
 
 @media (max-width: 880px) {
-  .sw-hero, .sw-split, .sw-money, .sw-poll-panel { grid-template-columns: 1fr; }
+  .sw-hero, .sw-split, .sw-money { grid-template-columns: 1fr; }
+  /* minmax(0, …), not 1fr: a plain 1fr track never shrinks below its content, so the party rows
+     pushed the panel past the card edge on phones. */
+  .sw-poll-panel { grid-template-columns: minmax(0, 1fr); }
   .sw-hero .sw-rail { margin-top: 28px; }
   .sw-split > * + * { border-left: 0; padding-left: 0; border-top: 2px solid oklch(24% 0.01 260); padding-top: 20px; margin-top: 6px; }
   .sw-money > * + * { margin-top: 28px; }
   .sw-poll-panel > * + * { border-left: 0 !important; border-top: 1px solid oklch(92% 0.006 260); }
 }
 
-/* Phone layout for list pages (MP list, search results): filter pills / sidebar give way to
-   menu buttons, and the bar holding them stays pinned under the header (--pb-header-offset, set by
-   App.tsx). Scrolling down slides the bar away behind the header; scrolling up brings it back. */
-.pb-results-filter-menu,
+/* Briefing vote list on phones: the vote number moves from its own 42px column to a small label
+   above the title, so the card gets the full width; the expanded panel pads less, and the party
+   rows shrink their name/number columns (still fixed widths, so the bars stay aligned). */
+@media (max-width: 720px) {
+  .sw-poll-row { grid-template-columns: minmax(0, 1fr) !important; }
+  .sw-poll-ord { font-size: 12px !important; padding-top: 0 !important; margin-bottom: 8px; }
+  .sw-poll-pane { padding: 14px 14px 12px !important; }
+  .sw-frac-row { gap: 8px !important; }
+  .sw-frac-name { width: 76px !important; }
+  .sw-frac-bar { min-width: 24px !important; }
+  .sw-frac-nums { width: 84px !important; }
+}
+
+/* Phone layout for list pages (MP list, search results): the sidebar gives way to menu buttons,
+   and the bar holding them stays pinned under the header (--pb-header-offset, set by App.tsx).
+   Scrolling down slides the bar away behind the header; scrolling up brings it back. The search
+   page's search field lives in the sidebar on wide screens and above the results on phones. */
+.pb-results-mobile-search,
 .pb-results-mobile-bar,
 .pb-mp-toolbar {
   display: none;
 }
 
 @media (max-width: 720px) {
-  .pb-results-filter-pills,
-  .pb-results-tabs,
   .pb-search-sidebar {
     display: none !important;
   }
-  .pb-results-filter-menu,
+  .pb-results-mobile-search,
   .pb-results-mobile-bar,
   .pb-mp-toolbar {
     display: block;
@@ -333,23 +348,34 @@ button {
   .pb-mp-toolbar {
     width: calc(100% + 64px) !important;
   }
-  .pb-scrolled-down .pb-mobile-sticky {
+  .pb-filters-hidden .pb-mobile-sticky {
     transform: translateY(calc(-100% - 2px));
   }
 }
 
 /* Phones: the header's second row (search box, DE/EN) folds away while scrolling down - logo and
-   navigation stay - and returns on scroll up (state class set by App.tsx). The negative margin
-   cancels the header's 24px wrap gap so no empty strip is left behind. */
+   navigation stay - and returns on scroll up (state class set by App.tsx). The header's wrap gap
+   would survive a folded row (an empty flex line still gets its row gap), so on phones the rows
+   are spaced by margins instead, and the folded row's margin goes to 0 with it. */
 @media (max-width: 720px) {
+  .pb-header {
+    row-gap: 0 !important;
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+  }
+  /* Symmetric, so logo and nav stay centred when they share a line on wider phones. */
+  .pb-header > :not(.pb-header-collapsible) {
+    margin-block: 5px;
+  }
   .pb-header-collapsible {
     max-height: 64px;
+    margin-top: 8px;
     transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.25s ease;
   }
   .pb-scrolled-down .pb-header-collapsible {
     max-height: 0;
     opacity: 0;
-    margin-top: -24px;
+    margin-top: 0;
     overflow: hidden;
     pointer-events: none;
   }

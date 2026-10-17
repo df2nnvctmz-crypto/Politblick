@@ -41,7 +41,7 @@ import { buildBillUrlParam, buildMpUrlParam, buildSlugParam, extractLeadingId, e
 import { navStyle, pillBtn, voteBg } from './ui/styles';
 import { stop } from './ui/events';
 import { InfoTooltip, MpAvatar, MultiSelectFilter, MultiSortableTh, ScrollBox, SortableTh, SubTabBar } from './ui/primitives';
-import { ActorTypeSpendChart, DonationBarChart, HemicycleChart, OrgInfluenceBarChart, SectorBarChart, TieMatrix, type MatrixCell, type SectorMetric } from './charts';
+import { ActorTypeSpendChart, DonationBarChart, HemicycleChart, OrgInfluenceBarChart, SectorBarChart, TieMatrix, VoteResultChart, type MatrixCell, type SectorMetric } from './charts';
 import { FindMyMpBox } from './search/SearchBoxes';
 import { GlobalSearchBox } from './search/GlobalSearchBox';
 import { SearchResultsPage, type SearchResultsLinks } from './search/SearchResultsPage';
@@ -257,31 +257,45 @@ function App() {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
   }, []);
 
-  // Phones only: while scrolling down, the header folds its search + DE/EN row away (logo and
-  // navigation stay) and the pinned filter/sort bars (.pb-mobile-sticky) slide away behind it, to
-  // free the screen for the content; the first scroll up brings both back. --pb-header-offset is
-  // where the bars pin (the header's current height).
+  // Phones only: while scrolling down, first the pinned filter/sort bars (.pb-mobile-sticky) slide
+  // away behind the header, then the header folds its search + DE/EN row away too (logo and
+  // navigation stay), to free the screen for the content; the first scroll up brings both back.
+  // State classes on <html>: pb-filters-hidden and pb-scrolled-down. --pb-header-offset is where
+  // the bars pin (the header's current height).
   const headerRef = useRef<HTMLElement>(null);
-  const [filterBarsHidden, setFilterBarsHidden] = useState(false);
   useEffect(() => {
     const narrow = window.matchMedia('(max-width: 720px)');
-    // The bar only leaves after a sustained scroll down (about half a phone screen in one go), so
-    // it stays at hand while someone browses the first results; any real scroll up brings it back.
-    const HIDE_AFTER_PX = 400;
+    const root = document.documentElement;
+    // Both only leave after a sustained scroll down, so they stay at hand while someone browses
+    // the first results: the filter bar after about half a phone screen in one go, the search row
+    // 150px later, so the two fold one after the other rather than together.
+    const HIDE_FILTERS_AFTER_PX = 400;
+    const FOLD_SEARCH_AFTER_PX = 550;
     // Folding the search row changes the header's height, and the browser answers that layout
     // shift by nudging scrollY (scroll anchoring) — which looked like a scroll up and unfolded the
     // row again: it vanished and popped straight back. So for the length of the animation after
-    // each fold/unfold, scroll events only re-baseline instead of deciding anything.
+    // each fold/unfold, scroll events only re-baseline instead of deciding anything. (The filter
+    // bar only slides, which shifts no layout, so it needs no settling.)
     const SETTLE_MS = 450;
-    let hidden = false;
+    let filtersHidden = false;
+    let folded = false;
     let settleUntil = 0;
     let lastY = window.scrollY;
     let downRunStart = lastY;
-    const set = (next: boolean) => {
-      if (next === hidden) return;
-      hidden = next;
+    const setFiltersHidden = (next: boolean) => {
+      if (next === filtersHidden) return;
+      filtersHidden = next;
+      root.classList.toggle('pb-filters-hidden', next);
+    };
+    const setFolded = (next: boolean) => {
+      if (next === folded) return;
+      folded = next;
       settleUntil = performance.now() + SETTLE_MS;
-      setFilterBarsHidden(next);
+      root.classList.toggle('pb-scrolled-down', next);
+    };
+    const showAll = () => {
+      setFiltersHidden(false);
+      setFolded(false);
     };
     const onScroll = () => {
       const y = window.scrollY;
@@ -291,15 +305,17 @@ function App() {
         return;
       }
       if (!narrow.matches || y < 140) {
-        set(false);
+        showAll();
         downRunStart = y;
       } else if (y < lastY - 15) {
         // 15px, not less: iOS momentum and rubber-banding produce small upward bounces.
-        set(false);
+        showAll();
         downRunStart = y;
-      } else if (y - downRunStart > HIDE_AFTER_PX) {
+      } else {
+        const run = y - downRunStart;
+        if (run > HIDE_FILTERS_AFTER_PX) setFiltersHidden(true);
         // Never fold the search row away while someone is typing in it.
-        if (!document.activeElement?.closest('.pb-header-collapsible')) set(true);
+        if (run > FOLD_SEARCH_AFTER_PX && !document.activeElement?.closest('.pb-header-collapsible')) setFolded(true);
       }
       // Small jitters (momentum scrolling, address bar resizing) are ignored.
       if (Math.abs(y - lastY) > 6 || y < 140) lastY = y;
@@ -309,6 +325,7 @@ function App() {
     return () => {
       window.removeEventListener('scroll', onScroll);
       narrow.removeEventListener('change', onScroll);
+      root.classList.remove('pb-filters-hidden', 'pb-scrolled-down');
     };
   }, []);
   useEffect(() => {
@@ -321,9 +338,6 @@ function App() {
     ro.observe(header);
     return () => ro.disconnect();
   }, []);
-  useEffect(() => {
-    document.documentElement.classList.toggle('pb-scrolled-down', filterBarsHidden);
-  }, [filterBarsHidden]);
   useEffect(() => {
     const onPopState = () => {
       isPopStateRef.current = true;
@@ -427,6 +441,26 @@ function App() {
 
   const t = TRANSLATIONS[lang];
   const exportLabels: ChartExportLabels = { buttonLabel: t.chartExportLabel, csv: t.chartExportCsv, svg: t.chartExportSvg, png: t.chartExportPng };
+  /** Source line for an exported chart: each dataset it draws on, with the date of the snapshot it
+   * comes from, e.g. "Quelle: Lobbyregister des Deutschen Bundestages, Stand 11.10.2026". */
+  const exportSource = (...datasets: ('core' | 'history' | 'sidejobs' | 'lobby' | 'donations' | 'committees')[]) => {
+    const meta = snapshot?.meta;
+    const info = {
+      core: [t.exportSrcCore, meta?.coreGeneratedAt],
+      history: [t.exportSrcHistory, meta?.voteHistoryGeneratedAt],
+      sidejobs: [t.exportSrcSidejobs, meta?.sidejobsGeneratedAt],
+      lobby: [t.exportSrcLobby, meta?.lobbyRegisterGeneratedAt],
+      donations: [t.exportSrcDonations, meta?.partyDonationsGeneratedAt],
+      committees: [t.exportSrcCommittees, meta?.committeesGeneratedAt],
+    } as const;
+    const parts = datasets.map((d) => {
+      const [name, iso] = info[d];
+      if (!iso) return name;
+      const date = new Date(iso).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      return t.exportAsOfTemplate.replace('{source}', name).replace('{date}', date);
+    });
+    return t.exportSourceTemplate.replace('{sources}', parts.join(' · '));
+  };
 
   /** "← Back" links call this instead of jumping straight to a fixed parent page — see appNavCountRef. */
   const goBack = (fallback: () => void) => {
@@ -1147,6 +1181,7 @@ function App() {
     >
       <header
         ref={headerRef}
+        className="pb-header"
         style={{
           position: 'sticky',
           top: 0,
@@ -1486,6 +1521,7 @@ function App() {
                 isPartyRoutable={(party) => routablePartyNames.has(party)}
                 filenameBase="politblick-sitzverteilung"
                 exportLabels={exportLabels}
+                exportInfo={{ title: t.exportTitleSeats, source: exportSource('core') }}
               />
             </div>
             <div style={{ flex: '1 1 200px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, alignContent: 'start' }}>
@@ -2104,6 +2140,21 @@ function App() {
                             rows: alignment.points.map((p) => [p.poll.date, p.poll.title, p.vote, p.aligned === null ? 'n/a' : p.aligned ? 'yes' : 'no']),
                           })}
                           svgRef={alignmentSvgRef}
+                          // One dot per vote; the legend lists only the outcomes present, with how often.
+                          getFrame={() => {
+                            const count = (v: boolean | null) => alignment.points.filter((p) => p.aligned === v).length;
+                            const items = [
+                              { label: t.exportLegendAligned, color: 'oklch(50% 0.14 155)', n: count(true) },
+                              { label: t.exportLegendDiverged, color: 'oklch(55% 0.16 40)', n: count(false) },
+                              { label: t.exportLegendUnrated, color: 'oklch(80% 0.006 260)', n: count(null) },
+                            ];
+                            return {
+                              title: `${profile.kind === 'real' ? `${profile.mp.name}: ` : ''}${t.alignmentTrendRealTemplate.replace('{n}', String(alignment.windowSize))}`,
+                              caveat: t.exportCaveatAlignment,
+                              source: exportSource('core'),
+                              legend: items.filter((i) => i.n > 0).map((i) => ({ label: i.label, value: String(i.n), color: i.color })),
+                            };
+                          }}
                           labels={exportLabels}
                         />
                         <svg ref={alignmentSvgRef} viewBox="0 0 400 60" style={{ width: '100%', height: 60, display: 'block' }}>
@@ -2764,54 +2815,34 @@ function App() {
                     </div>
                   )}
 
-                  <div style={{ background: 'oklch(97% 0.006 260)', borderRadius: 14, padding: 20, marginBottom: 24 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>{t.voteBreakdown}</div>
-                    {pollDetail.result.partyBreakdown.map((pb) => {
-                      const total = pb.yes + pb.no + pb.abstain + pb.noShow || 1;
-                      return (
-                        <div key={pb.party} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                          {routablePartyNames.has(pb.party) ? (
-                            <a
-                              href={partyHref(pb.party)}
-                              onClick={stop(() => openParty(pb.party))}
-                              style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'oklch(85% 0.006 260)', color: 'inherit' }}
-                            >
-                              {pb.party}
-                            </a>
-                          ) : (
-                            <span style={{ width: 90, fontSize: 12.5, fontWeight: 600, flexShrink: 0 }}>{pb.party}</span>
-                          )}
-                          <div style={{ flex: 1, height: 14, borderRadius: 7, overflow: 'hidden', display: 'flex', background: 'oklch(90% 0.006 260)' }}>
-                            <div style={{ width: `${(pb.yes / total) * 100}%`, background: 'oklch(50% 0.14 155)' }} />
-                            <div style={{ width: `${(pb.no / total) * 100}%`, background: 'oklch(55% 0.16 40)' }} />
-                            <div style={{ width: `${(pb.abstain / total) * 100}%`, background: 'oklch(85% 0.006 260)' }} />
-                            <div style={{ width: `${(pb.noShow / total) * 100}%`, background: 'oklch(93% 0.006 260)' }} />
-                          </div>
-                          <span style={{ width: 90, fontSize: 11, color: 'oklch(48% 0.01 260)', textAlign: 'right', flexShrink: 0 }}>
-                            {pb.yes}/{pb.no}/{pb.abstain}/{pb.noShow}
-                          </span>
-                        </div>
-                      );
-                    })}
-                    <div style={{ display: 'flex', gap: 14, fontSize: 11, color: 'oklch(48% 0.01 260)', marginTop: 10, flexWrap: 'wrap' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <span style={{ width: 9, height: 9, background: 'oklch(50% 0.14 155)', display: 'inline-block', borderRadius: 2 }} />
-                        {t.voteYes} ({pollDetail.result.totalYes})
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <span style={{ width: 9, height: 9, background: 'oklch(55% 0.16 40)', display: 'inline-block', borderRadius: 2 }} />
-                        {t.voteNo} ({pollDetail.result.totalNo})
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <span style={{ width: 9, height: 9, background: 'oklch(85% 0.006 260)', display: 'inline-block', borderRadius: 2 }} />
-                        {t.voteAbstain} ({pollDetail.result.totalAbstain})
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <span style={{ width: 9, height: 9, background: 'oklch(93% 0.006 260)', display: 'inline-block', borderRadius: 2 }} />
-                        {t.voteNoShow} ({pollDetail.result.totalNoShow})
-                      </div>
-                    </div>
-                  </div>
+                  <VoteResultChart
+                    rows={pollDetail.result.partyBreakdown}
+                    totals={{
+                      yes: pollDetail.result.totalYes,
+                      no: pollDetail.result.totalNo,
+                      abstain: pollDetail.result.totalAbstain,
+                      noShow: pollDetail.result.totalNoShow,
+                    }}
+                    labels={{ title: t.voteBreakdown, yes: t.voteYes, no: t.voteNo, abstain: t.voteAbstain, noShow: t.voteNoShow, order: t.swVoteOrder }}
+                    isPartyRoutable={(party) => routablePartyNames.has(party)}
+                    partyHref={partyHref}
+                    onOpenParty={(party) => openParty(party)}
+                    filenameBase={`politblick-abstimmung-${pollDetail.result.poll.id}`}
+                    exportLabels={exportLabels}
+                    exportInfo={{
+                      title: pollDetail.result.poll.title,
+                      subtitle: [
+                        pollDetail.result.poll.topic,
+                        pollDetail.result.poll.date,
+                        pollDetail.result.poll.accepted ? t.pollAccepted : t.pollRejected,
+                        ...(isArchivedPoll ? [archivedPollDetail.termLabel ?? t.pollArchivedBadge] : []),
+                      ]
+                        .filter(Boolean)
+                        .join(' · '),
+                      caveat: t.exportCaveatVotes,
+                      source: exportSource(isArchivedPoll ? 'history' : 'core'),
+                    }}
+                  />
 
                   {/* One roll call, two ways of reading it: who broke ranks, and how a particular
                       member voted. They are the same data filtered differently, so they share a
@@ -3196,6 +3227,7 @@ function App() {
                   isPartyRoutable={(party) => routablePartyNames.has(party)}
                   filenameBase="politblick-lobby-netzwerk"
                   exportLabels={exportLabels}
+                  exportInfo={{ title: t.exportTitleNetwork, caveat: t.exportCaveatTies, source: exportSource('sidejobs', 'lobby') }}
                   labels={{
                     sub: t.networkSub,
                     crossPartyToggle: t.networkToggleCrossParty,
@@ -3204,6 +3236,14 @@ function App() {
                     viewOrg: t.networkViewOrg,
                     viewParty: t.networkViewParty,
                     empty: t.networkEmpty,
+                    legendOrg: t.exportLegendOrg,
+                    legendTie: t.exportLegendTie,
+                    legendSelected: t.exportLegendSelected,
+                    legendTiedTo: t.exportLegendTiedTo,
+                    legendOtherOrgs: t.exportLegendOtherOrgs,
+                    legendPartyTie: t.exportLegendPartyTie,
+                    selectedTemplate: t.exportSelectedTemplate,
+                    membersTemplate: t.sectorChartMembersTemplate,
                   }}
                 />
               )}
@@ -3303,6 +3343,7 @@ function App() {
                     orgsTemplate={t.spendOrgsTemplate}
                     filenameBase="politblick-lobbyausgaben"
                     exportLabels={exportLabels}
+                    exportInfo={{ title: t.spendChartTitle, subtitle: spendScope === 'all' ? t.spendScopeAll : t.spendScopeLinked, caveat: t.spendChartNote, source: exportSource('lobby') }}
                   />
                   <p style={{ fontSize: 11.5, color: 'oklch(50% 0.01 260)', margin: '14px 0 0', maxWidth: 700, lineHeight: 1.5 }}>{t.spendChartNote}</p>
                 </div>
@@ -3345,6 +3386,13 @@ function App() {
                     orgsTemplate={t.sectorChartOrgsTemplate}
                     filenameBase="politblick-interessengebiete"
                     exportLabels={exportLabels}
+                    exportInfo={{
+                      title: t.sectorChartTitle,
+                      subtitle: t.exportSortedByTemplate.replace('{metric}', sectorMetric === 'members' ? t.sectorMetricMembers : t.sectorMetricOrgs),
+                      caveat: t.exportCaveatTies,
+                      source: exportSource('sidejobs', 'lobby'),
+                    }}
+                    selectedLabel={t.exportLegendSelected}
                   />
                 </div>
               )}
@@ -3517,6 +3565,8 @@ function App() {
                     scrollHintText={t.scrollHintText}
                     filenameBase="politblick-verflechtungs-matrix"
                     exportLabels={exportLabels}
+                    exportInfo={{ title: t.exportTitleTieMatrix, caveat: t.exportCaveatTies, source: exportSource('core', 'sidejobs', 'lobby') }}
+                    selectedLabel={t.exportLegendSelected}
                   />
                   {tieMatrixFilter && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, fontSize: 12.5 }}>
@@ -3819,7 +3869,12 @@ function App() {
 
               {lobbyDonationsSubTab === 'totals' && (
                 <div style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 12, padding: '16px 18px' }}>
-                  <DonationBarChart data={partyDonations.byFraction} filenameBase="politblick-grossspenden-nach-partei" exportLabels={exportLabels} />
+                  <DonationBarChart
+                    data={partyDonations.byFraction}
+                    filenameBase="politblick-grossspenden-nach-partei"
+                    exportLabels={exportLabels}
+                    exportInfo={{ title: t.exportTitleDonationsByParty, caveat: t.donationsSub, source: exportSource('donations') }}
+                  />
                 </div>
               )}
 
@@ -3832,6 +3887,7 @@ function App() {
                   donations={partyDonations.allCanonical}
                   filenameBase="politblick-grossspenden-alle-parteien"
                   exportLabels={exportLabels}
+                  exportInfo={{ title: t.donationTimelineTitle, caveat: t.donationsSub, source: exportSource('donations') }}
                   labels={{
                     axisMaxTemplate: t.donationTimelineAxisMaxTemplate,
                     excludedTemplate: t.donationTimelineExcludedTemplate,
@@ -3839,6 +3895,7 @@ function App() {
                     quarterTotalLabel: t.donationTimelineQuarterTotalLabel,
                     rangeLabelTemplate: t.donationTimelineRangeLabelTemplate,
                     otherDonorsLabel: t.donationTimelineOtherDonorsLabel,
+                    otherGroupsLabel: t.exportLegendOthers,
                   }}
                 />
               </div>
@@ -3859,6 +3916,7 @@ function App() {
                   isPartyRoutable={(party) => routablePartyNames.has(party)}
                   filenameBase="politblick-spenden-nach-partei-und-spender"
                   exportLabels={exportLabels}
+                  exportInfo={{ title: t.donationSankeyTitle, caveat: t.donationsSub, source: exportSource('donations') }}
                   labels={{
                     noteTemplate: t.donationSankeyNoteTemplate,
                     excludedTemplate: t.donationSankeyExcludedTemplate,
@@ -4510,6 +4568,7 @@ function App() {
                       membersTemplate={t.sectorChartMembersTemplate}
                       filenameBase={`politblick-ausschuss-verflechtungen-${committeeDetail.detail.committee.id}`}
                       exportLabels={exportLabels}
+                      exportInfo={{ title: t.committeeLobbyTitle, subtitle: committeeDetail.detail.committee.name, caveat: t.exportCaveatTies, source: exportSource('committees', 'sidejobs', 'lobby') }}
                     />
                   </div>
                 </div>
@@ -5295,6 +5354,7 @@ function App() {
                                 stackBy="donor"
                                 filenameBase={`politblick-grossspenden-${p.party}`}
                                 exportLabels={exportLabels}
+                                exportInfo={{ title: `${t.donationTimelineTitle}: ${p.party}`, caveat: t.donationsSub, source: exportSource('donations') }}
                                 labels={{
                                   axisMaxTemplate: t.donationTimelineAxisMaxTemplate,
                                   excludedTemplate: t.donationTimelineExcludedTemplate,
@@ -5302,6 +5362,7 @@ function App() {
                                   quarterTotalLabel: t.donationTimelineQuarterTotalLabel,
                                   rangeLabelTemplate: t.donationTimelineRangeLabelTemplate,
                                   otherDonorsLabel: t.donationTimelineOtherDonorsLabel,
+                                  otherGroupsLabel: t.exportLegendOthers,
                                 }}
                               />
                             </div>
@@ -5592,7 +5653,7 @@ function App() {
           }}
         >
           <span>{t.footerNote}</span>
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 16px' }}>
             <a href={disclaimerHref} onClick={stop(goDisclaimer)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.disclaimerTitle}
             </a>
