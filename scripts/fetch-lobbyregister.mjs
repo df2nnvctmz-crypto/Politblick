@@ -86,8 +86,11 @@ async function main() {
     pages++;
     total ??= page.totalResultCount;
     if (pages % 25 === 0) console.log(`  ${entries.length}/${total ?? '?'}…`);
-    // The API signals exhaustion by returning an unchanged cursor.
-    if (!page.results.length || page.cursor === cursor) break;
+    // The API signals exhaustion by omitting the cursor on the last page (it used to return an
+    // unchanged one). A missing cursor must stop the crawl: passing it on means "no cursor",
+    // which restarts at page 1 and loops until the heap runs out.
+    if (!page.results.length || !page.cursor || page.cursor === cursor) break;
+    if (total != null && entries.length >= total) break;
     cursor = page.cursor;
   }
   console.log(`  ${entries.length} entries in ${pages} pages`);
