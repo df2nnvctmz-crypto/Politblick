@@ -183,21 +183,21 @@ describe('computeDivergences', () => {
 });
 
 describe('isoWeekRange', () => {
-  it('runs Monday to Sunday around a midweek date', () => {
+  it('runs Monday to Friday around a midweek date', () => {
     const { start, end } = isoWeekRange('2025-01-15'); // a Wednesday
     expect(start.toISOString().slice(0, 10)).toBe('2025-01-13');
-    expect(end.toISOString().slice(0, 10)).toBe('2025-01-19');
+    expect(end.toISOString().slice(0, 10)).toBe('2025-01-17');
   });
 
-  it('treats Sunday as the end of the week it closes, not the start of the next', () => {
+  it('puts a Sunday in the week it closes, not the start of the next', () => {
     const { start, end } = isoWeekRange('2025-01-19');
     expect(start.toISOString().slice(0, 10)).toBe('2025-01-13');
-    expect(end.toISOString().slice(0, 10)).toBe('2025-01-19');
+    expect(end.toISOString().slice(0, 10)).toBe('2025-01-17');
   });
 
   it('does not shift across a month or year boundary', () => {
     const { start, end } = isoWeekRange('2025-01-01'); // a Wednesday
     expect(start.toISOString().slice(0, 10)).toBe('2024-12-30');
-    expect(end.toISOString().slice(0, 10)).toBe('2025-01-05');
+    expect(end.toISOString().slice(0, 10)).toBe('2025-01-03');
   });
 });

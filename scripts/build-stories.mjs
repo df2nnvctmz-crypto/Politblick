@@ -301,7 +301,8 @@ export function buildStories({ polls, pollResults, donations, lobbyLinks, source
       // 1-based, oldest sitting week of the term is No. 1 — the briefing reads as a numbered series.
       number: i + 1,
       isoWeek: isoWeekNumber(weekKey),
-      dateRange: { start: weekKey, end: addDays(weekKey, 6) },
+      // Monday to Friday — the Bundestag doesn't sit at weekends.
+      dateRange: { start: weekKey, end: addDays(weekKey, 4) },
       prevWeek: weekKeys[i - 1] ?? null,
       nextWeek: weekKeys[i + 1] ?? null,
       pollCount: weekPolls.length,

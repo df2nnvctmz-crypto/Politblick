@@ -81,14 +81,16 @@ export function computeDivergences(result: PollResult): Divergence[] {
   return out;
 }
 
+/** The sitting week a date falls in: Monday to Friday, since the Bundestag doesn't sit at weekends.
+ * A Saturday or Sunday still belongs to the week it closes (same Monday). */
 export function isoWeekRange(dateStr: string): { start: Date; end: Date } {
   const d = new Date(`${dateStr}T00:00:00Z`);
   const dayIndex = (d.getUTCDay() + 6) % 7;
   const monday = new Date(d);
   monday.setUTCDate(d.getUTCDate() - dayIndex);
-  const sunday = new Date(monday);
-  sunday.setUTCDate(monday.getUTCDate() + 6);
-  return { start: monday, end: sunday };
+  const friday = new Date(monday);
+  friday.setUTCDate(monday.getUTCDate() + 4);
+  return { start: monday, end: friday };
 }
 
 export interface AllPollsState {
@@ -127,10 +129,7 @@ export function useWeeklyResults(polls: RealPoll[]): WeeklyResultsState {
   }
   const range = isoWeekRange(polls[0].date);
   const results = polls
-    .filter((p) => {
-      const d = new Date(`${p.date}T00:00:00Z`);
-      return d >= range.start && d <= range.end;
-    })
+    .filter((p) => isoWeekRange(p.date).start.getTime() === range.start.getTime())
     .map((p) => snapshot.pollResults.get(p.id))
     .filter((r): r is PollResult => r !== undefined)
     .sort((a, b) => b.poll.date.localeCompare(a.poll.date));
