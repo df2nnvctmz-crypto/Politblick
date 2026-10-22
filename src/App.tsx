@@ -227,19 +227,26 @@ function App() {
   // calls. isPopStateRef suppresses the push effect below for this one render, so going back
   // doesn't immediately push the page we just navigated away from back onto the stack.
   const isPopStateRef = useRef(false);
-  // Counts real in-app navigations (pushState calls) since this tab loaded. "← Back" links use
-  // this to decide whether window.history.back() has anywhere real to go: if the user arrived
-  // here via an in-app link, going back returns to the actual page they came from (an MP profile,
-  // a search, wherever) instead of always landing on a fixed parent page. If this page was the
-  // entry point (a direct link, a refresh), there's no in-app history to unwind, so the caller
-  // falls back to its normal destination instead of leaving the site via browser history.
-  const appNavCountRef = useRef(0);
-  // Identifies "which page" independent of slug resolution — see its use below, where it stops
-  // the URL's bare-ID-to-slug upgrade from being miscounted as a real navigation.
-  const pageKeyRef = useRef<string | null>(null);
-  // Same idea, for the GoatCounter pageview count in the document-head effect further down —
-  // separate ref since it's set on every page (including the very first), while pageKeyRef above
-  // is only ever touched by real pushState navigations.
+  // Bookkeeping stored on each history entry (history.state), so it stays right across back/forward
+  // and refreshes. pbIdx is the entry's position among this site's entries in the tab (0 = the
+  // entry point). pbTabDepth counts the entries right before it that are the same page — another
+  // tab of it (each profile/party/lobby tab switch pushes one) or its bare-ID URL before the slug
+  // upgrade. "← Back" links use both
+  // to step back past all of those to the page the user actually came from (a search, a bill,
+  // wherever) instead of always landing on a fixed parent page — or, if that page was the entry
+  // point (a direct link), to fall back to their normal destination instead of leaving the site.
+  // The browser's own back button still steps through the tabs one by one.
+  const historyIdxRef = useRef<number>(window.history.state?.pbIdx ?? 0);
+  const tabDepthRef = useRef<number>(window.history.state?.pbTabDepth ?? 0);
+  useEffect(() => {
+    if (window.history.state?.pbIdx == null) {
+      window.history.replaceState({ ...window.history.state, pbIdx: 0, pbTabDepth: 0 }, '');
+    }
+  }, []);
+  // Identifies "which page, ignoring its tab" independent of slug resolution — see its use below,
+  // where it decides whether a pushed entry is a new page or just more of the same one (pbTabDepth).
+  const basePageKeyRef = useRef<string | null>(null);
+  // Similar idea, for the GoatCounter pageview count in the document-head effect further down.
   const lastCountedPageKeyRef = useRef<string | null>(null);
   // Remembers where the MP list was scrolled to when a profile is opened from it, so returning
   // to the list (back button or the "← zurück" link) can restore that position instead of always
@@ -341,6 +348,8 @@ function App() {
   useEffect(() => {
     const onPopState = () => {
       isPopStateRef.current = true;
+      historyIdxRef.current = window.history.state?.pbIdx ?? 0;
+      tabDepthRef.current = window.history.state?.pbTabDepth ?? 0;
       const r = pathToRoute(stripBase(window.location.pathname, import.meta.env.BASE_URL));
       setView(r.view);
       setSelectedMpId(extractMpId(r.mpId));
@@ -365,12 +374,14 @@ function App() {
   useEffect(() => {
     const prevView = prevViewRef.current;
     prevViewRef.current = view;
-    // The raw, pre-slug-resolution identity of "which page" — deliberately built from the
-    // selected ids/tabs rather than the routeToPath() output below, since that output changes
+    // The raw, pre-slug-resolution identity of "which page", minus its tab — deliberately built
+    // from the selected ids rather than the routeToPath() output below, since that output changes
     // (bare id -> full slug) once `snapshot` loads even though the page itself hasn't changed.
-    const prevPageKey = pageKeyRef.current;
-    const pageKey = [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek].join('|');
-    pageKeyRef.current = pageKey;
+    // Unchanged means only a tab switched or the URL got its slug. Null before the first run,
+    // where any push can only be the entry page's own URL being upgraded.
+    const prevBasePageKey = basePageKeyRef.current;
+    const basePageKey = [view, selectedMpId, selectedBillId, selectedOrgId, selectedParty, selectedCommitteeId, selectedStoryWeek].join('|');
+    basePageKeyRef.current = basePageKey;
     const returningToListFromProfile = view === 'search' && prevView === 'profile' && searchScrollYRef.current !== null;
     // A client-side pushState never triggers the browser's own scroll reset the way a real page
     // load does, so without this, opening any new page just inherits whatever scroll position
@@ -408,12 +419,10 @@ function App() {
     });
     const fullPath = withBase(path, import.meta.env.BASE_URL);
     if (window.location.pathname !== fullPath) {
-      window.history.pushState(null, '', fullPath);
-      // Only counts as a real navigation if the underlying page identity actually changed —
-      // a bare-ID URL upgrading to its full slug once `snapshot` finishes loading pushes a new
-      // path too, but it's still the same page, and must not make goBack() think there's
-      // somewhere real to unwind back to.
-      if (prevPageKey !== null && prevPageKey !== pageKey) appNavCountRef.current += 1;
+      const samePage = prevBasePageKey === null || prevBasePageKey === basePageKey;
+      historyIdxRef.current += 1;
+      tabDepthRef.current = samePage ? tabDepthRef.current + 1 : 0;
+      window.history.pushState({ pbIdx: historyIdxRef.current, pbTabDepth: tabDepthRef.current }, '', fullPath);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -462,9 +471,10 @@ function App() {
     return t.exportSourceTemplate.replace('{sources}', parts.join(' · '));
   };
 
-  /** "← Back" links call this instead of jumping straight to a fixed parent page — see appNavCountRef. */
+  /** "← Back" links call this instead of jumping straight to a fixed parent page — see historyIdxRef. */
   const goBack = (fallback: () => void) => {
-    if (appNavCountRef.current > 0) window.history.back();
+    const steps = tabDepthRef.current + 1;
+    if (historyIdxRef.current >= steps) window.history.go(-steps);
     else fallback();
   };
   const goHome = () => setView('home');
@@ -1038,7 +1048,7 @@ function App() {
     // whichever page a real browser navigation landed on — client-side route changes afterward
     // (pushState, no reload) never re-trigger it, so every click through the app past the first
     // page was going uncounted. pageKey (not window.location.pathname) is what actually decides
-    // "did the page change" here — reusing the same identity pageKeyRef above is built from, so a
+    // "did the page change" here — built from the selected ids like basePageKeyRef above, so a
     // bare-MP-ID URL upgrading to its full slug once data loads doesn't get miscounted as a second
     // pageview of what's still the same page. The very first run of this effect deliberately
     // doesn't count anything itself: that page was already counted by count.js's own on-load
@@ -1059,7 +1069,7 @@ function App() {
     if (view !== 'results') return;
     const q = resultsQuery.trim();
     const search = q ? `?q=${encodeURIComponent(q)}` : '';
-    if (window.location.search !== search) window.history.replaceState(null, '', `${window.location.pathname}${search}`);
+    if (window.location.search !== search) window.history.replaceState(window.history.state, '', `${window.location.pathname}${search}`);
   }, [view, resultsQuery]);
   // "Linked" means exactly what orgsSectionSub claims: something on this site points at it — a
   // member's role, a lobbied vote, a committee, or a large donation. Re-deriving it from member
