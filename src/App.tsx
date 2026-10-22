@@ -1432,9 +1432,13 @@ function App() {
           </div>
         </nav>
         <div className="pb-header-collapsible" style={{ flex: 1, minWidth: 160, display: 'flex', justifyContent: 'center' }}>
+          {/* On the results page this is that page's search field (live): it shows and edits
+              resultsQuery. Elsewhere it is the typeahead with its own query, which opening the
+              results page or a hit clears — so leaving the results page leaves it empty. */}
           <GlobalSearchBox
-            query={searchQuery}
-            onQueryChange={setSearchQuery}
+            live={view === 'results'}
+            query={view === 'results' ? resultsQuery : searchQuery}
+            onQueryChange={view === 'results' ? setResultsQuery : setSearchQuery}
             results={headerResults}
             loadingOrgs={lobbyDirectory.loading}
             links={searchLinks}
@@ -5546,7 +5550,6 @@ function App() {
       {view === 'results' && pageResults && (
         <SearchResultsPage
           query={resultsQuery}
-          onQueryChange={setResultsQuery}
           results={pageResults}
           loadingOrgs={lobbyDirectory.loading}
           links={searchLinks}

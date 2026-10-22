@@ -2,6 +2,9 @@
  * Header search: a mixed typeahead over every kind of page (see search/searchModel.ts). It only
  * previews the best few hits per group; Enter or "show all results" opens the /suche page with
  * every match. The ranking is computed by the caller so dropdown and results page always agree.
+ *
+ * On the /suche page itself (`live`) it is that page's search field: it holds the current query,
+ * every keystroke updates the results below, and there is no dropdown — the page is the preview.
  */
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import type { Translation } from '../data';
@@ -19,6 +22,7 @@ export function GlobalSearchBox({
   links,
   resultsHref,
   onShowAll,
+  live = false,
   t,
 }: {
   query: string;
@@ -29,6 +33,8 @@ export function GlobalSearchBox({
   links: SearchResultsLinks;
   resultsHref: (q: string) => string;
   onShowAll: (q: string) => void;
+  /** On the results page: edits that page's query directly instead of previewing in a dropdown. */
+  live?: boolean;
   t: Translation;
 }) {
   const [open, setOpen] = useState(false);
@@ -43,7 +49,14 @@ export function GlobalSearchBox({
   }, []);
 
   const q = query.trim();
-  const showDropdown = open && q.length >= MIN_QUERY_LENGTH;
+  // An empty /suche page asks for a query, so arriving there puts the cursor in this field. (The
+  // header stays mounted across pages, so autoFocus would only ever fire on the first load.)
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (live && q.length < MIN_QUERY_LENGTH) inputRef.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [live]);
+  const showDropdown = !live && open && q.length >= MIN_QUERY_LENGTH;
 
   const showAll = () => {
     if (q.length < MIN_QUERY_LENGTH) return;
@@ -166,9 +179,14 @@ export function GlobalSearchBox({
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') showAll();
+          // Live, the results are already on screen; Enter just closes a phone's keyboard.
+          if (e.key === 'Enter') {
+            if (live) e.currentTarget.blur();
+            else showAll();
+          }
           if (e.key === 'Escape') setOpen(false);
         }}
+        ref={inputRef}
         placeholder={t.searchPlaceholder}
         aria-label={t.resultsTitle}
         style={{

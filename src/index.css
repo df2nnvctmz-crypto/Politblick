@@ -324,9 +324,7 @@ button {
 
 /* Phone layout for list pages (MP list, search results): the sidebar gives way to menu buttons,
    and the bar holding them stays pinned under the header (--pb-header-offset, set by App.tsx).
-   Scrolling down slides the bar away behind the header; scrolling up brings it back. The search
-   page's search field lives in the sidebar on wide screens and above the results on phones. */
-.pb-results-mobile-search,
+   Scrolling down slides the bar away behind the header; scrolling up brings it back. */
 .pb-results-mobile-bar,
 .pb-mp-toolbar {
   display: none;
@@ -336,7 +334,6 @@ button {
   .pb-search-sidebar {
     display: none !important;
   }
-  .pb-results-mobile-search,
   .pb-results-mobile-bar,
   .pb-mp-toolbar {
     display: block;

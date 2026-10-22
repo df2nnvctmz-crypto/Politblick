@@ -98,7 +98,6 @@ function useWidth(): [(el: HTMLElement | null) => void, number] {
 
 export function SearchResultsPage({
   query,
-  onQueryChange,
   results,
   loadingOrgs,
   links,
@@ -106,7 +105,6 @@ export function SearchResultsPage({
   lang,
 }: {
   query: string;
-  onQueryChange: (q: string) => void;
   results: SearchResults;
   loadingOrgs: boolean;
   links: SearchResultsLinks;
@@ -385,31 +383,19 @@ export function SearchResultsPage({
     },
   }));
 
-  const searchInput = (style: CSSProperties) => (
-    <input
-      type="search"
-      value={query}
-      autoFocus={tooShort}
-      onChange={(e) => onQueryChange(e.target.value)}
-      placeholder={t.searchPlaceholder}
-      aria-label={t.resultsTitle}
-      style={{ width: '100%', padding: '9px 12px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13.5, boxSizing: 'border-box', fontFamily: 'inherit', background: 'white', ...style }}
-    />
-  );
   const categories = [
     { key: 'all' as TypeKey, label: t.resultsAll, count: results.total },
     ...order.filter((k) => counts[k] > 0).map((k) => ({ key: k as TypeKey, label: labels[k], count: counts[k] })),
   ];
 
-  // Wide screens, like the MP list: a sticky sidebar on the left with the search field, the
-  // categories and the active category's filters, so all of it stays at hand while the results
-  // scroll. Phones hide the sidebar (index.css) and use the search field above the results plus
-  // the pinned [Kategorie] [Filter] bar instead.
+  // The query itself is typed into the header search field, which on this page edits it live
+  // (GlobalSearchBox `live`). Wide screens, like the MP list: a sticky sidebar on the left with the
+  // categories and the active category's filters, so they stay at hand while the results scroll.
+  // Phones hide the sidebar (index.css) and use the pinned [Kategorie] [Filter] bar instead.
   return (
     <main style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: 32, boxSizing: 'border-box', display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-      <aside className="pb-search-sidebar" style={{ width: 220, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 22 }}>
-        {searchInput({})}
-        {!tooShort && results.total > 0 && (
+      {!tooShort && results.total > 0 && (
+        <aside className="pb-search-sidebar" style={{ width: 220, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 22 }}>
           <>
             <div>
               <div style={sidebarHeading}>{t.resultsCategory}</div>
@@ -477,8 +463,8 @@ export function SearchResultsPage({
                 ),
               )}
           </>
-        )}
-      </aside>
+        </aside>
+      )}
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{tooShort ? t.resultsTitle : t.resultsHeadingTemplate.replace('{query}', q)}</h1>
@@ -487,8 +473,6 @@ export function SearchResultsPage({
             ? t.resultsPrompt
             : `${results.total === 1 ? t.resultsCountOne : t.resultsCountTemplate.replace('{n}', fmtInt(results.total))}${loadingOrgs ? ` · ${t.searchLoadingOrgs}` : ''}`}
         </p>
-        <div className="pb-results-mobile-search">{searchInput({ marginBottom: 22 })}</div>
-
         {!tooShort && results.total === 0 && !loadingOrgs && <p style={{ fontSize: 13.5, color: MUTED }}>{t.resultsNoneTemplate.replace('{query}', q)}</p>}
 
         {!tooShort && results.total > 0 && (
