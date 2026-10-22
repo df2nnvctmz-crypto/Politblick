@@ -96,8 +96,8 @@ describe('searchAll', () => {
 
   it('offers the briefing of a week whose vote matched, and briefings by KW', () => {
     const briefings = [
-      { week: '2026-10-05', start: '2026-10-05', end: '2026-10-11', isoWeek: 41, pollCount: 10 },
-      { week: '2026-09-21', start: '2026-09-21', end: '2026-09-27', isoWeek: 39, pollCount: 4 },
+      { week: '2026-10-05', start: '2026-10-05', end: '2026-10-09', isoWeek: 41, pollCount: 10, divergingTotal: 0, donationCount: 0, donationSumEuro: 0, pollTotals: [], closestTitle: null },
+      { week: '2026-09-21', start: '2026-09-21', end: '2026-09-25', isoWeek: 39, pollCount: 4, divergingTotal: 0, donationCount: 0, donationSumEuro: 0, pollTotals: [], closestTitle: null },
     ];
     const bills = [{ id: 6728, title: 'Neubau Bahnstrecke Hannover – Hamburg', date: '2026-10-08', topic: 'Verkehr', topics: ['Verkehr'], term: null }];
     expect(searchAll('bahnstrecke', src({ bills, briefings })).briefings.map((b) => b.week)).toEqual(['2026-10-05']);

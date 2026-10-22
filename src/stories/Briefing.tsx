@@ -79,8 +79,9 @@ interface SectionProps {
   stop: (fn: () => void) => (e: React.MouseEvent) => void;
 }
 
-/** A thin yes/no/abstain/no-show band, normalised to the full chamber — one per vote in the week. */
-function MiniBand({ totals }: { totals: { yes: number; no: number; abstain: number; noShow: number } }) {
+/** A thin yes/no/abstain/no-show band, normalised to the full chamber — one per vote in the week.
+ * Also drawn on the briefing cards in the search results. */
+export function MiniBand({ totals }: { totals: { yes: number; no: number; abstain: number; noShow: number } }) {
   const denom = Math.max(SEATS_TOTAL, totals.yes + totals.no + totals.abstain + totals.noShow) || 1;
   const seg = (n: number, c: string) => (n > 0 ? <span key={c} style={{ width: `${(n / denom) * 100}%`, background: c }} /> : null);
   return (

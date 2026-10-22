@@ -4,10 +4,11 @@
  * second dimension, next to a heading and white cards in a grid. The header dropdown only previews the
  * first few hits of each group; this is where all of them live.
  */
-import { useEffect, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import type { Lang, Translation } from '../data';
 import { formatEuro } from '../lobby';
 import { ShowMoreButton } from '../ShowMoreButton';
+import { MiniBand } from '../stories/Briefing';
 import { FilterMenu, type SingleFilterGroup } from '../ui/FilterMenu';
 import { MIN_QUERY_LENGTH, type SearchBill, type SearchOrg, type SearchResults } from './searchModel';
 
@@ -61,9 +62,39 @@ const dot = (color: string) => <span style={{ width: 9, height: 9, borderRadius:
 
 const sidebarHeading: CSSProperties = { fontSize: 12, fontWeight: 700, color: 'oklch(45% 0.01 260)', marginBottom: 10 };
 
+const CARD_MIN = 260;
+const GRID_GAP = 12;
 const Grid = ({ children }: { children: ReactNode }) => (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 260px), 1fr))', gap: 12 }}>{children}</div>
+  <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${CARD_MIN}px), 1fr))`, gap: GRID_GAP }}>{children}</div>
 );
+
+/** Same breakpoint as the sidebar/phone-bar switch in index.css. */
+const NARROW_QUERY = '(max-width: 720px)';
+function useNarrow(): boolean {
+  const [narrow, setNarrow] = useState(() => window.matchMedia(NARROW_QUERY).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(NARROW_QUERY);
+    const onChange = () => setNarrow(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return narrow;
+}
+
+/** An element's width, kept current as it resizes (0 until it mounts). */
+function useWidth(): [(el: HTMLElement | null) => void, number] {
+  const [el, setEl] = useState<HTMLElement | null>(null);
+  const [width, setWidth] = useState(0);
+  useLayoutEffect(() => {
+    if (!el) return;
+    setWidth(el.clientWidth);
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setWidth(el.clientWidth));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [el]);
+  return [setEl, width];
+}
 
 export function SearchResultsPage({
   query,
@@ -97,6 +128,8 @@ export function SearchResultsPage({
   const [billScope, setBillScope] = useState<BillScope>('all');
   const [mpParty, setMpParty] = useState<string | null>(null);
   const [shown, setShown] = useState(PAGE);
+  const narrow = useNarrow();
+  const [allRef, allWidth] = useWidth();
 
   const q = query.trim();
   const locale = lang === 'de' ? 'de-DE' : 'en-US';
@@ -199,14 +232,76 @@ export function SearchResultsPage({
       <div style={metaStyle}>{t.resultsCommitteeMembersTemplate.replace('{n}', String(c.memberCount))}</div>
     </a>
   );
-  const briefingCard = (w: SearchResults['briefings'][number]) => (
-    <a key={`briefing-${w.week}`} href={links.storyHref(w.week)} onClick={links.onStory(w.week)} style={cardStyle}>
-      <div style={titleStyle}>{t.resultsBriefingTemplate.replace('{week}', String(w.isoWeek))}</div>
-      <div style={metaStyle}>
-        {day(w.start)} – {day(w.end)}
-      </div>
-    </a>
-  );
+  const briefingCounts = (w: SearchResults['briefings'][number]) =>
+    `${fmtInt(w.pollCount)} ${w.pollCount === 1 ? t.swTileVotesOne : t.swTileVotes} · ${fmtInt(w.divergingTotal)} ${t.swTileDivergence}`;
+  // Wide screens: a small version of the landing-page tile — one band per vote, the week's key
+  // counts and its closest vote, so weeks can be told apart without opening each one. Phones: one
+  // compact row per week instead, like the older weeks on the home page, since stacked one per
+  // row the full cards took a screen each.
+  const briefingCard = (w: SearchResults['briefings'][number]) =>
+    narrow ? (
+      <a
+        key={`briefing-${w.week}`}
+        href={links.storyHref(w.week)}
+        onClick={links.onStory(w.week)}
+        style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 12 }}
+      >
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ ...titleStyle, display: 'block' }}>{t.resultsBriefingTemplate.replace('{week}', String(w.isoWeek))}</span>
+          <span style={{ ...metaStyle, display: 'block' }}>
+            {day(w.start)} – {day(w.end)}
+          </span>
+          <span style={{ ...metaStyle, display: 'block', marginTop: 2 }}>{briefingCounts(w)}</span>
+        </span>
+        <span aria-hidden style={{ fontSize: 16, fontWeight: 700, color: ACCENT }}>
+          →
+        </span>
+      </a>
+    ) : (
+      <a key={`briefing-${w.week}`} href={links.storyHref(w.week)} onClick={links.onStory(w.week)} style={{ ...cardStyle, display: 'flex', flexDirection: 'column' }}>
+        <div style={titleStyle}>{t.resultsBriefingTemplate.replace('{week}', String(w.isoWeek))}</div>
+        <div style={metaStyle}>
+          {day(w.start)} – {day(w.end)}
+        </div>
+        {w.pollTotals.length > 0 && (
+          <div style={{ display: 'grid', gap: 3, marginTop: 12 }}>
+            {w.pollTotals.map((tot, i) => (
+              <MiniBand key={i} totals={tot} />
+            ))}
+          </div>
+        )}
+        <div style={{ ...metaStyle, marginTop: 10, color: 'oklch(38% 0.01 260)' }}>
+          {briefingCounts(w)}
+          {w.donationCount > 0 && (
+            <>
+              {' · '}
+              {fmtInt(w.donationCount)} {w.donationCount === 1 ? t.swTileDonationsOne : t.swTileDonations}{' '}
+              <span style={{ whiteSpace: 'nowrap' }}>({formatEuro(w.donationSumEuro)})</span>
+            </>
+          )}
+        </div>
+        {w.closestTitle && (
+          <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid oklch(93% 0.006 260)' }}>
+            <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTED }}>{t.swTileClosest}</div>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                lineHeight: 1.4,
+                marginTop: 3,
+                overflowWrap: 'anywhere',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
+            >
+              {w.closestTitle}
+            </div>
+          </div>
+        )}
+      </a>
+    );
 
   const render: Record<Exclude<TypeKey, 'all'>, () => ReactNode[]> = {
     mps: () => mps.map(mpCard),
@@ -217,12 +312,17 @@ export function SearchResultsPage({
     briefings: () => results.briefings.map(briefingCard),
   };
 
+  // How many cards a type previews inside "All". Briefing cards are tall (a band per vote), so on
+  // wide screens they get exactly one row: as many as the grid fits side by side at this width.
+  const briefingColumns = Math.max(1, Math.floor((allWidth + GRID_GAP) / (CARD_MIN + GRID_GAP)));
+  const previewCount = (k: Exclude<TypeKey, 'all'>) => (k === 'briefings' && !narrow ? briefingColumns : PREVIEW_IN_ALL);
+
   const sectionHeader = (k: Exclude<TypeKey, 'all'>) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, margin: '0 0 12px' }}>
       <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0 }}>
         {labels[k]} <span style={{ fontWeight: 600, color: 'oklch(60% 0.01 260)' }}>{fmtInt(counts[k])}</span>
       </h2>
-      {counts[k] > PREVIEW_IN_ALL && (
+      {counts[k] > previewCount(k) && (
         <button onClick={() => setType(k)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 700, color: ACCENT, fontFamily: 'inherit' }}>
           {t.resultsShowAllTemplate.replace('{n}', fmtInt(counts[k]))} →
         </button>
@@ -408,13 +508,13 @@ export function SearchResultsPage({
             </div>
 
             {activeType === 'all' ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 30 }}>
+              <div ref={allRef} style={{ display: 'flex', flexDirection: 'column', gap: 30 }}>
                 {order
                   .filter((k) => counts[k] > 0)
                   .map((k) => (
                     <section key={k}>
                       {sectionHeader(k)}
-                      <Grid>{render[k]().slice(0, PREVIEW_IN_ALL)}</Grid>
+                      <Grid>{render[k]().slice(0, previewCount(k))}</Grid>
                     </section>
                   ))}
               </div>

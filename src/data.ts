@@ -232,7 +232,7 @@ export interface Translation {
   // Landing-page tile.
   swTileCurrent: string;
   swTileVotes: string; swTileVotesOne: string;
-  swTileDivergence: string; swTileDonations: string;
+  swTileDivergence: string; swTileDonations: string; swTileDonationsOne: string;
   swTileVoteRatio: string; swTileAcceptedRejected: string; swTileAcceptedOnly: string; swTileRejectedOnly: string;
   swTileClosest: string; swTileClosestMargin: string;
   swTileLegendNote: string; swAllWeeks: string;
@@ -710,6 +710,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     swTileVotesOne: 'Abstimmung',
     swTileDivergence: 'mal gegen die Fraktionslinie',
     swTileDonations: 'neue Großspenden',
+    swTileDonationsOne: 'neue Großspende',
     swTileVoteRatio: 'Stimmenverhältnis je Abstimmung',
     swTileAcceptedRejected: '{a} angenommen · {r} abgelehnt',
     swTileAcceptedOnly: '{a} angenommen',
@@ -1226,6 +1227,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     swTileVotesOne: 'roll-call vote',
     swTileDivergence: 'against the fraction line',
     swTileDonations: 'new large donations',
+    swTileDonationsOne: 'new large donation',
     swTileVoteRatio: 'Vote split per vote',
     swTileAcceptedRejected: '{a} accepted · {r} rejected',
     swTileAcceptedOnly: '{a} accepted',

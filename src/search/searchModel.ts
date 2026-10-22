@@ -82,6 +82,12 @@ export interface SearchBriefing {
   end: string;
   isoWeek: number;
   pollCount: number;
+  divergingTotal: number;
+  donationCount: number;
+  donationSumEuro: number;
+  /** The four totals of each vote in the week, drawn as one thin band per vote. */
+  pollTotals: { yes: number; no: number; abstain: number; noShow: number }[];
+  closestTitle: string | null;
 }
 
 export interface SearchSources {
