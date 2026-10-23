@@ -12,7 +12,7 @@ this repo, and served as static JSON — so visitor traffic never reaches the up
 | `fetch-lobbyregister.mjs` | Lobbyregister API v2 | `data/lobby-register.json` | weekly |
 | `fetch-parteispenden.mjs` | bundestag.de (HTML) | `public/data/party-donations.json` | daily |
 | `fetch-committees.mjs` | abgeordnetenwatch | `public/data/committees.json` | weekly |
-| `fetch-hearings.mjs` | bundestag.de (HTML) | `data/hearings.json` | weekly |
+| `fetch-hearings.mjs` | bundestag.de (HTML) | `data/hearings.json` | every 4 h, incremental (full re-crawl weekly) |
 | `build-hearings.mjs` | *(no network)* | `public/data/hearings.json` | after `fetch-hearings` and `fetch-lobbyregister` |
 | `fetch-history.mjs` | abgeordnetenwatch | `public/data/vote-history.json` | manual (`workflow_dispatch`) |
 | `build-vote-history-summary.mjs` | *(no network)* | `public/data/vote-history-summary.json` | same job as `fetch-history` |
@@ -197,6 +197,13 @@ The crawl fails instead of writing when any request fails, when fewer than 15 co
 or when it finds more than 15% fewer hearings than the last snapshot — a layout change on
 bundestag.de returns *fewer* pages rather than an error, and committing that would quietly remove
 hearings from bill pages. `HEARINGS_ALLOW_SHRINK=1` accepts a genuine drop (a new term).
+
+It runs every 4 hours, like the core data, because a fast-tracked bill can be heard and voted on
+in the same week. Runs are incremental: the committee listings are read every time (that is how new
+and withdrawn hearings are found), but a hearing page is only re-read when it is new, upcoming,
+undated or at most 30 days old; older ones are reused from the snapshot. Once a week, or with
+`HEARINGS_FULL=1`, every page is re-read. A run that finds nothing new writes nothing, so it makes
+no commit.
 
 ### What this data cannot show
 

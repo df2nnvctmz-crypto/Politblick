@@ -2,10 +2,12 @@ name: Fetch committee hearings
 
 on:
   schedule:
-    # Weekly, the morning after the Sunday committee run. Hearings are announced a week or two
-    # ahead and their written statements trickle in around the hearing date, so a weekly crawl
-    # catches each one well before the bill comes to a vote. ~400 paced requests, ~5 minutes.
-    - cron: '0 5 * * 1'
+    # Every 4 hours, like the core data: a fast-tracked bill can be heard on Monday and voted on
+    # on Thursday, and its statements are posted around the hearing date. Offset by 30 minutes from
+    # fetch-core so the two do not push at once. Runs are incremental (listings plus new and recent
+    # hearings, ~170 paced requests, ~2 min); once a week a run re-reads every page (~420, ~5 min).
+    # A run that finds nothing new writes nothing, so it makes no commit.
+    - cron: '30 */4 * * *'
   workflow_dispatch: {}
 
 permissions:

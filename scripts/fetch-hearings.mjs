@@ -10,6 +10,14 @@
 // This writes the parsed pages only. Matching statement authors to the Lobbyregister happens in
 // build-hearings.mjs, with no network, so a matching-rule change is a two-second re-run.
 //
+// It runs on the same 4-hour schedule as the core data, because a bill is sometimes heard and
+// voted on within the same week. To keep that polite, runs are incremental: the committee
+// listings are read every time (that is how new and removed hearings are found), but a hearing
+// page is only re-read when it is new, upcoming, undated or at most RECENT_DAYS old — older ones
+// no longer change and are reused from the last snapshot. Once a week (or with HEARINGS_FULL=1)
+// every page is re-read, to catch late corrections. Nothing is written when nothing changed, so a
+// quiet run makes no data commit.
+//
 // It fails rather than writes when the crawl looks broken. A committee renaming its listing
 // page, or bundestag.de changing its markup, does not throw by itself — it just returns fewer
 // hearings — and committing that would silently delete hearings from bill pages. So any failed
@@ -27,6 +35,10 @@ const MAX_SHRINK = 0.15;
 const PAGE_SIZE = 10;
 /** Upper bound on listing pages per committee — a safety stop, not an expected size (the busiest has ~4). */
 const MAX_LIST_PAGES = 60;
+/** A hearing dated within this many days (or later) is re-read on every run; older ones are reused. */
+const RECENT_DAYS = 30;
+/** An incremental run turns into a full re-crawl once the last full one is this old. */
+const FULL_CRAWL_EVERY_MS = 7 * 86_400_000;
 
 const pace = makePacer(700);
 
@@ -83,25 +95,70 @@ async function hearingUrlsFor(slug) {
   return [...urls];
 }
 
+/** The article id in a hearing URL — the same id parseHearingPage() reads, known before fetching. */
+function articleId(url) {
+  return url.match(/\/(\d+)-\1(?:$|[?#])/)?.[1] ?? url.match(/\/(\d+)-\d+/)?.[1] ?? null;
+}
+
+/**
+ * Whether a hearing from the last snapshot must be read again. Statements are posted in the days
+ * around a hearing, and an upcoming hearing gets its expert list and statements later; a hearing
+ * well in the past no longer changes, so it is reused until the weekly full crawl.
+ */
+function needsRefresh(record, today) {
+  if (!record.date) return true;
+  const ageDays = (Date.parse(today) - Date.parse(record.date)) / 86_400_000;
+  return ageDays <= RECENT_DAYS;
+}
+
 async function main() {
   const previous = await readSourceFile('hearings.json', null);
+  const today = new Date().toISOString().slice(0, 10);
+  const lastFull = previous?.fullCrawlAt ? Date.parse(previous.fullCrawlAt) : 0;
+  const full = process.env.HEARINGS_FULL === '1' || !previous?.hearings?.length || Date.now() - lastFull > FULL_CRAWL_EVERY_MS;
+  const known = new Map((previous?.hearings ?? []).map((h) => [h.id, h]));
+  const knownNotHearings = new Set(previous?.notHearings ?? []);
+  console.log(full ? 'Full crawl.' : `Incremental crawl (last full crawl ${previous.fullCrawlAt}).`);
+
   const overview = await fetchText(OVERVIEW_URL);
   if (!overview) throw new Error(`${OVERVIEW_URL} returned nothing.`);
   const slugs = committeeSlugs(overview);
   if (slugs.length < 15) throw new Error(`Only ${slugs.length} committees found on ${OVERVIEW_URL} — the page layout has probably changed.`);
 
   const hearings = new Map();
-  let notHearings = 0;
+  const notHearings = new Set();
+  let read = 0;
+  let reused = 0;
   for (const slug of slugs) {
+    // The listings are read on every run, incremental or not: they are how a new hearing is
+    // found, and how one the Bundestag took down drops out of the snapshot.
     const urls = await hearingUrlsFor(slug);
     let kept = 0;
     for (const url of urls) {
+      const id = articleId(url);
+      if (!full && id) {
+        // An ordinary sitting stays one; it is re-checked on the weekly full crawl.
+        if (knownNotHearings.has(id)) {
+          notHearings.add(id);
+          continue;
+        }
+        const old = known.get(id);
+        if (old && !needsRefresh(old, today)) {
+          if (!hearings.has(id)) {
+            hearings.set(id, old);
+            kept++;
+            reused++;
+          }
+          continue;
+        }
+      }
       const html = await fetchText(url);
+      read++;
       if (!html) continue;
       const parsed = parseHearingPage(html, url);
       if (!parsed?.id) continue;
       if (!parsed.isHearing) {
-        notHearings++;
+        notHearings.add(parsed.id);
         continue;
       }
       if (!hearings.has(parsed.id)) {
@@ -117,7 +174,10 @@ async function main() {
 
   const list = [...hearings.values()].sort((a, b) => (b.date ?? '').localeCompare(a.date ?? '') || a.id.localeCompare(b.id));
   const statements = list.reduce((n, h) => n + h.statements.length, 0);
-  console.log(`${list.length} hearings, ${statements} statements, ${list.filter((h) => h.drucksachen.length).length} with a Drucksache; ${notHearings} ordinary sittings skipped`);
+  console.log(
+    `${list.length} hearings (${read} pages read, ${reused} reused), ${statements} statements, ` +
+      `${list.filter((h) => h.drucksachen.length).length} with a Drucksache; ${notHearings.size} ordinary sittings skipped`,
+  );
 
   const before = previous?.hearings?.length ?? 0;
   if (before > 0 && list.length < before * (1 - MAX_SHRINK) && process.env.HEARINGS_ALLOW_SHRINK !== '1') {
@@ -127,9 +187,28 @@ async function main() {
     );
   }
 
-  const generatedAt = new Date().toISOString();
-  await writeSourceFile('hearings.json', { generatedAt, source: OVERVIEW_URL, hearings: list });
-  await writeMetaFile({ hearingsGeneratedAt: generatedAt });
+  // Written only when something changed: this runs every 4 hours, and a fresh timestamp on
+  // identical content would mean a data commit six times a day for nothing. A full crawl always
+  // writes, so the snapshot records when the last one happened — but keeps its generatedAt (and
+  // the site's "updated" date) when the content itself is unchanged.
+  const sortedNotHearings = [...notHearings].sort();
+  const unchanged =
+    JSON.stringify(list) === JSON.stringify(previous?.hearings ?? null) &&
+    JSON.stringify(sortedNotHearings) === JSON.stringify(previous?.notHearings ?? null);
+  if (unchanged && !full) {
+    console.log('No change since the last snapshot — nothing written.');
+    return;
+  }
+  const now = new Date().toISOString();
+  const generatedAt = unchanged ? previous.generatedAt : now;
+  await writeSourceFile('hearings.json', {
+    generatedAt,
+    fullCrawlAt: full ? now : previous.fullCrawlAt,
+    source: OVERVIEW_URL,
+    hearings: list,
+    notHearings: sortedNotHearings,
+  });
+  if (!unchanged) await writeMetaFile({ hearingsGeneratedAt: generatedAt });
 }
 
 main().catch((err) => {
