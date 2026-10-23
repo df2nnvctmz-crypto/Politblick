@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-  # The five fetch-*.yml jobs push their data commits with the default GITHUB_TOKEN, and GitHub
+  # The fetch-*.yml jobs push their data commits with the default GITHUB_TOKEN, and GitHub
   # deliberately does not fire `push`-triggered workflows for GITHUB_TOKEN-authored pushes (it
   # would otherwise be trivial to build an infinite workflow loop). Without this, the site only
   # redeploys when a human pushes a code change — freshly fetched data could sit committed on
@@ -16,6 +16,7 @@ on:
       - Fetch party donations (Parteispenden)
       - Fetch sidejobs data (Nebeneinkünfte)
       - Fetch committee assignments
+      - Fetch committee hearings
     types: [completed]
   workflow_dispatch:
 

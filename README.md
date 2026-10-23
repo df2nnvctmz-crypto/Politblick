@@ -12,6 +12,8 @@ this repo, and served as static JSON — so visitor traffic never reaches the up
 | `fetch-lobbyregister.mjs` | Lobbyregister API v2 | `data/lobby-register.json` | weekly |
 | `fetch-parteispenden.mjs` | bundestag.de (HTML) | `public/data/party-donations.json` | daily |
 | `fetch-committees.mjs` | abgeordnetenwatch | `public/data/committees.json` | weekly |
+| `fetch-hearings.mjs` | bundestag.de (HTML) | `data/hearings.json` | weekly |
+| `build-hearings.mjs` | *(no network)* | `public/data/hearings.json` | after `fetch-hearings` and `fetch-lobbyregister` |
 | `fetch-history.mjs` | abgeordnetenwatch | `public/data/vote-history.json` | manual (`workflow_dispatch`) |
 | `build-vote-history-summary.mjs` | *(no network)* | `public/data/vote-history-summary.json` | same job as `fetch-history` |
 | `verify-vote-history-summary.mjs` | *(no network)* | *(checks only)* | that job **and** every deploy |
@@ -154,6 +156,48 @@ non-document signal. Never conflate either tier with a declared-Drucksache confl
 `src/lobby.ts`) are pure re-views of the same joined data from a different angle — no new
 fetching, just aggregating `affiliations` by party or by organisation instead of by member.
 
+### Committee hearings
+
+Before most bills come to a vote, the committee in charge holds a public hearing and publishes the
+written statements submitted for it. `fetch-hearings.mjs` scrapes every committee's hearing pages;
+`build-hearings.mjs` links statement authors to the Lobbyregister; the bill page joins a hearing to
+a vote in the browser, on the Drucksache numbers both carry. The rules live in
+`scripts/lib/hearings.mjs` and are pinned by `hearings.test.mjs`. The point of all of them is that
+nothing unparseable or unmatched is ever turned into a claim:
+
+- **Hearing ↔ vote only through a shared Drucksache.** Never by title or topic. The numbers come from
+  the page's document list, the agenda line, or the *first* paragraph of the write-up — never the
+  rest of the prose, which cites neighbouring laws. The first paragraph was checked against the
+  document list on every page that has both (49/49 agreed); without it the Arbeit-und-Soziales,
+  Recht and Verkehr committees, which publish no document list, would have no Drucksache at all.
+- **A hearing covers the bill as it stood that day.** Committees amend bills after hearing them,
+  and sometimes graft unrelated measures onto them — the 2026 Tankrabatt was inserted into an
+  insurance-supervision bill (21/6561) whose hearing never discussed fuel. The Drucksache join
+  cannot see that, so every hearing card says so, unconditionally.
+- **Register links on the name only, strictly.** Exact after `normalizeOrgName`, or with one trailing
+  upper-case acronym dropped (`… (DGB)`), or with a trailing city dropped *if* it is the register
+  entry's own city. A name two register entries share is never linked. `data/hearing-org-aliases.json`
+  holds hand-reviewed exceptions in both directions, and an alias to an unknown id fails the build.
+  At the first crawl that linked 303 of 1,700 statements (201 distinct name pairs, all reviewed by hand).
+- **Names stay the Bundestag's.** The author is the link text minus only what provably is not a
+  name: the document number, "Stellungnahme" and a lower-case article, a trailing Drucksache
+  reference or "zur NN. Sitzung …". Some committees end every label with the hearing's topic
+  ("… - Deutscher Anwaltverein - Nachrichtendienstrecht"); that segment is removed only when at
+  least three and at least half of that hearing's statements share it — an affiliation two experts
+  share (ver.di on 2 of 42) is kept. `build-hearings.mjs` re-derives names from the stored labels,
+  so a rule change is a re-run, not a re-crawl.
+- **People are never their employer.** "Prof. Dr. X, Universität Y" is an expert speaking for
+  themself, so a statement by a person is never linked to the institution named next to them.
+- **A statement is not a position.** It shows that someone commented, not which way; the PDF is linked.
+- **No match is not a negative.** A vote with no hearing shows no hearings section rather than
+  "no hearing took place", and an unlinked author is shown in the Bundestag's own spelling without
+  any claim about whether they are registered.
+
+The crawl fails instead of writing when any request fails, when fewer than 15 committees are found,
+or when it finds more than 15% fewer hearings than the last snapshot — a layout change on
+bundestag.de returns *fewer* pages rather than an error, and committing that would quietly remove
+hearings from bill pages. `HEARINGS_ALLOW_SHRINK=1` accepts a genuine drop (a new term).
+
 ### What this data cannot show
 
 Germany publishes **no register of meetings between lobbyists and MPs**. Nothing here is a
@@ -213,6 +257,7 @@ person** — not the rendering. Four things, and deliberately only those:
 | File | What it pins |
 | --- | --- |
 | `scripts/lib/common.test.mjs` | The join keys: which fraction a vote was cast under, and whether two spellings are one organisation |
+| `scripts/lib/hearings.test.mjs` | Which hearing statement is shown as coming from a registered organisation, and which Drucksachen a hearing is tied to |
 | `src/polls.test.ts` | What "Parteitreue" and "gegen die eigene Fraktion" count, and what they refuse to count |
 | `src/donations.test.ts` | That one donor is summed once across every spelling the Bundestag publishes them under |
 | `src/format.test.ts`, `src/sorting.test.ts`, `src/urlParams.test.ts` | Name transliteration, null ordering, and that already-shared URLs keep resolving |

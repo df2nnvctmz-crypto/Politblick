@@ -33,6 +33,8 @@ import { PartyOrgGraph } from './PartyOrgGraph';
 import { DonationSankey } from './DonationSankey';
 import { DonationTimeline } from './DonationTimeline';
 import { ShowMoreButton } from './ShowMoreButton';
+import { OrgHearings, PollHearings, StatementLine } from './PollHearings';
+import { statementsByOrgForDrucksachen, useHearings, type StatementRef } from './hearings';
 import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
 import { DEFAULT_ROUTE, indexablePath, pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
 import { countOptions, divergenceLabel, firstParagraph, formatDateTime, formatMillions, formatWeekRange, fuzzyMatch } from './format';
@@ -104,9 +106,9 @@ function App() {
   const ORGS_PAGE_SIZE = 100;
   const ORGS_INITIAL_COUNT = 25;
   const [orgsVisibleCount, setOrgsVisibleCount] = useState(ORGS_INITIAL_COUNT);
-  const [conflictsExpanded, setConflictsExpanded] = useState(false);
-  const [topicalExpanded, setTopicalExpanded] = useState(false);
-  const [donationsExpanded, setDonationsExpanded] = useState(false);
+  const [conflictsShown, setConflictsShown] = useState(10);
+  const [topicalShown, setTopicalShown] = useState(10);
+  const [donationsShown, setDonationsShown] = useState(10);
   const [orgDescExpanded, setOrgDescExpanded] = useState(false);
   const [orgMembersShown, setOrgMembersShown] = useState(5);
   const [pollSummaryExpanded, setPollSummaryExpanded] = useState(false);
@@ -115,19 +117,20 @@ function App() {
   const [pollLobbyingSearch, setPollLobbyingSearch] = useState('');
   const [committeeMemberSearch, setCommitteeMemberSearch] = useState('');
   const [committeeListSearch, setCommitteeListSearch] = useState('');
-  const [committeeMembersExpanded, setCommitteeMembersExpanded] = useState(false);
-  const [votesExpanded, setVotesExpanded] = useState(false);
+  const [committeeMembersShown, setCommitteeMembersShown] = useState(12);
+  const [votesShown, setVotesShown] = useState(10);
   const [historyExpanded, setHistoryExpanded] = useState(false);
   // Chips on the long-run card double as filters over its detail list — with 40+ divergences
   // across five terms, scanning for "the energy ones" by eye is not realistic.
   const [historyKindFilter, setHistoryKindFilter] = useState<DivergenceKind | null>(null);
   const [historyTopicFilter, setHistoryTopicFilter] = useState<string | null>(null);
-  const [flaggedVotesExpanded, setFlaggedVotesExpanded] = useState(false);
-  const [allVotesExpanded, setAllVotesExpanded] = useState(false);
+  const [flaggedVotesShown, setFlaggedVotesShown] = useState(10);
+  const [allVotesShown, setAllVotesShown] = useState(20);
   /** Which roll-call list the bill page shows. Divergences first: they are the smaller, more
    *  newsworthy set, and the full list is one click away for "how did my own MP vote". */
   const [voteListMode, setVoteListMode] = useState<'flagged' | 'all'>('flagged');
-  const [pollLobbyingExpanded, setPollLobbyingExpanded] = useState(false);
+  const [pollLobbyingShown, setPollLobbyingShown] = useState(5);
+  const [pollLobbyingStatementFilter, setPollLobbyingStatementFilter] = useState<'all' | 'with' | 'without'>('all');
   // Multi-key, like the donations table: click order is priority order, so "Akteurstyp" then
   // "Gemeldete Lobbyausgaben" groups by type and orders by spend inside each group.
   const [orgsSort, setOrgsSort] = useState<MultiSortState>([]);
@@ -140,8 +143,8 @@ function App() {
   const [partyOrgsSort, setPartyOrgsSort] = useState<SortState>(null);
   const [partyDonationsSort, setPartyDonationsSort] = useState<MultiSortState>([]);
   const [partyDonationsDonorQuery, setPartyDonationsDonorQuery] = useState('');
-  const [partyDonationsExpanded, setPartyDonationsExpanded] = useState(false);
-  const [partyVotesExpanded, setPartyVotesExpanded] = useState(false);
+  const [partyDonationsShown, setPartyDonationsShown] = useState(10);
+  const [partyVotesShown, setPartyVotesShown] = useState(10);
   // The card itself is always shown on the Abstimmungen tab; this only controls whether the
   // vote list runs past the first six, which is the length that reads as a summary rather than
   // a data dump.
@@ -150,7 +153,7 @@ function App() {
   const [openDividedVotes, setOpenDividedVotes] = useState<Set<string>>(new Set());
   /** Divided votes whose deviator list is shown in full rather than capped at 20 names. */
   const [fullDeviatorLists, setFullDeviatorLists] = useState<Set<string>>(new Set());
-  const [partyTopicalExpanded, setPartyTopicalExpanded] = useState(false);
+  const [partyTopicalShown, setPartyTopicalShown] = useState(10);
   const [partyTopicalSearchQuery, setPartyTopicalSearchQuery] = useState('');
   const [partyTopicalFieldFilter, setPartyTopicalFieldFilter] = useState<Set<string>>(new Set());
   // Where the party detail page's back link should point — set by whichever entry point opened it.
@@ -497,7 +500,7 @@ function App() {
     setView('committee');
     setSelectedCommitteeId(id);
     setCommitteeMemberSearch('');
-    setCommitteeMembersExpanded(false);
+    setCommitteeMembersShown(12);
   };
   const openResults = (q: string) => {
     setResultsQuery(q.trim());
@@ -512,7 +515,7 @@ function App() {
     setView('profile');
     setSelectedMpId(id);
     setProfileTab('overview');
-    setVotesExpanded(false);
+    setVotesShown(10);
     // A filter set on one member's record would otherwise silently carry over to the next one,
     // hiding most of their divergences for a reason the reader never chose.
     setHistoryExpanded(false);
@@ -522,12 +525,13 @@ function App() {
   const openBill = (id: BillId) => {
     setView('bill');
     setSelectedBillId(id);
-    setFlaggedVotesExpanded(false);
-    setPollLobbyingExpanded(false);
+    setFlaggedVotesShown(10);
+    setPollLobbyingShown(5);
+    setPollLobbyingStatementFilter('all');
     setPollSummaryExpanded(false);
     setFlaggedVotesSearch('');
     setAllVotesSearch('');
-    setAllVotesExpanded(false);
+    setAllVotesShown(20);
     setVoteListMode('flagged');
     setPollLobbyingSearch('');
   };
@@ -544,9 +548,9 @@ function App() {
     setPartyDissentExpanded(false);
     setOpenDividedVotes(new Set());
     setFullDeviatorLists(new Set());
-    setPartyDonationsExpanded(false);
-    setPartyVotesExpanded(false);
-    setPartyTopicalExpanded(false);
+    setPartyDonationsShown(10);
+    setPartyVotesShown(10);
+    setPartyTopicalShown(10);
     setPartyOrigin(origin);
   };
   /** Opens a party page straight on its donations tab — used by the Sitzungswochen-Briefing. */
@@ -723,7 +727,7 @@ function App() {
   // the same rhythm as the page it mirrors — and so a run of votes on one day is visibly one day's
   // work rather than five unrelated rows. Sliced BEFORE grouping, so "show 10" still means ten
   // votes rather than ten weeks.
-  const visibleMandateVotes = mandateVotes.votes.slice(0, votesExpanded ? mandateVotes.votes.length : 10);
+  const visibleMandateVotes = mandateVotes.votes.slice(0, votesShown);
   const mandateVoteWeeks = (() => {
     const byWeek = new Map<string, { range: { start: Date; end: Date }; votes: typeof visibleMandateVotes }>();
     for (const v of visibleMandateVotes) {
@@ -738,7 +742,7 @@ function App() {
   const partyDissent = usePartyVoteHistory(selectedParty);
   // Same sitting-week grouping as the parliament-wide and per-member vote lists. Sliced before
   // grouping so "show 10" stays ten votes rather than ten weeks.
-  const visiblePartyVotes = partyVotes.votes.slice(0, partyVotesExpanded ? partyVotes.votes.length : 10);
+  const visiblePartyVotes = partyVotes.votes.slice(0, partyVotesShown);
   const partyVoteWeeks = (() => {
     const byWeek = new Map<string, { range: { start: Date; end: Date }; votes: typeof visiblePartyVotes }>();
     for (const v of visiblePartyVotes) {
@@ -839,7 +843,26 @@ function App() {
   const orgNetwork = useOrgPartyNetwork();
   const partyDonations = usePartyDonations();
   const pollLobbying = usePollLobbying(realPollId);
-  const filteredPollLobbying = pollLobbying.entries.filter((e) => fuzzyMatch(pollLobbyingSearch, e.org.name));
+  // Public hearings (current term only). Loaded once the vote is known to be a current-term one —
+  // keying on "not archived" would fetch while the archive lookup is still pending. A registered
+  // lobbyist's hearing statement is shown on its own card, joined on "same vote": the hearing
+  // shares a Drucksache with this poll.
+  const hearings = useHearings((view === 'bill' && currentPollDetail.result !== null) || view === 'org');
+  const pollStatements = useMemo(
+    () => (hearings.file && pollDetail.result && !isArchivedPoll ? statementsByOrgForDrucksachen(hearings.file, pollDetail.result.poll.drucksachen) : new Map<string, StatementRef[]>()),
+    [hearings.file, pollDetail.result, isArchivedPoll],
+  );
+  const lobbiedWithStatement = pollLobbying.entries.filter((e) => pollStatements.has(e.org.id)).length;
+  // Organisations that also submitted a statement first; otherwise the register's alphabetical order.
+  const filteredPollLobbying = pollLobbying.entries
+    // No search box is shown for ten or fewer, so a query left over from another bill must not filter.
+    .filter((e) => pollLobbying.entries.length <= 10 || fuzzyMatch(pollLobbyingSearch, e.org.name))
+    // The statement filter only exists while at least one organisation has a statement; a stale
+    // choice from another bill must not empty this one.
+    .filter((e) => lobbiedWithStatement === 0 || pollLobbyingStatementFilter === 'all' || pollStatements.has(e.org.id) === (pollLobbyingStatementFilter === 'with'))
+    .map((e, i) => ({ e, i }))
+    .sort((a, b) => Number(pollStatements.has(b.e.org.id)) - Number(pollStatements.has(a.e.org.id)) || a.i - b.i)
+    .map(({ e }) => e);
   const partyLobby = usePartyLobbySummary();
   // Only the sitting Bundestag fractions have their own party page (partyLobby.summaries is
   // scoped to those) — independents ("Fraktionslos") and parties that received large donations
@@ -859,6 +882,21 @@ function App() {
     searchQuery.trim().length >= MIN_QUERY_LENGTH;
   const lobbyDirectory = useLobbyDirectory(needsDirectory);
   const orgDetail = useOrgDetail(selectedOrgId, lobbyDirectory.orgs);
+  // The organisation's hearing statements on votes it registered lobbying on, keyed by poll id —
+  // same "same vote" rule as the bill page, read from the other side. Statements on anything
+  // else are listed separately below the cards (OrgHearings).
+  const orgPollStatements = useMemo(() => {
+    const out = new Map<number, StatementRef[]>();
+    const orgId = orgDetail.org?.id;
+    if (!hearings.file || !orgId) return out;
+    for (const lobbied of orgDetail.lobbiedPolls) {
+      const poll = pollsState.polls.find((p) => p.id === lobbied.pollId);
+      const refs = poll ? statementsByOrgForDrucksachen(hearings.file, poll.drucksachen).get(orgId) : undefined;
+      if (refs) out.set(lobbied.pollId, refs);
+    }
+    return out;
+  }, [hearings.file, orgDetail.org?.id, orgDetail.lobbiedPolls, pollsState.polls]);
+  const orgAttachedStatementUrls = new Set([...orgPollStatements.values()].flat().map((r) => r.statement.url));
   // Only the browsable list widens to the whole register; tie-based views keep their own scope.
   // Memoised because it merges and sorts ~6,000 entries, and this component re-renders on every
   // keystroke in the search box.
@@ -2483,14 +2521,7 @@ function App() {
                         ))}
                       </div>
                     </div>
-                    <ShowMoreButton
-                      total={mandateVotes.votes.length}
-                      defaultCount={10}
-                      expanded={votesExpanded}
-                      onToggle={() => setVotesExpanded((v) => !v)}
-                      showMoreTemplate={t.showMoreTemplate}
-                      showLessLabel={t.showLess}
-                    />
+                    <ShowMoreButton shown={votesShown} total={mandateVotes.votes.length} initial={10} onChange={setVotesShown} t={t} lang={lang} />
                   </>
                 ))}
 
@@ -2868,7 +2899,7 @@ function App() {
                   ) : (
                   <>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {filteredFlaggedVotes.slice(0, flaggedVotesExpanded ? filteredFlaggedVotes.length : 10).map((d, i) => {
+                    {filteredFlaggedVotes.slice(0, flaggedVotesShown).map((d, i) => {
                       const rm = mandateToMember.get(d.member.mandateId);
                       return (
                         <a
@@ -2916,14 +2947,7 @@ function App() {
                       );
                     })}
                   </div>
-                  <ShowMoreButton
-                    total={filteredFlaggedVotes.length}
-                    defaultCount={10}
-                    expanded={flaggedVotesExpanded}
-                    onToggle={() => setFlaggedVotesExpanded((v) => !v)}
-                    showMoreTemplate={t.showMoreTemplate}
-                    showLessLabel={t.showLess}
-                  />
+                  <ShowMoreButton shown={flaggedVotesShown} total={filteredFlaggedVotes.length} initial={10} onChange={setFlaggedVotesShown} t={t} lang={lang} />
                   </>
                   )}
                   </div>
@@ -2952,7 +2976,7 @@ function App() {
                       ) : (
                         <>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            {filteredAllVotes.slice(0, allVotesExpanded ? filteredAllVotes.length : 20).map((v) => {
+                            {filteredAllVotes.slice(0, allVotesShown).map((v) => {
                               // Only resolves for sitting members: mandateToMember is built from the
                               // current roster, so someone who left in 2013 stays unlinked rather
                               // than pointing at a page that does not exist.
@@ -3001,14 +3025,7 @@ function App() {
                               );
                             })}
                           </div>
-                          <ShowMoreButton
-                            total={filteredAllVotes.length}
-                            defaultCount={20}
-                            expanded={allVotesExpanded}
-                            onToggle={() => setAllVotesExpanded((v) => !v)}
-                            showMoreTemplate={t.showMoreTemplate}
-                            showLessLabel={t.showLess}
-                          />
+                          <ShowMoreButton shown={allVotesShown} total={filteredAllVotes.length} initial={20} onChange={setAllVotesShown} t={t} lang={lang} />
                         </>
                       )}
                     </div>
@@ -3035,52 +3052,104 @@ function App() {
                     <>
                       <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 12px' }}>
                         {t.pollLobbyingCountTemplate.replace('{n}', String(pollLobbying.entries.length))}
+                        {lobbiedWithStatement > 0 && <> <strong>{t.pollLobbyingStatementsTemplate.replace('{k}', String(lobbiedWithStatement))}</strong></>}
                       </p>
-                      <input
-                        type="text"
-                        value={pollLobbyingSearch}
-                        onChange={(e) => setPollLobbyingSearch(e.target.value)}
-                        placeholder={t.pollLobbyingSearchPlaceholder}
-                        style={{ width: '100%', maxWidth: 340, padding: '8px 11px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13, marginBottom: 10, boxSizing: 'border-box' }}
-                      />
+                      {/* A search box over a list that fits on screen is just clutter. */}
+                      {pollLobbying.entries.length > 10 && (
+                        <input
+                          type="text"
+                          value={pollLobbyingSearch}
+                          onChange={(e) => {
+                            setPollLobbyingSearch(e.target.value);
+                            setPollLobbyingShown(5);
+                          }}
+                          placeholder={t.pollLobbyingSearchPlaceholder}
+                          // display:block, so the statement filter below starts on its own line.
+                          style={{ display: 'block', width: '100%', maxWidth: 340, padding: '8px 11px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 9, fontSize: 13, marginBottom: 10, boxSizing: 'border-box' }}
+                        />
+                      )}
+                      {lobbiedWithStatement > 0 && (
+                        // Same segmented control as "Auffällige / Alle Stimmen" above, on its own line under
+                        // the search box. The visible label carries "Stellungnahme" so the pills can stay
+                        // short ("Mit (8)") and fit one line on a phone; if they ever do not, the label
+                        // wraps above them rather than the pills breaking mid-word.
+                        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 10px', marginBottom: 12 }}>
+                        <span style={{ fontSize: 12.5, fontWeight: 600, color: 'oklch(45% 0.01 260)' }}>{t.pollLobbyingFilterShort}</span>
+                        <div role="group" aria-label={t.pollLobbyingFilterLabel} style={{ display: 'inline-flex', maxWidth: '100%', whiteSpace: 'nowrap', border: '1px solid oklch(90% 0.006 260)', borderRadius: 16, overflow: 'hidden', fontSize: 12, fontWeight: 600 }}>
+                          {([
+                            ['all', t.pollLobbyingFilterAll, pollLobbying.entries.length],
+                            ['with', t.pollLobbyingFilterWith, lobbiedWithStatement],
+                            ['without', t.pollLobbyingFilterWithout, pollLobbying.entries.length - lobbiedWithStatement],
+                          ] as const).map(([key, label, count]) => (
+                            <button
+                              key={key}
+                              aria-pressed={pollLobbyingStatementFilter === key}
+                              onClick={() => {
+                                setPollLobbyingStatementFilter(key);
+                                setPollLobbyingShown(5);
+                              }}
+                              style={pillBtn(pollLobbyingStatementFilter === key)}
+                            >
+                              {label} ({count})
+                            </button>
+                          ))}
+                        </div>
+                        </div>
+                      )}
                       {filteredPollLobbying.length === 0 ? (
                         <p style={{ fontSize: 13, color: 'oklch(48% 0.01 260)', marginBottom: 12 }}>{t.searchNoResults}</p>
                       ) : (
                       <>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
-                        {filteredPollLobbying.slice(0, pollLobbyingExpanded ? filteredPollLobbying.length : 10).map((e) => {
+                        {filteredPollLobbying.slice(0, pollLobbyingShown).map((e) => {
                           const spend = formatExpenseBracket(e.org.expensesEuro);
+                          const statements = pollStatements.get(e.org.id);
+                          // A div with the name as the link, not one big <a>: the card can now
+                          // carry a link to the statement PDF, and links must not nest.
                           return (
-                            <a
+                            <div
                               key={e.org.id}
-                              href={orgHref(e.org.id)}
                               onClick={stop(() => openOrg(e.org.id))}
-                              style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit', display: 'block', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
+                              style={{ cursor: 'pointer', background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}
                             >
                               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
-                                <span style={{ fontSize: 13.5, fontWeight: 600 }}>{e.org.name}</span>
+                                <a href={orgHref(e.org.id)} onClick={stop(() => openOrg(e.org.id))} style={{ fontSize: 13.5, fontWeight: 600, textDecoration: 'none', color: 'inherit' }}>
+                                  {e.org.name}
+                                </a>
                                 {spend && <span style={{ fontSize: 11.5, color: 'oklch(50% 0.01 260)', flexShrink: 0 }}>{spend}</span>}
                               </div>
                               {e.demands.length > 0 && (
                                 <div style={{ fontSize: 12.5, color: 'oklch(45% 0.01 260)', marginTop: 4, fontStyle: 'italic' }}>„{e.demands[0]}“</div>
                               )}
-                            </a>
+                              {statements && <StatementLine refs={statements} t={t} lang={lang} />}
+                            </div>
                           );
                         })}
                       </div>
-                      <ShowMoreButton
-                        total={filteredPollLobbying.length}
-                        defaultCount={10}
-                        expanded={pollLobbyingExpanded}
-                        onToggle={() => setPollLobbyingExpanded((v) => !v)}
-                        showMoreTemplate={t.showMoreTemplate}
-                        showLessLabel={t.showLess}
-                      />
+                      <ShowMoreButton shown={pollLobbyingShown} total={filteredPollLobbying.length} initial={5} onChange={setPollLobbyingShown} t={t} lang={lang} />
                       </>
                       )}
                     </>
                   )}
                   </>
+                  )}
+
+                  {/* Public hearings that dealt with this vote's Drucksachen. Current term only:
+                      hearings are scraped for the sitting Bundestag, so for an archived vote the
+                      section would be empty for a reason unrelated to the bill. */}
+                  {!isArchivedPoll && hearings.error && (
+                    <p style={{ fontSize: 12.5, color: 'oklch(55% 0.01 260)', marginBottom: 20 }}>{t.hearingsLoadError}</p>
+                  )}
+                  {!isArchivedPoll && hearings.file && (
+                    <PollHearings
+                      file={hearings.file}
+                      drucksachen={pollDetail.result.poll.drucksachen}
+                      shownOrgIds={new Set(pollLobbying.entries.map((e) => e.org.id))}
+                      orgHref={orgHref}
+                      onOpenOrg={openOrg}
+                      t={t}
+                      lang={lang}
+                    />
                   )}
 
                   <a href={pollDetail.result.poll.url} target="_blank" rel="noreferrer" style={{ fontSize: 12.5, fontWeight: 700 }}>
@@ -3514,28 +3583,14 @@ function App() {
                         </table>
                       </ScrollBox>
                       {filteredOrgs.length > ORGS_INITIAL_COUNT && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 10, marginTop: 14 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 14 }}>
                           <span style={{ fontSize: 12, color: 'oklch(48% 0.01 260)' }}>
                             {t.orgsShownCountTemplate
-                              .replace('{shown}', String(Math.min(orgsVisibleCount, filteredOrgs.length)))
-                              .replace('{total}', String(filteredOrgs.length))}
+                              .replace('{shown}', Math.min(orgsVisibleCount, filteredOrgs.length).toLocaleString(lang === 'de' ? 'de-DE' : 'en-US'))
+                              .replace('{total}', filteredOrgs.length.toLocaleString(lang === 'de' ? 'de-DE' : 'en-US'))}
                           </span>
-                          {orgsVisibleCount < filteredOrgs.length && (
-                            <button
-                              onClick={() => setOrgsVisibleCount((n) => n + ORGS_PAGE_SIZE)}
-                              style={{ padding: '8px 18px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 20, background: 'white', fontSize: 12.5, fontWeight: 700, color: 'oklch(45% 0.16 265)', cursor: 'pointer' }}
-                            >
-                              {t.orgsShowMoreTemplate.replace('{n}', String(Math.min(ORGS_PAGE_SIZE, filteredOrgs.length - orgsVisibleCount)))}
-                            </button>
-                          )}
-                          {orgsVisibleCount > ORGS_INITIAL_COUNT && (
-                            <button
-                              onClick={() => setOrgsVisibleCount(ORGS_INITIAL_COUNT)}
-                              style={{ padding: '8px 18px', border: '1px solid oklch(85% 0.006 260)', borderRadius: 20, background: 'white', fontSize: 12.5, fontWeight: 700, color: 'oklch(45% 0.01 260)', cursor: 'pointer' }}
-                            >
-                              {t.showLess}
-                            </button>
-                          )}
+                          {/* Steps of 100, not 10: this is the whole register. */}
+                          <ShowMoreButton shown={orgsVisibleCount} total={filteredOrgs.length} initial={ORGS_INITIAL_COUNT} step={ORGS_PAGE_SIZE} onChange={setOrgsVisibleCount} t={t} lang={lang} />
                         </div>
                       )}
                     </>
@@ -3613,7 +3668,7 @@ function App() {
                               </tr>
                             </thead>
                             <tbody>
-                              {rows.slice(0, conflictsExpanded ? rows.length : 10).map((r) => {
+                              {rows.slice(0, conflictsShown).map((r) => {
                                 const label =
                                   r.conflict.vote === 'yes' ? t.voteYes : r.conflict.vote === 'no' ? t.voteNo : t.voteAbstain;
                                 return (
@@ -3677,14 +3732,7 @@ function App() {
                             </tbody>
                           </table>
                         </ScrollBox>
-                        <ShowMoreButton
-                          total={rows.length}
-                          defaultCount={10}
-                          expanded={conflictsExpanded}
-                          onToggle={() => setConflictsExpanded((v) => !v)}
-                          showMoreTemplate={t.showMoreTemplate}
-                          showLessLabel={t.showLess}
-                        />
+                        <ShowMoreButton shown={conflictsShown} total={rows.length} initial={10} onChange={setConflictsShown} t={t} lang={lang} />
                       </>
                     );
                   })()}
@@ -3783,7 +3831,7 @@ function App() {
                         </tr>
                       </thead>
                       <tbody>
-                        {sortedTopical.slice(0, topicalExpanded ? sortedTopical.length : 10).map((r) => {
+                        {sortedTopical.slice(0, topicalShown).map((r) => {
                           const label = r.tie.vote === 'yes' ? t.voteYes : r.tie.vote === 'no' ? t.voteNo : t.voteAbstain;
                           return (
                             <tr
@@ -3830,14 +3878,7 @@ function App() {
                       </tbody>
                     </table>
                   </ScrollBox>
-                  <ShowMoreButton
-                    total={filteredTopicalRows.length}
-                    defaultCount={10}
-                    expanded={topicalExpanded}
-                    onToggle={() => setTopicalExpanded((v) => !v)}
-                    showMoreTemplate={t.showMoreTemplate}
-                    showLessLabel={t.showLess}
-                  />
+                  <ShowMoreButton shown={topicalShown} total={filteredTopicalRows.length} initial={10} onChange={setTopicalShown} t={t} lang={lang} />
                 </>
                   );
                 })()
@@ -4014,7 +4055,7 @@ function App() {
                           </tr>
                         </thead>
                         <tbody>
-                          {sortedDonations.slice(0, donationsExpanded ? sortedDonations.length : 10).map((d, i) => {
+                          {sortedDonations.slice(0, donationsShown).map((d, i) => {
                             const lobbyOrgId = d.donor ? snapshot?.lobbyLinks.donorLinks[d.donor] : undefined;
                             const lobbyOrg = lobbyOrgId ? snapshot?.lobbyLinks.orgs[lobbyOrgId] : undefined;
                             const donorTotal = d.donor ? (partyDonations.donorTotalFor(d.donor) || d.amountEuro) : d.amountEuro;
@@ -4059,14 +4100,7 @@ function App() {
                         </tbody>
                       </table>
                     </ScrollBox>
-                    <ShowMoreButton
-                      total={sortedDonations.length}
-                      defaultCount={10}
-                      expanded={donationsExpanded}
-                      onToggle={() => setDonationsExpanded((v) => !v)}
-                      showMoreTemplate={t.showMoreTemplate}
-                      showLessLabel={t.showLess}
-                    />
+                    <ShowMoreButton shown={donationsShown} total={sortedDonations.length} initial={10} onChange={setDonationsShown} t={t} lang={lang} />
                   </>
                 );
               })()}
@@ -4204,45 +4238,9 @@ function App() {
                       </a>
                     ))}
                   </div>
-                  {orgMembersShown < orgDetail.affiliatedMembers.length ? (
-                    <button
-                      onClick={() => setOrgMembersShown((v) => Math.min(v + 10, orgDetail.affiliatedMembers.length))}
-                      style={{
-                        display: 'block',
-                        margin: '0 auto 26px',
-                        padding: '8px 18px',
-                        border: '1px solid oklch(85% 0.006 260)',
-                        borderRadius: 20,
-                        background: 'white',
-                        fontSize: 12.5,
-                        fontWeight: 700,
-                        color: 'oklch(45% 0.16 265)',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {t.showMoreText}
-                    </button>
-                  ) : (
-                    orgDetail.affiliatedMembers.length > 5 && (
-                      <button
-                        onClick={() => setOrgMembersShown(5)}
-                        style={{
-                          display: 'block',
-                          margin: '0 auto 26px',
-                          padding: '8px 18px',
-                          border: '1px solid oklch(85% 0.006 260)',
-                          borderRadius: 20,
-                          background: 'white',
-                          fontSize: 12.5,
-                          fontWeight: 700,
-                          color: 'oklch(45% 0.16 265)',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        {t.showLess}
-                      </button>
-                    )
-                  )}
+                  <div style={{ marginBottom: 26 }}>
+                    <ShowMoreButton shown={orgMembersShown} total={orgDetail.affiliatedMembers.length} initial={5} onChange={setOrgMembersShown} t={t} lang={lang} />
+                  </div>
                 </>
               )}
 
@@ -4278,9 +4276,23 @@ function App() {
                           })}
                         </div>
                       )}
+                      {orgPollStatements.has(p.pollId) && <StatementLine refs={orgPollStatements.get(p.pollId)!} t={t} lang={lang} />}
                     </div>
                   ))}
                 </div>
+              )}
+
+              {hearings.file && (
+                <OrgHearings
+                  file={hearings.file}
+                  orgId={orgDetail.org.id}
+                  attachedUrls={orgAttachedStatementUrls}
+                  polls={pollsState.polls}
+                  billHref={billHref}
+                  onOpenBill={openBill}
+                  t={t}
+                  lang={lang}
+                />
               )}
 
               {orgDetail.conflicts.length > 0 && (
@@ -4592,7 +4604,7 @@ function App() {
               ) : (
               <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px,1fr))', gap: 12 }}>
-                {filteredCommitteeMembers.slice(0, committeeMembersExpanded ? filteredCommitteeMembers.length : 12).map((row) => {
+                {filteredCommitteeMembers.slice(0, committeeMembersShown).map((row) => {
                   const roleLabel =
                     row.role === 'chairperson' ? t.committeeRoleChair
                     : row.role === 'acting_chairperson' ? t.committeeRoleActingChair
@@ -4642,14 +4654,7 @@ function App() {
                   );
                 })}
               </div>
-              <ShowMoreButton
-                total={filteredCommitteeMembers.length}
-                defaultCount={12}
-                expanded={committeeMembersExpanded}
-                onToggle={() => setCommitteeMembersExpanded((v) => !v)}
-                showMoreTemplate={t.showMoreTemplate}
-                showLessLabel={t.showLess}
-              />
+              <ShowMoreButton shown={committeeMembersShown} total={filteredCommitteeMembers.length} initial={12} onChange={setCommitteeMembersShown} t={t} lang={lang} />
               </>
               )}
             </>
@@ -5084,14 +5089,7 @@ function App() {
                             ))}
                           </div>
                         </div>
-                        <ShowMoreButton
-                          total={partyVotes.votes.length}
-                          defaultCount={10}
-                          expanded={partyVotesExpanded}
-                          onToggle={() => setPartyVotesExpanded((v) => !v)}
-                          showMoreTemplate={t.showMoreTemplate}
-                          showLessLabel={t.showLess}
-                        />
+                        <ShowMoreButton shown={partyVotesShown} total={partyVotes.votes.length} initial={10} onChange={setPartyVotesShown} t={t} lang={lang} />
                       </>
                     )}
                   </>
@@ -5247,7 +5245,7 @@ function App() {
                         ) : (
                         <>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 10 }}>
-                          {filteredPartyTopicalRows.slice(0, partyTopicalExpanded ? filteredPartyTopicalRows.length : 10).map((r) => {
+                          {filteredPartyTopicalRows.slice(0, partyTopicalShown).map((r) => {
                             const label = r.tie.vote === 'yes' ? t.voteYes : r.tie.vote === 'no' ? t.voteNo : t.voteAbstain;
                             return (
                               <a
@@ -5283,14 +5281,7 @@ function App() {
                             );
                           })}
                         </div>
-                        <ShowMoreButton
-                          total={filteredPartyTopicalRows.length}
-                          defaultCount={10}
-                          expanded={partyTopicalExpanded}
-                          onToggle={() => setPartyTopicalExpanded((v) => !v)}
-                          showMoreTemplate={t.showMoreTemplate}
-                          showLessLabel={t.showLess}
-                        />
+                        <ShowMoreButton shown={partyTopicalShown} total={filteredPartyTopicalRows.length} initial={10} onChange={setPartyTopicalShown} t={t} lang={lang} />
                         </>
                         )}
                       </>
@@ -5395,7 +5386,7 @@ function App() {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {sortedPartyDonations.slice(0, partyDonationsExpanded ? sortedPartyDonations.length : 10).map((d, i) => {
+                                  {sortedPartyDonations.slice(0, partyDonationsShown).map((d, i) => {
                                     const lobbyOrgId = d.donor ? snapshot?.lobbyLinks.donorLinks[d.donor] : undefined;
                                     const lobbyOrg = lobbyOrgId ? snapshot?.lobbyLinks.orgs[lobbyOrgId] : undefined;
                                     const donorTotal = d.donor ? (lookupDonorTotal(partyDonorTotals, d.donor, partyDonations.canonicalDonor) || d.amountEuro) : d.amountEuro;
@@ -5436,14 +5427,7 @@ function App() {
                                 </tbody>
                               </table>
                             </ScrollBox>
-                            <ShowMoreButton
-                              total={sortedPartyDonations.length}
-                              defaultCount={10}
-                              expanded={partyDonationsExpanded}
-                              onToggle={() => setPartyDonationsExpanded((v) => !v)}
-                              showMoreTemplate={t.showMoreTemplate}
-                              showLessLabel={t.showLess}
-                            />
+                            <ShowMoreButton shown={partyDonationsShown} total={sortedPartyDonations.length} initial={10} onChange={setPartyDonationsShown} t={t} lang={lang} />
                           </>
                         );
                       })()

@@ -510,14 +510,8 @@ export function SearchResultsPage({
                   return (
                     <>
                       <Grid>{cards.slice(0, shown)}</Grid>
-                      <ShowMoreButton
-                        total={cards.length}
-                        defaultCount={shown}
-                        expanded={false}
-                        onToggle={() => setShown((n) => n + PAGE * 3)}
-                        showMoreTemplate={t.resultsShowMoreTemplate.replace('{rest}', fmtInt(cards.length - shown))}
-                        showLessLabel={t.showLess}
-                      />
+                      {/* Steps of one page (30 cards), so the grid's rows stay full. */}
+                      <ShowMoreButton shown={shown} total={cards.length} initial={PAGE} step={PAGE} onChange={setShown} t={t} lang={lang} />
                     </>
                   );
                 })()}

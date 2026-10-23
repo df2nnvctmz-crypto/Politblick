@@ -1,0 +1,42 @@
+name: Fetch committee hearings
+
+on:
+  schedule:
+    # Weekly, the morning after the Sunday committee run. Hearings are announced a week or two
+    # ahead and their written statements trickle in around the hearing date, so a weekly crawl
+    # catches each one well before the bill comes to a vote. ~400 paced requests, ~5 minutes.
+    - cron: '0 5 * * 1'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-hearings
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # Exits non-zero — committing nothing — on any failed request or if the crawl finds far
+      # fewer hearings than the last snapshot (see MAX_SHRINK in the script).
+      - name: Fetch hearings from bundestag.de
+        run: node scripts/fetch-hearings.mjs
+
+      - name: Link statements to the Lobbyregister
+        run: node scripts/build-hearings.mjs
+
+      - uses: ./.github/actions/commit-data
+        with:
+          message: Update committee hearing data
+          paths: >-
+            data/hearings.json public/data/hearings.json public/data/meta.json

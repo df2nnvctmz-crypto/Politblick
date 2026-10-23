@@ -10,7 +10,7 @@ export interface Translation {
   searchGroupCommittees: string; searchGroupBriefings: string; searchSeeAllResultsTemplate: string; searchLoadingOrgs: string;
   resultsTitle: string; resultsHeadingTemplate: string; resultsCountTemplate: string; resultsCountOne: string; resultsPrompt: string; resultsNoneTemplate: string;
   resultsOrgSpendTemplate: string; resultsOrgLinked: string; resultsBriefingTemplate: string; resultsCommitteeMembersTemplate: string; resultsArchivedTemplate: string; metaResultsDescription: string;
-  resultsAll: string; resultsShowAllTemplate: string; resultsShowMoreTemplate: string; resultsOrgLinkedShort: string; resultsOrgScopeAll: string; resultsOrgScopeLinked: string;
+  resultsAll: string; resultsShowAllTemplate: string; resultsOrgLinkedShort: string; resultsOrgScopeAll: string; resultsOrgScopeLinked: string;
   resultsFilterButton: string; resultsFilterScope: string; resultsFilterSort: string; resultsFilterTerm: string; resultsFilterParty: string;
   resultsCategory: string;
   resultsSortRelevance: string; resultsSortSpend: string; resultsBillsAll: string; resultsBillsCurrent: string; resultsBillsArchive: string; resultsAllParties: string;
@@ -62,7 +62,7 @@ export interface Translation {
   datenUpdatedTemplate: string; datenDownloadLabel: string; datenNoTimestamp: string; datenSourceLabel: string;
   datasets: {
     file: string; name: string; description: string; source: string; sourceUrl: string | null;
-    metaKey: 'coreGeneratedAt' | 'sidejobsGeneratedAt' | 'lobbyRegisterGeneratedAt' | 'partyDonationsGeneratedAt' | 'committeesGeneratedAt' | 'voteHistoryGeneratedAt' | null;
+    metaKey: 'coreGeneratedAt' | 'sidejobsGeneratedAt' | 'lobbyRegisterGeneratedAt' | 'partyDonationsGeneratedAt' | 'committeesGeneratedAt' | 'hearingsGeneratedAt' | 'voteHistoryGeneratedAt' | null;
   }[];
   rosterLoading: string; rosterUpdated: string; rosterError: string; rosterRetry: string;
   viewOnAbgeordnetenwatch: string; loadingProfile: string; profileNotFound: string;
@@ -94,6 +94,13 @@ export interface Translation {
   lobbyNoPositionNote: string; lobbyOrgSpend: string; lobbyOrgStaff: string;
   lobbyRegisterSource: string; lobbyNoContactsNote: string;
   pollLobbyingTitle: string; pollLobbyingCountTemplate: string; pollLobbyingNone: string; pollLobbyingArchived: string;
+  pollHearingsTitle: string; pollHearingsSub: string; hearingCommitteeTemplate: string; hearingSharedTemplate: string;
+  hearingCountTemplate: string; hearingCountShownAboveTemplate: string; hearingShowStatementsTemplate: string; hearingHideStatements: string;
+  hearingSearchPlaceholder: string; hearingAlsoLobbiedTag: string; hearingVoteLinkTemplate: string;
+  pollLobbyingFilterLabel: string; pollLobbyingFilterShort: string; pollLobbyingFilterAll: string; pollLobbyingFilterWith: string; pollLobbyingFilterWithout: string; hearingRegisterShort: string; hearingNoStatements: string; pollLobbyingStatementsTemplate: string;
+  statementLineTemplate: string; statementLineNoDate: string; drucksacheShortTemplate: string; orgMoreHearingsTitle: string;
+  hearingRegisterTag: string; hearingStatementPdf: string; hearingExpertList: string; hearingSourceLink: string;
+  hearingMethodNote: string; hearingScopeTemplate: string; hearingScopeNoDate: string; hearingsLoadError: string; orgHearingsTitle: string; orgHearingsSub: string;
   flaggedVotesSearchPlaceholder: string; pollLobbyingSearchPlaceholder: string; searchNoResults: string;
   donationSankeyTitle: string; donationSankeySub: string;
   donationSankeyNoteTemplate: string; donationSankeyExcludedTemplate: string;
@@ -165,7 +172,7 @@ export interface Translation {
   lobbyOnCommitteeTemplate: string;
   lobbyTabOverview: string; lobbyTabTies: string; lobbyTabOrgs: string;
   tiesTabTitle: string; tiesTabSub: string;
-  orgsShowMoreTemplate: string; orgsShownCountTemplate: string;
+  orgsShownCountTemplate: string;
   lobbyTabDonations: string;
   lobbySectionLabel: string;
   statOrgsReferencedLabel: string; statConflictsLabel: string;
@@ -181,7 +188,7 @@ export interface Translation {
   seatsLabel: string;
   networkSub: string; networkToggleCrossParty: string; networkToggleAll: string;
   networkOrgCountTemplate: string; networkViewOrg: string; networkViewParty: string; networkEmpty: string;
-  showMoreTemplate: string; showLess: string;
+  listMoreTemplate: string; listAllTemplate: string; listLess: string; listMoreAria: string; listAllAria: string; showLess: string;
   infoVerflechtung: string; infoAuffaelligkeit: string; infoThemenfeld: string;
   lobbyTiesSubTabNetwork: string; lobbyTiesSubTabByParty: string;
   lobbyOrgsSubTabDistribution: string; lobbyOrgsSubTabFields: string; lobbyOrgsSubTabList: string;
@@ -300,7 +307,6 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     resultsFilterTerm: 'Wahlperiode',
     resultsFilterParty: 'Fraktion',
     resultsShowAllTemplate: 'Alle {n} anzeigen',
-    resultsShowMoreTemplate: 'Weitere anzeigen ({rest} übrig)',
     resultsOrgLinkedShort: 'Bezug zum Bundestag',
     resultsOrgScopeAll: 'Alle Organisationen',
     resultsOrgScopeLinked: 'Mit Bezug zum Bundestag',
@@ -416,6 +422,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       { file: '/data/vote-history.json', name: 'Abstimmungsarchiv (abgeschlossene Wahlperioden)', description: 'Das Stimmverhalten jedes Abgeordneten bei jeder namentlichen Abstimmung der abgeschlossenen Wahlperioden seit 2005. Kompakt kodiert: pro Abstimmung ein Zeichen je Mitglied für die Stimme und eines für die damalige Fraktion. Die laufende Wahlperiode steht in den Dateien oben.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/vote', metaKey: 'voteHistoryGeneratedAt' },
       { file: '/data/vote-history-summary.json', name: 'Langzeit-Bilanz je Abgeordnete/r', description: 'Aus dem Archiv abgeleitete Kennzahlen pro Person: Zahl der bewerteten Abstimmungen, Abweichungen von der eigenen Fraktionslinie und der Fraktionsschnitt bei denselben Abstimmungen. Enthält keine Einzelstimmen — nur Summen, damit die Startseite nicht das ganze Archiv laden muss.', source: 'Ableitung von Politblick aus dem Abstimmungsarchiv', sourceUrl: null, metaKey: 'voteHistoryGeneratedAt' },
       { file: '/data/committees.json', name: 'Ausschüsse', description: 'Bundestagsausschüsse und ihre Mitglieder — dient intern dazu, thematische Übereinstimmungen mit einer Ausschusszuständigkeit zu kennzeichnen.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/committee', metaKey: 'committeesGeneratedAt' },
+      { file: '/data/hearings.json', name: 'Öffentliche Anhörungen', description: 'Öffentliche Anhörungen der Bundestagsausschüsse, die behandelten Drucksachen und die eingereichten schriftlichen Stellungnahmen. Ein Lobbyregister-Eintrag ist nur bei exakt gleichem Namen zugeordnet.', source: 'bundestag.de', sourceUrl: 'https://www.bundestag.de/ausschuesse', metaKey: 'hearingsGeneratedAt' },
     ],
     disclaimerTitle: 'Hinweis zu den Daten',
     disclaimerBody: 'Alle auf Politblick dargestellten Informationen stammen aus öffentlich zugänglichen Quellen (Abgeordnetenwatch, Bundestag-Open-Data, Lobbyregister des Deutschen Bundestages, Veröffentlichungen der Bundestagspräsidentin zu Großspenden) und werden automatisiert zusammengeführt.\n\nWichtig zum Thema Lobbyismus: In Deutschland gibt es kein öffentliches Verzeichnis von Treffen zwischen Interessenvertretern und Abgeordneten. Politblick kann und will daher nicht zeigen, wer sich mit wem getroffen hat. Dargestellt werden ausschließlich Eigenerklärungen — einerseits von Organisationen, die im Lobbyregister angeben, zu welcher Drucksache sie Interessenvertretung betreiben, andererseits von Abgeordneten, die ihre Funktionen, Beteiligungen und Zuwendungen anzeigen müssen. Wo beides dieselbe Abstimmung betrifft, wird das als Überschneidung ausgewiesen.\n\nDas Lobbyregister verzeichnet nicht, ob eine Organisation für oder gegen ein Vorhaben war. Eine Aussage wie "stimmte gegen die Position dieser Organisation" erscheint deshalb nur dort, wo eine belegte Position redaktionell erfasst und mit Quelle hinterlegt wurde. Ansonsten steht das Anliegen im Wortlaut der Organisation, ohne Richtungsangabe.\n\nDie Daten zu Abgeordneten, Abstimmungen und Fraktionstreue werden alle paar Stunden automatisch aktualisiert; Nebeneinkünfte und Parteispenden einmal täglich, das Lobbyregister wöchentlich. Das Archiv abgeschlossener Wahlperioden (2005–2025) ändert sich nicht mehr und wird deshalb nur einmal erhoben. Politblick zeigt also nicht den Stand in Echtzeit, sondern den Stand der letzten automatischen Aktualisierung — den genauen Zeitpunkt sehen Sie am Seitenende.\n\nTrotz sorgfältiger Aufbereitung übernehmen wir keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität der Angaben. Insbesondere Abweichungen von der Fraktionslinie und als "Verflechtung" gekennzeichnete Verknüpfungen stellen statistische Beobachtungen dar, keine Tatsachenbehauptungen über Absicht oder Fehlverhalten einzelner Personen. Eine Abweichung ist für sich genommen weder ungewöhnlich noch vorwerfbar — sie wird deshalb nie ohne die Zahl der zugrunde liegenden Abstimmungen und den Vergleichswert der eigenen Fraktion gezeigt.\n\nFür verbindliche Aussagen konsultieren Sie bitte die genannten Primärquellen. Politblick übernimmt keine Haftung für Entscheidungen, die auf Basis dieser Daten getroffen werden.',
@@ -489,6 +496,39 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     lobbyNoContactsNote:
       'Hinweis: In Deutschland gibt es kein öffentliches Verzeichnis von Treffen zwischen Interessenvertretern und Abgeordneten. Alle Angaben hier beruhen auf Eigenerklärungen — der Organisationen im Lobbyregister und der Abgeordneten zu ihren Nebentätigkeiten.',
     pollLobbyingTitle: 'Angemeldete Interessenvertretung zu dieser Abstimmung',
+    pollHearingsTitle: 'Öffentliche Anhörung im Ausschuss',
+    pollHearingsSub: 'Bevor über einen Gesetzentwurf abgestimmt wird, befragt der zuständige Ausschuss oft Sachverständige. Hier steht, wer dazu eine schriftliche Stellungnahme eingereicht hat.',
+    hearingCommitteeTemplate: 'Ausschuss: {committee}',
+    hearingSharedTemplate: 'zu Drucksache {numbers}',
+    hearingNoStatements: 'Zu dieser Anhörung sind auf bundestag.de (noch) keine schriftlichen Stellungnahmen eingestellt.',
+    hearingRegisterTag: 'Im Lobbyregister – zur Seite der Organisation',
+    hearingRegisterShort: 'Register',
+    hearingShowStatementsTemplate: 'Alle {n} Stellungnahmen anzeigen',
+    hearingHideStatements: 'Stellungnahmen ausblenden',
+    hearingSearchPlaceholder: 'Name suchen…',
+    pollLobbyingFilterLabel: 'Nach Stellungnahme filtern',
+    pollLobbyingFilterAll: 'Alle',
+    pollLobbyingFilterShort: 'Stellungnahme:',
+    pollLobbyingFilterWith: 'Mit',
+    pollLobbyingFilterWithout: 'Ohne',
+    hearingVoteLinkTemplate: 'Zur Abstimmung: {title}',
+    hearingAlsoLobbiedTag: 'Auch angemeldet',
+    hearingCountTemplate: '{n} schriftliche Stellungnahmen.',
+    hearingCountShownAboveTemplate: '{n} schriftliche Stellungnahmen, {k} davon oben bei den angemeldeten Organisationen.',
+    pollLobbyingStatementsTemplate: '{k} davon haben auch eine schriftliche Stellungnahme zur öffentlichen Anhörung eingereicht.',
+    statementLineTemplate: 'Stellungnahme zur Anhörung am {date}',
+    statementLineNoDate: 'Stellungnahme zur Anhörung',
+    drucksacheShortTemplate: 'Drs. {numbers}',
+    orgMoreHearingsTitle: 'Weitere Stellungnahmen in Anhörungen',
+    hearingStatementPdf: 'Stellungnahme (PDF)',
+    hearingExpertList: 'Liste der Sachverständigen (PDF)',
+    hearingSourceLink: 'Anhörung auf bundestag.de',
+    hearingScopeTemplate: 'Angehört wurde am {date} zur damals vorliegenden Fassung. Was der Ausschuss danach geändert oder eingefügt hat, war nicht Gegenstand der Anhörung – auch dann nicht, wenn hier darüber abgestimmt wurde.',
+    hearingScopeNoDate: 'Angehört wurde zur damals vorliegenden Fassung. Was der Ausschuss danach geändert oder eingefügt hat, war nicht Gegenstand der Anhörung – auch dann nicht, wenn hier darüber abgestimmt wurde.',
+    hearingMethodNote: 'Namen stehen so da, wie der Bundestag sie veröffentlicht. Eine Stellungnahme zeigt, dass sich jemand geäußert hat – nicht, ob dafür oder dagegen; das steht im verlinkten Dokument. Mit dem Lobbyregister wird nur verknüpft, wenn der Name übereinstimmt – abgesehen von Rechtsform (e. V., GmbH), Satzzeichen und einem angehängten Kürzel wie „(DGB)“. Fehlt die Verknüpfung, kann die Organisation trotzdem registriert sein. Stellungnahmen von Einzelpersonen werden nie der Institution zugerechnet, bei der sie arbeiten.',
+    hearingsLoadError: 'Die Anhörungen konnten nicht geladen werden.',
+    orgHearingsTitle: 'Stellungnahmen in öffentlichen Anhörungen',
+    orgHearingsSub: 'Anhörungen, die nicht schon oben bei einer Abstimmung stehen. Erfasst sind Stellungnahmen, die der Bundestag unter dem Namen dieses Registereintrags veröffentlicht hat (Rechtsform und Kürzel dürfen abweichen); unter anders geschriebenem Namen fehlen sie.',
     pollLobbyingCountTemplate: '{n} Organisationen haben zu den Drucksachen dieser Abstimmung Interessenvertretung angemeldet.',
     pollLobbyingNone: 'Zu den Drucksachen dieser Abstimmung ist keine Interessenvertretung im Register angemeldet.',
     pollLobbyingArchived: 'Für Abstimmungen aus abgeschlossenen Wahlperioden wird keine Interessenvertretung ausgewiesen: Das Lobbyregister besteht erst seit 2022, und die Verknüpfung von Organisationen zu Drucksachen deckt nur die laufende Wahlperiode ab. Dass hier nichts steht, sagt nichts über Lobbyarbeit zu diesem Gesetz aus.',
@@ -612,7 +652,6 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     lobbyTabOverview: 'Übersicht', lobbyTabTies: 'Verflechtungen', lobbyTabOrgs: 'Lobbyorganisationen',
     tiesTabTitle: 'Verflechtungen',
     tiesTabSub: 'Wo sich Bundestag und eingetragene Interessenvertretungen berühren: welche Abgeordneten laut eigener Angabe eine Funktion bei einer Organisation ausüben, und bei welchen Abstimmungen sich das mit dem Gegenstand der Abstimmung überschneidet.',
-    orgsShowMoreTemplate: 'Weitere {n} anzeigen',
     orgsShownCountTemplate: '{shown} von {total} angezeigt',
     lobbyTabDonations: 'Parteispenden',
     lobbySectionLabel: 'Bereich',
@@ -646,7 +685,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     networkOrgCountTemplate: '{n} Organisationen im Netzwerk',
     networkViewOrg: 'Organisation ansehen', networkViewParty: 'Partei ansehen',
     networkEmpty: 'Für diese Auswahl sind keine Organisationen mit Parteibezug erfasst.',
-    showMoreTemplate: 'Alle {n} anzeigen', showLess: 'Weniger anzeigen',
+    listMoreTemplate: '{n} weitere', listAllTemplate: 'Alle {n}', listLess: 'Weniger', listMoreAria: '{n} weitere Einträge anzeigen', listAllAria: 'Alle {n} Einträge anzeigen', showLess: 'Weniger anzeigen',
     infoVerflechtung:
       'Ein:e Abgeordnete:r übt eine Funktion oder Beteiligung bei einer Organisation aus — oder erhielt eine Zuwendung von ihr —, die zu genau dieser Abstimmung Interessenvertretung im Lobbyregister angemeldet hat. Eine statistische Beobachtung, keine Unterstellung von Fehlverhalten.',
     infoAuffaelligkeit:
@@ -817,7 +856,6 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     resultsFilterTerm: 'Term',
     resultsFilterParty: 'Group',
     resultsShowAllTemplate: 'Show all {n}',
-    resultsShowMoreTemplate: 'Show more ({rest} left)',
     resultsOrgLinkedShort: 'Linked to the Bundestag',
     resultsOrgScopeAll: 'All organisations',
     resultsOrgScopeLinked: 'Linked to the Bundestag',
@@ -933,6 +971,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       { file: '/data/vote-history.json', name: 'Vote archive (completed terms)', description: 'How every member voted in every recorded vote of the completed terms since 2005. Compactly encoded: one character per member for the vote and one for the fraction they sat in at the time. The current term is in the files above.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/vote', metaKey: 'voteHistoryGeneratedAt' },
       { file: '/data/vote-history-summary.json', name: 'Long-term record per member', description: 'Aggregates derived from the archive: rated votes, divergences from the member’s own fraction line, and that fraction’s average on the same votes. Carries no individual votes — totals only, so the landing page need not load the whole archive.', source: 'Derived by Politblick from the vote archive', sourceUrl: null, metaKey: 'voteHistoryGeneratedAt' },
       { file: '/data/committees.json', name: 'Committees', description: 'Bundestag committees and their members — used internally to flag topical matches with committee jurisdiction.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/committee', metaKey: 'committeesGeneratedAt' },
+      { file: '/data/hearings.json', name: 'Public hearings', description: 'Public hearings of Bundestag committees, the printed matters they dealt with and the written statements submitted. A Lobbyregister entry is assigned only on an exact name match.', source: 'bundestag.de', sourceUrl: 'https://www.bundestag.de/ausschuesse', metaKey: 'hearingsGeneratedAt' },
     ],
     disclaimerTitle: 'Data disclaimer',
     disclaimerBody: 'All information shown on Politblick comes from publicly available sources (Abgeordnetenwatch, Bundestag open data, the German Bundestag lobby register, and the President of the Bundestag’s publications of large donations) and is aggregated automatically.\n\nImportant, on lobbying: Germany publishes no register of meetings between lobbyists and MPs. Politblick therefore cannot and does not attempt to show who met whom. What is shown are self-declarations only — by organizations, which state in the lobby register which printed matter they lobby on, and by MPs, who must declare their positions, shareholdings and donations received. Where the two concern the same vote, that is reported as an overlap.\n\nThe lobby register does not record whether an organization was for or against a proposal. A statement such as "voted against this organization’s position" therefore appears only where a sourced position has been recorded editorially. Otherwise the organization’s aim is shown in its own words, with no direction attached.\n\nMP, voting and fraction-loyalty data refresh automatically every few hours; outside income and party donations once daily; the lobby register weekly. The archive of completed terms (2005–2025) no longer changes and is therefore collected once. Politblick therefore does not show a live, real-time state — it shows the state as of the last automatic update, timestamped at the bottom of the page.\n\nDespite careful processing, we make no guarantee as to the accuracy, completeness, or currency of the information. In particular, divergences from a fraction line and links labeled as "ties" represent statistical observations, not factual claims about any individual’s intent or wrongdoing. A single divergence is neither unusual nor blameworthy on its own — which is why it is never shown without the number of votes it is drawn from and the member’s own fraction average for comparison.\n\nFor authoritative information, please consult the primary sources listed. Politblick accepts no liability for decisions made based on this data.',
@@ -1006,6 +1045,39 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     lobbyNoContactsNote:
       'Note: Germany publishes no register of meetings between lobbyists and MPs. Everything shown here rests on self-declarations — by organizations in the lobby register, and by MPs about their outside roles.',
     pollLobbyingTitle: 'Registered lobbying on this vote',
+    pollHearingsTitle: 'Public committee hearing',
+    pollHearingsSub: 'Before a bill is voted on, the committee in charge often hears outside experts. These are the written statements submitted for that hearing.',
+    hearingCommitteeTemplate: 'Committee: {committee}',
+    hearingSharedTemplate: 'on printed matter {numbers}',
+    hearingNoStatements: 'No written statements have been posted on bundestag.de for this hearing (yet).',
+    hearingRegisterTag: 'In the Lobbyregister – open the organisation page',
+    hearingRegisterShort: 'Register',
+    hearingShowStatementsTemplate: 'Show all {n} statements',
+    hearingHideStatements: 'Hide statements',
+    hearingSearchPlaceholder: 'Search a name…',
+    pollLobbyingFilterLabel: 'Filter by statement',
+    pollLobbyingFilterAll: 'All',
+    pollLobbyingFilterShort: 'Hearing statement:',
+    pollLobbyingFilterWith: 'With',
+    pollLobbyingFilterWithout: 'Without',
+    hearingVoteLinkTemplate: 'Go to the vote: {title}',
+    hearingAlsoLobbiedTag: 'Also registered',
+    hearingCountTemplate: '{n} written statements.',
+    hearingCountShownAboveTemplate: '{n} written statements, {k} of them shown above with the registered organisations.',
+    pollLobbyingStatementsTemplate: '{k} of them also submitted a written statement to the public hearing.',
+    statementLineTemplate: 'Statement to the hearing on {date}',
+    statementLineNoDate: 'Statement to the hearing',
+    drucksacheShortTemplate: 'printed matter {numbers}',
+    orgMoreHearingsTitle: 'Further statements in hearings',
+    hearingStatementPdf: 'Statement (PDF)',
+    hearingExpertList: 'List of experts (PDF)',
+    hearingSourceLink: 'Hearing on bundestag.de',
+    hearingScopeTemplate: 'The hearing on {date} covered the text as it stood then. Anything the committee changed or added afterwards was not part of it, even if that is what this vote was on.',
+    hearingScopeNoDate: 'The hearing covered the text as it stood then. Anything the committee changed or added afterwards was not part of it, even if that is what this vote was on.',
+    hearingMethodNote: 'Names appear as the Bundestag publishes them. A statement shows that someone commented, not whether for or against; that is in the linked document. A Lobbyregister link is only made when the name matches, apart from legal form (e. V., GmbH), punctuation and a trailing acronym like "(DGB)". Without one, the organisation may still be registered. Statements by individuals are never attributed to the institution they work for.',
+    hearingsLoadError: 'The hearings could not be loaded.',
+    orgHearingsTitle: 'Statements in public hearings',
+    orgHearingsSub: 'Hearings not already shown above with a vote. Covers statements the Bundestag published under the name of this register entry (legal form and acronym may differ); statements under a differently spelled name are missing.',
     pollLobbyingCountTemplate: '{n} organizations registered lobbying on the printed matters behind this vote.',
     pollLobbyingNone: 'No registered lobbying is on file for the printed matters behind this vote.',
     pollLobbyingArchived: 'Lobbying is not shown for votes from completed terms: the Lobbyregister only exists since 2022, and the organisation-to-bill join covers the current term alone. The absence of entries here says nothing about lobbying on this bill.',
@@ -1129,7 +1201,6 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     lobbyTabOverview: 'Overview', lobbyTabTies: 'Ties', lobbyTabOrgs: 'Lobby organizations',
     tiesTabTitle: 'Ties',
     tiesTabSub: 'Where the Bundestag and registered interest representatives meet: which MPs declare holding a role at an organization, and which votes overlap with what those organizations lobbied on.',
-    orgsShowMoreTemplate: 'Show {n} more',
     orgsShownCountTemplate: '{shown} of {total} shown',
     lobbyTabDonations: 'Party donations',
     lobbySectionLabel: 'Section',
@@ -1163,7 +1234,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     networkOrgCountTemplate: '{n} organizations in the network',
     networkViewOrg: 'View organization', networkViewParty: 'View party',
     networkEmpty: 'No organizations with a party tie are on file for this selection.',
-    showMoreTemplate: 'Show all {n}', showLess: 'Show less',
+    listMoreTemplate: '{n} more', listAllTemplate: 'All {n}', listLess: 'Less', listMoreAria: 'Show {n} more entries', listAllAria: 'Show all {n} entries', showLess: 'Show less',
     infoVerflechtung:
       'An MP holds a role or shareholding at an organization — or received a payment from it — that registered lobbying on the printed matter behind this exact vote. A statistical observation, not an accusation of wrongdoing.',
     infoAuffaelligkeit:

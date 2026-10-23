@@ -39,6 +39,11 @@ jobs:
       - name: Rebuild lobby cross-references
         run: node scripts/build-lobby-links.mjs
 
+      # Hearing statements are linked to register entries by name, so a register refresh
+      # (new entries, renamed ones) can add or remove links without a new hearings crawl.
+      - name: Relink hearing statements
+        run: node scripts/build-hearings.mjs
+
       # The Sitzungswochen-Briefing inherits its generatedAt from lobby-links.json too, so the
       # rebuild above leaves it stale — and verify-stories.mjs fails the next deploy on a
       # data-less checkout only when polls.json is present, otherwise it's a no-op.
@@ -49,5 +54,5 @@ jobs:
         with:
           message: Update Lobbyregister data
           paths: >-
-            data/lobby-register.json public/data/lobby-links.json
+            data/lobby-register.json public/data/lobby-links.json public/data/hearings.json
             public/data/stories.json public/data/stories public/data/meta.json

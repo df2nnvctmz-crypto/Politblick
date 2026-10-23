@@ -24,6 +24,7 @@ export interface SnapshotMeta {
   lobbyRegisterGeneratedAt: string | null;
   partyDonationsGeneratedAt: string | null;
   committeesGeneratedAt: string | null;
+  hearingsGeneratedAt: string | null;
   voteHistoryGeneratedAt: string | null;
 }
 
@@ -146,6 +147,7 @@ async function buildSnapshot(): Promise<Snapshot> {
       lobbyRegisterGeneratedAt: null,
       partyDonationsGeneratedAt: null,
       committeesGeneratedAt: null,
+      hearingsGeneratedAt: null,
       voteHistoryGeneratedAt: null,
     })),
   ]);

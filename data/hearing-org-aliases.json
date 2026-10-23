@@ -1,0 +1,10 @@
+{
+  "_readme": [
+    "Hand-reviewed links from a hearing statement's author, exactly as bundestag.de prints it, to a Lobbyregister id.",
+    "build-hearings.mjs links only on an exact normalised name (plus a trailing acronym or a city that matches the register's own city). Everything else stays unlinked and is shown in the Bundestag's own wording.",
+    "Add an entry only after opening both the statement PDF and the register entry and confirming they are the same body - not a member, branch, or sister organisation.",
+    "A value of null records a reviewed 'do not link': use it when the automatic rule would link a name that is in fact a different body.",
+    "Every id is checked against the register on each build; an unknown id fails the build."
+  ],
+  "aliases": {}
+}
