@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-23T07:40:56.898Z",
+ "generatedAt": "2026-10-26T10:51:55.377Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
   {
@@ -11,8 +11,8 @@
    "drucksachen": [
     "21/7155"
    ],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1225568",
@@ -23,8 +23,8 @@
    "drucksachen": [
     "21/2803"
    ],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1223022",
@@ -35,8 +35,8 @@
    "drucksachen": [
     "21/7403"
    ],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1224108",
@@ -45,8 +45,8 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-11-11",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1224110/261111_sv_liste.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1224110/261111_sv_liste.pdf",
+   "statements": []
   },
   {
    "id": "1225570",
@@ -57,8 +57,8 @@
    "drucksachen": [
     "21/8412"
    ],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1224908",
@@ -69,8 +69,8 @@
    "drucksachen": [
     "21/8236"
    ],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1223144",
@@ -79,8 +79,14 @@
    "committee": "Umwelt, Klimaschutz, Naturschutz und nukleare Sicherheit",
    "date": "2026-11-04",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1229442/SV-Liste.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1229442/SV-Liste.pdf",
+   "statements": [
+    {
+     "label": "Stellungnahme Dr. Annette Röttger, Physikalisch-Technische Bundesanstalt (PTB), A-Drs. 21(16)168-A",
+     "url": "https://www.bundestag.de/resource/blob/1229672/Stellungnahme-Dr-Annette-Roettger.pdf",
+     "number": "21(16)168"
+    }
+   ]
   },
   {
    "id": "1223192",
@@ -91,8 +97,8 @@
    "drucksachen": [
     "21/8284"
    ],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1223196/Sachverstaendigenliste-Wohngeld-Reform.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1223196/Sachverstaendigenliste-Wohngeld-Reform.pdf",
+   "statements": []
   },
   {
    "id": "1223450",
@@ -101,8 +107,8 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-11-04",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1224066/261104_sv_liste.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1224066/261104_sv_liste.pdf",
+   "statements": []
   },
   {
    "id": "1223712",
@@ -113,8 +119,8 @@
    "drucksachen": [
     "21/8277"
    ],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1223714/sachverstaendigenliste-TKGAe.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1223714/sachverstaendigenliste-TKGAe.pdf",
+   "statements": []
   },
   {
    "id": "1223924",
@@ -123,8 +129,8 @@
    "committee": "Tourismus",
    "date": "2026-11-04",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1223928/Liste-der-SV-angefragt.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1223928/Liste-der-SV-angefragt.pdf",
+   "statements": []
   },
   {
    "id": "1224900",
@@ -135,8 +141,8 @@
    "drucksachen": [
     "21/8285"
    ],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1225284",
@@ -150,8 +156,8 @@
     "21/8378",
     "21/6645"
    ],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1225752",
@@ -164,8 +170,8 @@
     "21/8050",
     "21/2738"
    ],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1225754/Anlage-2-Liste-Auskunftspersonen.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1225754/Anlage-2-Liste-Auskunftspersonen.pdf",
+   "statements": []
   },
   {
    "id": "1224898",
@@ -177,8 +183,8 @@
     "21/8238",
     "21/8366"
    ],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1225250",
@@ -191,8 +197,8 @@
     "21/3248",
     "21/8391"
    ],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1225280",
@@ -204,8 +210,8 @@
     "21/8283",
     "21/3025"
    ],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1225340",
@@ -217,8 +223,8 @@
     "21/7700",
     "21/585"
    ],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1229382/SV-Liste.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1229382/SV-Liste.pdf",
+   "statements": []
   },
   {
    "id": "1225342",
@@ -229,8 +235,8 @@
    "drucksachen": [
     "21/3844"
    ],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1229388/SV-Liste.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1229388/SV-Liste.pdf",
+   "statements": []
   },
   {
    "id": "1225566",
@@ -241,8 +247,14 @@
    "drucksachen": [
     "21/8239"
    ],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1229358/Sachverstaendigenliste.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1229358/Sachverstaendigenliste.pdf",
+   "statements": [
+    {
+     "label": "21(13)61a - Waltraud Weegmann - Vorsitzende, Geschäftsführerin Bundesverband freier unabhängiger Träger von Kindertagesstätten e.V. (Deutscher Kitaverband)",
+     "url": "https://www.bundestag.de/resource/blob/1229510/Ausschussdrucksache-21-13-61a.pdf",
+     "number": "21(13)61"
+    }
+   ]
   },
   {
    "id": "1194334",
@@ -253,6 +265,7 @@
    "drucksachen": [
     "21/7824"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1216782/SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)124a - Stellungnahme Prof. Dr. Remo Klinger",
@@ -284,8 +297,7 @@
      "url": "https://www.bundestag.de/resource/blob/1225506/21-6-124f-Lange.pdf",
      "number": "21(6)124"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1216782/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1216992",
@@ -302,6 +314,7 @@
     "21/6924",
     "21/7896"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1221612/SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)125a - Stellungnahme Dr. jur. Christian J. Osthus",
@@ -333,8 +346,7 @@
      "url": "https://www.bundestag.de/resource/blob/1224732/21-6-125f-Haeublein.pdf",
      "number": "21(6)125"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1221612/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1217466",
@@ -347,6 +359,7 @@
     "21/8302",
     "21/8395"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1222860/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)388 Stellungnahme der Bundesvereinigung der kommunalen Spitzenverbände",
@@ -393,8 +406,7 @@
      "url": "https://www.bundestag.de/resource/blob/1224564/Stellungnahme_SV_Ulrich_Moeller_Rebalance_Now_eV.pdf",
      "number": "21(9)408"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1222860/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1221614",
@@ -406,6 +418,7 @@
     "21/6586",
     "21/7559"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1224064/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)401 Stellungnahme der Sachverständigen Elvira Iannone, Bundesverband der Dolmetscher und Übersetzer e.V. (BDÜ)",
@@ -427,8 +440,7 @@
      "url": "https://www.bundestag.de/resource/blob/1224572/Stellungnahme_SV_Dr-_Martin_Gornig.pdf",
      "number": "21(9)410"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1224064/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1222918",
@@ -443,6 +455,7 @@
     "21/1746",
     "21/1751"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1222926/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Verbraucherzentrale Bundesverband (vzbv)",
@@ -599,8 +612,7 @@
      "url": "https://www.bundestag.de/resource/blob/1224786/21-14-00115-30-BAG-Selbsthilfe-Innovation-nicht-barrierefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1222926/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1223034",
@@ -611,6 +623,7 @@
    "drucksachen": [
     "21/2116"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1224488/Liste-der-Sachverstaendigen.pdf",
    "statements": [
     {
      "label": "Stellungnahme des Einzelsachverständigen Felix Drewes",
@@ -627,8 +640,7 @@
      "url": "https://www.bundestag.de/resource/blob/1223044/05_Stellungnahme-DBV.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1224488/Liste-der-Sachverstaendigen.pdf"
+   ]
   },
   {
    "id": "1223244",
@@ -639,6 +651,7 @@
    "drucksachen": [
     "21/7820"
    ],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Daniela Beaujean, VAUNET – Verband Privater Medien",
@@ -675,8 +688,7 @@
      "url": "https://www.bundestag.de/resource/blob/1224150/Stellungnahme-Prof-Dr-Schroeder.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1224372",
@@ -685,8 +697,8 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2026-10-14",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1194566",
@@ -697,6 +709,7 @@
    "drucksachen": [
     "21/7860"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1194602/liste_sachverstaendige.pdf",
    "statements": [
     {
      "label": "Prof. Dr. Hanno Kube, LL.M. - Ruprecht-Karls-Universität Heidelberg",
@@ -748,8 +761,7 @@
      "url": "https://www.bundestag.de/resource/blob/1224106/Prof-Dr-Dr-Ulrike-Malmendier.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1194602/liste_sachverstaendige.pdf"
+   ]
   },
   {
    "id": "1221656",
@@ -760,6 +772,7 @@
    "drucksachen": [
     "21/8274"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1222480/Sachverstaendigenliste-12-10-2026.pdf",
    "statements": [
     {
      "label": "21(13)52 - Daniel Thomsen - Leiter Fachbereich Jugend, Familie und Bildung im Kreis Nordfriesland",
@@ -801,8 +814,7 @@
      "url": "https://www.bundestag.de/resource/blob/1223898/21-13-57g.pdf",
      "number": "21(13)57"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1222480/Sachverstaendigenliste-12-10-2026.pdf"
+   ]
   },
   {
    "id": "1222460",
@@ -816,6 +828,7 @@
     "21/8127",
     "21/8301"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1222534/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme - Deutscher Gewerkschaftsbund",
@@ -852,8 +865,7 @@
      "url": "https://www.bundestag.de/resource/blob/1223906/21-11-130-Materialzusammenstellung.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1222534/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1223060",
@@ -866,6 +878,7 @@
     "21/8295",
     "21/8114"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1223172/SV-Liste-Anhoerung-12-10-2026.pdf",
    "statements": [
     {
      "label": "21(4)233 A - Stellungnahme Prof. Dr. Markus Löffelmann - Hochschule des Bundes für öffentliche Verwaltung - Nachrichtendienstrecht - BT-Drucksachen 21/7868, 21/8295",
@@ -962,8 +975,7 @@
      "url": "https://www.bundestag.de/resource/blob/1224234/21-4-238-Stellungnahme-Spitzenverband-Fachaerztinnen-und-Fachaerzte-Deutschlands-Nachrichtendienstrecht-21-7868.pdf",
      "number": "21(4)238"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1223172/SV-Liste-Anhoerung-12-10-2026.pdf"
+   ]
   },
   {
    "id": "1217464",
@@ -974,6 +986,7 @@
    "drucksachen": [
     "21/6810"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1222928/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)387 Stellungnahme des AGDW - Die Waldeigentümer e.V.",
@@ -1010,8 +1023,7 @@
      "url": "https://www.bundestag.de/resource/blob/1223504/Stellungnahme_SV_Dr-_Schindler_DBFZ_gGmbH.pdf",
      "number": "21(9)398"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1222928/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1223324",
@@ -1020,8 +1032,8 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2026-10-09",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1223332/expertenliste.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1223332/expertenliste.pdf",
+   "statements": []
   },
   {
    "id": "1218060",
@@ -1030,8 +1042,8 @@
    "committee": "Bildung, Familie, Senioren, Frauen und Jugend",
    "date": "2026-10-08",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1194328",
@@ -1043,6 +1055,7 @@
     "21/7060",
     "21/7561"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1217486/SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)123a - Stellungnahme Dr. Jörg Grotkopp",
@@ -1064,8 +1077,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222922/21-6-123d-Schneider-Addae-Mensah.pdf",
      "number": "21(6)123"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1217486/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1210022",
@@ -1076,6 +1088,7 @@
    "drucksachen": [
     "21/7300"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1217592/261007_liste_sv.pdf",
    "statements": [
     {
      "label": "Deutscher Olympischer Sportbund",
@@ -1102,8 +1115,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222328/261007_dlv.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1217592/261007_liste_sv.pdf"
+   ]
   },
   {
    "id": "1210038",
@@ -1112,6 +1124,7 @@
    "committee": "Tourismus",
    "date": "2026-10-07",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1221724/Liste-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme Benedikt Esser, Präsident RDA Internationaler Bustouristik Verband e.V.",
@@ -1133,8 +1146,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222696/Stellungnahme-Nagel.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1221724/Liste-SV.pdf"
+   ]
   },
   {
    "id": "1215394",
@@ -1145,6 +1157,7 @@
    "drucksachen": [
     "21/7869"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1221618/SV-Liste.pdf",
    "statements": [
     {
      "label": "Stellungnahme Bundesverband Feuerverzinken e.V. (BVF), A-Drs. 21(16)149-A",
@@ -1191,8 +1204,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222878/Stellungnahme-FOeS.pdf",
      "number": "21(16)149"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1221618/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1216984",
@@ -1204,6 +1216,7 @@
     "21/6581",
     "21/7154"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1217424/SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)122a - Stellungnahme Christoph Brill",
@@ -1240,8 +1253,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222916/21-6-122g-Stn-Limmer.pdf",
      "number": "21(6)122"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1217424/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1217454",
@@ -1256,6 +1268,7 @@
     "21/8121",
     "21/8299"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1221738/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)369 Stellungnahme des Bundesverband WindEnergie e.V.",
@@ -1297,8 +1310,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222882/Stellungnahme_BNE.pdf",
      "number": "21(9)377"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1221738/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1217950",
@@ -1307,8 +1319,8 @@
    "committee": "Bildung, Familie, Senioren, Frauen und Jugend",
    "date": "2026-10-07",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1221930",
@@ -1319,6 +1331,7 @@
    "drucksachen": [
     "21/6808"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1221940/Anlage-2-Liste-Auskunftspersonen-AeA-GKV-Beitragssatzstabilisierungsgesetz.pdf",
    "statements": [
     {
      "label": "AOK Bundesverband",
@@ -1530,8 +1543,7 @@
      "url": "https://www.bundestag.de/resource/blob/1223088/21-14-00108-37-KBV-GKV-nicht-barrierefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1221940/Anlage-2-Liste-Auskunftspersonen-AeA-GKV-Beitragssatzstabilisierungsgesetz.pdf"
+   ]
   },
   {
    "id": "1222092",
@@ -1540,8 +1552,8 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2026-10-07",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1222322/sachverstaendigenliste.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1222322/sachverstaendigenliste.pdf",
+   "statements": []
   },
   {
    "id": "1216764",
@@ -1552,6 +1564,7 @@
    "drucksachen": [
     "21/7408"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1217008/sachverstaendigenliste-DIdG.pdf",
    "statements": [
     {
      "label": "Stellungnahme Prof. Dr.-Ing. habil. Jürgen Anke (Hochschule für Technik und Wirtschaft Dresden) zur 33. Sitzung am 6. Oktober 2026 (Öffentliche Anhörung) \"Digitale Identitätengesetz (DIdG)\"",
@@ -1598,8 +1611,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222492/Stellungnahme-DIdG_kom-Spitzenverbaende-6-10-2026.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1217008/sachverstaendigenliste-DIdG.pdf"
+   ]
   },
   {
    "id": "1194314",
@@ -1611,6 +1623,7 @@
     "21/7560",
     "21/551"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1209430/SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)120a - Stellungnahme Prof. Dr. Jörg Eisele",
@@ -1637,8 +1650,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222346/21-6-120e-Grimm.pdf",
      "number": "21(6)120"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1209430/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1194322",
@@ -1649,6 +1661,7 @@
    "drucksachen": [
     "21/7558"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1209432/SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)121a - Stellungnahme Frank Bornemann",
@@ -1670,8 +1683,7 @@
      "url": "https://www.bundestag.de/resource/blob/1225502/21-6-121d-Oehmichen.pdf",
      "number": "21(6)121"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1209432/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1215508",
@@ -1682,6 +1694,7 @@
    "drucksachen": [
     "21/7404"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1215510/Liste-der-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Stellungnahme von Dr. Ingo Koßmann (Bundesanstalt für Straßen- und Verkehrswesen)",
@@ -1718,8 +1731,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222076/Stellungnahme-Engelhardt-BGL.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1215510/Liste-der-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1216340",
@@ -1733,6 +1745,7 @@
     "21/8125",
     "21/8296"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1217412/SV-Liste.pdf",
    "statements": [
     {
      "label": "01 - Bonfig, JProf. Dr. Anja, Pädagogische Hochschule Schwäbisch Gmünd",
@@ -1769,8 +1782,7 @@
      "url": "https://www.bundestag.de/resource/blob/1221682/08-Verbraucherzentrale-Bundesverband-e-V-.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1217412/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1216962",
@@ -1782,6 +1794,7 @@
     "21/6585",
     "21/7406"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1218008/SV-Liste-Anhoerung-Cybersicherheit-05-10-2026.pdf",
    "statements": [
     {
      "label": "21(4)221 A - Stellungnahme Dr. Sven Herpig - Interface, Cybersicherheit und Neue Bedrohungen - Cybersicherheit - BT-Drucksachen 21/6585, 21/7406",
@@ -1828,8 +1841,7 @@
      "url": "https://www.bundestag.de/resource/blob/1221856/21-4-224-Stellungnahme-ISC2-Cybersicherheit-21-6585.pdf",
      "number": "21(4)224"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1218008/SV-Liste-Anhoerung-Cybersicherheit-05-10-2026.pdf"
+   ]
   },
   {
    "id": "1216976",
@@ -1842,6 +1854,7 @@
     "21/6669",
     "21/4538"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1218106/SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)119a - Stellungnahme Dr. Sigrid Arnade",
@@ -1878,8 +1891,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222350/21-6-119g-Baer.pdf",
      "number": "21(6)119"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1218106/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1217132",
@@ -1890,6 +1902,7 @@
    "drucksachen": [
     "21/6805"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1218012/SV-Liste-Anhoerung-Vereinsgesetz-05-10-2026.pdf",
    "statements": [
     {
      "label": "21(4)223 A - Stellungnahme Prof. Dr. Christine Schirrmacher - Universität Bonn - Vereinsgesetz - BT-Drucksache 21/6805",
@@ -1926,8 +1939,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222366/21-4-223-G-Stellungnahme-Prof-Dr-J-D-Roggenkamp-Vereinsgesetz-21-6805.pdf",
      "number": "21(4)223"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1218012/SV-Liste-Anhoerung-Vereinsgesetz-05-10-2026.pdf"
+   ]
   },
   {
    "id": "1217406",
@@ -1938,6 +1950,7 @@
    "drucksachen": [
     "21/7859"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1217418/SV-Liste.pdf",
    "statements": [
     {
      "label": "01 - AOK-Bundesverband",
@@ -1984,8 +1997,7 @@
      "url": "https://www.bundestag.de/resource/blob/1222246/09-VdR.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1217418/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1217432",
@@ -2001,6 +2013,7 @@
     "21/8119",
     "21/8298"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1221616/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)359 Stellungnahme Deutsche Industrie- und Handelskammer",
@@ -2042,8 +2055,7 @@
      "url": "https://www.bundestag.de/resource/blob/1225184/Stellungnahme_ARGE-NETZ.pdf",
      "number": "21(9)418"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1221616/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1217440",
@@ -2056,6 +2068,7 @@
     "21/8111",
     "21/8139"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1221736/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)358 Stellungnahme der Deutschen Unternehmensinitiative Energieeffizienz e.V. und des DENEFF EDL_HUB gGmbH",
@@ -2102,8 +2115,7 @@
      "url": "https://www.bundestag.de/resource/blob/1224382/Stellungnahme_DIHK.pdf",
      "number": "21(9)378"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1221736/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1194302",
@@ -2114,6 +2126,7 @@
    "drucksachen": [
     "21/6584"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1205600/SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)111a - Stellungnahme Dr. Ina Holznagel",
@@ -2150,8 +2163,7 @@
      "url": "https://www.bundestag.de/resource/blob/1216778/21-6-111g-Haertel.pdf",
      "number": "21(6)111"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1205600/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1198096",
@@ -2162,6 +2174,7 @@
    "drucksachen": [
     "21/6588"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1198100/Sachverstaendigenliste-BauGB-Novelle.pdf",
    "statements": [
     {
      "label": "Stellungnahme SV Prof. Dr. Mathias Hellriegel LL.M. (Hellriegel Rechtsanwälte) - A-Drs. 21(24)150-A",
@@ -2208,8 +2221,7 @@
      "url": "https://www.bundestag.de/resource/blob/1198106/Stellungnahme-SV-Schulte.pdf",
      "number": "21(24)150"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1198100/Sachverstaendigenliste-BauGB-Novelle.pdf"
+   ]
   },
   {
    "id": "1201622",
@@ -2218,6 +2230,7 @@
    "committee": "Tourismus",
    "date": "2026-09-23",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1216128/Liste-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme Roland Streicher, Inhaber ReNatour - natürlich reisen, Nürnberg",
@@ -2249,8 +2262,7 @@
      "url": "https://www.bundestag.de/resource/blob/1216644/Stellungnahme-Freudenberg.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1216128/Liste-SV.pdf"
+   ]
   },
   {
    "id": "1205990",
@@ -2261,6 +2273,7 @@
    "drucksachen": [
     "21/6343"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1209264/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "KLUG – Deutsche Allianz Klimawandel und Gesundheit",
@@ -2307,8 +2320,7 @@
      "url": "https://www.bundestag.de/resource/blob/1216918/21-14-00104-Prof-Dr-Traidl-Hoffmann-Hitzekrise.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1209264/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1209736",
@@ -2319,6 +2331,7 @@
    "drucksachen": [
     "21/7300"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1209738/260923_liste_sv.pdf",
    "statements": [
     {
      "label": "Deutscher Landkreistag und Deutscher Städte- und Gemeindebund",
@@ -2330,8 +2343,7 @@
      "url": "https://www.bundestag.de/resource/blob/1211164/260923_dst.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1209738/260923_liste_sv.pdf"
+   ]
   },
   {
    "id": "1216208",
@@ -2340,8 +2352,8 @@
    "committee": "Bildung, Familie, Senioren, Frauen und Jugend",
    "date": "2026-09-23",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1210144",
@@ -2358,6 +2370,7 @@
     "21/6913",
     "21/6917"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1211662/SV-Liste-digitale-Ermittlungsbefugnisse-Stand-18-09-2026.pdf",
    "statements": [
     {
      "label": "21(26)46(neu)-4 - Gutachtliche Stellungnahme - Parlamentarischer Beirat für nachhaltige Entwicklung und Zukunftsfragen - Digitale Ermittlungsbefugnisse - BT-Drucksache 21/6806",
@@ -2409,8 +2422,7 @@
      "url": "https://www.bundestag.de/resource/blob/1216472/21-4-214-H-Stellungnahme-H-Danisch-digitale-Ermittlungsbefugnisse-21-6131-21-6132-21-6806-u-w-o-K.pdf",
      "number": "21(4)214"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1211662/SV-Liste-digitale-Ermittlungsbefugnisse-Stand-18-09-2026.pdf"
+   ]
   },
   {
    "id": "1206682",
@@ -2421,6 +2433,7 @@
    "drucksachen": [
     "21/6809"
    ],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme des Einzelsachverständigen Dr. Kai Braunmiller",
@@ -2452,8 +2465,7 @@
      "url": "https://www.bundestag.de/resource/blob/1211004/06-Stellgn_DLT.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1205988",
@@ -2465,6 +2477,7 @@
     "21/5822",
     "21/6808"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1206088/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Berufsverband Deutscher Anästhesistinnen und Anästhesisten (BDA)",
@@ -2676,8 +2689,7 @@
      "url": "https://www.bundestag.de/resource/blob/1216582/21-14-102-40-Stellungnahme-RettungsdienstKatastrophenschutz.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1206088/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1205008",
@@ -2689,6 +2701,7 @@
     "21/6587",
     "21/7821"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1206438/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)333 Stellungnahme des BDEW Bundesverband der Energie- und Wasserwirtschaft e.V.",
@@ -2725,8 +2738,7 @@
      "url": "https://www.bundestag.de/resource/blob/1210240/Stellungnahme_Stadtwerke_Muenchen.pdf",
      "number": "21(9)339"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1206438/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1206680",
@@ -2738,6 +2750,7 @@
     "21/6135",
     "21/6811"
    ],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme der Einzelsachverständigen Emma André",
@@ -2764,8 +2777,7 @@
      "url": "https://www.bundestag.de/resource/blob/1210104/06-Stellgn_VKU.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1184196",
@@ -2780,6 +2792,7 @@
     "21/6009",
     "21/5568"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1184198/260708_liste_sv.pdf",
    "statements": [
     {
      "label": "Trainerakademie Köln des DOSB",
@@ -2801,8 +2814,7 @@
      "url": "https://www.bundestag.de/resource/blob/1193870/260708_dbs.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1184198/260708_liste_sv.pdf"
+   ]
   },
   {
    "id": "1187796",
@@ -2811,6 +2823,7 @@
    "committee": "Menschenrechte und humanitäre Hilfe",
    "date": "2026-07-08",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme des Sachverständigen Dr. Martin Frick",
@@ -2847,8 +2860,7 @@
      "url": "https://www.bundestag.de/resource/blob/1194100/Stellungnahme-SV-Suedhoff.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1193244",
@@ -2857,6 +2869,7 @@
    "committee": "Kultur und Medien",
    "date": "2026-07-08",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Prof. Dr. Axel Drecoll, Stiftung Brandenburgische Gedenkstätten",
@@ -2878,8 +2891,7 @@
      "url": "https://www.bundestag.de/resource/blob/1194128/Stellungnahme-Prof-Dr-Oliver-von-Wrochem.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1193320",
@@ -2888,8 +2900,8 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2026-07-08",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1184142",
@@ -2900,6 +2912,7 @@
    "drucksachen": [
     "21/6133"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1184820/SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)104a - Stellungnahme Wolf-Christian Hingst",
@@ -2936,8 +2949,7 @@
      "url": "https://www.bundestag.de/resource/blob/1194300/21-6-104g-Stn-Heger.pdf",
      "number": "21(6)104"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1184820/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1184146",
@@ -2948,6 +2960,7 @@
    "drucksachen": [
     "21/6214"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1187776/SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)106a - Stellungnahme Dilken Çelebi",
@@ -2974,8 +2987,7 @@
      "url": "https://www.bundestag.de/resource/blob/1193492/21-6-106e-Funke.pdf",
      "number": "21(6)106"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1187776/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1191806",
@@ -2986,6 +2998,7 @@
    "drucksachen": [
     "21/6561"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1193022/SV-Liste.pdf",
    "statements": [
     {
      "label": "Bund der Versicherten e. V.",
@@ -3007,8 +3020,7 @@
      "url": "https://www.bundestag.de/resource/blob/1193096/06-PKV.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1193022/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1183944",
@@ -3023,6 +3035,7 @@
     "21/6009",
     "21/5568"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1184194/260624_liste_sv.pdf",
    "statements": [
     {
      "label": "Charlotte Stapenhorst, Athletin",
@@ -3074,8 +3087,7 @@
      "url": "https://www.bundestag.de/resource/blob/1191352/260624_aufarbeitungskommission.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1184194/260624_liste_sv.pdf"
+   ]
   },
   {
    "id": "1184264",
@@ -3089,6 +3101,7 @@
     "21/6369",
     "21/6563"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1187774/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)294 Stellungnahme des Verbands kommunaler Unternehmen e.V. (VKU)",
@@ -3120,8 +3133,7 @@
      "url": "https://www.bundestag.de/resource/blob/1193086/Stellungnahme_Bundesverband_Energiespeicher_Systeme.pdf",
      "number": "21(9)307"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1187774/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1187794",
@@ -3130,6 +3142,7 @@
    "committee": "Kultur und Medien",
    "date": "2026-06-24",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Florian Bolenius, Kinematheksverbund",
@@ -3146,8 +3159,7 @@
      "url": "https://www.bundestag.de/resource/blob/1191802/Stellungnahme-Hollmann-Richter-Scholze.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1174478",
@@ -3161,6 +3173,7 @@
     "21/5335",
     "21/5569"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1183474/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme - Handelsverband Deutschland - HDE - e. V.",
@@ -3202,8 +3215,7 @@
      "url": "https://www.bundestag.de/resource/blob/1187876/21-11-121-Materialzusammenstellung.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1183474/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1181798",
@@ -3214,6 +3226,7 @@
    "drucksachen": [
     "21/6215"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1183746/041_SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)96a - Stellungnahme Dr. Henning Hartwig",
@@ -3235,8 +3248,7 @@
      "url": "https://www.bundestag.de/resource/blob/1191236/Stellungnahme_96d_El-Hammouri.pdf",
      "number": "21(6)96"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1183746/041_SV-Liste.pdf"
+   ]
   },
   {
    "id": "1183612",
@@ -3248,6 +3260,7 @@
     "21/5874",
     "21/6003"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1183616/SV-Liste.pdf",
    "statements": [
     {
      "label": "Bundesagentur für Arbeit",
@@ -3279,8 +3292,7 @@
      "url": "https://www.bundestag.de/resource/blob/1187780/08-VkFDtschl-.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1183616/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1184240",
@@ -3292,6 +3304,7 @@
     "21/6128",
     "21/6564"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1187770/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)280 Stellungnahme Patrick Kaczmarczyk, Ph.D., Universität Mannheim",
@@ -3313,8 +3326,7 @@
      "url": "https://www.bundestag.de/resource/blob/1191170/Stellungnahme_50_Hertz_TenneT_Transnet_BW.pdf",
      "number": "21(9)292"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1187770/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1184258",
@@ -3329,6 +3341,7 @@
     "21/6278",
     "21/6565"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1187772/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)281 Stellungnahme GEULEN & KLINGER Rechtsanwälte PartmbB",
@@ -3380,8 +3393,7 @@
      "url": "https://www.bundestag.de/resource/blob/1190916/Stellungnahme_Dt-Staedtetag.pdf",
      "number": "21(9)286"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1187772/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1184692",
@@ -3398,6 +3410,7 @@
     "21/5753",
     "21/5487"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1184826/Anlage-2-Liste-Auskunftspersonen-GKV-Beitragssatzstabilisierungsgesetz.pdf",
    "statements": [
     {
      "label": "Kassenärztliche Bundesvereinigung (KBV)",
@@ -3739,8 +3752,7 @@
      "url": "https://www.bundestag.de/resource/blob/1191366/21-14-0092-62-Prof-Dr-Karagiannidis-GKV-nicht-barrierefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1184826/Anlage-2-Liste-Auskunftspersonen-GKV-Beitragssatzstabilisierungsgesetz.pdf"
+   ]
   },
   {
    "id": "1174336",
@@ -3751,6 +3763,7 @@
    "drucksachen": [
     "21/5923"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1182132/040_SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)95a - Stellungnahme Julian Kulaga",
@@ -3787,8 +3800,7 @@
      "url": "https://www.bundestag.de/resource/blob/1183902/Stellungnahme_95g_Vangerow.pdf",
      "number": "21(6)95"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1182132/040_SV-Liste.pdf"
+   ]
   },
   {
    "id": "1174686",
@@ -3797,6 +3809,7 @@
    "committee": "Tourismus",
    "date": "2026-06-10",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1174850/Liste-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme Michael Höflich, Geschäftsführer Tourismus Initiative München (TIM) e.V.",
@@ -3818,8 +3831,7 @@
      "url": "https://www.bundestag.de/resource/blob/1183246/Stellungnahme-Goertz-Meissner.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1174850/Liste-SV.pdf"
+   ]
   },
   {
    "id": "1182488",
@@ -3828,6 +3840,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-06-10",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1182490/260610_sv_liste.pdf",
    "statements": [
     {
      "label": "Katholische junge Gemeinde",
@@ -3849,8 +3862,7 @@
      "url": "https://www.bundestag.de/resource/blob/1183320/260610_dbb.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1182490/260610_sv_liste.pdf"
+   ]
   },
   {
    "id": "1182800",
@@ -3863,6 +3875,7 @@
     "21/1749",
     "21/2229"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1183220/Anlage-2-Liste-Auskunftspersonen-Stand-3-6-26.pdf",
    "statements": [
     {
      "label": "Dr. Thilo Weichert",
@@ -3939,8 +3952,7 @@
      "url": "https://www.bundestag.de/resource/blob/1184024/21-14-0091-BfDI-Stellungnahme-zur-Anhoerung-Medizinregistergesetz.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1183220/Anlage-2-Liste-Auskunftspersonen-Stand-3-6-26.pdf"
+   ]
   },
   {
    "id": "1183408",
@@ -3949,8 +3961,8 @@
    "committee": "Bildung, Familie, Senioren, Frauen und Jugend",
    "date": "2026-06-10",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1166348",
@@ -3959,6 +3971,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-05-20",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1166638/260520_sv_liste.pdf",
    "statements": [
     {
      "label": "Bildungsinitiative SPREUWEIZEN",
@@ -3985,8 +3998,7 @@
      "url": "https://www.bundestag.de/resource/blob/1178726/260520_elkw.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1166638/260520_sv_liste.pdf"
+   ]
   },
   {
    "id": "1174278",
@@ -3997,6 +4009,7 @@
    "drucksachen": [
     "21/218"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1174280/sachverstaendigenliste-Reallabore.pdf",
    "statements": [
     {
      "label": "Stellungnahme Lajla Fetic zur 27. Sitzung am 20. Mai 2026 (Öffentliche Anhörung) \"Reallabore\"",
@@ -4033,8 +4046,7 @@
      "url": "https://www.bundestag.de/resource/blob/1178688/Stellungnahme-Reallabore_-BfDI-20-05-2026.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1174280/sachverstaendigenliste-Reallabore.pdf"
+   ]
   },
   {
    "id": "1174410",
@@ -4045,6 +4057,7 @@
    "drucksachen": [
     "21/5440"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1178448/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "Stellungnahme der Deutschen Industrie- und Handelskammer (DIHK)",
@@ -4086,8 +4099,7 @@
      "url": "https://www.bundestag.de/resource/blob/1179124/Stellungnahme_DUH.pdf",
      "number": "21(9)262"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1178448/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1174432",
@@ -4100,6 +4112,7 @@
     "21/1568",
     "21/1571"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1174454/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Bundespsychotherapeutenkammer",
@@ -4126,8 +4139,7 @@
      "url": "https://www.bundestag.de/resource/blob/1182138/21-14-0086-5-DPtV-PsychoVersorgung-nicht-barriefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1174454/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1177896",
@@ -4136,6 +4148,7 @@
    "committee": "Kultur und Medien",
    "date": "2026-05-20",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Dr.-Ing. Christina Krafczyk, Bundesstiftung Baukultur",
@@ -4162,8 +4175,7 @@
      "url": "https://www.bundestag.de/resource/blob/1178620/Stellungnahme-Wendland.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1174334",
@@ -4172,6 +4184,7 @@
    "committee": "Finanzen",
    "date": "2026-05-18",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1177838/SV-Liste.pdf",
    "statements": [
     {
      "label": "Arbeitsgemeinschaft Deutscher Verkehrsflughäfen e. V.",
@@ -4223,8 +4236,7 @@
      "url": "https://www.bundestag.de/resource/blob/1178492/10-VCD.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1177838/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1174384",
@@ -4235,6 +4247,7 @@
    "drucksachen": [
     "21/5141"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1178494/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)246 Stellungnahme des Cradle to Cradle - Wiege zur Wiege e.V.",
@@ -4246,8 +4259,7 @@
      "url": "https://www.bundestag.de/resource/blob/1178600/Stellungnahme_Runder_Tisch_Reparatur_eV.pdf",
      "number": "21(9)247"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1178494/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1158130",
@@ -4256,6 +4268,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-05-06",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1158132/260506_sv_liste.pdf",
    "statements": [
     {
      "label": "Deutscher Turner-Bund",
@@ -4287,8 +4300,7 @@
      "url": "https://www.bundestag.de/resource/blob/1173932/260506_teamsportd_unangefordert.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1158132/260506_sv_liste.pdf"
+   ]
   },
   {
    "id": "1161926",
@@ -4297,6 +4309,7 @@
    "committee": "Tourismus",
    "date": "2026-05-06",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1161924/Liste-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme Ali Doğan, Landrat Kreis Minden-Lübbecke; Ordentliches Mitglied des Aufsichtsrats von Tourismus NRW e.V.",
@@ -4323,8 +4336,7 @@
      "url": "https://www.bundestag.de/resource/blob/1173260/Stellungnahme-Welskop.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1161924/Liste-SV.pdf"
+   ]
   },
   {
    "id": "1165576",
@@ -4335,6 +4347,7 @@
    "drucksachen": [
     "21/5346"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1166078/SV-Liste.pdf",
    "statements": [
     {
      "label": "Stellungnahme PRO MEHRWEG – Verband zur Förderung von Mehrwegverpackungen e.V., A-Drs. 21(16)121-A",
@@ -4371,8 +4384,7 @@
      "url": "https://www.bundestag.de/resource/blob/1177870/Stellungnahme-VMV.pdf",
      "number": "21(16)121"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1166078/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1167100",
@@ -4383,14 +4395,14 @@
    "drucksachen": [
     "21/2823"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1167180/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "GKV-Spitzenverband",
      "url": "https://www.bundestag.de/resource/blob/1173844/21-14-0083-1-GKV-Spitzenverband-Primaerversorgung-nicht-barriefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1167180/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1164682",
@@ -4401,6 +4413,7 @@
    "drucksachen": [
     "21/4782"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1167296/036_SV-Liste.pdf",
    "statements": [
     {
      "label": "21(6)81a - Stellungnahme Dr. Michael Bernauer",
@@ -4427,8 +4440,7 @@
      "url": "https://www.bundestag.de/resource/blob/1173604/Stellungnahme_81e_Pfeffer.pdf",
      "number": "21(6)81"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1167296/036_SV-Liste.pdf"
+   ]
   },
   {
    "id": "1167598",
@@ -4439,6 +4451,7 @@
    "drucksachen": [
     "21/4080"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1170266/Liste-der-Sachverstaendigen-alphabetisch-Migrationsverwaltungsdigitalisierung.pdf",
    "statements": [
     {
      "label": "21(4)167 A - Stellungnahme Christiana Bukalo, Statefree e. V., München - Digitalisierung Migrationsverwaltung - BT-Drucksache 21/4080",
@@ -4480,8 +4493,7 @@
      "url": "https://www.bundestag.de/resource/blob/1173768/21-4-167-H-Stellungnahme-Prof-Dr-D-Heckmann-TU-Muenchen-Digitalisierung-Migrationsverwaltung-21-4080.pdf",
      "number": "21(4)167"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1170266/Liste-der-Sachverstaendigen-alphabetisch-Migrationsverwaltungsdigitalisierung.pdf"
+   ]
   },
   {
    "id": "1156464",
@@ -4492,8 +4504,8 @@
    "drucksachen": [
     "21/4540"
    ],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1156466/260422_sv_liste.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1156466/260422_sv_liste.pdf",
+   "statements": []
   },
   {
    "id": "1158034",
@@ -4504,6 +4516,7 @@
    "drucksachen": [
     "21/4298"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1158362/035_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)79a - Stellungnahme Dr. Moritz Alt",
@@ -4540,8 +4553,7 @@
      "url": "https://www.bundestag.de/resource/blob/1166930/Stellungnahme_79g_Haug.pdf",
      "number": "21(6)79"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1158362/035_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1165624",
@@ -4550,6 +4562,7 @@
    "committee": "Kultur und Medien",
    "date": "2026-04-22",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Positionspapier k3d – Koalition Kultur- und Kreativwirtschaft in Deutschland",
@@ -4581,8 +4594,7 @@
      "url": "https://www.bundestag.de/resource/blob/1166764/Stellungnahme-Zimmermann.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1165738",
@@ -4593,6 +4605,7 @@
    "drucksachen": [
     "21/4221"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1165750/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme des Sachverständigen Dr. Andreas Keller",
@@ -4614,8 +4627,7 @@
      "url": "https://www.bundestag.de/resource/blob/1166630/21-18-62d.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1165750/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1150874",
@@ -4626,6 +4638,7 @@
    "drucksachen": [
     "21/3150"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1150876/Liste-der-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Stellungnahme des VCD Niedersachsen e. V.",
@@ -4667,8 +4680,7 @@
      "url": "https://www.bundestag.de/resource/blob/1167446/Stellungnahme-ZDS.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1150876/Liste-der-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1165588",
@@ -4677,6 +4689,7 @@
    "committee": "Finanzen",
    "date": "2026-04-20",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1165808/SV-Liste.pdf",
    "statements": [
     {
      "label": "ADAC e. V.",
@@ -4718,8 +4731,7 @@
      "url": "https://www.bundestag.de/resource/blob/1166168/10-Fuels.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1165808/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1156460",
@@ -4728,6 +4740,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-04-15",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1156462/260415_sv_liste.pdf",
    "statements": [
     {
      "label": "Bund der Deutschen Landjugend (BDL)",
@@ -4749,8 +4762,7 @@
      "url": "https://www.bundestag.de/resource/blob/1162104/260415_seifert.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1156462/260415_sv_liste.pdf"
+   ]
   },
   {
    "id": "1157076",
@@ -4759,6 +4771,7 @@
    "committee": "Tourismus",
    "date": "2026-04-15",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1157072/Liste-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme Prof. Dr. Martin Balas, Hochschule für nachhaltige Entwicklung Eberswalde",
@@ -4785,8 +4798,7 @@
      "url": "https://www.bundestag.de/resource/blob/1164954/Stellungnahme-Vallazza.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1157072/Liste-SV.pdf"
+   ]
   },
   {
    "id": "1157182",
@@ -4795,8 +4807,8 @@
    "committee": "Wohnen, Stadtentwicklung, Bauwesen und Kommunen",
    "date": "2026-04-15",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1157186/Sachverstaendigenliste-Kommunalfinanzen.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1157186/Sachverstaendigenliste-Kommunalfinanzen.pdf",
+   "statements": []
   },
   {
    "id": "1157786",
@@ -4805,8 +4817,8 @@
    "committee": "Digitales und Staatsmodernisierung",
    "date": "2026-04-15",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": null
+   "expertListUrl": null,
+   "statements": []
   },
   {
    "id": "1157986",
@@ -4817,6 +4829,7 @@
    "drucksachen": [
     "21/4786"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1161954/Liste-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme BDI, A-Drs. 21(16)114-A",
@@ -4853,8 +4866,7 @@
      "url": "https://www.bundestag.de/resource/blob/1165114/Stellungnahme-BDEW.pdf",
      "number": "21(16)114"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1161954/Liste-SV.pdf"
+   ]
   },
   {
    "id": "1158134",
@@ -4866,6 +4878,7 @@
     "21/4500",
     "21/1393"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1164698/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme des Sachverständigen Dr. Gregor Wrobel",
@@ -4892,8 +4905,7 @@
      "url": "https://www.bundestag.de/resource/blob/1165626/21-18-60_unaufStellgn.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1164698/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1161684",
@@ -4904,6 +4916,7 @@
    "drucksachen": [
     "21/3909"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1161736/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Deutscher Caritasverband",
@@ -4925,8 +4938,7 @@
      "url": "https://www.bundestag.de/resource/blob/1165512/21-14-0080-4-1000plus.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1161736/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1161898",
@@ -4935,6 +4947,7 @@
    "committee": "Kultur und Medien",
    "date": "2026-04-15",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Cilgia Gadola, Bundesverband Freie Darstellende Künste",
@@ -4961,8 +4974,7 @@
      "url": "https://www.bundestag.de/resource/blob/1165100/Stellungnahme-Olaf-Zimmermann.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1156030",
@@ -4973,6 +4985,7 @@
    "drucksachen": [
     "21/139"
    ],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme des Einzelsachverständigen Dr. Dirk Hesse",
@@ -4994,8 +5007,7 @@
      "url": "https://www.bundestag.de/resource/blob/1161688/04_Stellg_DTB.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1156420",
@@ -5006,6 +5018,7 @@
    "drucksachen": [
     "21/4297"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1156588/031_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)74a - Stellungnahme Julian Kulaga",
@@ -5032,8 +5045,7 @@
      "url": "https://www.bundestag.de/resource/blob/1164792/74e_Stellungnahme_Schmidt-Kessel.pdf",
      "number": "21(6)74"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1156588/031_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1158028",
@@ -5045,6 +5057,7 @@
     "21/1857",
     "21/2465"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1161164/032_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)75a - Stellungnahme Dr. Katrin Vitols",
@@ -5081,8 +5094,7 @@
      "url": "https://www.bundestag.de/resource/blob/1166636/75g_Stellungnahme_Kambeck.pdf",
      "number": "21(6)75"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1161164/032_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1161138",
@@ -5091,6 +5103,7 @@
    "committee": "Finanzen",
    "date": "2026-04-13",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1161334/SV-Liste.pdf",
    "statements": [
     {
      "label": "Bundessteuerberaterkammer (BStBK)",
@@ -5132,8 +5145,7 @@
      "url": "https://www.bundestag.de/resource/blob/1162140/08-Roedl.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1161334/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1151074",
@@ -5142,14 +5154,14 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-03-25",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1155438/260325_sv_liste.pdf",
    "statements": [
     {
      "label": "Koordinationsstelle Fanprojekte (KOS) bei der Deutschen Sportjugend",
      "url": "https://www.bundestag.de/resource/blob/1156998/260325_kos.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1155438/260325_sv_liste.pdf"
+   ]
   },
   {
    "id": "1151600",
@@ -5158,8 +5170,8 @@
    "committee": "Tourismus",
    "date": "2026-03-25",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1151598/Liste-SV.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1151598/Liste-SV.pdf",
+   "statements": []
   },
   {
    "id": "1151884",
@@ -5171,6 +5183,7 @@
     "21/4146",
     "21/4961"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1152064/SV-Liste-25-3-26.pdf",
    "statements": [
     {
      "label": "Stellungnahme Dr. Franziska Heß, A-Drs. 21(16)112-A",
@@ -5207,8 +5220,7 @@
      "url": "https://www.bundestag.de/resource/blob/1158366/Stellungnahme-Dr-Bauer.pdf",
      "number": "21(16)112"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1152064/SV-Liste-25-3-26.pdf"
+   ]
   },
   {
    "id": "1155796",
@@ -5219,6 +5231,7 @@
    "drucksachen": [
     "21/3796"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1155800/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Prof. Dr. Thomas Gutmann",
@@ -5245,8 +5258,7 @@
      "url": "https://www.bundestag.de/resource/blob/1157780/21-14-0078-5-Prof-Dr-Christian-Katzenmeier-Patientenrechte-nicht-barriefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1155800/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1156474",
@@ -5255,6 +5267,7 @@
    "committee": "Kultur und Medien",
    "date": "2026-03-25",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Maria Exner, Publix",
@@ -5276,8 +5289,7 @@
      "url": "https://www.bundestag.de/resource/blob/1157568/Stellungnahme-David-Schraven.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1151008",
@@ -5288,6 +5300,7 @@
    "drucksachen": [
     "21/4594"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1151010/sachverstaendigenliste-KI-VO.pdf",
    "statements": [
     {
      "label": "Stellungnahme Dr. Miika Blinn (Verbraucherzentrale Bundesverband e.V.) zur 22. Sitzung am 23. März 2026 (Öffentliche Anhörung) \"KI Verordnung\"",
@@ -5334,8 +5347,7 @@
      "url": "https://www.bundestag.de/resource/blob/1157054/Stellungnahme-KI-VO_BSI-23-03-2026.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1151010/sachverstaendigenliste-KI-VO.pdf"
+   ]
   },
   {
    "id": "1155364",
@@ -5346,6 +5358,7 @@
    "drucksachen": [
     "21/3250"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1155954/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme - Diakonie Deutschland - Evangelisches Werk für Diakonie und Entwicklung e. V.",
@@ -5377,8 +5390,7 @@
      "url": "https://www.bundestag.de/resource/blob/1156838/21-11-110-Materialzusammenstellung.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1155954/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1155854",
@@ -5389,6 +5401,7 @@
    "drucksachen": [
     "21/4081"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1155858/Liste-der-Sachverstaendigen-alphabetisch-Vaterschaftsanerkennung.pdf",
    "statements": [
     {
      "label": "21(4)153 A - Stellungnahme Prof. Dr. Harald Dörig, Friedrich-Schiller-Universität Jena - Missbräuchliche Vaterschaftsanerkennungen - BT-Drucksache 21/4081",
@@ -5435,8 +5448,7 @@
      "url": "https://www.bundestag.de/resource/blob/1157032/21-4-153-I-Stellungnahme-Dr-L-Chebout-Deutscher-Juristinnenbund-e-V-Vaterschaftsanerkennung-21-4081.pdf",
      "number": "21(4)153"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1155858/Liste-der-Sachverstaendigen-alphabetisch-Vaterschaftsanerkennung.pdf"
+   ]
   },
   {
    "id": "1156340",
@@ -5447,6 +5459,7 @@
    "drucksachen": [
     "21/4744"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1156634/Liste-der-Sachverstaendigen.pdf",
    "statements": [
     {
      "label": "21(9)201 Stellungnahme des Sachverständigen Prof. Dr. Justus Haucap, Heinrich-Heine University of Düsseldorf",
@@ -5478,8 +5491,7 @@
      "url": "https://www.bundestag.de/resource/blob/1157012/Stellungnahme_Arbeiterkammer_Wien.pdf",
      "number": "21(9)208"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1156634/Liste-der-Sachverstaendigen.pdf"
+   ]
   },
   {
    "id": "1150258",
@@ -5488,8 +5500,8 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-03-18",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1150264/260318_sv_liste.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1150264/260318_sv_liste.pdf",
+   "statements": []
   },
   {
    "id": "1150984",
@@ -5500,6 +5512,7 @@
    "drucksachen": [
     "21/4089"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1150986/sachverstaendigenliste-PWTG.pdf",
    "statements": [
     {
      "label": "Stellungnahme Alina Clasen (Reporter ohne Grenzen e.V.) zur 20. Sitzung am 18. März 2026 (Öffentliche Anhörung) \"Politische-Werbung-Transparenz-Gesetz (PWTG)\"",
@@ -5536,8 +5549,7 @@
      "url": "https://www.bundestag.de/resource/blob/1156004/Stellungnahme-PWTG_BfDI-18-03-2026.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1150986/sachverstaendigenliste-PWTG.pdf"
+   ]
   },
   {
    "id": "1151592",
@@ -5546,6 +5558,7 @@
    "committee": "Kultur und Medien",
    "date": "2026-03-18",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Dr. Susanne Kitschun, forum 1848 am Friedhof der Märzgefallenen",
@@ -5572,8 +5585,7 @@
      "url": "https://www.bundestag.de/resource/blob/1156094/Stellungnahme-Prof-Dr-Juergen-Zimmerer.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1151870",
@@ -5582,6 +5594,7 @@
    "committee": "Umwelt, Klimaschutz, Naturschutz und nukleare Sicherheit",
    "date": "2026-03-18",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1152062/SV-Liste-18-3-26.pdf",
    "statements": [
     {
      "label": "Stellungnahme BNW, A-Drs. 21(16)110-A",
@@ -5603,8 +5616,7 @@
      "url": "https://www.bundestag.de/resource/blob/1156102/Stellungnahme-BVEG.pdf",
      "number": "21(16)110"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1152062/SV-Liste-18-3-26.pdf"
+   ]
   },
   {
    "id": "1139982",
@@ -5615,6 +5627,7 @@
    "drucksachen": [
     "21/4099"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1139984/Liste-der-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Stellungnahme von Dr. Franziska Heß",
@@ -5666,8 +5679,7 @@
      "url": "https://www.bundestag.de/resource/blob/1156012/Stellungnahme-Autobahn.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1139984/Liste-der-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1150318",
@@ -5676,6 +5688,7 @@
    "committee": "Recht und Verbraucherschutz",
    "date": "2026-03-16",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1150444/028_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)70a - Stellungnahme Dr. Christopher Sachse",
@@ -5712,8 +5725,7 @@
      "url": "https://www.bundestag.de/resource/blob/1155784/70g_Stellungnahme-Allgayer.pdf",
      "number": "21(6)70"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1150444/028_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1151338",
@@ -5726,6 +5738,7 @@
     "21/3617",
     "21/4088"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1151952/SV-Liste.pdf",
    "statements": [
     {
      "label": "Bundesverband Deutscher Vermögensberater e. V. (BDV)",
@@ -5767,8 +5780,7 @@
      "url": "https://www.bundestag.de/resource/blob/1155596/vzbv.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1151952/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1140318",
@@ -5779,6 +5791,7 @@
    "drucksachen": [
     "21/4082"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1149132/027_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)65a - Stellungnahme Dr. Patrick Liesching",
@@ -5805,8 +5818,7 @@
      "url": "https://www.bundestag.de/resource/blob/1151390/65e_Stellungnahme-Goettsche.pdf",
      "number": "21(6)65"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1149132/027_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1145932",
@@ -5817,6 +5829,7 @@
    "drucksachen": [
     "21/4083"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1145980/SV-Liste.pdf",
    "statements": [
     {
      "label": "Stellungnahme Shell Deutschland GmbH, A-Drs. 21(16)107-A",
@@ -5863,8 +5876,7 @@
      "url": "https://www.bundestag.de/resource/blob/1158378/Stellungnahme-VDB.pdf",
      "number": "21(16)107"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1145980/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1149084",
@@ -5873,6 +5885,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-03-04",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1149086/260304_sv_liste.pdf",
    "statements": [
     {
      "label": "Präsentation Deutscher Turner-Bund",
@@ -5894,8 +5907,7 @@
      "url": "https://www.bundestag.de/resource/blob/1150852/260304_prof_mittag.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1149086/260304_sv_liste.pdf"
+   ]
   },
   {
    "id": "1149384",
@@ -5908,6 +5920,7 @@
     "21/2553",
     "21/3829"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1149498/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "BKK Dachverband",
@@ -6069,8 +6082,7 @@
      "url": "https://www.bundestag.de/resource/blob/1151146/21-14-0071-30-BVDVA-Apotheke.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1149498/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1149900",
@@ -6085,6 +6097,7 @@
     "21/775",
     "21/3303"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1150336/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Bundesarbeitsgemeinschaft Selbsthilfe von Menschen mit Behinderung und chronischer Erkrankung und ihren Angehörigen (BAG Selbsthilfe)",
@@ -6096,8 +6109,7 @@
      "url": "https://www.bundestag.de/resource/blob/1151094/21-14-0074-2-GKV-Spitzenverband-Arzneimittel-nicht-barriefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1150336/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1149136",
@@ -6108,6 +6120,7 @@
    "drucksachen": [
     "21/3204"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1149874/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme - Deutscher Gewerkschaftsbund",
@@ -6139,8 +6152,7 @@
      "url": "https://www.bundestag.de/resource/blob/1150626/21-11-102-Materialzusammenstellung.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1149874/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1134508",
@@ -6149,6 +6161,7 @@
    "committee": "Tourismus",
    "date": "2026-02-25",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1134506/Liste-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme Allgäu GmbH – Gesellschaft für Standort und Tourismus, Klaus Fischer",
@@ -6180,8 +6193,7 @@
      "url": "https://www.bundestag.de/resource/blob/1149048/Stellungnahme-Wulf.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1134506/Liste-SV.pdf"
+   ]
   },
   {
    "id": "1140314",
@@ -6192,6 +6204,7 @@
    "drucksachen": [
     "21/3735"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1145894/025_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)60a - Stellungnahme Norbert Weide",
@@ -6213,8 +6226,7 @@
      "url": "https://www.bundestag.de/resource/blob/1151842/60d_Stellungnahme_Dr-Hammerich.pdf",
      "number": "21(6)60"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1145894/025_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1140336",
@@ -6225,6 +6237,7 @@
    "drucksachen": [
     "21/3491"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1149488/Liste-der-Sachverstaendigen.pdf",
    "statements": [
     {
      "label": "21(9)174 Stellungnahme der Deutschen Umwelthilfe e.V. (DUH)",
@@ -6251,8 +6264,7 @@
      "url": "https://www.bundestag.de/resource/blob/1150958/Stellungnahme_Dr-_Fritz_von_Hammerstein.pdf",
      "number": "21(9)187"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1149488/Liste-der-Sachverstaendigen.pdf"
+   ]
   },
   {
    "id": "1140530",
@@ -6265,6 +6277,7 @@
     "21/1752",
     "21/2228"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1140562/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Deutsche Krankenhausgesellschaft",
@@ -6371,8 +6384,7 @@
      "url": "https://www.bundestag.de/resource/blob/1150046/21-14-0064-19-DRF-Luftrettung-Notfallgesetz-nicht-barriefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1140562/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1140644",
@@ -6381,14 +6393,14 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-02-25",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1140646/260225_sv_liste.pdf",
    "statements": [
     {
      "label": "Deutsches Rotes Kreuz",
      "url": "https://www.bundestag.de/resource/blob/1149350/260225_drk.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1140646/260225_sv_liste.pdf"
+   ]
   },
   {
    "id": "1145802",
@@ -6400,6 +6412,7 @@
     "21/3619",
     "21/1566"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1145806/Anlage-2-Liste-Auskunftspersonen-TPG.pdf",
    "statements": [
     {
      "label": "DKMS",
@@ -6446,8 +6459,7 @@
      "url": "https://www.bundestag.de/resource/blob/1149446/21-14-0067-9-Interessengemeinschaft-Nierenlebendspende-TPG-nicht-barriefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1145806/Anlage-2-Liste-Auskunftspersonen-TPG.pdf"
+   ]
   },
   {
    "id": "1145816",
@@ -6458,6 +6470,7 @@
    "drucksachen": [
     "21/4099"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1145926/SV-Liste.pdf",
    "statements": [
     {
      "label": "Stellungnahme Prof. Dr. Sabine Schlacke, Universität Greifswald, A-Drs. 21(16)105-A",
@@ -6474,8 +6487,7 @@
      "url": "https://www.bundestag.de/resource/blob/1150370/Stellungnahme-DB-AG.pdf",
      "number": "21(16)105"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1145926/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1148992",
@@ -6484,6 +6496,7 @@
    "committee": "Kultur und Medien",
    "date": "2026-02-25",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Prof. Dr. Katharina de la Durantaye",
@@ -6510,8 +6523,7 @@
      "url": "https://www.bundestag.de/resource/blob/1149950/Stellungnahme-VUT-Verband-unabhaengiger-Musikunternehmer-innen.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1135916",
@@ -6522,6 +6534,7 @@
    "drucksachen": [
     "21/3505"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1135918/Liste-der-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Stellungnahme der Deutschen Polizeigewerkschaft (DPolG)",
@@ -6558,8 +6571,7 @@
      "url": "https://www.bundestag.de/resource/blob/1149150/Stellungnahme-DUH.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1135918/Liste-der-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1145558",
@@ -6571,6 +6583,7 @@
     "21/3546",
     "21/4090"
    ],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme des Einzelsachverständigen Prof. Dr. Hans-Dieter Pfannenstiel",
@@ -6607,8 +6620,7 @@
      "url": "https://www.bundestag.de/resource/blob/1149362/07_Stellgn_DLT.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1145706",
@@ -6624,6 +6636,7 @@
     "21/3606",
     "21/4087"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1145708/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme - Jobcenter StädteRegion Aachen",
@@ -6685,8 +6698,7 @@
      "url": "https://www.bundestag.de/resource/blob/1149238/21-11-93-Materialzusammenstellung.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1145708/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1145712",
@@ -6702,6 +6714,7 @@
     "21/3571",
     "21/4086"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1145716/SV-Listen.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme - Deutscher Caritasverband e. V.",
@@ -6753,8 +6766,7 @@
      "url": "https://www.bundestag.de/resource/blob/1149240/21-11-94-Materialzusammenstellung.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1145716/SV-Listen.pdf"
+   ]
   },
   {
    "id": "1146054",
@@ -6766,6 +6778,7 @@
     "21/795",
     "21/3601"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1146096/Liste-der-Sachverstaendigen-alphabetisch-Jesiden.pdf",
    "statements": [
     {
      "label": "21(4)135 A - Stellungnahme Jens Dieckmann, Rechtsanwalt – Becher & Dieckmann-Rechtsanwälte, Bonn - Aufenthaltsrecht für Jesidinnen und Jesiden - BT-Drucksachen 21/795 und 21/3601",
@@ -6797,8 +6810,7 @@
      "url": "https://www.bundestag.de/resource/blob/1149160/21-4-136-Stellungnahme-Nadias-Initiative-e-V-Aufenthaltsrecht-Jesiden-21-795-21-3601.pdf",
      "number": "21(4)136"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1146096/Liste-der-Sachverstaendigen-alphabetisch-Jesiden.pdf"
+   ]
   },
   {
    "id": "1126404",
@@ -6810,6 +6822,7 @@
     "21/2998",
     "21/3508"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1132074/sachverstaendigenliste-DataAct.pdf",
    "statements": [
     {
      "label": "Stellungnahme Aitava Rechtsanwaltsgesellschaft mbH zur 15. Sitzung am 28. Januar 2026 (Öffentliche Anhörung) \"Durchführung des europäischen Data Acts\"",
@@ -6856,8 +6869,7 @@
      "url": "https://www.bundestag.de/resource/blob/1139638/Stellungnahme-DataAct_BfDI-28-01-2026.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1132074/sachverstaendigenliste-DataAct.pdf"
+   ]
   },
   {
    "id": "1132096",
@@ -6866,14 +6878,14 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-01-28",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1132104/260128_sv_liste.pdf",
    "statements": [
     {
      "label": "Deutscher Behindertensportverband (DBS)",
      "url": "https://www.bundestag.de/resource/blob/1139286/260128_dbs.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1132104/260128_sv_liste.pdf"
+   ]
   },
   {
    "id": "1135798",
@@ -6885,6 +6897,7 @@
     "21/3544",
     "21/3946"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1135800/sachverstaendigenliste-DGG.pdf",
    "statements": [
     {
      "label": "Stellungnahme Aline Blankertz zur 16. Sitzung am 28. Januar 2026 (Öffentliche Anhörung) \"Daten-Governance-Gesetz (DGG)\"",
@@ -6921,8 +6934,7 @@
      "url": "https://www.bundestag.de/resource/blob/1139820/Stellungnahme-DGG_Prof-Dr-Herbert-Zech-28-01-2026.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1135800/sachverstaendigenliste-DGG.pdf"
+   ]
   },
   {
    "id": "1136768",
@@ -6934,6 +6946,7 @@
     "21/3207",
     "21/2710"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1136790/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "ADEXA - Die Apothekengewerkschaft",
@@ -7005,8 +7018,7 @@
      "url": "https://www.bundestag.de/resource/blob/1139788/21-14-0059-14-Hausaerztinnen-und-Hausaerzteverband-Heilberufe-nicht-barriefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1136790/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1136810",
@@ -7017,6 +7029,7 @@
    "drucksachen": [
     "21/2721"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1136814/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Berufsverband der Kinder- und Jugendärzt*innen e.V. (BVKJ)",
@@ -7038,8 +7051,7 @@
      "url": "https://www.bundestag.de/resource/blob/1139648/21-14-0061-4-Julia-Venzke-Kindergesundheit-nicht-barriefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1136814/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1137784",
@@ -7048,14 +7060,14 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2026-01-28",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Schriftliche Stellungnahme der Sachverständigen Lisa Niendorf",
      "url": "https://www.bundestag.de/resource/blob/1137786/21-18-47a.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1135370",
@@ -7066,6 +7078,7 @@
    "drucksachen": [
     "21/2999"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1135372/Liste-der-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Stellungnahme des Bitkom e. V.",
@@ -7102,8 +7115,7 @@
      "url": "https://www.bundestag.de/resource/blob/1139294/Stellungnahme-Schneider.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1135372/Liste-der-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1135808",
@@ -7114,6 +7126,7 @@
    "drucksachen": [
     "21/3193"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1135834/Liste-der-Sachverstaendigen.pdf",
    "statements": [
     {
      "label": "21(13)18a - Prof. Dr. Sybille Stöbe-Blossey - Institut Arbeit und Qualifikation (IAQ)",
@@ -7165,8 +7178,7 @@
      "url": "https://www.bundestag.de/resource/blob/1139474/21-13-18j.pdf",
      "number": "21(13)18"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1135834/Liste-der-Sachverstaendigen.pdf"
+   ]
   },
   {
    "id": "1136910",
@@ -7177,6 +7189,7 @@
    "drucksachen": [
     "21/3510"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1137604/SV-Liste.pdf",
    "statements": [
     {
      "label": "Bundesverband Alternative Investments (BVAI) e. V.",
@@ -7203,8 +7216,7 @@
      "url": "https://www.bundestag.de/resource/blob/1139472/07-Finance-W.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1137604/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1137416",
@@ -7216,6 +7228,7 @@
     "21/3252",
     "21/3506"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1137552/Liste-der-Sachverstaendigen-26-01-2026-LuSiG.pdf",
    "statements": [
     {
      "label": "21(26)16 - Gutachtliche Stellungnahme - Parlamentarischer Beirat für nachhaltige Entwicklung und Zukunftsfragen - Luftsicherheitsgesetz - BT-Drucksachen 21/3252, 21/3506",
@@ -7252,8 +7265,7 @@
      "url": "https://www.bundestag.de/resource/blob/1139462/21-4-122-F-Stellungnahme-Simon-Gauseweg-Europa-Uni-Viadrina-Frankfurt-Od-Luftsicherheit-21-3252-21-3506.pdf",
      "number": "21(4)122"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1137552/Liste-der-Sachverstaendigen-26-01-2026-LuSiG.pdf"
+   ]
   },
   {
    "id": "1137424",
@@ -7265,6 +7277,7 @@
     "21/3051",
     "21/3306"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1137556/Liste-der-Sachverstaendigen-26-01-2026-14-00-Uhr-BPolG.pdf",
    "statements": [
     {
      "label": "21(26)15-16 - Gutachtliche Stellungnahme - Parlamentarischer Beirat für nachhaltige Entwicklung und Zukunftsfragen - Bundespolizeigesetz - BT-Drucksachen 21/3051 und 21/3306",
@@ -7311,8 +7324,7 @@
      "url": "https://www.bundestag.de/resource/blob/1139470/21-4-126-Stellungnahme-Bund-Deutscher-Kriminalbeamter-Bundespolizeigesetz-21-3051-oU.pdf",
      "number": "21(4)126"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1137556/Liste-der-Sachverstaendigen-26-01-2026-14-00-Uhr-BPolG.pdf"
+   ]
   },
   {
    "id": "1129036",
@@ -7323,6 +7335,7 @@
    "drucksachen": [
     "20/14480"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1135802/Liste-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme des Sachverständigen Jürgen Braun",
@@ -7349,8 +7362,7 @@
      "url": "https://www.bundestag.de/resource/blob/1136340/Stellungnahme-SV-Yilmaz.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1135802/Liste-SV.pdf"
+   ]
   },
   {
    "id": "1132086",
@@ -7359,6 +7371,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2026-01-14",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1132094/260114_sv_liste.pdf",
    "statements": [
     {
      "label": "Deutsche Lebens-Rettungs-Gesellschaft e. V. (DLRG)",
@@ -7370,8 +7383,7 @@
      "url": "https://www.bundestag.de/resource/blob/1135776/260114_dsv.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1132094/260114_sv_liste.pdf"
+   ]
   },
   {
    "id": "1134164",
@@ -7382,6 +7394,7 @@
    "drucksachen": [
     "21/3191"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1134168/022_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)50a - Stellungnahme Yasemin Tüz",
@@ -7418,8 +7431,7 @@
      "url": "https://www.bundestag.de/resource/blob/1136420/50g_Stellungnahme_Theune.pdf",
      "number": "21(6)50"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1134168/022_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1134474",
@@ -7431,6 +7443,7 @@
     "21/3061",
     "21/773"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1134486/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Gewerkschaft der Polizei",
@@ -7507,8 +7520,7 @@
      "url": "https://www.bundestag.de/resource/blob/1139168/21-14-0056-15-Prof-Dr-Mueller-Vahl-Cannabis-nicht-barriefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1134486/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1133892",
@@ -7519,6 +7531,7 @@
    "drucksachen": [
     "21/3058"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1135494/SV-Liste.pdf",
    "statements": [
     {
      "label": "Bundesverband deutscher Banken e. V.",
@@ -7545,8 +7558,7 @@
      "url": "https://www.bundestag.de/resource/blob/1135734/07-vdp.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1135494/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1134130",
@@ -7558,6 +7570,7 @@
     "21/2997",
     "21/3487"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1134134/019_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)48a - Stellungnahme Dr. Kerstin Niethammer-Jürgens",
@@ -7594,8 +7607,7 @@
      "url": "https://www.bundestag.de/resource/blob/1136026/48g_Stellungnahme_Oldenburger.pdf",
      "number": "21(6)48"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1134134/019_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1134154",
@@ -7606,6 +7618,7 @@
    "drucksachen": [
     "21/3192"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1134158/020_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)49a - Stellungnahme Kai Kempgens",
@@ -7637,8 +7650,7 @@
      "url": "https://www.bundestag.de/resource/blob/1135990/49f_Stellungnahme_Ambos.pdf",
      "number": "21(6)49"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1134158/020_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1134180",
@@ -7650,6 +7662,7 @@
     "21/346",
     "21/347"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1134186/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme - Bundesvereinigung der Deutschen Arbeitgeberverbände (BDA)",
@@ -7691,8 +7704,7 @@
      "url": "https://www.bundestag.de/resource/blob/1135780/21-11-71-Materialzusammenstellung.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1134186/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1126740",
@@ -7701,6 +7713,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2025-12-17",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1126788/251217_liste_sv.pdf",
    "statements": [
     {
      "label": "Landesbeauftragte für Datenschutz und Informationsfreiheit Nordrhein-Westfalen",
@@ -7717,8 +7730,7 @@
      "url": "https://www.bundestag.de/resource/blob/1132064/251217_sporthilfe_positionspapier.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1126788/251217_liste_sv.pdf"
+   ]
   },
   {
    "id": "1129472",
@@ -7730,14 +7742,14 @@
     "21/2508",
     "21/3205"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1132412/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)148 Stellungnahme der Deutschen Industrie- und Handelskammer (DIHK)",
      "url": "https://www.bundestag.de/resource/blob/1132616/Stellungnahme_DIHK.pdf",
      "number": "21(9)148"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1132412/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1129596",
@@ -7750,6 +7762,7 @@
     "21/3056",
     "21/2707"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1129600/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Marburger Bund",
@@ -7926,8 +7939,7 @@
      "url": "https://www.bundestag.de/resource/blob/1133818/21-14-0049-33-Verband-kommunaler-Gesundheitseinrichtungen-e-V-KHAG-nicht-barriefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1129600/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1131968",
@@ -7936,6 +7948,7 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2025-12-17",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1131974/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme von Frau Prof. Dr. med. Carmen Scheibenbogen",
@@ -7972,8 +7985,7 @@
      "url": "https://www.bundestag.de/resource/blob/1132452/21-18-39_unaufgef.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1131974/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1131998",
@@ -7984,6 +7996,7 @@
    "drucksachen": [
     "21/2910"
    ],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Dr. Julana Bredtmann",
@@ -8020,8 +8033,7 @@
      "url": "https://www.bundestag.de/resource/blob/1132268/Stellungnahme-Evelyn-Zupke.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1121376",
@@ -8030,6 +8042,7 @@
    "committee": "Tourismus",
    "date": "2025-12-03",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1121688/Liste-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme Regensburg Tourismus GmbH, Jakob E. Reitinger",
@@ -8051,8 +8064,7 @@
      "url": "https://www.bundestag.de/resource/blob/1128030/Stellungnahme-Holtmeier.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1121688/Liste-SV.pdf"
+   ]
   },
   {
    "id": "1126552",
@@ -8064,6 +8076,7 @@
     "21/1860",
     "21/2457"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1127178/SV-Liste.pdf",
    "statements": [
     {
      "label": "Stellungnahme DUH, A-Drs. 21(16)91-A",
@@ -8095,8 +8108,7 @@
      "url": "https://www.bundestag.de/resource/blob/1132198/Stellungnahme-Prof-Janssen-IOeR.pdf",
      "number": "21(16)91"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1127178/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1126726",
@@ -8107,6 +8119,7 @@
    "drucksachen": [
     "20/14120"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1126728/251203_sv_liste.pdf",
    "statements": [
     {
      "label": "Deutsche Stiftung für Engagement und Ehrenamt",
@@ -8123,8 +8136,7 @@
      "url": "https://www.bundestag.de/resource/blob/1128066/251203_dosb.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1126728/251203_sv_liste.pdf"
+   ]
   },
   {
    "id": "1127052",
@@ -8135,6 +8147,7 @@
    "drucksachen": [
     "21/2216"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1127056/Anlage-2-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Prof. Dr. Stefan Greß",
@@ -8161,8 +8174,7 @@
      "url": "https://www.bundestag.de/resource/blob/1128586/21-14-0045-5-BDA-Linke-Pflege-nicht-barriefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1127056/Anlage-2-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1127986",
@@ -8171,6 +8183,7 @@
    "committee": "Kultur und Medien",
    "date": "2025-12-03",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Hetty Berg",
@@ -8212,8 +8225,7 @@
      "url": "https://www.bundestag.de/resource/blob/1128316/Stellungnahme-Prof-Dr-Dr-h-c-Monika-Schwarz-Friesel.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1128064",
@@ -8222,6 +8234,7 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2025-12-03",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1128328/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme von Herrn Prof. Dr. Karim Khakzar",
@@ -8238,8 +8251,7 @@
      "url": "https://www.bundestag.de/resource/blob/1128758/21-18-31c.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1128328/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1127034",
@@ -8252,6 +8264,7 @@
     "21/2544",
     "21/3065"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1127678/SV-Liste.pdf",
    "statements": [
     {
      "label": "Prof. Dr. iur. Heribert M. Anzinger, Universität Ulm",
@@ -8303,8 +8316,7 @@
      "url": "https://www.bundestag.de/resource/blob/1128336/10-Wenger.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1127678/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1127036",
@@ -8316,6 +8328,7 @@
     "21/1620",
     "21/2673"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1127180/SV-Liste.pdf",
    "statements": [
     {
      "label": "Brussig, Prof. Dr. Martin, Universität Duisburg-Essen",
@@ -8357,8 +8370,7 @@
      "url": "https://www.bundestag.de/resource/blob/1128042/08-Weber.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1127180/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1127628",
@@ -8370,6 +8382,7 @@
     "21/2510",
     "21/2725"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1128300/Liste-der-Sachverstaendigen-Stand-01-12-2025-Kritis-1-.pdf",
    "statements": [
     {
      "label": "21(4)102 A - Stellungnahme Prof. Dr. Clemens Gause, Verband für Sicherheitstechnik e.V., Hamburg - Kritis - BT-Drucksache 21/2510",
@@ -8431,8 +8444,7 @@
      "url": "https://www.bundestag.de/resource/blob/1128480/21-4-108-Schreiben-DVGW-DWA-Kritis-21-2510-o-U.pdf",
      "number": "21(4)108"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1128300/Liste-der-Sachverstaendigen-Stand-01-12-2025-Kritis-1-.pdf"
+   ]
   },
   {
    "id": "1126826",
@@ -8443,6 +8455,7 @@
    "drucksachen": [
     "21/2506"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1127466/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)132 Stellungnahme der Vereinigung der Fernleitungsnetzbetreiber Gas e.V.",
@@ -8479,8 +8492,7 @@
      "url": "https://www.bundestag.de/resource/blob/1127618/Stellungnahme_Dr-_Ragwitz_Fraunhofer_IEG.pdf",
      "number": "21(9)139"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1127466/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1126894",
@@ -8489,6 +8501,7 @@
    "committee": "Bildung, Familie, Senioren, Frauen und Jugend",
    "date": "2025-11-24",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1127328/Liste_der_Sachverstaendigen_Fachgespraech_24-11-25.pdf",
    "statements": [
     {
      "label": "Esther Bierbaum - ZIF - Zentrale Informationsstelle Autonomer Frauenhäuser",
@@ -8510,8 +8523,7 @@
      "url": "https://www.bundestag.de/resource/blob/1127748/Tonk.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1127328/Liste_der_Sachverstaendigen_Fachgespraech_24-11-25.pdf"
+   ]
   },
   {
    "id": "1117310",
@@ -8520,6 +8532,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2025-11-12",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117312/251112_sv_liste.pdf",
    "statements": [
     {
      "label": "Potenzialanalyse-Kommission (PotAS)",
@@ -8536,8 +8549,7 @@
      "url": "https://www.bundestag.de/resource/blob/1125984/251112_sporthilfe.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117312/251112_sv_liste.pdf"
+   ]
   },
   {
    "id": "1117630",
@@ -8546,6 +8558,7 @@
    "committee": "Tourismus",
    "date": "2025-11-12",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1121456/Liste-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme Airbnb Germany GmbH, Dr. Ellen Madeker",
@@ -8562,8 +8575,7 @@
      "url": "https://www.bundestag.de/resource/blob/1125962/Stellungnahme-Chapman.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1121456/Liste-SV.pdf"
+   ]
   },
   {
    "id": "1118120",
@@ -8572,6 +8584,7 @@
    "committee": "Menschenrechte und humanitäre Hilfe",
    "date": "2025-11-12",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1123572/Liste_SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme der SV Dr. Dornblüth",
@@ -8608,8 +8621,7 @@
      "url": "https://www.bundestag.de/resource/blob/1126350/Stellungnahme-des-SV-Dr-Shen-deutsch-.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1123572/Liste_SV.pdf"
+   ]
   },
   {
    "id": "1118464",
@@ -8620,6 +8632,7 @@
    "drucksachen": [
     "21/1667"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1118468/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Bundesverband der Betreiber medizinischer Versorgungszentren e.V.",
@@ -8641,8 +8654,7 @@
      "url": "https://www.bundestag.de/resource/blob/1126476/21-14-0040-4-BMVZ-MVZ-nicht-barrierefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1118468/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1123500",
@@ -8651,8 +8663,8 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2025-11-12",
    "drucksachen": [],
-   "statements": [],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1123502/SV-Liste.pdf"
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1123502/SV-Liste.pdf",
+   "statements": []
   },
   {
    "id": "1123506",
@@ -8661,6 +8673,7 @@
    "committee": "Kultur und Medien",
    "date": "2025-11-12",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme AG Kino –Gilde deutscher Filmkunsttheater",
@@ -8717,8 +8730,7 @@
      "url": "https://www.bundestag.de/resource/blob/1123556/Stellungnahme-Stellungnahme-Kuratorium-junger-deutscher-Film.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1111474",
@@ -8729,6 +8741,7 @@
    "drucksachen": [
     "21/1853"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1112468/Neuer-Inhalt.pdf",
    "statements": [
     {
      "label": "Stellungnahme der Sachverständigen Frau Daniela Broda, Bundesjugendring e.V.",
@@ -8750,8 +8763,7 @@
      "url": "https://www.bundestag.de/resource/blob/1123656/Neuer-Inhalt-10-.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1112468/Neuer-Inhalt.pdf"
+   ]
   },
   {
    "id": "1111476",
@@ -8762,6 +8774,7 @@
    "drucksachen": [
     "21/1846"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1112470/Neuer-Inhalt-1-.pdf",
    "statements": [
     {
      "label": "Stellungnahme des Sachverständigen Herrn Sebastian Baunack, Rechtsanwalt",
@@ -8788,8 +8801,7 @@
      "url": "https://www.bundestag.de/resource/blob/1123580/Neuer-Inhalt-8-.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1112470/Neuer-Inhalt-1-.pdf"
+   ]
   },
   {
    "id": "1113288",
@@ -8803,6 +8815,7 @@
     "21/2470",
     "21/2558"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1119086/SV-Liste.pdf",
    "statements": [
     {
      "label": "Bund der Steuerzahler e. V.",
@@ -8849,8 +8862,7 @@
      "url": "https://www.bundestag.de/resource/blob/1123660/09-Weitemeyer.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1119086/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1114030",
@@ -8859,6 +8871,7 @@
    "committee": "Recht und Verbraucherschutz",
    "date": "2025-11-10",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117738/014_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)23a - Stellungnahme Axel Kleinlein",
@@ -8890,8 +8903,7 @@
      "url": "https://www.bundestag.de/resource/blob/1125830/23f_Stellungnahme_Ott.pdf",
      "number": "21(6)23"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117738/014_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1114038",
@@ -8900,6 +8912,7 @@
    "committee": "Recht und Verbraucherschutz",
    "date": "2025-11-10",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117598/015_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)24a - Stellungnahme Hildegard Reppelmund",
@@ -8936,8 +8949,7 @@
      "url": "https://www.bundestag.de/resource/blob/1126874/24g_Stellungnahme_Augenhofer.pdf",
      "number": "21(6)24"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117598/015_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1116628",
@@ -8948,6 +8960,7 @@
    "drucksachen": [
     "21/1931"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1121706/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)099 Stellungnahme des Sachverständigen Dr. Hans Christoph Atzpodien und Gemeinsame Stellungnahme des Bundesverbandes der Deutschen Luft- und Raumfahrtindustrie e.V. (BDLI) sowie des Bundesverbandes der Deutschen Sicherheits- und Verteidigungsindustrie e.V. (BDSV)",
@@ -8979,8 +8992,7 @@
      "url": "https://www.bundestag.de/resource/blob/1123654/Stellungnahme_SV_Dr-_Michael_Rolshoven.pdf",
      "number": "21(9)125"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1121706/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1116660",
@@ -8991,6 +9003,7 @@
    "drucksachen": [
     "21/1934"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1121708/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)106 Stellungnahme der Bundesvereinigung der kommunalen Spitzenverbände",
@@ -9032,8 +9045,7 @@
      "url": "https://www.bundestag.de/resource/blob/1123526/Stellungnahme_IG_Metall.pdf",
      "number": "21(9)120"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1121708/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1119130",
@@ -9044,6 +9056,7 @@
    "drucksachen": [
     "21/1929"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1121370/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme - Arbeitnehmerkammer Bremen",
@@ -9085,8 +9098,7 @@
      "url": "https://www.bundestag.de/resource/blob/1123658/21-11-56neu-Prof-Dr-Martin-Werding.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1121370/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1119146",
@@ -9098,6 +9110,7 @@
     "21/1859",
     "21/2457"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1121372/Liste-der-Sachverstaendigen.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme - Bundesarbeitgeberverband Chemie e. V. (BAVC)",
@@ -9129,8 +9142,7 @@
      "url": "https://www.bundestag.de/resource/blob/1123614/21-11-53-Materialzusammenstellung.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1121372/Liste-der-Sachverstaendigen.pdf"
+   ]
   },
   {
    "id": "1114020",
@@ -9142,6 +9154,7 @@
     "21/1847",
     "21/2458"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117272/012_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)21a - Stellungnahme Philipp Wendt",
@@ -9178,8 +9191,7 @@
      "url": "https://www.bundestag.de/resource/blob/1121250/21g_Stellungnahme_Moers.pdf",
      "number": "21(6)21"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117272/012_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1114026",
@@ -9190,6 +9202,7 @@
    "drucksachen": [
     "21/1849"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117562/013_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)22a - Stellungnahme Marianne Krause",
@@ -9226,8 +9239,7 @@
      "url": "https://www.bundestag.de/resource/blob/1121364/22g_Stellungnahme_Gsell.pdf",
      "number": "21(6)22"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117562/013_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1115580",
@@ -9238,6 +9250,7 @@
    "drucksachen": [
     "21/600"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1115762/251105_sv_liste.pdf",
    "statements": [
     {
      "label": "Sportministerkonferenz",
@@ -9249,8 +9262,7 @@
      "url": "https://www.bundestag.de/resource/blob/1121380/251105_stellungnahme_dosb.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1115762/251105_sv_liste.pdf"
+   ]
   },
   {
    "id": "1116622",
@@ -9261,6 +9273,7 @@
    "drucksachen": [
     "21/1928"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1118502/Sachverstaendigenliste_05-11-2025_oeA_Geothermie_Waermepumpen_-und_-speicher.pdf",
    "statements": [
     {
      "label": "21(9)089 Stellungnahme der Stadtwerke München",
@@ -9297,8 +9310,7 @@
      "url": "https://www.bundestag.de/resource/blob/1121378/Stellungnahme_SV_Fabian_Ahrendts_Fraunhofer_IEG.pdf",
      "number": "21(9)112"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1118502/Sachverstaendigenliste_05-11-2025_oeA_Geothermie_Waermepumpen_-und_-speicher.pdf"
+   ]
   },
   {
    "id": "1117632",
@@ -9307,6 +9319,7 @@
    "committee": "Tourismus",
    "date": "2025-11-05",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117874/Liste-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme Haßberge Tourismus e.V. im Naturpark Haßberge, Susanne Volkheimer",
@@ -9333,8 +9346,7 @@
      "url": "https://www.bundestag.de/resource/blob/1119060/Stellungnahme-Kohls.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117874/Liste-SV.pdf"
+   ]
   },
   {
    "id": "1118142",
@@ -9343,6 +9355,7 @@
    "committee": "Kultur und Medien",
    "date": "2025-11-05",
    "drucksachen": [],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Balbina",
@@ -9389,8 +9402,7 @@
      "url": "https://www.bundestag.de/resource/blob/1118476/Stellungnahme-Verband-unabhaengiger-Musikunternehmer-innen-VUT-.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1118524",
@@ -9399,6 +9411,7 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2025-11-05",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1119084/SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme von Herrn Prof. Dr. Christian Hummert",
@@ -9415,8 +9428,7 @@
      "url": "https://www.bundestag.de/resource/blob/1125872/21-18-24c.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1119084/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1113284",
@@ -9429,6 +9441,7 @@
     "21/2245",
     "21/2467"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117830/SV-Liste.pdf",
    "statements": [
     {
      "label": "Bundesverband der Deutschen Industrie e. V.",
@@ -9450,8 +9463,7 @@
      "url": "https://www.bundestag.de/resource/blob/1117834/07-E-Y.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117830/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1113286",
@@ -9464,6 +9476,7 @@
     "21/2086",
     "21/2469"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117838/SV-Liste.pdf",
    "statements": [
     {
      "label": "Deutscher Raiffeisenverband e. V.",
@@ -9500,8 +9513,7 @@
      "url": "https://www.bundestag.de/resource/blob/1118312/08-ZDH.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117838/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1114000",
@@ -9512,6 +9524,7 @@
    "drucksachen": [
     "21/1851"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117144/010_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)20a - Stellungnahme Dirk Stein",
@@ -9548,8 +9561,7 @@
      "url": "https://www.bundestag.de/resource/blob/1126828/20g_Stellungnahme_Thevis.pdf",
      "number": "21(6)20"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117144/010_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1116608",
@@ -9561,6 +9573,7 @@
     "21/1863",
     "21/2472"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1118418/Sachverstaendigenliste_03-11-2025_oeA_Zuschuss_Uebertragunsnetzkosten.pdf",
    "statements": [
     {
      "label": "21(9)092 Stellungnahme des Deutschen Gewerkschaftsbundes",
@@ -9592,8 +9605,7 @@
      "url": "https://www.bundestag.de/resource/blob/1119028/Stellungnahme_Dezernat_Zukunft_eV.pdf",
      "number": "21(9)101"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1118418/Sachverstaendigenliste_03-11-2025_oeA_Zuschuss_Uebertragunsnetzkosten.pdf"
+   ]
   },
   {
    "id": "1117170",
@@ -9605,6 +9617,7 @@
     "21/1511",
     "21/1935"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117674/Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Techniker Krankenkasse",
@@ -9676,8 +9689,7 @@
      "url": "https://www.bundestag.de/resource/blob/1118498/21-14-0034-14-GKV-BEEP.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117674/Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1117186",
@@ -9688,6 +9700,7 @@
    "drucksachen": [
     "21/1858"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117918/Internet-SGB-VI-SV-Liste.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme - Industriegewerkschaft Bauen-Agrar-Umwelt (IG BAU)",
@@ -9724,8 +9737,7 @@
      "url": "https://www.bundestag.de/resource/blob/1118966/21-11-37-Materialzusammenstellung.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117918/Internet-SGB-VI-SV-Liste.pdf"
+   ]
   },
   {
    "id": "1117218",
@@ -9736,6 +9748,7 @@
    "drucksachen": [
     "21/1941"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117930/Liste-der-Sachverstaendigen.pdf",
    "statements": [
     {
      "label": "Schriftliche Stellungnahme - Industriegewerkschaft Bauen-Agrar-Umwelt (IG Bau)",
@@ -9777,8 +9790,7 @@
      "url": "https://www.bundestag.de/resource/blob/1118970/21-11-38-Materialzusammenstellung.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117930/Liste-der-Sachverstaendigen.pdf"
+   ]
   },
   {
    "id": "1117454",
@@ -9789,6 +9801,7 @@
    "drucksachen": [
     "21/1926"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117690/Liste-der-Sachverstaendigen-alphabetisch-SUeG.pdf",
    "statements": [
     {
      "label": "21(4)080 - Änderungsantrag CDU/CSU und SPD - Sicherheitsüberprüfungsgesetz - BT-Drucksache 21/1929",
@@ -9840,8 +9853,7 @@
      "url": "https://www.bundestag.de/resource/blob/1117842/21-4-084-Stellungnahme-GdP-Bundesvorstand-Sicherheitsueberpruefungsgesetz-21-1926.pdf",
      "number": "21(4)084"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117690/Liste-der-Sachverstaendigen-alphabetisch-SUeG.pdf"
+   ]
   },
   {
    "id": "1117456",
@@ -9853,6 +9865,7 @@
     "21/1848",
     "21/1850"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1117746/Liste-der-Sachverstaendigen-alphabetisch-GEAS.pdf",
    "statements": [
     {
      "label": "21(4)086 A - Stellungnahme Prof. Dr. Daniel Thym, LL.M., Universität Konstanz - Gemeinsames Europäisches Asylsystem - BT-Drucksachen 21/1848 und 21/1850",
@@ -9949,8 +9962,7 @@
      "url": "https://www.bundestag.de/resource/blob/1118972/21-4-093-Hinweise-von-UNHCR-IOM-und-Unicef-GEAS-21-1848.pdf",
      "number": "21(4)093"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1117746/Liste-der-Sachverstaendigen-alphabetisch-GEAS.pdf"
+   ]
   },
   {
    "id": "1108220",
@@ -9959,6 +9971,7 @@
    "committee": "Recht und Verbraucherschutz",
    "date": "2025-10-15",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1112202/009_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)15a - Stellungnahme Elvira Iannone",
@@ -9995,8 +10008,7 @@
      "url": "https://www.bundestag.de/resource/blob/1116412/15g_Stellungnahme_Hartung.pdf",
      "number": "21(6)15"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1112202/009_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1110208",
@@ -10005,6 +10017,7 @@
    "committee": "Tourismus",
    "date": "2025-10-15",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1113542/Liste-der-SV.pdf",
    "statements": [
     {
      "label": "Stellungnahme Gewerkschaft Nahrung-Genuss-Gaststätten (NGG), Mark Baumeister",
@@ -10026,8 +10039,7 @@
      "url": "https://www.bundestag.de/resource/blob/1115180/Stellungnahme-Haucap.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1113542/Liste-der-SV.pdf"
+   ]
   },
   {
    "id": "1111956",
@@ -10039,6 +10051,7 @@
     "21/1496",
     "21/1497"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1113928/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)056 Stellungnahme der Verbraucherzentrale Bundesverband e.V. (vzbv)",
@@ -10080,8 +10093,7 @@
      "url": "https://www.bundestag.de/resource/blob/1115480/Stellungnahme_DSt.pdf",
      "number": "21(9)082"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1113928/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1112496",
@@ -10092,6 +10104,7 @@
    "drucksachen": [
     "21/1504"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1112514/Anlage-2-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "KO - Kein Opfer e. V.",
@@ -10143,8 +10156,7 @@
      "url": "https://www.bundestag.de/resource/blob/1115318/21-14-0026-10-Berufsverband-der-Kinder-und-Jugendaerztinnen-Stellungnahme-zur-Anhoerung-NpSG-nichtbarrierefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1112514/Anlage-2-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1112936",
@@ -10153,6 +10165,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2025-10-15",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1113032/251015_sv_liste.pdf",
    "statements": [
     {
      "label": "Athleten Deutschland",
@@ -10169,8 +10182,7 @@
      "url": "https://www.bundestag.de/resource/blob/1113888/251015_stellungnahme_adh.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1113032/251015_sv_liste.pdf"
+   ]
   },
   {
    "id": "1110042",
@@ -10182,6 +10194,7 @@
     "21/1499",
     "21/1939"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1112692/Liste-der-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Stellungnahme der BASF SE, ESL/R",
@@ -10218,8 +10231,7 @@
      "url": "https://www.bundestag.de/resource/blob/1114928/Stellungnahme-DB-InfraGO.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1112692/Liste-der-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1111928",
@@ -10230,6 +10242,7 @@
    "drucksachen": [
     "21/1508"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1111934/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "PD Dr. Peter Tinnemann",
@@ -10276,8 +10289,7 @@
      "url": "https://www.bundestag.de/resource/blob/1114984/21-14-0027-9-Dr-Pfeil-Stellungnahme-zur-Anhoerung-IGV-nichtbarrierefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1111934/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1111944",
@@ -10288,6 +10300,7 @@
    "drucksachen": [
     "21/1494"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1113924/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)059 Stellungnahme des NABU - Naturschutzbund Deutschland e.V.",
@@ -10329,8 +10342,7 @@
      "url": "https://www.bundestag.de/resource/blob/1115096/Stellungnahme_BUND_eV.pdf",
      "number": "21(9)074"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1113924/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1111948",
@@ -10341,6 +10353,7 @@
    "drucksachen": [
     "21/1491"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1113926/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "21(9)058 Stellungnahme der TenneT TSO GmbH",
@@ -10377,8 +10390,7 @@
      "url": "https://www.bundestag.de/resource/blob/1115108/Stellungnahme_PNT_Partner_Rechtsanwaelte.pdf",
      "number": "21(9)075"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1113926/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1113238",
@@ -10391,6 +10403,7 @@
     "21/2033",
     "21/2037"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1113902/SV-Liste.pdf",
    "statements": [
     {
      "label": "Constanze Voß, Finanzkontrolle Schwarzarbeit",
@@ -10422,8 +10435,7 @@
      "url": "https://www.bundestag.de/resource/blob/1114880/08-Sperling.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1113902/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1113244",
@@ -10434,6 +10446,7 @@
    "drucksachen": [
     "21/1937"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1113908/SV-Liste.pdf",
    "statements": [
     {
      "label": "DSTG Deutsche Steuer-Gewerkschaft e. V.",
@@ -10455,8 +10468,7 @@
      "url": "https://www.bundestag.de/resource/blob/1114926/07-Kerkemeyer.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1113908/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1113426",
@@ -10467,6 +10479,7 @@
    "drucksachen": [
     "21/1502"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1113550/Liste-der-Sachverstaendigen-alphabetisch-Elektroimpulsgeraete.pdf",
    "statements": [
     {
      "label": "21(4)061 A - Stellungnahme Andreas Roßkopf, Gewerkschaft der Polizei - Bundesgeschäftsstelle - Distanz-Elektroimpulsgeräte - BT-Drucksache 21/1502",
@@ -10503,8 +10516,7 @@
      "url": "https://www.bundestag.de/resource/blob/1114992/21-4-061-F-Stellungnahme-Anja-Bienert-Anmesty-International-Taser-21-1502.pdf",
      "number": "21(4)061"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1113550/Liste-der-Sachverstaendigen-alphabetisch-Elektroimpulsgeraete.pdf"
+   ]
   },
   {
    "id": "1113440",
@@ -10515,6 +10527,7 @@
    "drucksachen": [
     "21/1501"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1113552/Liste-der-Sachverstaendigen-alphabetisch-13-10-2025-15-00-NIS-2.pdf",
    "statements": [
     {
      "label": "21(4)062 A - Stellungnahme Dr. Sven Herpig, interface - NIS-2-Richtlinie - BT-Drucksache 21/1501",
@@ -10606,8 +10619,7 @@
      "url": "https://www.bundestag.de/resource/blob/1115220/21-4-075-Stellungnahme-o-U-VATM-e-V-Berlin-NIS-2-Richtlinie-21-1501.pdf",
      "number": "21(4)075"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1113552/Liste-der-Sachverstaendigen-alphabetisch-13-10-2025-15-00-NIS-2.pdf"
+   ]
   },
   {
    "id": "1108152",
@@ -10616,6 +10628,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2025-10-08",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1108154/251008_sv_liste.pdf",
    "statements": [
     {
      "label": "Deutsche Stiftung für Engagement und Ehrenamt",
@@ -10637,8 +10650,7 @@
      "url": "https://www.bundestag.de/resource/blob/1113250/251008_bbe.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1108154/251008_sv_liste.pdf"
+   ]
   },
   {
    "id": "1110032",
@@ -10649,6 +10661,7 @@
    "drucksachen": [
     "21/1506"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1110034/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "Stellungnahme VKU, A-Drs. 21(16)73-A",
@@ -10685,8 +10698,7 @@
      "url": "https://www.bundestag.de/resource/blob/1113334/21-16-73-G_Bundesvereinigung-kommunale-Spitzenverbaende.pdf",
      "number": "21(16)73"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1110034/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1111448",
@@ -10699,6 +10711,7 @@
     "21/1935",
     "21/583"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1111558/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Deutscher Städtetag",
@@ -10880,8 +10893,7 @@
      "url": "https://www.bundestag.de/resource/blob/1113576/21-14-0022-33-DGINA-Stellungnahme-zur-Anhoerung-Entbuerokratisierung-in-der-Pflege-nichtbarrierefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1111558/Anlage-2-Liste-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1110038",
@@ -10892,6 +10904,7 @@
    "drucksachen": [
     "21/1495"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1112324/Liste-der-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Stellungnahme der D-TIX GmbH & Co. KG",
@@ -10928,8 +10941,7 @@
      "url": "https://www.bundestag.de/resource/blob/1112750/Stellungnahme-BVkom.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1112324/Liste-der-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1110364",
@@ -10940,6 +10952,7 @@
    "drucksachen": [
     "21/780"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1112208/Liste-der-Sachverstaendigen-alphabetisch-Sichere-Herkunftsstaaten.pdf",
    "statements": [
     {
      "label": "21(4)056 A - Stellungnahme Stefan Keßler, Jesuiten-Flüchtlingsdienst Deutschland - Sichere Herkunftsstaaten - BT-Drucksache 21/780",
@@ -10991,8 +11004,7 @@
      "url": "https://www.bundestag.de/resource/blob/1111726/21-4-047-Stellungnahme-Deutsches-Institut-fuer-Menschenrechte-Bestimmung-sicherer-Herkunftsstaaten.pdf",
      "number": "21(4)047"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1112208/Liste-der-Sachverstaendigen-alphabetisch-Sichere-Herkunftsstaaten.pdf"
+   ]
   },
   {
    "id": "1111548",
@@ -11003,6 +11015,7 @@
    "drucksachen": [
     "21/1493"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1111554/Liste-der-Sachverstaendigen.pdf",
    "statements": [
     {
      "label": "21(13)9a-neu - Isabel Kalberlah, Hans-Weinberger-Akademie der AWO e. V.",
@@ -11049,8 +11062,7 @@
      "url": "https://www.bundestag.de/resource/blob/1112780/21-13-9i.pdf",
      "number": "21(13)9"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1111554/Liste-der-Sachverstaendigen.pdf"
+   ]
   },
   {
    "id": "1108598",
@@ -11061,6 +11073,7 @@
    "drucksachen": [
     "21/344"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1109856/Anlage-2-Auskunftspersonen.pdf",
    "statements": [
     {
      "label": "Stellungnahme Prof. Dr. Simon Reif",
@@ -11077,8 +11090,7 @@
      "url": "https://www.bundestag.de/resource/blob/1112276/21-14-0020-3-Prof-Dr-Rothgang-Stellungnahme-zur-Anhoerung-Gerechte-Finanzierung-nicht-barrierefrei.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1109856/Anlage-2-Auskunftspersonen.pdf"
+   ]
   },
   {
    "id": "1103130",
@@ -11091,6 +11103,7 @@
     "21/1085",
     "21/1503"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1103804/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "Deutscher Landkreistag",
@@ -11152,8 +11165,7 @@
      "url": "https://www.bundestag.de/resource/blob/1108374/Prof-Dr-Niklas-Potrafke.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1103804/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1097390",
@@ -11162,6 +11174,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2025-09-10",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1097392/250910_sv_liste.pdf",
    "statements": [
     {
      "label": "Deutscher Olympischer Sportbund",
@@ -11193,8 +11206,7 @@
      "url": "https://www.bundestag.de/resource/blob/1111482/250910_praesentation_hamburg.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1097392/250910_sv_liste.pdf"
+   ]
   },
   {
    "id": "1097878",
@@ -11205,6 +11217,7 @@
    "drucksachen": [
     "21/781"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1102608/Sachverstaendigenliste-Bau-Turbo.pdf",
    "statements": [
     {
      "label": "Stellungnahme SV Aygül Özkan (ZIA Deutschland) - A-Drs. 21(24)13-A",
@@ -11256,8 +11269,7 @@
      "url": "https://www.bundestag.de/resource/blob/1107172/Stellungnahme-SV-Weber-Moritz.pdf",
      "number": "21(24)13"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1102608/Sachverstaendigenliste-Bau-Turbo.pdf"
+   ]
   },
   {
    "id": "1103216",
@@ -11266,6 +11278,7 @@
    "committee": "Europäische Union",
    "date": "2025-09-10",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1103300/SV-Liste.pdf",
    "statements": [
     {
      "label": "Prof. Dr. Friedrich Heinemann",
@@ -11317,8 +11330,7 @@
      "url": "https://www.bundestag.de/resource/blob/1107782/a-drs-21-21-11.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1103300/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1104970",
@@ -11330,6 +11342,7 @@
     "21/570",
     "21/1150"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1105270/SV-Liste.pdf",
    "statements": [
     {
      "label": "Stellungnahme Verband der Elektro- und Digitalindustrie (ZVEI), A-Drs. 21(16)27-A",
@@ -11361,8 +11374,7 @@
      "url": "https://www.bundestag.de/resource/blob/1106474/STN-BDE.pdf",
      "number": "21(16)27"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1105270/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1099186",
@@ -11374,6 +11386,7 @@
     "21/778",
     "21/779"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1103062/Sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "Deutscher Landkreistag",
@@ -11435,8 +11448,7 @@
      "url": "https://www.bundestag.de/resource/blob/1106204/Deutscher-Staedte-und-Gemeindebund.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1103062/Sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1097784",
@@ -11447,6 +11459,7 @@
    "drucksachen": [
     "21/568"
    ],
+   "expertListUrl": null,
    "statements": [
     {
      "label": "Stellungnahme Bundesvereinigung der kommunalen Spitzenverbände, A-Drs. 21(16)19-A",
@@ -11468,8 +11481,7 @@
      "url": "https://www.bundestag.de/resource/blob/1098012/STN-ARGE-Netz-21-16-19-D.pdf",
      "number": "21(16)19"
     }
-   ],
-   "expertListUrl": null
+   ]
   },
   {
    "id": "1084756",
@@ -11478,6 +11490,7 @@
    "committee": "Sport und Ehrenamt",
    "date": "2025-06-25",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1084758/250625_sv_liste.pdf",
    "statements": [
     {
      "label": "Deutscher Olympischer Sportbund (DOSB)",
@@ -11499,8 +11512,7 @@
      "url": "https://www.bundestag.de/resource/blob/1093800/250625_adh.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1084758/250625_sv_liste.pdf"
+   ]
   },
   {
    "id": "1086984",
@@ -11511,6 +11523,7 @@
    "drucksachen": [
     "21/319"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1086988/sachverstaendigenliste.pdf",
    "statements": [
     {
      "label": "Stellungnahme Beratungsnetzwerk des Deutschen Gewerkschaftsbundes (DGB) \"Faire Mobilität\" & Europäischer Verein für Wanderarbeiterfragen e.V. zur 3. Sitzung am 25. Juni 2025 (Öffentliche Anhörung) \"TKG-Änderungsgesetz 2025\"",
@@ -11542,8 +11555,7 @@
      "url": "https://www.bundestag.de/resource/blob/1094354/Stellungnahme_-VATM-25-06-2025.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1086988/sachverstaendigenliste.pdf"
+   ]
   },
   {
    "id": "1084456",
@@ -11552,6 +11564,7 @@
    "committee": "Recht und Verbraucherschutz",
    "date": "2025-06-23",
    "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1087278/003_SV_Liste.pdf",
    "statements": [
     {
      "label": "21(6)4a - Stellungnahme Roger Beckamp",
@@ -11593,8 +11606,7 @@
      "url": "https://www.bundestag.de/resource/blob/1094352/4h_Stellungnahme_Werner.pdf",
      "number": "21(6)4"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1087278/003_SV_Liste.pdf"
+   ]
   },
   {
    "id": "1086482",
@@ -11606,6 +11618,7 @@
     "21/323",
     "21/356"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1086480/SV-Liste.pdf",
    "statements": [
     {
      "label": "Bundesverband der Deutschen Industrie e. V. (BDI), Berlin (Acht Spitzenverbände der dt. Wirtschaft)",
@@ -11657,8 +11670,7 @@
      "url": "https://www.bundestag.de/resource/blob/1090980/11-BVkom.pdf",
      "number": null
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1086480/SV-Liste.pdf"
+   ]
   },
   {
    "id": "1092000",
@@ -11670,6 +11682,7 @@
     "21/321",
     "21/349"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1093866/to03-SV-Liste-Stand-19-06-2025.pdf",
    "statements": [
     {
      "label": "21(4)012 A - Stellungnahme Prof. Dr. Daniel Thym, Universität Konstanz - Aussetzung des Familiennachzugs - BT-Drucksache 21/321",
@@ -11751,8 +11764,7 @@
      "url": "https://www.bundestag.de/resource/blob/1094128/21-4-023-Stellungnahme-Sozialpsychologie-zu-Flucht-und-Integration-Familiennachzug-21-321.pdf",
      "number": "21(4)023"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1093866/to03-SV-Liste-Stand-19-06-2025.pdf"
+   ]
   },
   {
    "id": "1092018",
@@ -11764,6 +11776,7 @@
     "21/324",
     "21/325"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1092020/to04-SV-Liste.pdf",
    "statements": [
     {
      "label": "21(4)013 A - Stellungnahme Prof. Dr. Louisa Specht-Riemenschneider, BfDI - Bundeskriminalamtgesetz - BT-Drucksachen 21/324, 21/325",
@@ -11810,8 +11823,7 @@
      "url": "https://www.bundestag.de/resource/blob/1094144/21-4-019-AendA-CDU-CSU-und-SPD-BKAG_WaffGAendG2025-21-324.pdf",
      "number": "21(4)019"
     }
-   ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1092020/to04-SV-Liste.pdf"
+   ]
   }
  ]
 }
