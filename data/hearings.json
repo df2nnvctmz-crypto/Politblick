@@ -1,5 +1,6 @@
 {
- "generatedAt": "2026-10-26T10:51:55.377Z",
+ "generatedAt": "2026-10-30T21:02:01.549Z",
+ "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
   {
@@ -49,6 +50,46 @@
    "statements": []
   },
   {
+   "id": "1229702",
+   "url": "https://www.bundestag.de/ausschuesse/umwelt/sitzungen/1229702-1229702",
+   "title": "Anhörung zum Abfallverbringungsgesetz",
+   "committee": "Umwelt, Klimaschutz, Naturschutz und nukleare Sicherheit",
+   "date": "2026-11-11",
+   "drucksachen": [],
+   "expertListUrl": null,
+   "statements": []
+  },
+  {
+   "id": "1229742",
+   "url": "https://www.bundestag.de/ausschuesse/gesundheit/anhoerungen/1229742-1229742",
+   "title": "Anhörung „Patientenrechte“",
+   "committee": "Gesundheit",
+   "date": "2026-11-11",
+   "drucksachen": [
+    "21/6916"
+   ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1229810/Anlage-2-Liste-Auskunftspersonen.pdf",
+   "statements": [
+    {
+     "label": "AOK Bundesverband",
+     "url": "https://www.bundestag.de/resource/blob/1230134/21-14-00123-1-AOK-Patientenrechtegesetz-nicht-barrierefrei.pdf",
+     "number": null
+    }
+   ]
+  },
+  {
+   "id": "1224784",
+   "url": "https://www.bundestag.de/ausschuesse/verteidigung/sitzungen/1224784-1224784",
+   "title": "Reservestärkungsgesetz – ResStG",
+   "committee": "Verteidigung",
+   "date": "2026-11-09",
+   "drucksachen": [
+    "21/8407"
+   ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1230166/SV-Liste-Reserve.pdf",
+   "statements": []
+  },
+  {
    "id": "1225570",
    "url": "https://www.bundestag.de/ausschuesse/a13_Bildung-Familie-Senioren-Frauen-und-Jugend/OeffentlicheSitzungen/1225570-1225570",
    "title": "Öffentliche Anhörung zum Aufstiegs-BAföG",
@@ -57,7 +98,7 @@
    "drucksachen": [
     "21/8412"
    ],
-   "expertListUrl": null,
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1230108/Sachverstaendigenliste.pdf",
    "statements": []
   },
   {
@@ -67,7 +108,8 @@
    "committee": "Wirtschaft und Energie",
    "date": "2026-11-06",
    "drucksachen": [
-    "21/8236"
+    "21/8236",
+    "21/8826"
    ],
    "expertListUrl": null,
    "statements": []
@@ -78,7 +120,9 @@
    "title": "Anhörung zum Strahlenschutzgesetz",
    "committee": "Umwelt, Klimaschutz, Naturschutz und nukleare Sicherheit",
    "date": "2026-11-04",
-   "drucksachen": [],
+   "drucksachen": [
+    "21/8415"
+   ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1229442/SV-Liste.pdf",
    "statements": [
     {
@@ -98,7 +142,48 @@
     "21/8284"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1223196/Sachverstaendigenliste-Wohngeld-Reform.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Stellungnahme SV Greta Schabram (Der Paritätische Gesamtverband) - A-Drs. 21(24)169-A",
+     "url": "https://www.bundestag.de/resource/blob/1223206/Stellungnahme-SV-Schabram.pdf",
+     "number": "21(24)169"
+    },
+    {
+     "label": "Stellungnahme SV Dr. Kai H. Warnecke (Haus & Grund) - A-Drs. 21(24)169-B",
+     "url": "https://www.bundestag.de/resource/blob/1223210/Stellungnahme-SV-Warnecke.pdf",
+     "number": "21(24)169"
+    },
+    {
+     "label": "Stellungnahme SV Martin Künkler (DGB) - A-Drs. 21(24)169-C",
+     "url": "https://www.bundestag.de/resource/blob/1223208/Stellungnahme-SV-Kuenkler.pdf",
+     "number": "21(24)169"
+    },
+    {
+     "label": "Stellungnahme SV Joachim Krauß (BAG W) - A-Drs. 21(24)169-D",
+     "url": "https://www.bundestag.de/resource/blob/1223200/Stellungnahme-SV-Krauss.pdf",
+     "number": "21(24)169"
+    },
+    {
+     "label": "Gemeinsame Stellungnahme des Deutschen Landkreistages & des Deutschen Städte- und Gemeindebundes - A-Drs. 21(24)169-E",
+     "url": "https://www.bundestag.de/resource/blob/1223198/Stellungnahme-SV-Mempel.pdf",
+     "number": "21(24)169"
+    },
+    {
+     "label": "Stellungnahme SV Sebastian Klöppel (DST) - A-Drs. 21(24)169-F",
+     "url": "https://www.bundestag.de/resource/blob/1223212/Stellungnahme-SV-Kloeppel.pdf",
+     "number": "21(24)169"
+    },
+    {
+     "label": "Stellungnahme SV Dr. Christian Lieberknecht (GdW) - A-Drs. 21(24)169-G",
+     "url": "https://www.bundestag.de/resource/blob/1223204/Stellungnahme-SV-Lieberknecht.pdf",
+     "number": "21(24)169"
+    },
+    {
+     "label": "Stellungnahme SV Dr. Melanie Weber-Moritz (DMB) - A-Drs. 21(24)169-H",
+     "url": "https://www.bundestag.de/resource/blob/1223202/Stellungnahme-SV-Weber-Moritz.pdf",
+     "number": "21(24)169"
+    }
+   ]
   },
   {
    "id": "1223450",
@@ -108,7 +193,13 @@
    "date": "2026-11-04",
    "drucksachen": [],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1224066/261104_sv_liste.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Grand Départ Allemagne e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1230216/261104_grand_depart.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1223712",
@@ -120,7 +211,13 @@
     "21/8277"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1223714/sachverstaendigenliste-TKGAe.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Stellungnahme Susanne Blohm (Verbraucherzentrale Bundesverband e.V.) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
+     "url": "https://www.bundestag.de/resource/blob/1230110/Stellungnahme-TKG_Blohm-vzbv-4-11-2026.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1223924",
@@ -130,7 +227,28 @@
    "date": "2026-11-04",
    "drucksachen": [],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1223928/Liste-der-SV-angefragt.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Stellungnahme Jürgen Gevers, Geschäftsführer, Verband Deutscher Freizeitparks und Freizeitunternehmen e.V. (VDFU)",
+     "url": "https://www.bundestag.de/resource/blob/1229972/Stellungnahme-Gevers.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Anet Hoppe, Geschäftsführerin, TMU Tourismusmarketing Uckermark GmbH",
+     "url": "https://www.bundestag.de/resource/blob/1229974/Stellungnahme-Hoppe.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Ellen Kartenbeck, Geschäftsführerin, Flusslandschaft Elbe GmbH",
+     "url": "https://www.bundestag.de/resource/blob/1229970/Stellungnahme-Kartenbeck.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Jun.-Prof. Dr. Michael Mießner, Fachbereich Raum- und Umweltwissenschaften, Fach Wirtschaftsgeographie, Universität Trier",
+     "url": "https://www.bundestag.de/resource/blob/1229968/Stellungnahme-Miessner.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1224900",
@@ -141,7 +259,7 @@
    "drucksachen": [
     "21/8285"
    ],
-   "expertListUrl": null,
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1230034/Sachverstaendigenliste.pdf",
    "statements": []
   },
   {
@@ -154,10 +272,90 @@
     "21/8235",
     "21/8065",
     "21/8378",
+    "21/8379",
     "21/6645"
    ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1229952/SV-Liste-50-Sitzung.pdf",
+   "statements": [
+    {
+     "label": "01 - Arbeitnehmerkammer Bremen",
+     "url": "https://www.bundestag.de/resource/blob/1230048/01-Arbeitnehmerkammer-Bremen.pdf",
+     "number": null
+    },
+    {
+     "label": "02 - Bierbrauer, Prof. Dr. Felix, Universität zu Köln",
+     "url": "https://www.bundestag.de/resource/blob/1230326/02-Bierbrauer-Prof-Dr-Felix.pdf",
+     "number": null
+    },
+    {
+     "label": "03 - Bund der Steuerzahler Deutschland e.V.",
+     "url": "https://www.bundestag.de/resource/blob/1230254/03-BdSt.pdf",
+     "number": null
+    },
+    {
+     "label": "03 - Bund der Steuerzahler Deutschland e.V. - Anlage 1",
+     "url": "https://www.bundestag.de/resource/blob/1230256/03-BdSt_Anlage-1.pdf",
+     "number": null
+    },
+    {
+     "label": "04 - Bundessteuerberaterkammer K.d.ö.R.",
+     "url": "https://www.bundestag.de/resource/blob/1230042/04-BStBK.pdf",
+     "number": null
+    },
+    {
+     "label": "07 - Söllner, Prof. Dr. Fritz",
+     "url": "https://www.bundestag.de/resource/blob/1230044/07-Soellner-Prof-Dr-Fritz.pdf",
+     "number": null
+    },
+    {
+     "label": "08 - van Suntum, Prof. Dr. Ulrich",
+     "url": "https://www.bundestag.de/resource/blob/1230046/08-van-Suntum-Prof-Dr-Ulrich.pdf",
+     "number": null
+    },
+    {
+     "label": "09 - ZEW – Leibniz-Zentrum für Europäische Wirtschaftsforschung",
+     "url": "https://www.bundestag.de/resource/blob/1230168/09-ZEW.pdf",
+     "number": null
+    }
+   ]
+  },
+  {
+   "id": "1225626",
+   "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/anhoerungen/1225626-1225626",
+   "title": "Anhörung zum Bürokratierückbaugesetz im Bereich des BMLEH",
+   "committee": "Landwirtschaft, Ernährung, Heimat",
+   "date": "2026-11-04",
+   "drucksachen": [
+    "21/8408"
+   ],
    "expertListUrl": null,
-   "statements": []
+   "statements": [
+    {
+     "label": "Stellungnahme der Einzelsachverständigen Kirsten Wosnitza",
+     "url": "https://www.bundestag.de/resource/blob/1230218/02_Stellgn_Kirsten-Wosnitza.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme der Arbeitsgemeinschaft bäuerliche Landwirtschaft e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1230222/03_Stellgn_AbL.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme der FREIE BAUERN Deutschland GmbH",
+     "url": "https://www.bundestag.de/resource/blob/1230224/04_Stellgn_FREIE-BAUERN.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme des Deutschen Hotellerie- und Gastronomieverbandes e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1230220/05_Stellgn_DEHOGA.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme des Naturschutzbundes Deutschland e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1230230/06_Stellgn_NABU.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1225752",
@@ -171,7 +369,92 @@
     "21/2738"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1225754/Anlage-2-Liste-Auskunftspersonen.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Bündnis ProTransplant",
+     "url": "https://www.bundestag.de/resource/blob/1230126/21-14-00122-1-Buendnis-ProTransplant-Organspende-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Deutsche Transplantationsgesellschaft (DTG)",
+     "url": "https://www.bundestag.de/resource/blob/1230128/21-14-00122-2-DTG-Organspende-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Prof. Dr. Gregor Thüsing",
+     "url": "https://www.bundestag.de/resource/blob/1230130/21-14-00122-3-Prof-Dr-Gregor-Thuensing-Organspende-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesärztekammer",
+     "url": "https://www.bundestag.de/resource/blob/1230132/21-14-00122-4-BAeK-Organspende-nicht-barrierefrei.pdf",
+     "number": null
+    }
+   ]
+  },
+  {
+   "id": "1229648",
+   "url": "https://www.bundestag.de/ausschuesse/gesundheit/anhoerungen/1229648-1229648",
+   "title": "Anhörung „ Prävention“",
+   "committee": "Gesundheit",
+   "date": "2026-11-04",
+   "drucksachen": [
+    "21/1577",
+    "21/6016",
+    "21/6659"
+   ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1229708/Anlage-2-Liste-Auskunftspersonen.pdf",
+   "statements": [
+    {
+     "label": "Dr. Jakob Manthey",
+     "url": "https://www.bundestag.de/resource/blob/1230124/21-14-00121-1-Dr-Jakob-Manthey-Praevention-nicht-barrierefrei.pdf",
+     "number": null
+    }
+   ]
+  },
+  {
+   "id": "1230112",
+   "url": "https://www.bundestag.de/ausschuesse/forschung/sitzungen/1230112-1230112",
+   "title": "Öffentliche Anhörung zum Wissenschaftszeitvertragsgesetz",
+   "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
+   "date": "2026-11-04",
+   "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1230184/Liste_der_Sachverstaendigen.pdf",
+   "statements": [
+    {
+     "label": "Stellungnahme der Max-Planck-Gesellschaft e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1230180/21-18-94a.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme der Sachverständigen Sonja Bolenius, Referatsleiterin Hochschul- und Wissenschaftspolitik beim Deutschen Gewerkschaftsbund",
+     "url": "https://www.bundestag.de/resource/blob/1230182/21-18-94b.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme des Sachverständigen Dr. Andreas Keller, Vorstandsmitglied für Hochschule und Forschung, Gewerkschaft Erziehung und Wissenschaft - Hauptvorstand",
+     "url": "https://www.bundestag.de/resource/blob/1230290/21-18-94c.pdf",
+     "number": null
+    }
+   ]
+  },
+  {
+   "id": "1224384",
+   "url": "https://www.bundestag.de/ausschuesse/verteidigung/sitzungen/1224384-1224384",
+   "title": "Bundeswehr-Infrastrukturbeschleunigungsgesetz",
+   "committee": "Verteidigung",
+   "date": "2026-11-02",
+   "drucksachen": [
+    "21/8409"
+   ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1229734/SV-Liste-Infrastruktur.pdf",
+   "statements": [
+    {
+     "label": "Stellungnahme des Sachverständigen Martin Kaiser, Greenpeace e.V.",
+     "url": "https://www.bundestag.de/resource/blob/1230062/stellungnahme-Martin-Kaiser.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1224898",
@@ -181,10 +464,27 @@
    "date": "2026-11-02",
    "drucksachen": [
     "21/8238",
+    "21/8825",
     "21/8366"
    ],
-   "expertListUrl": null,
-   "statements": []
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1229678/Sachverstaendigenliste.pdf",
+   "statements": [
+    {
+     "label": "21(9)423 Stellungnahme der IG Metall",
+     "url": "https://www.bundestag.de/resource/blob/1230274/Stellungnahme_IG_Metall.pdf",
+     "number": "21(9)423"
+    },
+    {
+     "label": "21(9)422 Gemeinsame Stellungnahme von TenneT, 50Hertz und Amprion",
+     "url": "https://www.bundestag.de/resource/blob/1230272/Stellungnahme_TenneT_50Hertz_Amprion.pdf",
+     "number": "21(9)422"
+    },
+    {
+     "label": "21(9)424 Stellungnahme der DIHK",
+     "url": "https://www.bundestag.de/resource/blob/1230298/Stellungnahme_DIHK.pdf",
+     "number": "21(9)424"
+    }
+   ]
   },
   {
    "id": "1225250",
@@ -197,8 +497,19 @@
     "21/3248",
     "21/8391"
    ],
-   "expertListUrl": null,
-   "statements": []
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1229740/SV-Liste.pdf",
+   "statements": [
+    {
+     "label": "02 - Deutsche Zoll- und Finanzgewerkschaft - BDZ",
+     "url": "https://www.bundestag.de/resource/blob/1230292/02-BDZ.pdf",
+     "number": null
+    },
+    {
+     "label": "08 - Wegner, Prof. Dr. Kilian - Martin-Luther-Universität Halle-Wittenberg",
+     "url": "https://www.bundestag.de/resource/blob/1230082/08-Wegner-Prof-Dr-Kilian.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1225280",
@@ -210,8 +521,49 @@
     "21/8283",
     "21/3025"
    ],
-   "expertListUrl": null,
-   "statements": []
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1229816/SV-Liste-48-Sitzung.pdf",
+   "statements": [
+    {
+     "label": "01 - Bund der Steuerzahler Deutschland e.V.",
+     "url": "https://www.bundestag.de/resource/blob/1230142/01-Bund-der-Steuerzahler-Deutschland-e-V-.pdf",
+     "number": null
+    },
+    {
+     "label": "01 - Bund der Steuerzahler Deutschland e.V. - Anlage 1",
+     "url": "https://www.bundestag.de/resource/blob/1230252/01-BdSt_Anlage-1.pdf",
+     "number": null
+    },
+    {
+     "label": "02 - Bundessteuerberaterkammer K.d.ö.R.",
+     "url": "https://www.bundestag.de/resource/blob/1229878/02-BStBK.pdf",
+     "number": null
+    },
+    {
+     "label": "04 - Bundesverband Lohnsteuerhilfevereine e.V. (BVL)",
+     "url": "https://www.bundestag.de/resource/blob/1230144/04-BVL.pdf",
+     "number": null
+    },
+    {
+     "label": "05 - Deutscher Gewerkschaftsbund (DGB)",
+     "url": "https://www.bundestag.de/resource/blob/1229838/05-DGB.pdf",
+     "number": null
+    },
+    {
+     "label": "06 - DSTG Deutsche Steuer-Gewerkschaft e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1230324/06-DSTG.pdf",
+     "number": null
+    },
+    {
+     "label": "07 - Grune, Dr. Jörg – INDICET Partners Rechtsanwaltsgesellschaft mbH",
+     "url": "https://www.bundestag.de/resource/blob/1230146/07-Grune-Dr-Joerg.pdf",
+     "number": null
+    },
+    {
+     "label": "08 - Schultz, Alison, Ph.D., Tax Justice Network",
+     "url": "https://www.bundestag.de/resource/blob/1230322/08-Schultz-Alison-Ph-D-.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1225340",
@@ -224,7 +576,48 @@
     "21/585"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1229382/SV-Liste.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Schriftliche Stellungnahme - Bundesvereinigung der Deutschen Arbeitgeberverbände e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1229840/21-11-133-BDA.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Deutscher Gewerkschaftsbund",
+     "url": "https://www.bundestag.de/resource/blob/1229912/21-11-134-DGB.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Prof. Dr. Clemens Höpfner",
+     "url": "https://www.bundestag.de/resource/blob/1230002/21-11-135-Clemens-Hoepfner.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Das Progressive Zentrum e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1230004/21-11-139-Das-progressive-Zentrum-e-V-.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Prof. Dr. Felix Hartmann",
+     "url": "https://www.bundestag.de/resource/blob/1230006/21-11-140-Felix-Hartmann.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Prof. Dr. Eva Kocher",
+     "url": "https://www.bundestag.de/resource/blob/1230232/21-11-145-Eva-Kocher.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Prof. Dr. Thorsten Schulten",
+     "url": "https://www.bundestag.de/resource/blob/1230250/21-11-146-Thorsten-Schulten.pdf",
+     "number": null
+    },
+    {
+     "label": "Zusammenstellung der Schriftlichen Stellungnahmen",
+     "url": "https://www.bundestag.de/resource/blob/1230286/Materialzusammenstellung.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1225342",
@@ -236,7 +629,48 @@
     "21/3844"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1229388/SV-Liste.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Schriftliche Stellungnahme - Arbeitnehmerkammer Bremen",
+     "url": "https://www.bundestag.de/resource/blob/1229834/21-11-131-Arbeitnehmerkammer-Bremen.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Prof. Dr. Silke Übelmesser",
+     "url": "https://www.bundestag.de/resource/blob/1229836/21-11-132-Prof-Dr-Silke-Uebelmesser.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Sozialverband VdK Deutschland e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1230008/21-11-136-Sozialverband-VdK.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Prof. Dr. Felix Welti",
+     "url": "https://www.bundestag.de/resource/blob/1230010/21-11-137-Felix-Welti.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Bundesvereinigung der Deutschen Arbeitgeberverbände e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1230012/21-11-138-BDA.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Deutscher Gewerkschaftsbund",
+     "url": "https://www.bundestag.de/resource/blob/1230014/21-11-141-DGB.pdf",
+     "number": null
+    },
+    {
+     "label": "Schriftliche Stellungnahme - Deutsche Rentenversicherung Bund",
+     "url": "https://www.bundestag.de/resource/blob/1230024/21-11-143-DRV-Bund.pdf",
+     "number": null
+    },
+    {
+     "label": "Zusammenstellung der Schriftlichen Stellungnahmen",
+     "url": "https://www.bundestag.de/resource/blob/1230288/Materialzusammenstellung.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1225566",
@@ -252,6 +686,41 @@
     {
      "label": "21(13)61a - Waltraud Weegmann - Vorsitzende, Geschäftsführerin Bundesverband freier unabhängiger Träger von Kindertagesstätten e.V. (Deutscher Kitaverband)",
      "url": "https://www.bundestag.de/resource/blob/1229510/Ausschussdrucksache-21-13-61a.pdf",
+     "number": "21(13)61"
+    },
+    {
+     "label": "21(13)61b - Bundesvereinigung der kommunalen Spitzenverbände",
+     "url": "https://www.bundestag.de/resource/blob/1229752/Ausschussdrucksache-21-13-61b.pdf",
+     "number": "21(13)61"
+    },
+    {
+     "label": "21(13)61c - Dr. Donate Kluxen-Pyta - Bundesvereinigung der Deutschen Arbeitgeberverbände (BDA), Stellv. Abteilungsleiterin Bildung",
+     "url": "https://www.bundestag.de/resource/blob/1229996/Ausschussdrucksache-21-13-61c.pdf",
+     "number": "21(13)61"
+    },
+    {
+     "label": "21(13)61d -Leon Ries - Deutsche Sportjugend (dsj) im Deutschen Olympischen Sportbund e.V., Vorstandsmitglied Geschäftsführung (dsj) & Vorstand Jugendsport (DOSB)",
+     "url": "https://www.bundestag.de/resource/blob/1229998/Ausschussdrucksache-21-13-61d.pdf",
+     "number": "21(13)61"
+    },
+    {
+     "label": "21(13)61e - Stefan Spieker - FRÖBEL Bildung und Erziehung gemeinnütziger GmbH, Vorsitzender des Vorstands und Geschäftsführer",
+     "url": "https://www.bundestag.de/resource/blob/1230056/Ausschussdrucksache-21-13-61e.pdf",
+     "number": "21(13)61"
+    },
+    {
+     "label": "21(13)61f - Prof. Dr. Yvonne Anders - Leibniz-Institut für Bildungsforschung und Bildungsinformation (DIPF), Direktorin, Leitung der Abteilung Entwicklung in Bildungskontexten",
+     "url": "https://www.bundestag.de/resource/blob/1230114/Ausschussdrucksache-21-13-61f.pdf",
+     "number": "21(13)61"
+    },
+    {
+     "label": "21(13)61g - Julia Schröder-Moritz - Institut für Bildung, Forschung und Entwicklung in der Pädagogik (KiTeAro) Institutsleitung, Geschäftsführerin",
+     "url": "https://www.bundestag.de/resource/blob/1230238/Ausschussdrucksache-21-13-61g.pdf",
+     "number": "21(13)61"
+    },
+    {
+     "label": "21(13)61h - Doreen Siebernik - Gewerkschaft Erziehung und Wissenschaft, Hauptstadtbüro (GEW), Stellvertretende Vorsitzende, Organisationsbereich Jugendhilfe und Sozialarbeit",
+     "url": "https://www.bundestag.de/resource/blob/1230240/Ausschussdrucksache-21-13-61h.pdf",
      "number": "21(13)61"
     }
    ]
@@ -616,7 +1085,7 @@
   },
   {
    "id": "1223034",
-   "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/a10_anhoerungen/1223034-1223034",
+   "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/anhoerungen/1223034-1223034",
    "title": "Zustimmung und Kritik für Liberalisierung des Nutzhanfanbaus",
    "committee": "Landwirtschaft, Ernährung, Heimat",
    "date": "2026-10-14",
@@ -2426,7 +2895,7 @@
   },
   {
    "id": "1206682",
-   "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/a10_anhoerungen/1206682-1206682",
+   "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/anhoerungen/1206682-1206682",
    "title": "Experten fordern Videoüberwachung in allen Schlachthöfen",
    "committee": "Landwirtschaft, Ernährung, Heimat",
    "date": "2026-09-11",
@@ -2742,7 +3211,7 @@
   },
   {
    "id": "1206680",
-   "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/a10_anhoerungen/1206680-1206680",
+   "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/anhoerungen/1206680-1206680",
    "title": "Unterschiedliche Auffassungen zum Düngegesetz",
    "committee": "Landwirtschaft, Ernährung, Heimat",
    "date": "2026-09-08",
@@ -4978,7 +5447,7 @@
   },
   {
    "id": "1156030",
-   "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/a10_anhoerungen/1156030-1156030",
+   "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/anhoerungen/1156030-1156030",
    "title": "Sachverständige sind sich uneinig über den Weg zu mehr Tierschutz",
    "committee": "Landwirtschaft, Ernährung, Heimat",
    "date": "2026-04-13",
@@ -6575,7 +7044,7 @@
   },
   {
    "id": "1145558",
-   "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/a10_anhoerungen/1145558-1145558",
+   "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/anhoerungen/1145558-1145558",
    "title": "Sachverständige uneins über Aufnahme des Wolfs in das Bundesjagdgesetz",
    "committee": "Landwirtschaft, Ernährung, Heimat",
    "date": "2026-02-23",
@@ -11825,5 +12294,64 @@
     }
    ]
   }
+ ],
+ "notHearings": [
+  "1103878",
+  "1107078",
+  "1107316",
+  "1107672",
+  "1108218",
+  "1112332",
+  "1112570",
+  "1112720",
+  "1113518",
+  "1114804",
+  "1118108",
+  "1125916",
+  "1127400",
+  "1128576",
+  "1132352",
+  "1135568",
+  "1135648",
+  "1135854",
+  "1137578",
+  "1139124",
+  "1145906",
+  "1149520",
+  "1149740",
+  "1150596",
+  "1155418",
+  "1156776",
+  "1157740",
+  "1157862",
+  "1161952",
+  "1162158",
+  "1165070",
+  "1165902",
+  "1166442",
+  "1173306",
+  "1173870",
+  "1174276",
+  "1178410",
+  "1182700",
+  "1183266",
+  "1183336",
+  "1183548",
+  "1184096",
+  "1184842",
+  "1192022",
+  "1209726",
+  "1211236",
+  "1216202",
+  "1216698",
+  "1216960",
+  "1217012",
+  "1222042",
+  "1222476",
+  "1222514",
+  "1223676",
+  "1224910",
+  "1229464",
+  "20250625"
  ]
 }
