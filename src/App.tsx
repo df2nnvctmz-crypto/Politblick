@@ -1539,7 +1539,10 @@ function App() {
             >
               {t.heroKicker}
             </div>
+            {/* The name is inside the h1 on purpose: it is what tells a search engine this page is
+                "Politblick", and the slogan alone never said so. */}
             <h1 style={{ fontSize: 44, lineHeight: 1.08, margin: '0 0 16px', fontWeight: 800, letterSpacing: '-0.02em' }}>
+              <span style={{ display: 'block', fontSize: 22, letterSpacing: '-0.01em', color: 'oklch(45% 0.16 265)', marginBottom: 8 }}>Politblick</span>{' '}
               {t.heroTitle}
             </h1>
             <p style={{ fontSize: 16.5, color: 'oklch(42% 0.01 260)', maxWidth: 600, margin: '0 auto 28px', lineHeight: 1.55 }}>

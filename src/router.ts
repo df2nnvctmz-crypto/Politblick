@@ -45,7 +45,16 @@ const LOBBY_TAB_TO_SEGMENT: Record<LobbyTab, string | null> = { overview: null, 
 const SEGMENT_TO_LOBBY_TAB: Record<string, LobbyTab> = { parteien: 'ties', verflechtungen: 'ties', organisationen: 'orgs', spenden: 'donations' };
 
 /** Builds the app-relative path (no BASE_URL prefix) for a route state. */
+/**
+ * The URL of a route, in the one form that returns 200 — see indexablePath. Every internal link
+ * and the address bar use this, so a crawler following a link never meets a redirect and each page
+ * has a single URL. Parsing does not care: pathToRoute reads both forms, so older links still work.
+ */
 export function routeToPath(r: RouteState): string {
+  return indexablePath(routeSegments(r));
+}
+
+function routeSegments(r: RouteState): string {
   switch (r.view) {
     case 'home':
       return '/';
@@ -147,7 +156,7 @@ export function stripBase(pathname: string, base: string): string {
  * <path>/index.html, and GitHub Pages answers a request for <path> with a 301 to <path>/ — so
  * the slash form is the only one that returns 200. Canonical tags and the sitemap must name that
  * form, or every URL they list is a redirect (Google then reports "Seite mit Weiterleitung" and
- * leaves it out of the index). In-app routing keeps the slash-less paths; both parse the same.
+ * leaves it out of the index). pathToRoute parses both forms the same.
  */
 export function indexablePath(path: string): string {
   return path === '/' ? '/' : `${path.replace(/\/+$/, '')}/`;
