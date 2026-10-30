@@ -237,7 +237,7 @@ export function InfoTooltip({ text }: { text: string }) {
  * desktop either fits every tab or has an always-visible native scrollbar, so the hint would just
  * be noise there.
  */
-export function SubTabBar<K extends string>({ tabs, active, onChange }: { tabs: { key: K; label: string; href?: string }[]; active: K; onChange: (key: K) => void }) {
+export function SubTabBar<K extends string>({ tabs, active, onChange }: { tabs: { key: K; label: string; href?: string; crawlable?: boolean }[]; active: K; onChange: (key: K) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -288,6 +288,19 @@ export function SubTabBar<K extends string>({ tabs, active, onChange }: { tabs: 
           };
           // A tab with its own URL is a real link, not a button: those pages are prerendered and a
           // crawler only follows an <a href>. stop() keeps plain clicks client-side.
+          if (tab.href && tab.crawlable === false) {
+            // No page was built for this tab, so a crawler following its link gets a real 404 (see
+            // public/404.html). It gets its href only once a person points at or tabs to it, which
+            // a crawler never does: open-in-new-tab still works, and the 404.html fallback takes
+            // it from there. The URL in the key: a reused element would keep the old member's href.
+            const href = tab.href;
+            const arm = (e: { currentTarget: HTMLAnchorElement }) => e.currentTarget.setAttribute('href', href);
+            return (
+              <a key={`${tab.key}:${href}`} role="link" tabIndex={0} onPointerEnter={arm} onFocus={arm} onClick={stop(() => onChange(tab.key))} aria-current={active === tab.key ? 'page' : undefined} style={{ ...style, display: 'inline-block' }}>
+                {tab.label}
+              </a>
+            );
+          }
           return tab.href ? (
             <a key={tab.key} href={tab.href} onClick={stop(() => onChange(tab.key))} aria-current={active === tab.key ? 'page' : undefined} style={{ ...style, display: 'inline-block' }}>
               {tab.label}

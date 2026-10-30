@@ -35,3 +35,26 @@ describe('buildRoutes — Nebentätigkeiten tab', () => {
     expect(finance.waitFor).toBe('[data-sidejob-list]');
   });
 });
+
+describe('buildRoutes — tabs the site links to from other pages', () => {
+  const paths = buildRoutes().map((r) => r.path);
+  // A built page answers in both URL forms, so which of them the router writes doesn't matter here.
+  const appPath = (r) => routeToPath({ ...DEFAULT_ROUTE, ...r }).replace(/\/$/, '');
+
+  it('builds the Spenden tab of every party page, on the path the app links to', () => {
+    const parties = paths.filter((p) => /^\/parteien\/[^/]+$/.test(p));
+    expect(parties.length).toBeGreaterThan(0);
+    for (const p of parties) {
+      const { party } = pathToRoute(p);
+      expect(paths).toContain(appPath({ view: 'party', party, partyTab: 'donations' }));
+    }
+  });
+
+  it('builds the Verflechtungen page the home page links to', () => {
+    expect(paths).toContain(appPath({ view: 'crossref', lobbyTab: 'ties' }));
+  });
+
+  it('leaves the member vote and lobby tabs unbuilt, as SubTabBar assumes', () => {
+    expect(paths.filter((p) => /\/abgeordnete\/.*\/(stimmen|lobby)$/.test(p))).toEqual([]);
+  });
+});

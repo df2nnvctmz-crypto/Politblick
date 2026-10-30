@@ -233,8 +233,7 @@ function App() {
   // Bookkeeping stored on each history entry (history.state), so it stays right across back/forward
   // and refreshes. pbIdx is the entry's position among this site's entries in the tab (0 = the
   // entry point). pbTabDepth counts the entries right before it that are the same page — another
-  // tab of it (each profile/party/lobby tab switch pushes one) or its bare-ID URL before the slug
-  // upgrade. "← Back" links use both
+  // tab of it (each profile/party/lobby tab switch pushes one). "← Back" links use both
   // to step back past all of those to the page the user actually came from (a search, a bill,
   // wherever) instead of always landing on a fixed parent page — or, if that page was the entry
   // point (a direct link), to fall back to their normal destination instead of leaving the site.
@@ -249,6 +248,7 @@ function App() {
   // Identifies "which page, ignoring its tab" independent of slug resolution — see its use below,
   // where it decides whether a pushed entry is a new page or just more of the same one (pbTabDepth).
   const basePageKeyRef = useRef<string | null>(null);
+  const tabKeyRef = useRef<string | null>(null);
   // Similar idea, for the GoatCounter pageview count in the document-head effect further down.
   const lastCountedPageKeyRef = useRef<string | null>(null);
   // Remembers where the MP list was scrolled to when a profile is opened from it, so returning
@@ -380,11 +380,13 @@ function App() {
     // The raw, pre-slug-resolution identity of "which page", minus its tab — deliberately built
     // from the selected ids rather than the routeToPath() output below, since that output changes
     // (bare id -> full slug) once `snapshot` loads even though the page itself hasn't changed.
-    // Unchanged means only a tab switched or the URL got its slug. Null before the first run,
-    // where any push can only be the entry page's own URL being upgraded.
+    // Unchanged means only a tab switched or the URL got its slug. Null before the first run.
     const prevBasePageKey = basePageKeyRef.current;
     const basePageKey = [view, selectedMpId, selectedBillId, selectedOrgId, selectedParty, selectedCommitteeId, selectedStoryWeek].join('|');
     basePageKeyRef.current = basePageKey;
+    const prevTabKey = tabKeyRef.current;
+    const tabKey = [profileTab, partyTab, lobbyTab].join('|');
+    tabKeyRef.current = tabKey;
     const returningToListFromProfile = view === 'search' && prevView === 'profile' && searchScrollYRef.current !== null;
     // A client-side pushState never triggers the browser's own scroll reset the way a real page
     // load does, so without this, opening any new page just inherits whatever scroll position
@@ -423,9 +425,16 @@ function App() {
     const fullPath = withBase(path, import.meta.env.BASE_URL);
     if (window.location.pathname !== fullPath) {
       const samePage = prevBasePageKey === null || prevBasePageKey === basePageKey;
-      historyIdxRef.current += 1;
-      tabDepthRef.current = samePage ? tabDepthRef.current + 1 : 0;
-      window.history.pushState({ pbIdx: historyIdxRef.current, pbTabDepth: tabDepthRef.current }, '', fullPath);
+      // Same page and same tab: nobody navigated, the URL just got rewritten — on the first run, or
+      // when data arrived for the slug. A pushed entry here would be one the Back button has to
+      // step through, on the way to landing on this same page again.
+      if (samePage && (prevTabKey === null || prevTabKey === tabKey)) {
+        window.history.replaceState(window.history.state, '', fullPath);
+      } else {
+        historyIdxRef.current += 1;
+        tabDepthRef.current = samePage ? tabDepthRef.current + 1 : 0;
+        window.history.pushState({ pbIdx: historyIdxRef.current, pbTabDepth: tabDepthRef.current }, '', fullPath);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -591,6 +600,11 @@ function App() {
   const resultsHref = (q: string) => `${withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'results' }), BASE_URL)}?q=${encodeURIComponent(q.trim())}`;
   const crossrefHref = (tab: LobbyTab = 'overview') => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'crossref', lobbyTab: tab }), BASE_URL);
   const mpHref = (id: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'profile', mpId: buildMpUrlParam(id, roster.members) }), BASE_URL);
+  // For lists that span whole legislature periods, like a party's deviators: someone who has left
+  // the Bundestag still belongs in the count and keeps their name there, but has no profile — the
+  // link would be a real 404 for a crawler and "Profil nicht gefunden" for a reader.
+  const rosterMpHref = (id: number) => (roster.members.some((m) => m.id === id) ? mpHref(String(id)) : undefined);
+  const rosterMpOpen = (id: number) => (roster.members.some((m) => m.id === id) ? stop(() => openMp(String(id))) : undefined);
   const mpTabHref = (id: string, tab: ProfileTab) =>
     withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'profile', mpId: buildMpUrlParam(id, roster.members), profileTab: tab }), BASE_URL);
   const billHref = (id: BillId) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'bill', billId: buildBillUrlParam(id, pollsState.polls) }), BASE_URL);
@@ -1037,8 +1051,10 @@ function App() {
         break;
       case 'party':
         if (selectedParty) {
-          title = `${selectedParty} – Politblick`;
-          description = t.metaPartyDescTemplate.replace('{party}', selectedParty);
+          // Like the Nebentätigkeiten tab: the Spenden tab is its own prerendered page.
+          const isDonations = partyTab === 'donations';
+          title = isDonations ? t.metaPartyDonationsTitleTemplate.replace('{party}', selectedParty) : `${selectedParty} – Politblick`;
+          description = (isDonations ? t.metaPartyDonationsDescTemplate : t.metaPartyDescTemplate).replace('{party}', selectedParty);
         }
         break;
       case 'impressum':
@@ -2072,7 +2088,13 @@ function App() {
               </div>
 
               <SubTabBar
-                tabs={profileTabs.map((tab) => ({ ...tab, href: selectedMpId ? mpTabHref(selectedMpId, tab.key) : undefined }))}
+                // Only these two are built as pages — see scripts/build-sitemap.mjs, whose /finanzen
+                // rule this has to match (a member with disclosed entries).
+                tabs={profileTabs.map((tab) => ({
+                  ...tab,
+                  href: selectedMpId ? mpTabHref(selectedMpId, tab.key) : undefined,
+                  crawlable: tab.key === 'overview' || (tab.key === 'finance' && sidejobs.records.length > 0),
+                }))}
                 active={profileTab}
                 onChange={setProfileTab}
               />
@@ -4735,11 +4757,11 @@ function App() {
             // stacks BY donor, so it needs the spellings reconciled first.
             const partyDonationListCanonical = partyDonations.allCanonical.filter((d) => d.fraction === p.party);
 
-            const partyTabs: { key: PartyTab; label: string }[] = [
+            const partyTabs: { key: PartyTab; label: string; href?: string }[] = [
               { key: 'overview', label: t.tabOverview },
               { key: 'votes', label: t.tabVotes },
               { key: 'ties', label: t.tabLobby },
-              { key: 'donations', label: t.partyTabDonations },
+              { key: 'donations', label: t.partyTabDonations, href: partyHref(p.party, 'donations') },
             ];
 
             return (
@@ -4823,8 +4845,8 @@ function App() {
                             {partyDissent.topDeviators.slice(0, 5).map((d) => (
                               <a
                                 key={d.politicianId}
-                                href={mpHref(String(d.politicianId))}
-                                onClick={stop(() => openMp(String(d.politicianId)))}
+                                href={rosterMpHref(d.politicianId)}
+                                onClick={rosterMpOpen(d.politicianId)}
                                 style={{ fontSize: 11.5, padding: '3px 9px', borderRadius: 10, background: 'white', border: '1px solid oklch(90% 0.006 260)', color: 'oklch(35% 0.01 260)', textDecoration: 'none' }}
                               >
                                 {d.name} · {d.count}
@@ -4952,8 +4974,8 @@ function App() {
                                           {v.deviatorList.slice(0, fullDeviatorLists.has(key) ? v.deviatorList.length : 20).map((d) => (
                                             <a
                                               key={d.politicianId}
-                                              href={mpHref(String(d.politicianId))}
-                                              onClick={stop(() => openMp(String(d.politicianId)))}
+                                              href={rosterMpHref(d.politicianId)}
+                                              onClick={rosterMpOpen(d.politicianId)}
                                               style={{ fontSize: 11.5, padding: '3px 9px', borderRadius: 10, background: 'oklch(97% 0.006 260)', border: '1px solid oklch(90% 0.006 260)', color: 'oklch(35% 0.01 260)', textDecoration: 'none' }}
                                             >
                                               {d.name} · {d.vote === 'yes' ? t.voteYes : d.vote === 'no' ? t.voteNo : t.voteAbstain}
@@ -5006,8 +5028,8 @@ function App() {
                               {partyDissent.topDeviators.map((d) => (
                                 <a
                                   key={d.politicianId}
-                                  href={mpHref(String(d.politicianId))}
-                                  onClick={stop(() => openMp(String(d.politicianId)))}
+                                  href={rosterMpHref(d.politicianId)}
+                                  onClick={rosterMpOpen(d.politicianId)}
                                   style={{ fontSize: 11.5, padding: '4px 10px', borderRadius: 10, background: 'white', border: '1px solid oklch(90% 0.006 260)', color: 'oklch(35% 0.01 260)', textDecoration: 'none' }}
                                 >
                                   {d.name} · {t.partyDeviatorTemplate.replace('{count}', String(d.count))}

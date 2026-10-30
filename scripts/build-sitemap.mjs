@@ -57,6 +57,7 @@ export function buildRoutes() {
   add('/parteien', { changefreq: 'weekly', priority: '0.7' });
   add('/ausschuesse', { changefreq: 'weekly', priority: '0.6' });
   add('/lobby-finanzen', { changefreq: 'daily', priority: '0.8' });
+  add('/lobby-finanzen/verflechtungen', { changefreq: 'weekly', priority: '0.6' });
   add('/daten', { changefreq: 'monthly', priority: '0.3' });
   add('/hinweis-zu-den-daten', { changefreq: 'monthly', priority: '0.3' });
   add('/impressum', { changefreq: 'yearly', priority: '0.1' });
@@ -99,8 +100,11 @@ export function buildRoutes() {
   // App.tsx's routablePartyNames), sourced from lobby-links' partyLobbySummary rather than the
   // roster's raw party list so "Fraktionslos" and any oddities never produce a 404'ing URL.
   const lobbyLinks = readJson('lobby-links.json');
+  // Plus their Spenden tab: the Sitzungswochen-Briefings link to it, and it is real content — every
+  // sitting fraction has reported large donations. The other party tabs stay unbuilt.
   for (const s of lobbyLinks?.partyLobbySummary ?? []) {
     add(`/parteien/${encodeURIComponent(s.party)}`, { changefreq: 'weekly', priority: '0.5' });
+    add(`/parteien/${encodeURIComponent(s.party)}/spenden`, { changefreq: 'weekly', priority: '0.4' });
   }
 
   // Organisation pages — /organisationen/<org id>-<name-slug>.

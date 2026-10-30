@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && node scripts/build-sitemap.mjs && vite build && node scripts/prerender.mjs",
+    "build": "tsc -b && node scripts/build-sitemap.mjs && vite build && node scripts/prerender.mjs && node scripts/audit-links.mjs",
     "lint": "oxlint",
     "test": "vitest run",
     "test:watch": "vitest",

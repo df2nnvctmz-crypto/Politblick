@@ -213,6 +213,7 @@ export interface Translation {
   metaOrgDescTemplate: string;
   metaCommitteeDescTemplate: string;
   metaPartyDescTemplate: string;
+  metaPartyDonationsTitleTemplate: string; metaPartyDonationsDescTemplate: string;
   metaImpressumDescription: string;
   metaDatenschutzDescription: string;
   metaDisclaimerDescription: string;
@@ -712,6 +713,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     metaOrgDescTemplate: 'Lobbyregister-Eintrag, verflochtene Abgeordnete und gemeldete Ausgaben von {name} auf Politblick',
     metaCommitteeDescTemplate: 'Mitglieder und Zuständigkeiten des Ausschusses {name} im Bundestag.',
     metaPartyDescTemplate: 'Sitzverteilung, Abstimmungsverhalten, Lobbyverflechtungen und Großspenden von {party} im Bundestag.',
+    metaPartyDonationsTitleTemplate: 'Großspenden an {party} – Politblick',
+    metaPartyDonationsDescTemplate: 'Einzelspenden an {party} über 35.000 € (bis März 2024: über 50.000 €), wie von der Bundestagspräsidentin veröffentlicht.',
     metaImpressumDescription: 'Impressum und Kontaktangaben von Politblick.',
     metaDatenschutzDescription: 'Datenschutzerklärung von Politblick — welche Daten anfallen und wie sie verarbeitet werden.',
     metaDisclaimerDescription: 'Woher die Daten auf Politblick stammen und was ihre Grenzen sind.',
@@ -1261,6 +1264,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     metaOrgDescTemplate: 'Lobby register entry, tied MPs, and reported spending for {name} on Politblick',
     metaCommitteeDescTemplate: 'Members and responsibilities of the {name} committee in the Bundestag.',
     metaPartyDescTemplate: 'Seat count, voting record, lobby ties, and large donations of {party} in the Bundestag.',
+    metaPartyDonationsTitleTemplate: 'Large donations to {party} – Politblick',
+    metaPartyDonationsDescTemplate: 'Single donations to {party} above €35,000 (before March 2024: above €50,000), as published by the President of the Bundestag.',
     metaImpressumDescription: 'Legal notice and contact details for Politblick.',
     metaDatenschutzDescription: "Politblick's privacy policy — what data is collected and how it's processed.",
     metaDisclaimerDescription: "Where Politblick's data comes from, and what its limits are.",

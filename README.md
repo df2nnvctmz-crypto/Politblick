@@ -289,7 +289,14 @@ Two invariants are worth naming, because they are the ones a plausible-looking c
 
 Not covered: React components, routing end-to-end, and the fetch scripts' network handling.
 The prerender step in `npm run build` is the de-facto smoke test for rendering — it walks all
-~1,150 routes through a real browser and fails the build if any of them throw.
+~1,150 routes through a real browser and fails the build if any of them throw. After it,
+`scripts/audit-links.mjs` fails the build if a prerendered page has an `<a href>` to an internal
+URL without a built page: GitHub Pages answers those with a real 404, which Search Console reports.
+
+A member's vote and lobby tabs are deliberately not built (~1,260 pages of mostly repeated or empty
+content on a young domain). `SubTabBar` gives their links an href only once a person hovers or
+focuses them, so they open in a new tab like any link but are not crawled. If they ever should be
+indexed, add them to `buildRoutes()` and mark them `crawlable` in `App.tsx`.
 
 ### API key
 
