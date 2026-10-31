@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-31T06:04:23.155Z",
+ "generatedAt": "2026-10-31T14:40:14.733Z",
  "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -213,8 +213,18 @@
    "expertListUrl": "https://www.bundestag.de/resource/blob/1223714/sachverstaendigenliste-TKGAe.pdf",
    "statements": [
     {
+     "label": "Stellungnahme Stefan Bentrop (Deutscher Mieterbund e.V.) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
+     "url": "https://www.bundestag.de/resource/blob/1230332/Stellungnahme-TKG_Bentrop-DMB-4-11-2026.pdf",
+     "number": null
+    },
+    {
      "label": "Stellungnahme Susanne Blohm (Verbraucherzentrale Bundesverband e.V.) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
      "url": "https://www.bundestag.de/resource/blob/1230110/Stellungnahme-TKG_Blohm-vzbv-4-11-2026.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Gerrit Wernke (Verband der Anbieter im Digital- und Telekommunikationsmarkt e.V.) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
+     "url": "https://www.bundestag.de/resource/blob/1230330/Stellungnahme-TKG_Wernke-VATM-4-11-2026.pdf",
      "number": null
     }
    ]
@@ -778,8 +788,10 @@
     "21/3607",
     "21/4268",
     "21/4282",
-    "21/7896",
-    "21/6807"
+    "21/6807",
+    "21/6915",
+    "21/6924",
+    "21/7896"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1221612/SV-Liste.pdf",
    "statements": [
@@ -1519,8 +1531,8 @@
    "committee": "Recht und Verbraucherschutz",
    "date": "2026-10-07",
    "drucksachen": [
-    "21/7561",
-    "21/7060"
+    "21/7060",
+    "21/7561"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1217486/SV-Liste.pdf",
    "statements": [
