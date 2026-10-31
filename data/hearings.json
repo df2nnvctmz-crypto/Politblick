@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-30T21:02:01.549Z",
+ "generatedAt": "2026-10-31T06:04:23.155Z",
  "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -778,10 +778,8 @@
     "21/3607",
     "21/4268",
     "21/4282",
-    "21/6807",
-    "21/6915",
-    "21/6924",
-    "21/7896"
+    "21/7896",
+    "21/6807"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1221612/SV-Liste.pdf",
    "statements": [
@@ -1521,8 +1519,8 @@
    "committee": "Recht und Verbraucherschutz",
    "date": "2026-10-07",
    "drucksachen": [
-    "21/7060",
-    "21/7561"
+    "21/7561",
+    "21/7060"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1217486/SV-Liste.pdf",
    "statements": [
