@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-02T06:35:44.310Z",
+ "generatedAt": "2026-11-02T18:40:35.736Z",
  "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -111,7 +111,7 @@
     "21/8236",
     "21/8826"
    ],
-   "expertListUrl": null,
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1230568/Sachverstaendigenliste.pdf",
    "statements": []
   },
   {
@@ -126,8 +126,23 @@
    "expertListUrl": "https://www.bundestag.de/resource/blob/1229442/SV-Liste.pdf",
    "statements": [
     {
-     "label": "Stellungnahme Dr. Annette Röttger, Physikalisch-Technische Bundesanstalt (PTB), A-Drs. 21(16)168-A",
-     "url": "https://www.bundestag.de/resource/blob/1229672/Stellungnahme-Dr-Annette-Roettger.pdf",
+     "label": "Stellungnahme Dr. Annette Röttger (Physikalisch-Technische Bundesanstalt PTB), A-Drs. 21(16)168-A",
+     "url": "https://www.bundestag.de/resource/blob/1229672/21-16-168-A_Stellungnahme-Dr-Roettger.pdf",
+     "number": "21(16)168"
+    },
+    {
+     "label": "Stellungnahme Dr. Jörg Kaulard (JEN Jülicher Entsorgungsgesellschaft für Nuklearanlagen mbH), A-Drs. 21(16)168-B",
+     "url": "https://www.bundestag.de/resource/blob/1230578/21-16-168-B_Stellungnahme-Dr-Kaulard_JEN.pdf",
+     "number": "21(16)168"
+    },
+    {
+     "label": "Stellungnahme Prof. Dr. Joachim Breckow (Technische Hochschule Mittelhessen), A-Drs. 21(16)168-C",
+     "url": "https://www.bundestag.de/resource/blob/1230580/21-16-168-C_Stellungnahme-Prof-Breckow_THM.pdf",
+     "number": "21(16)168"
+    },
+    {
+     "label": "Stellungnahme Prof. Dr. Wolfgang Liebert i.R. (BOKU University), A-Drs. 21(16)168-D",
+     "url": "https://www.bundestag.de/resource/blob/1230582/21-16-168-D_Stellungnahme-Prof-Liebert_BOKU.pdf",
      "number": "21(16)168"
     }
    ]
@@ -198,6 +213,11 @@
      "label": "Grand Départ Allemagne",
      "url": "https://www.bundestag.de/resource/blob/1230216/261104_grand_depart.pdf",
      "number": null
+    },
+    {
+     "label": "Deutscher Turner-Bund",
+     "url": "https://www.bundestag.de/resource/blob/1230444/261104_dtb.pdf",
+     "number": null
     }
    ]
   },
@@ -223,8 +243,13 @@
      "number": null
     },
     {
+     "label": "Stellungnahme Prof. Dr. Thomas Fetzer (Universität Mannheim) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
+     "url": "https://www.bundestag.de/resource/blob/1230654/Stellungnahme-TKG_Fetzer-4-11-2026.pdf",
+     "number": null
+    },
+    {
      "label": "Stellungnahme Sven Knapp (Bundesverband Breitbandkommunikation e.V.) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
-     "url": "https://www.bundestag.de/resource/blob/1230446/Stellungnahme-TKG_Knapp-vzbv-4-11-2026.pdf",
+     "url": "https://www.bundestag.de/resource/blob/1230446/Stellungnahme-TKG_Knapp-BREKO-4-11-2026.pdf",
      "number": null
     },
     {
@@ -275,7 +300,18 @@
     "21/8285"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230034/Sachverstaendigenliste.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "21(9)430 Stellungnahme des bne - Bundesverband Neue Energiewirtschaft e.V.",
+     "url": "https://www.bundestag.de/resource/blob/1230564/Stellungnahme_bne_eV.pdf",
+     "number": "21(9)430"
+    },
+    {
+     "label": "21(9)431 Stellungnahme des BVES - Bundesverband Energiespeicher Systeme e.V.",
+     "url": "https://www.bundestag.de/resource/blob/1230656/Stellungnahme_BVES_eV.pdf",
+     "number": "21(9)431"
+    }
+   ]
   },
   {
    "id": "1225284",
@@ -449,6 +485,11 @@
      "label": "Stellungnahme des Sachverständigen Dr. Andreas Keller, Vorstandsmitglied für Hochschule und Forschung, Gewerkschaft Erziehung und Wissenschaft - Hauptvorstand",
      "url": "https://www.bundestag.de/resource/blob/1230290/21-18-94c.pdf",
      "number": null
+    },
+    {
+     "label": "Stellungnahme der Sachverständigen Jun.-Prof. Dr. Amrei Bahr, Juniorprofessorin für Philosophie der Technik und Information an der Universität Stuttgart",
+     "url": "https://www.bundestag.de/resource/blob/1230660/21-18-94d.pdf",
+     "number": null
     }
    ]
   },
@@ -472,6 +513,11 @@
      "label": "Stellungnahme der Sachverständigen Ursula Philipp-Gerlach, Rechtsanwältin",
      "url": "https://www.bundestag.de/resource/blob/1230448/Stellungnahme-der-Sachverstaendigen-Ursula-Philipp-Gerlach.pdf",
      "number": null
+    },
+    {
+     "label": "Stellungnahme des Sachverständigen André Wüstner, Deutscher BundeswehrVerband",
+     "url": "https://www.bundestag.de/resource/blob/1230560/stellungnahme-DBwV.pdf",
+     "number": null
     }
    ]
   },
@@ -483,7 +529,6 @@
    "date": "2026-11-02",
    "drucksachen": [
     "21/8238",
-    "21/8825",
     "21/8366"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1229678/Sachverstaendigenliste.pdf",
@@ -502,6 +547,31 @@
      "label": "21(9)424 Stellungnahme der DIHK",
      "url": "https://www.bundestag.de/resource/blob/1230298/Stellungnahme_DIHK.pdf",
      "number": "21(9)424"
+    },
+    {
+     "label": "21(9)425 Stellungnahme des Bundesverbandes Windenergie Offshore e.V.",
+     "url": "https://www.bundestag.de/resource/blob/1230450/Stellungnahme_Bundesverband_Windenergie_Offshore_eV.pdf",
+     "number": "21(9)425"
+    },
+    {
+     "label": "21(9)426 Stellungnahme der Stiftung OFFSHORE-WINDENERGIE",
+     "url": "https://www.bundestag.de/resource/blob/1230456/Stellungnahme_Stiftung_Offshore-Windenergie.pdf",
+     "number": "21(9)426"
+    },
+    {
+     "label": "21(9)427 Stellungnahme des Sachverständigen Prof. Dr. Karl-Martin Ehrhart, Karlsruher Institut für Technologie (KIT)",
+     "url": "https://www.bundestag.de/resource/blob/1230490/Stellungnahme_SV_Dr-_Karl-Martin_Ehrhart_KIT.pdf",
+     "number": "21(9)427"
+    },
+    {
+     "label": "21(9)428 Stellungnahme des Sachverständigen Dr.-Ing. Bernd Fleischmann",
+     "url": "https://www.bundestag.de/resource/blob/1230500/Stellungnahme_SV_Dr-_Ing-_Bernd_Fleischmann.pdf",
+     "number": "21(9)428"
+    },
+    {
+     "label": "21(9)429 Stellungnahme des BDEW Bundesverband der Energie- und Wasserwirtschaft e.V.",
+     "url": "https://www.bundestag.de/resource/blob/1230502/Stellungnahme_BDEW_eV.pdf",
+     "number": "21(9)429"
     }
    ]
   },
@@ -512,8 +582,8 @@
    "committee": "Finanzen",
    "date": "2026-11-02",
    "drucksachen": [
-    "21/8282",
     "21/3248",
+    "21/8282",
     "21/8391"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1229740/SV-Liste.pdf",
@@ -694,7 +764,7 @@
   {
    "id": "1225566",
    "url": "https://www.bundestag.de/ausschuesse/a13_Bildung-Familie-Senioren-Frauen-und-Jugend/OeffentlicheSitzungen/1225566-1225566",
-   "title": "Öffentliche Anhörung zum Startchancen- und Qualitätsentwicklungsgesetz",
+   "title": "Experten zu Startchancen-Gesetz: Daten alleine reichen nicht",
    "committee": "Bildung, Familie, Senioren, Frauen und Jugend",
    "date": "2026-11-02",
    "drucksachen": [
@@ -740,6 +810,11 @@
     {
      "label": "21(13)61h - Doreen Siebernik - Gewerkschaft Erziehung und Wissenschaft, Hauptstadtbüro (GEW), Stellvertretende Vorsitzende, Organisationsbereich Jugendhilfe und Sozialarbeit",
      "url": "https://www.bundestag.de/resource/blob/1230240/Ausschussdrucksache-21-13-61h.pdf",
+     "number": "21(13)61"
+    },
+    {
+     "label": "21(13)61i - Anette Stein - Bertelsmann-Stiftung, Direktorin des Programms Bildung und Next Generation",
+     "url": "https://www.bundestag.de/resource/blob/1230468/Ausschussdrucksache-13-61i.pdf",
      "number": "21(13)61"
     }
    ]
@@ -12371,6 +12446,7 @@
   "1223676",
   "1224910",
   "1229464",
+  "1230686",
   "20250625"
  ]
 }
