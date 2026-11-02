@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-31T20:11:18.261Z",
+ "generatedAt": "2026-11-02T06:35:44.310Z",
  "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -195,7 +195,7 @@
    "expertListUrl": "https://www.bundestag.de/resource/blob/1224066/261104_sv_liste.pdf",
    "statements": [
     {
-     "label": "Grand Départ Allemagne e. V.",
+     "label": "Grand Départ Allemagne",
      "url": "https://www.bundestag.de/resource/blob/1230216/261104_grand_depart.pdf",
      "number": null
     }
@@ -220,6 +220,11 @@
     {
      "label": "Stellungnahme Susanne Blohm (Verbraucherzentrale Bundesverband e.V.) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
      "url": "https://www.bundestag.de/resource/blob/1230110/Stellungnahme-TKG_Blohm-vzbv-4-11-2026.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Sven Knapp (Bundesverband Breitbandkommunikation e.V.) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
+     "url": "https://www.bundestag.de/resource/blob/1230446/Stellungnahme-TKG_Knapp-vzbv-4-11-2026.pdf",
      "number": null
     },
     {
@@ -461,6 +466,11 @@
     {
      "label": "Stellungnahme des Sachverständigen Martin Kaiser, Greenpeace e.V.",
      "url": "https://www.bundestag.de/resource/blob/1230062/stellungnahme-Martin-Kaiser.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme der Sachverständigen Ursula Philipp-Gerlach, Rechtsanwältin",
+     "url": "https://www.bundestag.de/resource/blob/1230448/Stellungnahme-der-Sachverstaendigen-Ursula-Philipp-Gerlach.pdf",
      "number": null
     }
    ]
