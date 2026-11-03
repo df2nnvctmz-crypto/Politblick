@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-02T18:40:35.736Z",
+ "generatedAt": "2026-11-03T12:11:30.101Z",
  "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -99,6 +99,25 @@
     "21/8412"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230108/Sachverstaendigenliste.pdf",
+   "statements": [
+    {
+     "label": "21(13)66a - Dr. Irene Vorholz, Stellvertretende Hauptgeschäftsführerin, Beigeordnete für Soziales und Arbeit",
+     "url": "https://www.bundestag.de/resource/blob/1230866/21-13-66a.pdf",
+     "number": "21(13)66"
+    }
+   ]
+  },
+  {
+   "id": "1230794",
+   "url": "https://www.bundestag.de/ausschuesse/a07_finanzen/wp21_a07_Anhoerungen/1230794-1230794",
+   "title": "Öffentliche Anhörung zum Haushaltsbegleitgesetz - Zuckergetränkesteuer",
+   "committee": "Finanzen",
+   "date": "2026-11-09",
+   "drucksachen": [
+    "21/7860",
+    "21/8637"
+   ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1230800/SV-Liste-051.pdf",
    "statements": []
   },
   {
@@ -143,6 +162,11 @@
     {
      "label": "Stellungnahme Prof. Dr. Wolfgang Liebert i.R. (BOKU University), A-Drs. 21(16)168-D",
      "url": "https://www.bundestag.de/resource/blob/1230582/21-16-168-D_Stellungnahme-Prof-Liebert_BOKU.pdf",
+     "number": "21(16)168"
+    },
+    {
+     "label": "Stellungnahme Industrieverband Pro-Fusion e.V., A-Drs. 21(16)168-E",
+     "url": "https://www.bundestag.de/resource/blob/1230764/21-16-168-E_Stellungnahme-Industrieverband-Pro-Fusion-e-V.pdf",
      "number": "21(16)168"
     }
    ]
@@ -243,6 +267,11 @@
      "number": null
     },
     {
+     "label": "Stellungnahme Prof. Dr. Tomaso Duso (Monopolkommission) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
+     "url": "https://www.bundestag.de/resource/blob/1230750/Stellungnahme-TKG_Duso-4-11-2026.pdf",
+     "number": null
+    },
+    {
      "label": "Stellungnahme Prof. Dr. Thomas Fetzer (Universität Mannheim) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
      "url": "https://www.bundestag.de/resource/blob/1230654/Stellungnahme-TKG_Fetzer-4-11-2026.pdf",
      "number": null
@@ -310,6 +339,16 @@
      "label": "21(9)431 Stellungnahme des BVES - Bundesverband Energiespeicher Systeme e.V.",
      "url": "https://www.bundestag.de/resource/blob/1230656/Stellungnahme_BVES_eV.pdf",
      "number": "21(9)431"
+    },
+    {
+     "label": "21(9)432 Stellungnahme der Lausitz Energie Bergbau AG/Lausitz Energie Kraftwerke AG",
+     "url": "https://www.bundestag.de/resource/blob/1230888/Stellungnahme_LEAG_AG.pdf",
+     "number": "21(9)432"
+    },
+    {
+     "label": "21(9)433 Stellungnahme der EnBW Energie Baden-Württemberg AG",
+     "url": "https://www.bundestag.de/resource/blob/1230896/Stellungnahme_EnBW_AG.pdf",
+     "number": "21(9)433"
     }
    ]
   },
@@ -350,6 +389,16 @@
     {
      "label": "04 - Bundessteuerberaterkammer K.d.ö.R.",
      "url": "https://www.bundestag.de/resource/blob/1230042/04-BStBK.pdf",
+     "number": null
+    },
+    {
+     "label": "05 - Deutsche Industrie- und Handelskammer / 8 Spitzenverbände der gewerblichen Wirtschaft",
+     "url": "https://www.bundestag.de/resource/blob/1230872/05-DIHK_8er.pdf",
+     "number": null
+    },
+    {
+     "label": "06 - IMK - Institut für Makroökonomie und Konjunkturforschung (noch nicht barrierefrei)",
+     "url": "https://www.bundestag.de/resource/blob/1230876/06-IMK.pdf",
      "number": null
     },
     {
@@ -439,6 +488,26 @@
      "label": "Bundesärztekammer",
      "url": "https://www.bundestag.de/resource/blob/1230132/21-14-00122-4-BAeK-Organspende-nicht-barrierefrei.pdf",
      "number": null
+    },
+    {
+     "label": "Prof. Dr. Dr. Jochen Sautermeister",
+     "url": "https://www.bundestag.de/resource/blob/1230754/21-14-00122-6-Prof-Dr-Dr-Sautermeister-Organspende-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Winfried Hardinghaus",
+     "url": "https://www.bundestag.de/resource/blob/1230756/21-14-00122-7-Winfried-Hardinghaus-Organspende-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Junge Helden",
+     "url": "https://www.bundestag.de/resource/blob/1230758/21-14-00122-8-Junge-Helden-Organspende-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Tamara Schwab",
+     "url": "https://www.bundestag.de/resource/blob/1230760/21-14-00122-9-Tamara-Schwab-Organspende-nicht-barrierefrei.pdf",
+     "number": null
     }
    ]
   },
@@ -458,6 +527,16 @@
     {
      "label": "Dr. Jakob Manthey",
      "url": "https://www.bundestag.de/resource/blob/1230124/21-14-00121-1-Dr-Jakob-Manthey-Praevention-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Berufsverband Oecotrophologie",
+     "url": "https://www.bundestag.de/resource/blob/1230726/21-14-00121-2-VDOe-Praevention-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Christina Schadt",
+     "url": "https://www.bundestag.de/resource/blob/1230728/21-14-00121-3-Christina-Schadt-Praevention-nicht-barrierefrei.pdf",
      "number": null
     }
    ]
