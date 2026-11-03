@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-03T12:11:30.101Z",
+ "generatedAt": "2026-11-03T19:43:18.511Z",
  "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -55,7 +55,9 @@
    "title": "Anhörung zum Abfallverbringungsgesetz",
    "committee": "Umwelt, Klimaschutz, Naturschutz und nukleare Sicherheit",
    "date": "2026-11-11",
-   "drucksachen": [],
+   "drucksachen": [
+    "21/8866"
+   ],
    "expertListUrl": null,
    "statements": []
   },
@@ -349,6 +351,16 @@
      "label": "21(9)433 Stellungnahme der EnBW Energie Baden-Württemberg AG",
      "url": "https://www.bundestag.de/resource/blob/1230896/Stellungnahme_EnBW_AG.pdf",
      "number": "21(9)433"
+    },
+    {
+     "label": "21(9)435 Stellungnahme des BDEW - Bundesverband der Energie- und Wasserwirtschaft e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1230986/Stellungnahme_BDEW_eV.pdf",
+     "number": "21(9)435"
+    },
+    {
+     "label": "21(9)439 Stellungnahme Prof. Dr.-Ing Reinhard Müller-Syhre",
+     "url": "https://www.bundestag.de/resource/blob/1231000/Stellungnahme_Prof-Dr-Ing-Mueller-Syhre.pdf",
+     "number": "21(9)439"
     }
    ]
   },
