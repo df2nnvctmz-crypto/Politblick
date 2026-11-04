@@ -48,6 +48,9 @@ function transformLobbyEntry(raw) {
     name: identity.name ?? null,
     legalForm: identity.legalFormType?.de ?? null,
     city: identity.address?.city ?? null,
+    // ISO 3166 code of the registered seat ("DE", "AT", "US", …). This is the address the entry
+    // gives, not the nationality of an owner: a German subsidiary of a foreign group is "DE".
+    country: identity.address?.country?.code ?? null,
     website: identity.contactDetails?.websites?.[0]?.website ?? null,
     url: raw.registerEntryDetails?.detailsPageUrl ?? null,
     active: raw.accountDetails?.activeLobbyist !== false,

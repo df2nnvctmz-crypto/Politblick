@@ -37,7 +37,7 @@ import { OrgHearings, PollHearings, StatementLine } from './PollHearings';
 import { statementsByOrgForDrucksachen, useHearings, type StatementRef } from './hearings';
 import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
 import { DEFAULT_ROUTE, indexablePath, pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
-import { countOptions, divergenceLabel, firstParagraph, formatDateTime, formatMillions, formatWeekRange, fuzzyMatch } from './format';
+import { countOptions, countryName, divergenceLabel, firstParagraph, formatDateTime, formatMillions, formatWeekRange, fuzzyMatch } from './format';
 import { compareMultiSortValues, compareSortValues, toggleInSet, toggleMultiSort, toggleSort, type MultiSortState, type SortState } from './sorting';
 import { buildBillUrlParam, buildMpUrlParam, buildSlugParam, extractLeadingId, extractMpId, parseBillId, type BillId } from './urlParams';
 import { navStyle, pillBtn, voteBg } from './ui/styles';
@@ -161,6 +161,7 @@ function App() {
   const [partyOrigin, setPartyOrigin] = useState<'partyList' | 'crossref'>('partyList');
   const [orgPartyFilter, setOrgPartyFilter] = useState<Set<string>>(new Set());
   const [orgActorTypeFilter, setOrgActorTypeFilter] = useState<Set<string>>(new Set());
+  const [orgCountryFilter, setOrgCountryFilter] = useState<Set<string>>(new Set());
   const [orgFieldFilter, setOrgFieldFilter] = useState<Set<string>>(new Set());
   const [topicalSearchQuery, setTopicalSearchQuery] = useState('');
   const [topicalPartyFilter, setTopicalPartyFilter] = useState<Set<string>>(new Set());
@@ -1150,16 +1151,17 @@ function App() {
       if (needle && !e.org.name.toLowerCase().includes(needle)) return false;
       if (orgPartyFilter.size > 0 && !e.parties.some((p) => orgPartyFilter.has(p))) return false;
       if (orgActorTypeFilter.size > 0 && (!e.org.actorType || !orgActorTypeFilter.has(e.org.actorType))) return false;
+      if (orgCountryFilter.size > 0 && (!e.org.country || !orgCountryFilter.has(e.org.country))) return false;
       if (orgFieldFilter.size > 0 && !e.org.fieldsOfInterest.some((f) => orgFieldFilter.has(f))) return false;
       return true;
     });
-  }, [directoryOrgs, tiedOrgIds, orgScope, deferredOrgSearchQuery, orgPartyFilter, orgActorTypeFilter, orgFieldFilter]);
+  }, [directoryOrgs, tiedOrgIds, orgScope, deferredOrgSearchQuery, orgPartyFilter, orgActorTypeFilter, orgCountryFilter, orgFieldFilter]);
   // Back to the first page whenever the filters change. Without this, someone who paged two
   // thousand rows deep and then narrowed the search still pays to render everything the new
   // filter happens to match.
   useEffect(() => {
     setOrgsVisibleCount(ORGS_INITIAL_COUNT);
-  }, [orgScope, deferredOrgSearchQuery, orgPartyFilter, orgActorTypeFilter, orgFieldFilter]);
+  }, [orgScope, deferredOrgSearchQuery, orgPartyFilter, orgActorTypeFilter, orgCountryFilter, orgFieldFilter]);
   // Hoisted out of the table's render so a sort of several thousand names — localeCompare, which
   // is not cheap — happens when the sort or the filters change, not on every keystroke.
   const sortedOrgs = useMemo(() => {
@@ -1184,6 +1186,15 @@ function App() {
   const orgActorTypeOptions = useMemo(
     () => countOptions(directoryOrgs.map((e) => e.org.actorType).filter((v): v is string => Boolean(v))),
     [directoryOrgs],
+  );
+  // Filtered on the ISO code, labelled with the country's name in the current language.
+  const orgCountryOptions = useMemo(
+    () =>
+      countOptions(directoryOrgs.map((e) => e.org.country).filter((v): v is string => Boolean(v))).map((o) => ({
+        ...o,
+        label: countryName(o.value, lang) ?? o.value,
+      })),
+    [directoryOrgs, lang],
   );
   const orgFieldOptions = useMemo(() => countOptions(directoryOrgs.flatMap((e) => e.org.fieldsOfInterest)), [directoryOrgs]);
   const linkedOrgCount = tiedOrgIds.size;
@@ -3535,6 +3546,18 @@ function App() {
                   clearLabel={t.clearAllFilters}
                 />
                 <MultiSelectFilter
+                  label={t.filterCountry}
+                  options={orgCountryOptions}
+                  selected={orgCountryFilter}
+                  onToggle={(v) => setOrgCountryFilter((prev) => toggleInSet(prev, v))}
+                  onClear={() => setOrgCountryFilter(new Set())}
+                  allLabel={t.filterAllLabel}
+                  selectedCountTemplate={t.filterSelectedCountTemplate}
+                  clearLabel={t.clearAllFilters}
+                  searchable
+                  searchPlaceholder={t.filterSearchPlaceholder}
+                />
+                <MultiSelectFilter
                   label={t.filterFieldOfInterest}
                   options={orgFieldOptions}
                   selected={orgFieldFilter}
@@ -3546,7 +3569,7 @@ function App() {
                   searchable
                   searchPlaceholder={t.filterSearchPlaceholder}
                 />
-                {(orgPartyFilter.size > 0 || orgActorTypeFilter.size > 0 || orgFieldFilter.size > 0) && (
+                {(orgPartyFilter.size > 0 || orgActorTypeFilter.size > 0 || orgCountryFilter.size > 0 || orgFieldFilter.size > 0) && (
                   <>
                     <span style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)' }}>
                       {filteredOrgs.length} {t.results}
@@ -3555,6 +3578,7 @@ function App() {
                       onClick={() => {
                         setOrgPartyFilter(new Set());
                         setOrgActorTypeFilter(new Set());
+                        setOrgCountryFilter(new Set());
                         setOrgFieldFilter(new Set());
                       }}
                       style={{ border: 'none', background: 'none', color: 'oklch(45% 0.16 265)', fontWeight: 600, cursor: 'pointer', fontSize: 12.5, padding: 0 }}
@@ -3564,6 +3588,11 @@ function App() {
                   </>
                 )}
               </div>
+              {/* The register only knows an address. Said next to the filter so a list of "US"
+                  organisations is not read as every US company lobbying here. */}
+              {orgCountryFilter.size > 0 && (
+                <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', lineHeight: 1.55, margin: '-4px 0 14px', maxWidth: 720 }}>{t.orgCountryNote}</p>
+              )}
               {filteredOrgs.length === 0 ? (
                 <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.orgsNoResults}</p>
               ) : (
@@ -4148,7 +4177,7 @@ function App() {
             <>
               <h1 style={{ fontSize: 26, fontWeight: 800, margin: '20px 0 4px' }}>{orgDetail.org.name}</h1>
               <div style={{ fontSize: 13.5, color: 'oklch(45% 0.01 260)', marginBottom: 20 }}>
-                {[orgDetail.org.legalForm, orgDetail.org.city].filter(Boolean).join(' · ')}
+                {[orgDetail.org.legalForm, orgDetail.org.city, countryName(orgDetail.org.country, lang)].filter(Boolean).join(' · ')}
               </div>
 
               {/* The entry has ended. Said plainly here because every figure below — spend, staff,

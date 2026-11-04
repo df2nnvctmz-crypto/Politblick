@@ -65,6 +65,24 @@ export function countOptions(values: string[]): { value: string; label: string; 
     .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value, 'de'));
 }
 
+const countryNames = new Map<Lang, Intl.DisplayNames>();
+
+/** "AT" → "Österreich" / "Austria". The register gives ISO 3166 codes; the browser knows the
+ * names, so no lookup table has to be shipped or kept up to date. Unknown codes come back as-is. */
+export function countryName(code: string | null, lang: Lang): string | null {
+  if (!code) return null;
+  let names = countryNames.get(lang);
+  if (!names) {
+    names = new Intl.DisplayNames([lang === 'de' ? 'de-DE' : 'en-GB'], { type: 'region' });
+    countryNames.set(lang, names);
+  }
+  try {
+    return names.of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 /**
  * The "voted despite own tie" table is real signal, but as 34 rows of text it takes reading
  * every row to notice where it clusters. This turns party × policy-area into a small heatmap

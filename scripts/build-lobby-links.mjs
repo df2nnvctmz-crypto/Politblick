@@ -481,6 +481,7 @@ async function main() {
       legalForm: org.legalForm,
       actorType: org.actorType,
       city: org.city,
+      country: org.country ?? null,
       url: org.url,
       description: org.description,
       // Shipped so the UI can say "früher eingetragen" rather than claiming, in the present
@@ -567,6 +568,7 @@ async function main() {
         name: o.name.trim(),
         actorType: o.actorType,
         city: o.city,
+        country: o.country ?? null,
         url: o.url,
         expensesEuro: o.expensesEuro,
         staffFte: o.staffFte,

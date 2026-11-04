@@ -21,6 +21,7 @@ export interface Translation {
   filterParty: string; results: string;
   filterSort: string; sortDefault: string; sortIncome: string; sortSidejobCount: string; sortTies: string;
   filterActorType: string; filterFieldOfInterest: string; filterAllLabel: string;
+  filterCountry: string; orgCountryNote: string;
   filterSelectedCountTemplate: string; clearAllFilters: string; filterSearchPlaceholder: string;
   flagsLabel: string; backToSearch: string; backToHome: string;
   divergencesHeading: string; divergencesBaseRate: string;
@@ -329,6 +330,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     filterParty: 'Partei', results: 'Ergebnisse',
     filterSort: 'Sortierung', sortDefault: 'Standard', sortIncome: 'Nebeneinkünfte (höchste zuerst)', sortSidejobCount: 'Nebentätigkeiten (meiste zuerst)', sortTies: 'Verflechtungen (meiste zuerst)',
     filterActorType: 'Akteurstyp', filterFieldOfInterest: 'Interessengebiet', filterAllLabel: 'Alle',
+    filterCountry: 'Land (Sitz)',
+    orgCountryNote: 'Land = Sitz laut Lobbyregister, nicht die Herkunft der Eigentümer. Deutsche Tochterfirmen ausländischer Konzerne zählen als Deutschland.',
     filterSelectedCountTemplate: '{n} ausgewählt', clearAllFilters: 'Filter zurücksetzen', filterSearchPlaceholder: 'Suchen…',
     flagsLabel: 'Hinweise', backToSearch: 'Zurück zur Suche', backToHome: 'Zurück zur Startseite',
     divergencesHeading: 'Abweichungen von der Fraktionslinie',
@@ -880,6 +883,8 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     filterParty: 'Party', results: 'results',
     filterSort: 'Sort by', sortDefault: 'Default', sortIncome: 'Outside income (highest first)', sortSidejobCount: 'Outside activities (most first)', sortTies: 'Lobby ties (most first)',
     filterActorType: 'Actor type', filterFieldOfInterest: 'Field of interest', filterAllLabel: 'All',
+    filterCountry: 'Country (seat)',
+    orgCountryNote: 'Country = registered seat per the Lobbyregister, not where the owners are from. German subsidiaries of foreign groups count as Germany.',
     filterSelectedCountTemplate: '{n} selected', clearAllFilters: 'Clear filters', filterSearchPlaceholder: 'Search…',
     flagsLabel: 'flags', backToSearch: 'Back to search', backToHome: 'Back to home',
     divergencesHeading: "Votes against their own fraction’s line",

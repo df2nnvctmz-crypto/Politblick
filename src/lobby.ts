@@ -25,6 +25,8 @@ export interface LobbyOrg {
   /** The register's own classification of what kind of interest representative this is (Unternehmen, Verband, Beratungsunternehmen, Wissenschaft, Privatperson, …). */
   actorType: string | null;
   city: string | null;
+  /** ISO 3166 code of the registered seat. The entry's address, not an owner's nationality: German subsidiaries of foreign groups are "DE". */
+  country: string | null;
   url: string | null;
   /** The organisation's own free-text account of its lobbying activity, verbatim from the register ("Beschreibung der Tätigkeit"). Null where not declared. */
   description: string | null;
@@ -516,6 +518,7 @@ export interface DirectoryOrg {
   name: string;
   actorType: string | null;
   city: string | null;
+  country: string | null;
   url: string | null;
   expensesEuro: { from: number; to: number } | null;
   staffFte: number | null;
@@ -679,6 +682,7 @@ export function directoryToLobbyOrg(d: DirectoryOrg): LobbyOrg {
     active: true,
     actorType: d.actorType,
     city: d.city,
+    country: d.country,
     url: d.url,
     expensesEuro: d.expensesEuro,
     staffFte: d.staffFte,
