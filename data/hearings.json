@@ -1,8 +1,20 @@
 {
- "generatedAt": "2026-11-03T19:43:18.511Z",
+ "generatedAt": "2026-11-04T12:23:56.271Z",
  "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
+  {
+   "id": "1224840",
+   "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1224840-1224840",
+   "title": "Anhörung „Ausbau-/Neubaustrecke Brennernordzulauf“",
+   "committee": "Verkehr",
+   "date": "2027-01-25",
+   "drucksachen": [
+    "21/7165"
+   ],
+   "expertListUrl": null,
+   "statements": []
+  },
   {
    "id": "1222698",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1222698-1222698",
@@ -170,6 +182,11 @@
      "label": "Stellungnahme Industrieverband Pro-Fusion e.V., A-Drs. 21(16)168-E",
      "url": "https://www.bundestag.de/resource/blob/1230764/21-16-168-E_Stellungnahme-Industrieverband-Pro-Fusion-e-V.pdf",
      "number": "21(16)168"
+    },
+    {
+     "label": "Stellungnahme Herr Dr. Götz Ruprecht UInstitut für Festkörper-Kernphysik gGmbH",
+     "url": "https://www.bundestag.de/resource/blob/1231124/21-16-168-F_Stellungnahme-Institut-fuer-Festkoerper-Kernphysik-gGmbH.pdf",
+     "number": null
     }
    ]
   },
@@ -287,6 +304,11 @@
      "label": "Stellungnahme Gerrit Wernke (Verband der Anbieter im Digital- und Telekommunikationsmarkt e.V.) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
      "url": "https://www.bundestag.de/resource/blob/1230330/Stellungnahme-TKG_Wernke-VATM-4-11-2026.pdf",
      "number": null
+    },
+    {
+     "label": "Stellungnahme Bundesvereinigung der kommunalen Spitzenverbände (Deutscher Städtetag, Deutscher Landkreistag, Deutscher Städte- und Gemeindebund) zur 36. Sitzung am 4. November 2026 (Öffentliche Anhörung) \"TKG-Änderungsgesetz\"",
+     "url": "https://www.bundestag.de/resource/blob/1231054/Stellungnahme-TKG_Ritgen-DLT-4-11-2026.pdf",
+     "number": null
     }
    ]
   },
@@ -328,6 +350,7 @@
    "committee": "Wirtschaft und Energie",
    "date": "2026-11-04",
    "drucksachen": [
+    "21/6279",
     "21/8285"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230034/Sachverstaendigenliste.pdf",
