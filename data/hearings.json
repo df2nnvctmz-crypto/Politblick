@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-04T12:23:56.271Z",
+ "generatedAt": "2026-11-04T19:59:05.672Z",
  "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -48,7 +48,7 @@
    "drucksachen": [
     "21/7403"
    ],
-   "expertListUrl": null,
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1223024/Liste-der-Auskunftspersonen.pdf",
    "statements": []
   },
   {
@@ -70,7 +70,7 @@
    "drucksachen": [
     "21/8866"
    ],
-   "expertListUrl": null,
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1231264/SV-Liste-11-11-2026.pdf",
    "statements": []
   },
   {
@@ -118,6 +118,21 @@
      "label": "21(13)66a - Dr. Irene Vorholz, Stellvertretende Hauptgeschäftsführerin, Beigeordnete für Soziales und Arbeit",
      "url": "https://www.bundestag.de/resource/blob/1230866/21-13-66a.pdf",
      "number": "21(13)66"
+    },
+    {
+     "label": "21(13)66b - Dr. Volker Born - Zentralverband des Deutschen Handwerks e. V. (ZDH), Leiter des Bereichs Berufliche Bildung",
+     "url": "https://www.bundestag.de/resource/blob/1231230/21-13-66b.pdf",
+     "number": "21(13)66"
+    },
+    {
+     "label": "21(13)66c - Dr. Oliver Heikaus - Deutsche Industrie- und Handelskammer (DIHK), Leiter des Bereichs Weiterbildung",
+     "url": "https://www.bundestag.de/resource/blob/1231232/21-13-66c.pdf",
+     "number": "21(13)66"
+    },
+    {
+     "label": "21(13)66d - Jan Krüger - Deutscher Gewerkschaftsbund (DGB), Leiter der Abteilung Bildungspolitik und Bildungsarbeit",
+     "url": "https://www.bundestag.de/resource/blob/1231234/21-13-66d.pdf",
+     "number": "21(13)66"
     }
    ]
   },
@@ -145,7 +160,13 @@
     "21/8826"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230568/Sachverstaendigenliste.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Stellungnahme der vzbv Verbraucherzentrale Bundesverband e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1231204/Stellungnahme_vzbv_eV.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1223144",
@@ -394,10 +415,9 @@
    "committee": "Finanzen",
    "date": "2026-11-04",
    "drucksachen": [
-    "21/8235",
     "21/8065",
-    "21/8378",
-    "21/8379"
+    "21/8235",
+    "21/8378"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1229952/SV-Liste-50-Sitzung.pdf",
    "statements": [
@@ -456,7 +476,7 @@
   {
    "id": "1225626",
    "url": "https://www.bundestag.de/ausschuesse/Landwirtschaft/anhoerungen/1225626-1225626",
-   "title": "Anhörung zum Bürokratierückbaugesetz im Bereich des BMLEH",
+   "title": "Experten diskutieren über „Weideprämie“",
    "committee": "Landwirtschaft, Ernährung, Heimat",
    "date": "2026-11-04",
    "drucksachen": [
@@ -543,6 +563,16 @@
      "label": "Tamara Schwab",
      "url": "https://www.bundestag.de/resource/blob/1230760/21-14-00122-9-Tamara-Schwab-Organspende-nicht-barrierefrei.pdf",
      "number": null
+    },
+    {
+     "label": "Prof. Dr. Kerstin Schlögl-Flierl",
+     "url": "https://www.bundestag.de/resource/blob/1230762/21-14-00122-10-Prof-Dr-Kerstin-Schloegl-Flierl-Organspende-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Prof. Dr. Oliver Tolmein",
+     "url": "https://www.bundestag.de/resource/blob/1231164/21-14-00122-11-Prof-Dr-Oliver-Tolmein-Organspende.pdf",
+     "number": null
     }
    ]
   },
@@ -573,6 +603,11 @@
      "label": "Christina Schadt",
      "url": "https://www.bundestag.de/resource/blob/1230728/21-14-00121-3-Christina-Schadt-Praevention-nicht-barrierefrei.pdf",
      "number": null
+    },
+    {
+     "label": "Deutsche Hauptstelle für Suchtfragen",
+     "url": "https://www.bundestag.de/resource/blob/1231162/21-14-00121-4-DHS-Praevention-nicht-barrierefrei.pdf",
+     "number": null
     }
    ]
   },
@@ -582,7 +617,11 @@
    "title": "Öffentliche Anhörung zum Wissenschaftszeitvertragsgesetz",
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2026-11-04",
-   "drucksachen": [],
+   "drucksachen": [
+    "21/6345",
+    "21/8281",
+    "21/8384"
+   ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230184/Liste_der_Sachverstaendigen.pdf",
    "statements": [
     {
