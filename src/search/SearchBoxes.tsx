@@ -1,9 +1,10 @@
 /** The postcode/constituency finder. (The header search lives in GlobalSearchBox.tsx.) */
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import type { RealMp } from '../bundestag';
 import { fuzzyIncludes } from '../helpers';
 import { stop } from '../ui/events';
+import { useOutsideClick } from '../ui/hooks';
 
 /**
  * Homepage entry point for "does this affect me": search by city/constituency (or an MP's
@@ -34,13 +35,7 @@ export function FindMyMpBox({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const onOutside = (e: globalThis.MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onOutside);
-    return () => document.removeEventListener('mousedown', onOutside);
-  }, []);
+  useOutsideClick(containerRef, open, () => setOpen(false));
 
   const q = query.trim();
   const matches =

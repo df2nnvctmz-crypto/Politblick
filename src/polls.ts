@@ -148,7 +148,7 @@ export function usePollResult(pollId: number | null): PollDetailState {
   const { snapshot, loading, error } = useSnapshot();
   if (pollId === null) return { result: null, loading: false, error: null };
   const result = snapshot?.pollResults.get(pollId) ?? null;
-  return { result, loading, error: !loading && !result ? error : error };
+  return { result, loading, error };
 }
 
 export interface MandateVoteRecord {

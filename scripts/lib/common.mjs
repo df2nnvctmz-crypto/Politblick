@@ -39,7 +39,23 @@ export const CATEGORY_LABELS = {
   29647: 'Vergütete Tätigkeit neben dem Mandat',
 };
 
-export const INTERVAL_MAP = { 0: 'once', '0': 'once', 1: 'monthly', '1': 'monthly', 2: 'annual', '2': 'annual' };
+// Object keys are strings, so numeric and string codes (0 and '0') both hit the same entry.
+export const INTERVAL_MAP = { 0: 'once', 1: 'monthly', 2: 'annual' };
+
+/** Same as src/format.ts slugify (pinned by common.test.mjs) — the sitemap and story links must
+ * produce exactly the URLs the app does. German umlauts are transliterated, not stripped. */
+export function slugify(name) {
+  return name
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));

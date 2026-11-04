@@ -7,7 +7,8 @@
  * A group is either single-choice (radio, check mark on the active option; its FIRST option is
  * the default) or multi-choice (checkboxes, e.g. parties; "all selected" is the default).
  */
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useOutsideClick } from './hooks';
 
 const ACCENT = 'oklch(45% 0.16 265)';
 const MIN_WIDTH = 240;
@@ -66,14 +67,7 @@ export function FilterMenu({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const onOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onOutside);
-    return () => document.removeEventListener('mousedown', onOutside);
-  }, [open]);
+  useOutsideClick(ref, open, () => setOpen(false));
   // The menu hangs off its button, so a button near the right edge (the filter button next to
   // the category button) pushed it past the screen: the page grew sideways and lost its centring,
   // and phones keep that width even after the menu moves back. So the side it opens to and its

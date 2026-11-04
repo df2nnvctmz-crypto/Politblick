@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalPartyName, extractDrucksachen, fractionNameFromVote, normalizeOrgName } from './common.mjs';
+import { canonicalPartyName, extractDrucksachen, fractionNameFromVote, normalizeOrgName, slugify } from './common.mjs';
+import { slugify as appSlugify } from '../../src/format';
 
 /**
  * These cover the join keys — the strings that decide whether a donation, a declared role or a
@@ -106,5 +107,14 @@ describe('extractDrucksachen', () => {
     expect(extractDrucksachen('<p>Kein Link</p>')).toEqual([]);
     expect(extractDrucksachen('')).toEqual([]);
     expect(extractDrucksachen(null)).toEqual([]);
+  });
+});
+
+describe('slugify', () => {
+  it('matches the app exactly, so sitemap and story links never point at URLs the app does not serve', () => {
+    for (const name of ['Friedrich Merz', 'Jürgen Müller-Lüdenscheidt', 'Straße der Großen', 'Zoë Ćurić', '  Ärger!  ', 'Bündnis 90/Die Grünen']) {
+      expect(slugify(name)).toBe(appSlugify(name));
+    }
+    expect(slugify('Jürgen Müller')).toBe('juergen-mueller');
   });
 });

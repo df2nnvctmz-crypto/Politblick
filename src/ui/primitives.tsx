@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import type { MultiSortState, SortState } from '../sorting';
 import { stop } from './events';
+import { useOutsideClick } from './hooks';
 
 /** Photo is pre-resolved at fetch time (see fetch-core.mjs) and just a static URL now — falls back to colored initials if there's no Wikidata portrait, or if the Commons URL fails to load. */
 export function MpAvatar({ photoUrl, name, color, initials, size }: { photoUrl: string | null; name: string; color: string; initials: string; size: number }) {
@@ -154,20 +155,14 @@ export function InfoTooltip({ text }: { text: string }) {
     popup.style.left = `${Math.max(margin, Math.min(anchorLeft, maxLeft)) - anchorLeft}px`;
   }, [open]);
 
+  useOutsideClick(containerRef, open, () => setOpen(false));
   useEffect(() => {
     if (!open) return;
-    const onOutside = (e: globalThis.MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
-    };
     const onEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
     };
-    document.addEventListener('mousedown', onOutside);
     document.addEventListener('keydown', onEscape);
-    return () => {
-      document.removeEventListener('mousedown', onOutside);
-      document.removeEventListener('keydown', onEscape);
-    };
+    return () => document.removeEventListener('keydown', onEscape);
   }, [open]);
 
   return (

@@ -9,6 +9,7 @@
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import type { Translation } from '../data';
 import { stop } from '../ui/events';
+import { useOutsideClick } from '../ui/hooks';
 import { MIN_QUERY_LENGTH, type SearchGroup, type SearchResults } from './searchModel';
 import type { SearchResultsLinks } from './SearchResultsPage';
 
@@ -40,13 +41,7 @@ export function GlobalSearchBox({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const onOutside = (e: globalThis.MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onOutside);
-    return () => document.removeEventListener('mousedown', onOutside);
-  }, []);
+  useOutsideClick(containerRef, open, () => setOpen(false));
 
   const q = query.trim();
   // An empty /suche page asks for a query, so arriving there puts the cursor in this field. (The

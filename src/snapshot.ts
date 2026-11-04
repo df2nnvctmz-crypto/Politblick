@@ -213,7 +213,14 @@ async function buildSnapshot(): Promise<Snapshot> {
 let snapshotPromise: Promise<Snapshot> | null = null;
 
 function loadSnapshot(force = false): Promise<Snapshot> {
-  if (force || !snapshotPromise) snapshotPromise = buildSnapshot();
+  if (force || !snapshotPromise) {
+    const p = buildSnapshot().catch((e) => {
+      // Don't cache the failure: a component that mounts later should retry, not inherit it.
+      if (snapshotPromise === p) snapshotPromise = null;
+      throw e;
+    });
+    snapshotPromise = p;
+  }
   return snapshotPromise;
 }
 

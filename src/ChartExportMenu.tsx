@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
+import { useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { cloneSvgForExport, downloadCsv, downloadPng, downloadSvg, type ChartCsvExport, type ChartSvgExport, type ExportFrame } from './chartExport';
+import { useOutsideClick } from './ui/hooks';
 
 export interface ChartExportLabels {
   buttonLabel: string;
@@ -50,14 +51,7 @@ export function ChartExportMenu({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!open) return;
-    const onOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onOutside);
-    return () => document.removeEventListener('mousedown', onOutside);
-  }, [open]);
+  useOutsideClick(containerRef, open, () => setOpen(false));
 
   const resolveSvg = (): ChartSvgExport | null => {
     if (svgRef?.current) return cloneSvgForExport(svgRef.current);

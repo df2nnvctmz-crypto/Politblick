@@ -38,3 +38,11 @@ remotion-slides/
 
 # Local newsletter preview (scripts/send-newsletter.mjs --mode preview)
 newsletter-preview.html
+
+# Local email templates pasted into Brevo by hand, never committed
+email-templates/
+
+# Claude Code files — kept local, not part of the site
+CLAUDE.md
+CLAUDE.local.md
+.claude/

@@ -42,6 +42,7 @@ import { compareMultiSortValues, compareSortValues, toggleInSet, toggleMultiSort
 import { buildBillUrlParam, buildMpUrlParam, buildSlugParam, extractLeadingId, extractMpId, parseBillId, type BillId } from './urlParams';
 import { navStyle, pillBtn, voteBg } from './ui/styles';
 import { stop } from './ui/events';
+import { useHoverMenu, useOutsideClick } from './ui/hooks';
 import { InfoTooltip, MpAvatar, MultiSelectFilter, MultiSortableTh, ScrollBox, SortableTh, SubTabBar } from './ui/primitives';
 import { ActorTypeSpendChart, DonationBarChart, HemicycleChart, OrgInfluenceBarChart, SectorBarChart, TieMatrix, VoteResultChart, type MatrixCell, type SectorMetric } from './charts';
 import { FindMyMpBox } from './search/SearchBoxes';
@@ -170,32 +171,8 @@ function App() {
   // right before the click — so the hover-to-open behavior below must be skipped on touch,
   // otherwise the dropdown opens and the same tap's click immediately navigates and closes it.
   const [isTouchNav] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
-  const [lobbyNavOpen, setLobbyNavOpen] = useState(false);
-  const lobbyNavRef = useRef<HTMLDivElement>(null);
-  const lobbyNavCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const openLobbyNav = () => {
-    if (lobbyNavCloseTimer.current) {
-      clearTimeout(lobbyNavCloseTimer.current);
-      lobbyNavCloseTimer.current = null;
-    }
-    setLobbyNavOpen(true);
-  };
-  const scheduleCloseLobbyNav = () => {
-    lobbyNavCloseTimer.current = setTimeout(() => setLobbyNavOpen(false), 250);
-  };
-  const [mpsNavOpen, setMpsNavOpen] = useState(false);
-  const mpsNavRef = useRef<HTMLDivElement>(null);
-  const mpsNavCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const openMpsNav = () => {
-    if (mpsNavCloseTimer.current) {
-      clearTimeout(mpsNavCloseTimer.current);
-      mpsNavCloseTimer.current = null;
-    }
-    setMpsNavOpen(true);
-  };
-  const scheduleCloseMpsNav = () => {
-    mpsNavCloseTimer.current = setTimeout(() => setMpsNavOpen(false), 250);
-  };
+  const { open: lobbyNavOpen, setOpen: setLobbyNavOpen, ref: lobbyNavRef, openNow: openLobbyNav, scheduleClose: scheduleCloseLobbyNav } = useHoverMenu();
+  const { open: mpsNavOpen, setOpen: setMpsNavOpen, ref: mpsNavRef, openNow: openMpsNav, scheduleClose: scheduleCloseMpsNav } = useHoverMenu();
   // On touch, the first tap on a trigger only reveals its dropdown; a second tap (or a tap on
   // an actual submenu item) is what navigates. Tapping anywhere else closes it.
   const touchNavTriggerClick = (open: boolean, setOpen: (v: boolean) => void, navigate: () => void) => (e: MouseEvent) => {
@@ -210,15 +187,8 @@ function App() {
       setOpen(false);
     })(e);
   };
-  useEffect(() => {
-    if (!isTouchNav || (!mpsNavOpen && !lobbyNavOpen)) return;
-    const onOutside = (e: globalThis.MouseEvent) => {
-      if (mpsNavOpen && mpsNavRef.current && !mpsNavRef.current.contains(e.target as Node)) setMpsNavOpen(false);
-      if (lobbyNavOpen && lobbyNavRef.current && !lobbyNavRef.current.contains(e.target as Node)) setLobbyNavOpen(false);
-    };
-    document.addEventListener('mousedown', onOutside);
-    return () => document.removeEventListener('mousedown', onOutside);
-  }, [isTouchNav, mpsNavOpen, lobbyNavOpen]);
+  useOutsideClick(mpsNavRef, isTouchNav && mpsNavOpen, () => setMpsNavOpen(false));
+  useOutsideClick(lobbyNavRef, isTouchNav && lobbyNavOpen, () => setLobbyNavOpen(false));
 
   // Declared here (ahead of where they're conceptually used, further down) because the URL-sync
   // effect just below needs them to upgrade bare-ID profile/bill/org/committee URLs into full

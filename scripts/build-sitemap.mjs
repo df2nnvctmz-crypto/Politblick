@@ -12,6 +12,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { slugify } from './lib/common.mjs';
 
 export const SITE_URL = 'https://politblick.de';
 const DATA_DIR = 'public/data';
@@ -20,20 +21,6 @@ function readJson(name) {
   const path = `${DATA_DIR}/${name}`;
   if (!existsSync(path)) return null;
   return JSON.parse(readFileSync(path, 'utf-8'));
-}
-
-// Mirrors src/App.tsx's slugify() — German umlauts get their usual ASCII transliteration.
-function slugify(name) {
-  return name
-    .toLowerCase()
-    .replace(/ä/g, 'ae')
-    .replace(/ö/g, 'oe')
-    .replace(/ü/g, 'ue')
-    .replace(/ß/g, 'ss')
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
 }
 
 // Mirrors src/App.tsx's buildSlugParam() — id first (stable, unique), readable slug after.

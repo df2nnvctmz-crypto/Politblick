@@ -34,7 +34,7 @@
 import { pathToFileURL } from 'node:url';
 import { rm, mkdir } from 'node:fs/promises';
 import path from 'node:path';
-import { readJsonFile, writeJsonFile } from './lib/common.mjs';
+import { readJsonFile, slugify, writeJsonFile } from './lib/common.mjs';
 
 const NO_FRACTION = 'Fraktionslos';
 const STORIES_DIR = 'stories';
@@ -82,19 +82,6 @@ function monthsBetween(fromIso, toIso) {
   const from = new Date(`${fromIso}T00:00:00Z`);
   const to = new Date(`${toIso}T00:00:00Z`);
   return Math.round((to - from) / (1000 * 60 * 60 * 24 * 30.44));
-}
-
-function slugify(name) {
-  return name
-    .toLowerCase()
-    .replace(/ä/g, 'ae')
-    .replace(/ö/g, 'oe')
-    .replace(/ü/g, 'ue')
-    .replace(/ß/g, 'ss')
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
 }
 
 /** Restates src/polls.ts's computeDivergences: skip non-voters and Fraktionslos, compare against the fraction's stored majority. */
