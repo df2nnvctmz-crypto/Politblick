@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-04T19:59:05.672Z",
+ "generatedAt": "2026-11-05T12:38:54.487Z",
  "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -92,6 +92,32 @@
    ]
   },
   {
+   "id": "1231314",
+   "url": "https://www.bundestag.de/ausschuesse/forschung/sitzungen/1231314-1231314",
+   "title": "Öffentliche Anhörung zum BAföGÄndG",
+   "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
+   "date": "2026-11-11",
+   "drucksachen": [],
+   "expertListUrl": null,
+   "statements": [
+    {
+     "label": "Stellungnahme der Sachverständigen Dr. Isabel Rohner, Referatsleiterin Bildung BDA",
+     "url": "https://www.bundestag.de/resource/blob/1231326/21-18-98a.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Sonja Bolenius, Referatsleiterin Hochschul- und Wissenschaftspolitik beim Deutschen Gewerkschaftsbund",
+     "url": "https://www.bundestag.de/resource/blob/1231328/21-18-98b.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme des Sachverständigen Matthias Anbuhl, Vorstandsvorsitzender des Deutschen Studierendenwerks",
+     "url": "https://www.bundestag.de/resource/blob/1231330/21-18-97.pdf",
+     "number": null
+    }
+   ]
+  },
+  {
    "id": "1224784",
    "url": "https://www.bundestag.de/ausschuesse/verteidigung/sitzungen/1224784-1224784",
    "title": "Reservestärkungsgesetz – ResStG",
@@ -101,7 +127,13 @@
     "21/8407"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230166/SV-Liste-Reserve.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Stellungnahme des Sachverständigen Oberst a.D. Peter Haupt",
+     "url": "https://www.bundestag.de/resource/blob/1231286/SV-Haupt_ResStG.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1225570",
@@ -165,6 +197,16 @@
      "label": "Stellungnahme der vzbv Verbraucherzentrale Bundesverband e. V.",
      "url": "https://www.bundestag.de/resource/blob/1231204/Stellungnahme_vzbv_eV.pdf",
      "number": null
+    },
+    {
+     "label": "21(9)447 Stellungnahme des Sachverständigen Dr. Tom Bauermann, Institut für Makroökonomie und Konjunkturforschung, IMK, der Hans-Böckler-Stiftung",
+     "url": "https://www.bundestag.de/resource/blob/1231308/Stellungnahme_SV_Dr-_Tom_Bauermann.pdf",
+     "number": "21(9)447"
+    },
+    {
+     "label": "21(9)448 Gemeinsame Stellungnahme der vier Übertragungsnetzbetreiber 50Hertz, Amprion, TenneT, TRANSNET BW",
+     "url": "https://www.bundestag.de/resource/blob/1231360/Gemeinsame_Stellungnahme_50Hertz_Amprion_TenneT_Transnet_BW.pdf",
+     "number": "21(9)448"
     }
    ]
   },
