@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-05T12:38:54.487Z",
+ "generatedAt": "2026-11-05T22:11:36.225Z",
  "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -12,6 +12,16 @@
    "drucksachen": [
     "21/7165"
    ],
+   "expertListUrl": null,
+   "statements": []
+  },
+  {
+   "id": "1231414",
+   "url": "https://www.bundestag.de/ausschuesse/a20_tourismus/anhoerungen/1231414-1231414",
+   "title": "Anhörung „Denkmalschutz und Tourismus im Spannungsfeld“",
+   "committee": "Tourismus",
+   "date": "2026-12-09",
+   "drucksachen": [],
    "expertListUrl": null,
    "statements": []
   },
@@ -98,7 +108,7 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2026-11-11",
    "drucksachen": [],
-   "expertListUrl": null,
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1231434/Liste_der_Sachverstaendigen.pdf",
    "statements": [
     {
      "label": "Stellungnahme der Sachverständigen Dr. Isabel Rohner, Referatsleiterin Bildung BDA",
@@ -165,6 +175,16 @@
      "label": "21(13)66d - Jan Krüger - Deutscher Gewerkschaftsbund (DGB), Leiter der Abteilung Bildungspolitik und Bildungsarbeit",
      "url": "https://www.bundestag.de/resource/blob/1231234/21-13-66d.pdf",
      "number": "21(13)66"
+    },
+    {
+     "label": "21(13)66e - Dr. Guido Klinger, Bayerisches Staatsministerium für Unterricht und Kultus, Referatsleiter für Schulrecht an Berufsfachschulen, Fachschulen, Fachakademien und die einschlägigen Bundesgesetze",
+     "url": "https://www.bundestag.de/resource/blob/1231396/21-13-66e.pdf",
+     "number": "21(13)66"
+    },
+    {
+     "label": "21(13)66f - Dr. Sandra Garbade, Präsidentin des Bundesinstituts für Berufsbildung (BIBB)",
+     "url": "https://www.bundestag.de/resource/blob/1231398/21-13-66f.pdf",
+     "number": "21(13)66"
     }
    ]
   },
@@ -179,7 +199,28 @@
     "21/8637"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230800/SV-Liste-051.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "02 - Feinbrennerei Sasse",
+     "url": "https://www.bundestag.de/resource/blob/1231412/02-Feinbrennerei-Sasse.pdf",
+     "number": null
+    },
+    {
+     "label": "03 - Gewerkschaft Nahrung-Genuss-Gaststätten (noch nicht barrierefrei)",
+     "url": "https://www.bundestag.de/resource/blob/1231420/03-NGG.pdf",
+     "number": null
+    },
+    {
+     "label": "07 - Meyer, Prof. Dr. Dirk, Helmut-Schmidt-Universität",
+     "url": "https://www.bundestag.de/resource/blob/1231410/07-Meyer-Prof-Dr-Dirk.pdf",
+     "number": null
+    },
+    {
+     "label": "08 - Rotkäppchen-Mumm-Sektkellereien GmbH (noch nicht barrierefrei)",
+     "url": "https://www.bundestag.de/resource/blob/1231456/08-Rotkaeppchen-GmbH.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1224908",
@@ -194,11 +235,6 @@
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230568/Sachverstaendigenliste.pdf",
    "statements": [
     {
-     "label": "Stellungnahme der vzbv Verbraucherzentrale Bundesverband e. V.",
-     "url": "https://www.bundestag.de/resource/blob/1231204/Stellungnahme_vzbv_eV.pdf",
-     "number": null
-    },
-    {
      "label": "21(9)447 Stellungnahme des Sachverständigen Dr. Tom Bauermann, Institut für Makroökonomie und Konjunkturforschung, IMK, der Hans-Böckler-Stiftung",
      "url": "https://www.bundestag.de/resource/blob/1231308/Stellungnahme_SV_Dr-_Tom_Bauermann.pdf",
      "number": "21(9)447"
@@ -207,6 +243,11 @@
      "label": "21(9)448 Gemeinsame Stellungnahme der vier Übertragungsnetzbetreiber 50Hertz, Amprion, TenneT, TRANSNET BW",
      "url": "https://www.bundestag.de/resource/blob/1231360/Gemeinsame_Stellungnahme_50Hertz_Amprion_TenneT_Transnet_BW.pdf",
      "number": "21(9)448"
+    },
+    {
+     "label": "21(9)446 Stellungnahme der vzbv Verbraucherzentrale Bundesverband e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1231204/Stellungnahme_vzbv_eV.pdf",
+     "number": "21(9)446"
     }
    ]
   },
