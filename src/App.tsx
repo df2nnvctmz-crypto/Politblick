@@ -878,8 +878,21 @@ function App() {
   const renderMandate = (m: MandateParty, i: number) => (
     <div key={`${m.id ?? m.name}-${i}`} style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
-        {m.id ? (
+        {m.id && snapshot?.lobbyLinks.orgs[m.id] ? (
           <a href={orgHref(m.id)} onClick={stop(() => openOrg(m.id as string))} style={{ fontWeight: 600, fontSize: 14, textDecoration: 'none', color: 'inherit' }}>
+            {m.name}
+          </a>
+        ) : m.id ? (
+          // Only organisations in lobby-links get a prerendered page. Like the SubTabBar tabs, the
+          // others get their href on hover/focus: open-in-new-tab works, a crawler finds no 404.
+          <a
+            role="link"
+            tabIndex={0}
+            onPointerEnter={(e) => e.currentTarget.setAttribute('href', orgHref(m.id as string))}
+            onFocus={(e) => e.currentTarget.setAttribute('href', orgHref(m.id as string))}
+            onClick={stop(() => openOrg(m.id as string))}
+            style={{ fontWeight: 600, fontSize: 14, textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+          >
             {m.name}
           </a>
         ) : (
