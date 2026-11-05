@@ -18,6 +18,8 @@ import {
   useCommitteeLobbySummary,
   useCrossrefRows,
   useLobbyDirectory,
+  useLobbyMandates,
+  type MandateParty,
   useMemberLobby,
   useOrgDetail,
   useOrgList,
@@ -37,7 +39,7 @@ import { OrgHearings, PollHearings, StatementLine } from './PollHearings';
 import { statementsByOrgForDrucksachen, useHearings, type StatementRef } from './hearings';
 import { ChartExportMenu, type ChartExportLabels } from './ChartExportMenu';
 import { DEFAULT_ROUTE, indexablePath, pathToRoute, routeToPath, stripBase, withBase, type LobbyTab, type PartyTab, type ProfileTab, type View } from './router';
-import { countOptions, countryName, divergenceLabel, firstParagraph, formatDateTime, formatMillions, formatWeekRange, fuzzyMatch } from './format';
+import { countOptions, countryName, divergenceLabel, formatGovFunction, firstParagraph, formatDateTime, formatMillions, formatWeekRange, fuzzyMatch } from './format';
 import { compareMultiSortValues, compareSortValues, toggleInSet, toggleMultiSort, toggleSort, type MultiSortState, type SortState } from './sorting';
 import { buildBillUrlParam, buildMpUrlParam, buildSlugParam, extractLeadingId, extractMpId, parseBillId, type BillId } from './urlParams';
 import { navStyle, pillBtn, voteBg } from './ui/styles';
@@ -111,6 +113,7 @@ function App() {
   const [topicalShown, setTopicalShown] = useState(10);
   const [donationsShown, setDonationsShown] = useState(10);
   const [orgDescExpanded, setOrgDescExpanded] = useState(false);
+  const [orgMandatesShown, setOrgMandatesShown] = useState({ officials: 8, agencies: 8, clients: 10 });
   const [orgMembersShown, setOrgMembersShown] = useState(5);
   const [pollSummaryExpanded, setPollSummaryExpanded] = useState(false);
   const [flaggedVotesSearch, setFlaggedVotesSearch] = useState('');
@@ -520,6 +523,7 @@ function App() {
     setSelectedOrgId(id);
     setOrgDescExpanded(false);
     setOrgMembersShown(5);
+    setOrgMandatesShown({ officials: 8, agencies: 8, clients: 10 });
   };
   const openParty = (party: string, origin: 'partyList' | 'crossref' = 'partyList') => {
     setView('party');
@@ -867,6 +871,33 @@ function App() {
     searchQuery.trim().length >= MIN_QUERY_LENGTH;
   const lobbyDirectory = useLobbyDirectory(needsDirectory);
   const orgDetail = useOrgDetail(selectedOrgId, lobbyDirectory.orgs);
+  const lobbyMandates = useLobbyMandates(view === 'org');
+  const orgMandates = selectedOrgId ? lobbyMandates.file?.orgs[selectedOrgId] ?? null : null;
+  // One mandate as a card: the other side (linked when it has a page here), the declared amount,
+  // what it is about, and any former officials the agency assigned to it.
+  const renderMandate = (m: MandateParty, i: number) => (
+    <div key={`${m.id ?? m.name}-${i}`} style={{ background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '12px 16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
+        {m.id ? (
+          <a href={orgHref(m.id)} onClick={stop(() => openOrg(m.id as string))} style={{ fontWeight: 600, fontSize: 14, textDecoration: 'none', color: 'inherit' }}>
+            {m.name}
+          </a>
+        ) : (
+          <span style={{ fontWeight: 600, fontSize: 14 }}>{m.name}</span>
+        )}
+        <span style={{ fontSize: 12.5, color: 'oklch(42% 0.01 260)', flexShrink: 0 }}>{formatExpenseBracket(m.euro) ?? t.orgMandateAmountUnknown}</span>
+      </div>
+      {m.projects.length > 0 && (
+        <div style={{ fontSize: 12.5, color: 'oklch(42% 0.01 260)', marginTop: 4 }}>{m.projects.slice(0, 3).join(' · ')}{m.projects.length > 3 ? ' …' : ''}</div>
+      )}
+      {m.formerOfficials.length > 0 && (
+        <div style={{ fontSize: 12.5, marginTop: 6, color: 'oklch(42% 0.09 60)' }}>
+          <span style={{ fontWeight: 700 }}>{t.orgMandateOfficialsLabel}:</span>{' '}
+          {m.formerOfficials.map((p) => `${p.name} – ${formatGovFunction(p.gov, lang)}`).join('; ')}
+        </div>
+      )}
+    </div>
+  );
   // The organisation's hearing statements on votes it registered lobbying on, keyed by poll id —
   // same "same vote" rule as the bill page, read from the other side. Statements on anything
   // else are listed separately below the cards (OrgHearings).
@@ -4238,6 +4269,47 @@ function App() {
                   <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>{t.orgDonorTitle}</div>
                   <p style={{ fontSize: 12.5, color: 'oklch(40% 0.02 90)', margin: 0 }}>{t.orgDonorNote}</p>
                 </div>
+              )}
+
+              {orgMandates && orgMandates.formerOfficials.length > 0 && (
+                <section style={{ marginBottom: 26 }}>
+                  <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{t.orgFormerOfficialsTitle}</h2>
+                  <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 10px', maxWidth: 720 }}>{t.orgFormerOfficialsNote}</p>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {orgMandates.formerOfficials.slice(0, orgMandatesShown.officials).map((p) => (
+                      <li key={p.name} style={{ fontSize: 13.5, background: 'white', border: '1px solid oklch(90% 0.006 260)', borderRadius: 10, padding: '10px 14px' }}>
+                        <span style={{ fontWeight: 600 }}>{p.name}</span>
+                        <span style={{ color: 'oklch(42% 0.01 260)' }}> · {formatGovFunction(p.gov, lang)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <ShowMoreButton shown={orgMandatesShown.officials} total={orgMandates.formerOfficials.length} initial={8} onChange={(n) => setOrgMandatesShown((s) => ({ ...s, officials: n }))} t={t} lang={lang} />
+                </section>
+              )}
+
+              {orgMandates && orgMandates.agencies.length > 0 && (
+                <section style={{ marginBottom: 26 }}>
+                  <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{t.orgAgenciesTitle}</h2>
+                  <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 10px', maxWidth: 720 }}>{t.orgAgenciesNote}</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 10 }}>
+                    {orgMandates.agencies.slice(0, orgMandatesShown.agencies).map((m, i) => renderMandate(m, i))}
+                  </div>
+                  <ShowMoreButton shown={orgMandatesShown.agencies} total={orgMandates.agencies.length} initial={8} onChange={(n) => setOrgMandatesShown((s) => ({ ...s, agencies: n }))} t={t} lang={lang} />
+                </section>
+              )}
+
+              {orgMandates && (orgMandates.clients.length > 0 || orgMandates.privateClientCount > 0) && (
+                <section style={{ marginBottom: 26 }}>
+                  <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{t.orgClientsTitle}</h2>
+                  <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', margin: '0 0 10px', maxWidth: 720 }}>{t.orgClientsNote}</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 10 }}>
+                    {orgMandates.clients.slice(0, orgMandatesShown.clients).map((m, i) => renderMandate(m, i))}
+                  </div>
+                  <ShowMoreButton shown={orgMandatesShown.clients} total={orgMandates.clients.length} initial={10} onChange={(n) => setOrgMandatesShown((s) => ({ ...s, clients: n }))} t={t} lang={lang} />
+                  {orgMandates.privateClientCount > 0 && (
+                    <p style={{ fontSize: 12.5, color: 'oklch(48% 0.01 260)', marginTop: 8 }}>{t.orgPrivateClientsTemplate.replace('{n}', String(orgMandates.privateClientCount))}</p>
+                  )}
+                </section>
               )}
 
               <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{t.orgAffiliatedMembersTitle}</h2>

@@ -158,6 +158,8 @@ export interface Translation {
   orgAffiliatedMembersTitle: string; orgNoAffiliatedMembers: string;
   orgConflictsTitle: string; orgTopicalTitle: string;
   orgDonorTitle: string; orgDonorNote: string;
+  orgFormerOfficialsTitle: string; orgFormerOfficialsNote: string; orgAgenciesTitle: string; orgAgenciesNote: string;
+  orgClientsTitle: string; orgClientsNote: string; orgPrivateClientsTemplate: string; orgMandateAmountUnknown: string; orgMandateOfficialsLabel: string;
   orgNotFound: string;
   committeesTitle: string; committeesSub: string; committeeMembersCountLabel: string; committeeTopicsLabel: string;
   backToCommittees: string; committeeNotFound: string; committeesEmpty: string;
@@ -422,6 +424,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       { file: '/data/poll-results.json', name: 'Abstimmungsergebnisse', description: 'Das Stimmverhalten jedes einzelnen Abgeordneten zu jeder Abstimmung.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/vote', metaKey: 'coreGeneratedAt' },
       { file: '/data/sidejobs.json', name: 'Nebeneinkünfte', description: 'Von Abgeordneten gemeldete Nebentätigkeiten und Nebeneinkünfte gemäß den Verhaltensregeln für Mitglieder des Deutschen Bundestages.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/sidejob', metaKey: 'sidejobsGeneratedAt' },
       { file: '/data/lobby-links.json', name: 'Lobbyregister-Verknüpfungen', description: 'Von Politblick aus dem Lobbyregister des Deutschen Bundestages, den Abstimmungsdaten und den gemeldeten Nebentätigkeiten abgeleitete Verknüpfungen: welche Organisationen zu welchen Gesetzen Interessenvertretung angemeldet haben und welche Abgeordneten dazu Verflechtungen aufweisen.', source: 'Lobbyregister des Deutschen Bundestages, Verknüpfung von Politblick', sourceUrl: 'https://www.lobbyregister.bundestag.de/', metaKey: 'lobbyRegisterGeneratedAt' },
+      { file: '/data/lobby-mandates.json', name: 'Lobbyregister: Aufträge und frühere Funktionen', description: 'Je Organisation die Auftraggeber bzw. beauftragten Agenturen mit den gemeldeten Beträgen sowie Personen, die laut Selbstangabe in den letzten fünf Jahren eine Funktion im Bundestag oder in der Bundesregierung hatten. Privatpersonen als Auftraggeber sind nur als Anzahl enthalten.', source: 'Lobbyregister des Deutschen Bundestages', sourceUrl: 'https://www.lobbyregister.bundestag.de/', metaKey: 'lobbyRegisterGeneratedAt' },
       { file: '/data/party-donations.json', name: 'Großspenden an Parteien', description: 'Einzelspenden oberhalb der gesetzlichen Veröffentlichungsschwelle (§ 25 Abs. 3 PartG).', source: 'Veröffentlichung der Bundestagspräsidentin', sourceUrl: 'https://www.bundestag.de/parlament/praesidium/parteienfinanzierung/fundstellen50000', metaKey: 'partyDonationsGeneratedAt' },
       { file: '/data/vote-history.json', name: 'Abstimmungsarchiv (abgeschlossene Wahlperioden)', description: 'Das Stimmverhalten jedes Abgeordneten bei jeder namentlichen Abstimmung der abgeschlossenen Wahlperioden seit 2005. Kompakt kodiert: pro Abstimmung ein Zeichen je Mitglied für die Stimme und eines für die damalige Fraktion. Die laufende Wahlperiode steht in den Dateien oben.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/vote', metaKey: 'voteHistoryGeneratedAt' },
       { file: '/data/vote-history-summary.json', name: 'Langzeit-Bilanz je Abgeordnete/r', description: 'Aus dem Archiv abgeleitete Kennzahlen pro Person: Zahl der bewerteten Abstimmungen, Abweichungen von der eigenen Fraktionslinie und der Fraktionsschnitt bei denselben Abstimmungen. Enthält keine Einzelstimmen — nur Summen, damit die Startseite nicht das ganze Archiv laden muss.', source: 'Ableitung von Politblick aus dem Abstimmungsarchiv', sourceUrl: null, metaKey: 'voteHistoryGeneratedAt' },
@@ -637,6 +640,15 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     orgTopicalTitle: 'Abstimmungen im gleichen Themenfeld',
     orgDonorTitle: 'Als Spender an Parteien',
     orgDonorNote: 'Diese Organisation ist unter diesem Namen auch als Großspenderin an Parteien registriert.',
+    orgFormerOfficialsTitle: 'Personen mit früheren Funktionen in Bundestag und Bundesregierung',
+    orgFormerOfficialsNote: 'Selbstangaben der Organisation im Lobbyregister zu Funktionen der letzten fünf Jahre. Das Register prüft diese Angaben nicht.',
+    orgAgenciesTitle: 'Beauftragte Agenturen und Kanzleien',
+    orgAgenciesNote: 'Diese Dienstleister betreiben laut Lobbyregister Interessenvertretung im Auftrag dieser Organisation. Betrag: was der Dienstleister nach eigener Angabe im letzten abgeschlossenen Geschäftsjahr erhalten hat.',
+    orgClientsTitle: 'Auftraggeber',
+    orgClientsNote: 'Für diese Auftraggeber betreibt die Organisation laut Lobbyregister Interessenvertretung. Betrag: nach eigener Angabe im letzten abgeschlossenen Geschäftsjahr erhalten.',
+    orgPrivateClientsTemplate: 'Dazu {n} Privatperson(en) als Auftraggeber – hier nicht namentlich genannt.',
+    orgMandateAmountUnknown: 'Betrag nicht angegeben',
+    orgMandateOfficialsLabel: 'Im Mandat eingesetzt',
     orgNotFound: 'Organisation nicht gefunden.',
     committeesTitle: 'Ausschüsse', committeesSub: 'Alle Ausschüsse und Gremien des Bundestags mit ihrer aktuellen Besetzung.',
     committeeMembersCountLabel: 'Mitglieder', committeeTopicsLabel: 'Themenfelder',
@@ -975,6 +987,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
       { file: '/data/poll-results.json', name: 'Vote breakdowns', description: 'How every individual MP voted on every roll call.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/vote', metaKey: 'coreGeneratedAt' },
       { file: '/data/sidejobs.json', name: 'Outside income', description: 'Disclosed side activities and outside income, per the Bundestag members\' code of conduct.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/sidejob', metaKey: 'sidejobsGeneratedAt' },
       { file: '/data/lobby-links.json', name: 'Lobby register cross-references', description: 'Links Politblick derives from the German Bundestag lobby register, the vote data, and disclosed side activities: which organizations declared lobbying on which bills, and which MPs have a tie to them.', source: 'German Bundestag lobby register, cross-referenced by Politblick', sourceUrl: 'https://www.lobbyregister.bundestag.de/', metaKey: 'lobbyRegisterGeneratedAt' },
+      { file: '/data/lobby-mandates.json', name: 'Lobby register: mandates and former roles', description: 'Per organization: its clients or hired agencies with the declared amounts, and people who, by the organization’s own statement, held a Bundestag or federal government role in the last five years. Private individuals as clients are included only as a count.', source: 'German Bundestag lobby register', sourceUrl: 'https://www.lobbyregister.bundestag.de/', metaKey: 'lobbyRegisterGeneratedAt' },
       { file: '/data/party-donations.json', name: 'Large party donations', description: 'Individual donations above the statutory disclosure threshold (§ 25 (3) PartG).', source: 'Bundestag President\'s publication', sourceUrl: 'https://www.bundestag.de/parlament/praesidium/parteienfinanzierung/fundstellen50000', metaKey: 'partyDonationsGeneratedAt' },
       { file: '/data/vote-history.json', name: 'Vote archive (completed terms)', description: 'How every member voted in every recorded vote of the completed terms since 2005. Compactly encoded: one character per member for the vote and one for the fraction they sat in at the time. The current term is in the files above.', source: 'abgeordnetenwatch.de (CC0 1.0)', sourceUrl: 'https://www.abgeordnetenwatch.de/api/entitaeten/vote', metaKey: 'voteHistoryGeneratedAt' },
       { file: '/data/vote-history-summary.json', name: 'Long-term record per member', description: 'Aggregates derived from the archive: rated votes, divergences from the member’s own fraction line, and that fraction’s average on the same votes. Carries no individual votes — totals only, so the landing page need not load the whole archive.', source: 'Derived by Politblick from the vote archive', sourceUrl: null, metaKey: 'voteHistoryGeneratedAt' },
@@ -1190,6 +1203,15 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     orgTopicalTitle: 'Votes in the same policy area',
     orgDonorTitle: 'As a party donor',
     orgDonorNote: 'This organization is also registered under this name as a large donor to parties.',
+    orgFormerOfficialsTitle: 'People with former roles in the Bundestag or federal government',
+    orgFormerOfficialsNote: 'The organization’s own statements in the Lobbyregister about roles held in the last five years. The register does not check them.',
+    orgAgenciesTitle: 'Agencies and law firms hired',
+    orgAgenciesNote: 'According to the Lobbyregister, these service providers lobby on behalf of this organization. Amount: what the provider says it received in the last completed financial year.',
+    orgClientsTitle: 'Clients',
+    orgClientsNote: 'According to the Lobbyregister, this organization lobbies on behalf of these clients. Amount: received in the last completed financial year, as declared.',
+    orgPrivateClientsTemplate: 'Plus {n} private individual(s) as clients – not named here.',
+    orgMandateAmountUnknown: 'Amount not declared',
+    orgMandateOfficialsLabel: 'Assigned to this mandate',
     orgNotFound: 'Organization not found.',
     committeesTitle: 'Committees', committeesSub: 'Every Bundestag committee and body, with its current membership.',
     committeeMembersCountLabel: 'Members', committeeTopicsLabel: 'Topics',

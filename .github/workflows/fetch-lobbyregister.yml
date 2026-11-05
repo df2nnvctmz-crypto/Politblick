@@ -55,4 +55,5 @@ jobs:
           message: Update Lobbyregister data
           paths: >-
             data/lobby-register.json public/data/lobby-links.json public/data/hearings.json
+            public/data/lobby-directory.json public/data/lobby-mandates.json
             public/data/stories.json public/data/stories public/data/meta.json

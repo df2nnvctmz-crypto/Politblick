@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { fetchLocalJson, useSnapshot } from './snapshot';
 import type { VoteChoice } from './polls';
 import type { RealMp } from './bundestag';
+import type { GovFunction } from './format';
 
 /**
  * Lobbying data, joined offline by scripts/build-lobby-links.mjs from the Bundestag
@@ -567,6 +568,63 @@ export function useLobbyDirectory(enabled: boolean): { orgs: DirectoryOrg[] | nu
       (e: unknown) => {
         if (!cancelled) setState({ orgs: null, loading: false, error: e instanceof Error ? e.message : String(e) });
       },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled]);
+  return state;
+}
+
+/** A person the register lists with a government/Bundestag function from the last five years. */
+export interface FormerOfficial {
+  name: string;
+  gov: GovFunction;
+}
+
+/** One side of a lobbying mandate: the client an agency works for, or the agency working for a client. */
+export interface MandateParty {
+  id: string | null;
+  name: string;
+  /** What the agency declares having received from this client; null when only the client names the agency. */
+  euro: { from: number; to: number } | null;
+  projects: string[];
+  /** Former officials the agency assigned to this mandate. */
+  formerOfficials: FormerOfficial[];
+}
+
+export interface OrgMandates {
+  formerOfficials: FormerOfficial[];
+  clients: MandateParty[];
+  agencies: MandateParty[];
+  privateClientCount: number;
+}
+
+interface LobbyMandatesFile {
+  generatedAt: string;
+  orgs: Record<string, OrgMandates>;
+}
+
+let mandatesPromise: Promise<LobbyMandatesFile> | null = null;
+
+/**
+ * public/data/lobby-mandates.json, fetched only on an organisation page — the only place that
+ * reads it — and cached for the session like the directory.
+ */
+export function useLobbyMandates(enabled: boolean): { file: LobbyMandatesFile | null; error: boolean } {
+  const [state, setState] = useState<{ file: LobbyMandatesFile | null; error: boolean }>({ file: null, error: false });
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
+    if (!mandatesPromise) {
+      mandatesPromise = fetchLocalJson<LobbyMandatesFile>('/data/lobby-mandates.json').catch((e) => {
+        mandatesPromise = null;
+        throw e;
+      });
+    }
+    mandatesPromise.then(
+      (file) => !cancelled && setState({ file, error: false }),
+      () => !cancelled && setState({ file: null, error: true }),
     );
     return () => {
       cancelled = true;

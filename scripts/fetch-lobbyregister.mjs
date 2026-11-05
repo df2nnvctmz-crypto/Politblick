@@ -21,6 +21,42 @@ import {
 const pace = makePacer(400);
 
 /**
+ * A person's declared government or Bundestag function from the last five years, which the
+ * register requires for every lobbyist ("Angaben zu Funktionen in Bundestag und Bundesregierung").
+ * Kept structured, not as a sentence, so the UI can word it per language. These are the entry's
+ * own statements; the register does not check them.
+ */
+function governmentFunction(p) {
+  const g = p?.recentGovernmentFunction;
+  if (!p?.recentGovernmentFunctionPresent || !g) return null;
+  const base = { kind: g.type?.code ?? null, ended: g.ended !== false, endDate: g.endDate ?? null };
+  if (g.houseOfRepresentatives) {
+    return { ...base, role: g.houseOfRepresentatives.function?.code ?? null, position: g.houseOfRepresentatives.functionPosition?.trim() || null, authority: null };
+  }
+  if (g.federalGovernment) {
+    const d = g.federalGovernment.department;
+    return { ...base, role: g.federalGovernment.function?.code ?? null, position: null, authority: d?.shortTitle || d?.title || null };
+  }
+  if (g.federalAdministration) {
+    const a = g.federalAdministration;
+    return { ...base, role: null, position: a.function?.trim() || null, authority: a.supremeFederalAuthorityShort || a.supremeFederalAuthority || null };
+  }
+  return { ...base, role: null, position: null, authority: null };
+}
+
+const personName = (p) => [p.academicDegreeBefore, p.firstName, p.lastName].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+
+/** Only the people with a declared government/Bundestag function — the rest are not shown. */
+function formerOfficials(people) {
+  const out = new Map();
+  for (const p of people) {
+    const gov = governmentFunction(p);
+    if (gov && !out.has(personName(p))) out.set(personName(p), { name: personName(p), gov });
+  }
+  return [...out.values()];
+}
+
+/**
  * Keeps the register entry fields the site joins on or shows. Notably `regulatoryProjects` is
  * reduced to the printed matters (the Drucksache join key) plus the org's own headline demand,
  * which is the only place the register states what it actually wanted.
@@ -70,6 +106,21 @@ function transformLobbyEntry(raw) {
       euro: d.donationEuro ?? null,
     })),
     lobbiedProjects,
+    formerOfficials: formerOfficials([...(identity.legalRepresentatives ?? []), ...(identity.entrustedPersons ?? [])]),
+    // Lobbying on behalf of others ("Auftragsangaben"): who an agency works for and for how much,
+    // or which agencies an organisation hired. Client persons are left out — they are private
+    // individuals, and the register only names them because they pay for lobbying.
+    contracts: (raw.contracts?.contracts ?? []).map((c) => ({
+      projects: (c.regulatoryProjects ?? []).map((p) => p.regulatoryProjectTitle).filter(Boolean),
+      clients: (c.clients?.clientOrganizations ?? []).map((o) => ({
+        id: o.referenceRegisterNumber ?? null,
+        name: normalizeRegisterText(o.referenceName) ?? '',
+        euro: o.financialResourcesReceived ? { from: o.financialResourcesReceived.from, to: o.financialResourcesReceived.to } : null,
+      })),
+      clientPersonCount: (c.clients?.clientPersons ?? []).length,
+      agencies: (c.contractors?.contractorOrganizations ?? []).map((o) => ({ id: o.referenceRegisterNumber ?? null, name: normalizeRegisterText(o.referenceName ?? o.name) ?? '' })),
+      formerOfficials: formerOfficials([...(c.contractors?.entrustedPersons ?? []), ...(c.contractors?.contractorPersons ?? [])]),
+    })),
   };
 }
 

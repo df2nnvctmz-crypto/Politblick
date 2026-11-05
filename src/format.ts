@@ -65,6 +65,45 @@ export function countOptions(values: string[]): { value: string; label: string; 
     .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value, 'de'));
 }
 
+/** A declared government/Bundestag function from the last five years, as the register gives it. */
+export interface GovFunction {
+  kind: string | null;
+  role: string | null;
+  position: string | null;
+  authority: string | null;
+  ended: boolean;
+  endDate: string | null;
+}
+
+/** "Stellvertretender Regierungssprecher (BPA), bis 05/2025" / "Member of the Bundestag, until 03/2025". */
+export function formatGovFunction(g: GovFunction, lang: Lang): string {
+  const de = lang === 'de';
+  // The register gives some authorities only by full name, e.g. "Presse- und Informationsamt der
+  // Bundesregierung (BPA)" or "Auswärtiges Amt (AA) oder dessen Geschäftsbereich" — keep the
+  // abbreviation when there is one.
+  const short = g.authority ? /\(([^()]{1,12})\)/.exec(g.authority)?.[1] ?? g.authority.replace(/\s+oder dessen Geschäftsbereich$/, '') : null;
+  const at = short ? ` (${short})` : '';
+  let what: string;
+  if (g.kind === 'HOUSE_OF_REPRESENTATIVES') {
+    if (g.role === 'MEMBER') what = de ? 'Mitglied des Bundestages' : 'Member of the Bundestag';
+    else if (g.role === 'FUNCTION_FOR_PARLIAMENTARY_GROUP') what = g.position ? `${g.position}${de ? ' bei einer Bundestagsfraktion' : ' for a parliamentary group'}` : de ? 'Tätigkeit für eine Bundestagsfraktion' : 'Work for a parliamentary group';
+    else what = g.position ? `${g.position}${de ? ' bei einem Mitglied des Bundestages' : ' for a member of the Bundestag'}` : de ? 'Tätigkeit für ein Mitglied des Bundestages' : 'Work for a member of the Bundestag';
+  } else if (g.kind === 'FEDERAL_GOVERNMENT') {
+    const roles: Record<string, [string, string]> = {
+      FEDERAL_CHANCELLOR: ['Bundeskanzler/-in', 'Federal Chancellor'],
+      MINISTER: ['Bundesminister/-in', 'Federal Minister'],
+      PARLIAMENTARY_STATE_SECRETARY: ['Parlamentarische/-r Staatssekretär/-in', 'Parliamentary State Secretary'],
+    };
+    const r = g.role ? roles[g.role] : undefined;
+    what = `${r ? r[de ? 0 : 1] : g.role ?? (de ? 'Bundesregierung' : 'Federal government')}${at}`;
+  } else {
+    what = `${g.position ?? (de ? 'Tätigkeit in der Bundesverwaltung' : 'Federal administration')}${at}`;
+  }
+  const [y, m] = (g.endDate ?? '').split('-');
+  const until = !g.ended ? (de ? ', laufend' : ', ongoing') : y ? `, ${de ? 'bis' : 'until'} ${m ? `${m}/` : ''}${y}` : '';
+  return what + until;
+}
+
 const countryNames = new Map<Lang, Intl.DisplayNames>();
 
 /** "AT" → "Österreich" / "Austria". The register gives ISO 3166 codes; the browser knows the

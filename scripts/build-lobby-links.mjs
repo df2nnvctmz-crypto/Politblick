@@ -17,6 +17,7 @@
 //          public/data/committees.json  committee assignments     (fetch-committees.mjs)
 // Output   public/data/lobby-links.json
 import { normalizeOrgName, readJsonFile, readSourceFile, writeJsonFile } from './lib/common.mjs';
+import { buildMandates } from './lib/lobby-mandates.mjs';
 
 /** 'Fraktionslos' independents share no whip, so no majority computed across them is a real fraction line. See both usages below. */
 const NO_FRACTION = 'Fraktionslos';
@@ -578,6 +579,14 @@ async function main() {
   };
   await writeJsonFile('lobby-directory.json', directory);
   console.log(`  ${directory.orgs.length} active organisations in the browsable directory`);
+
+  // ---- mandates and former officials, read one organisation at a time ------------------------------
+  //
+  // A separate file so the directory stays small: only an organisation page loads it.
+  const withPage = new Set([...directory.orgs.map((o) => o.id), ...Object.keys(orgs)]);
+  const mandates = { generatedAt: new Date().toISOString(), orgs: buildMandates(register, (id) => withPage.has(id)) };
+  await writeJsonFile('lobby-mandates.json', mandates);
+  console.log(`  ${Object.keys(mandates.orgs).length} organisations with mandates or former officials`);
 
   const output = {
     orgs,

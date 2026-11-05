@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countOptions, escapeXml, firstParagraph, formatWeekRange, fuzzyMatch, normalizeSearchText, slugify, truncateLabel } from './format';
+import { countOptions, escapeXml, firstParagraph, formatGovFunction, formatWeekRange, fuzzyMatch, normalizeSearchText, slugify, truncateLabel } from './format';
 
 describe('slugify', () => {
   it('transliterates umlauts rather than dropping them', () => {
@@ -130,5 +130,27 @@ describe('formatWeekRange', () => {
 
   it('names both years for a week across New Year', () => {
     expect(formatWeekRange({ start: new Date(2025, 11, 29), end: new Date(2026, 0, 4) }, 'de')).toBe('29. Dez. 2025 – 4. Jan. 2026');
+  });
+});
+
+describe('formatGovFunction', () => {
+  const g = { kind: null, role: null, position: null, authority: null, ended: true, endDate: null };
+  it('words each kind of function the register declares', () => {
+    expect(formatGovFunction({ ...g, kind: 'HOUSE_OF_REPRESENTATIVES', role: 'MEMBER', endDate: '2025-03' }, 'de')).toBe('Mitglied des Bundestages, bis 03/2025');
+    expect(formatGovFunction({ ...g, kind: 'HOUSE_OF_REPRESENTATIVES', role: 'FUNCTION_FOR_MEMBER', position: 'Wissenschaftliche Mitarbeiterin', endDate: '2024-10' }, 'de')).toBe('Wissenschaftliche Mitarbeiterin bei einem Mitglied des Bundestages, bis 10/2024');
+    expect(formatGovFunction({ ...g, kind: 'FEDERAL_GOVERNMENT', role: 'PARLIAMENTARY_STATE_SECRETARY', authority: 'BMF', endDate: '2024-11' }, 'en')).toBe('Parliamentary State Secretary (BMF), until 11/2024');
+    expect(formatGovFunction({ ...g, kind: 'FEDERAL_ADMINISTRATION', position: 'Stellvertretender Regierungssprecher', authority: 'BPA', endDate: '2025-05' }, 'de')).toBe('Stellvertretender Regierungssprecher (BPA), bis 05/2025');
+  });
+  it('says when a function is still ongoing, and omits an unknown end date', () => {
+    expect(formatGovFunction({ ...g, kind: 'HOUSE_OF_REPRESENTATIVES', role: 'FUNCTION_FOR_MEMBER', ended: false }, 'de')).toBe('Tätigkeit für ein Mitglied des Bundestages, laufend');
+    expect(formatGovFunction({ ...g, kind: 'FEDERAL_ADMINISTRATION', position: 'Referent', authority: 'AA' }, 'de')).toBe('Referent (AA)');
+  });
+});
+
+describe('formatGovFunction authority names', () => {
+  it('shortens a full authority name to its abbreviation', () => {
+    const g = { kind: 'FEDERAL_ADMINISTRATION', role: null, position: 'Stellvertretender Regierungssprecher', authority: 'Presse- und Informationsamt der Bundesregierung (BPA)', ended: true, endDate: '2025-05' };
+    expect(formatGovFunction(g, 'de')).toBe('Stellvertretender Regierungssprecher (BPA), bis 05/2025');
+    expect(formatGovFunction({ ...g, authority: 'Auswärtiges Amt (AA) oder dessen Geschäftsbereich' }, 'de')).toBe('Stellvertretender Regierungssprecher (AA), bis 05/2025');
   });
 });
