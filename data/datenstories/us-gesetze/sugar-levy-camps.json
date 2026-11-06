@@ -1,0 +1,360 @@
+{
+ "_comment": "Curated, FROZEN finding: every Lobbyregister entry that mentions a sugar tax/levy (search of 6.11.2026), with its camp read from the entry wording. Not updated automatically; scripts/verify-datenstories.mjs only checks that the entries still exist. Source: recherche/slides-us-lobby/quellen.md.",
+ "checkedOn": "2026-11-06",
+ "entries": [
+  {
+   "id": "R007925",
+   "label": "Consumer Choice Center (US)",
+   "camp": "against",
+   "note": "Lehnt die Einführung einer Zuckersteuer ab"
+  },
+  {
+   "id": "R001689",
+   "label": "Coca-Cola GmbH (US)",
+   "camp": "against",
+   "note": "Verweist auf fehlende Evidenzbasis und Unverhältnismäßigkeit"
+  },
+  {
+   "id": "R002276",
+   "label": "Coca-Cola Europacific Partners",
+   "camp": "against",
+   "note": "Verhältnismäßiger Rechtsrahmen; Evidenzbasis der Abgabe angezweifelt"
+  },
+  {
+   "id": "R003901",
+   "label": "HARIBO",
+   "camp": "against",
+   "note": "Ziel: Nichteinführung einer Zuckersteuer"
+  },
+  {
+   "id": "R003407",
+   "label": "Bayerischer Brauerbund",
+   "camp": "against",
+   "note": "Wehrt sich gegen Zuckersteuer auf Getränke"
+  },
+  {
+   "id": "R003266",
+   "label": "Zentralverband Bäckerhandwerk",
+   "camp": "against",
+   "note": "Klar gegen pauschale steuerliche Eingriffe"
+  },
+  {
+   "id": "R003158",
+   "label": "VGMS (Getreide, Mühlen, Stärke)",
+   "camp": "against",
+   "note": "Lehnt Einführung einer Zuckersteuer ab"
+  },
+  {
+   "id": "R002912",
+   "label": "Süßstoff-Verband",
+   "camp": "against",
+   "note": "Keine Abgabe auf zuckergesüßte Getränke; Wirkung nicht belegt"
+  },
+  {
+   "id": "R002532",
+   "label": "Pfeifer & Langen",
+   "camp": "against",
+   "note": "Ablehnung einer Zuckersteuer"
+  },
+  {
+   "id": "R002462",
+   "label": "VdF Fruchtsaft-Industrie",
+   "camp": "against",
+   "note": "Gegen Abgabe auf zuckergesüßte Getränke"
+  },
+  {
+   "id": "R002413",
+   "label": "Getränkefachgroßhandel",
+   "camp": "against",
+   "note": "Ablehnung der Zuckersteuer, kein faktenbasierter Nutzen"
+  },
+  {
+   "id": "R002265",
+   "label": "ZDH Handwerk",
+   "camp": "against",
+   "note": "Ziel: Zuckersteuer politisch verhindern"
+  },
+  {
+   "id": "R002050",
+   "label": "Lebensmittelverband",
+   "camp": "against",
+   "note": "Verhinderung einer Zuckersteuer/Zuckerabgabe"
+  },
+  {
+   "id": "R001956",
+   "label": "Südzucker",
+   "camp": "against",
+   "note": "Zuckersteuer sei abzulehnen"
+  },
+  {
+   "id": "R001490",
+   "label": "Verein der Zuckerindustrie",
+   "camp": "against",
+   "note": "Zuckersteuer sei abzulehnen"
+  },
+  {
+   "id": "R001489",
+   "label": "Wirtschaftliche Vereinigung Zucker",
+   "camp": "against",
+   "note": "Ablehnung einer Zuckersteuer"
+  },
+  {
+   "id": "R001127",
+   "label": "Private Brauereien",
+   "camp": "against",
+   "note": "Gegen pauschale steuerliche Eingriffe in das Lebensmittelangebot"
+  },
+  {
+   "id": "R001196",
+   "label": "Nordzucker",
+   "camp": "against",
+   "note": "Zuckersteuer sei abzulehnen"
+  },
+  {
+   "id": "R001044",
+   "label": "DEHOGA",
+   "camp": "against",
+   "note": "Gegen die Einführung einer Zuckersteuer"
+  },
+  {
+   "id": "R000880",
+   "label": "wafg",
+   "camp": "against",
+   "note": "Lenkungssteuern seien ein Irrweg"
+  },
+  {
+   "id": "R000843",
+   "label": "VDM Mineralbrunnen",
+   "camp": "against",
+   "note": "Lehnt Zuckersteuer auf Getränke ab"
+  },
+  {
+   "id": "R000424",
+   "label": "Deutscher Brauer-Bund",
+   "camp": "against",
+   "note": "Keine Lenkungssteuer auf zuckergesüßte Getränke"
+  },
+  {
+   "id": "R000283",
+   "label": "BVE Ernährungsindustrie",
+   "camp": "against",
+   "note": "Ablehnung dieser staatlichen Eingriffsmaßnahme"
+  },
+  {
+   "id": "R000793",
+   "label": "BDSI Süßwarenindustrie",
+   "camp": "against",
+   "note": "Gegenstand: Bundesrats-Antrag zur Zuckersteuer (Einordnung siehe Offene Punkte)"
+  },
+  {
+   "id": "R001512",
+   "label": "OVID Ölsaatenverarbeiter",
+   "camp": "against",
+   "note": "Gegenstand: Bundesrats-Antrag zur Zuckersteuer (Einordnung siehe Offene Punkte)"
+  },
+  {
+   "id": "R005486",
+   "label": "VerbraucherService Bayern",
+   "camp": "for",
+   "note": "Einführung einer Zuckersteuer auf Süßgetränke"
+  },
+  {
+   "id": "R003277",
+   "label": "diabetesDE",
+   "camp": "for",
+   "note": "Herstellerabgabe auf gesüßte Getränke/Zuckersteuer"
+  },
+  {
+   "id": "R002431",
+   "label": "Deutsche Gesellschaft für Kardiologie",
+   "camp": "for",
+   "note": "Herstellerabgabe auf gesüßte Getränke gefordert"
+  },
+  {
+   "id": "R002002",
+   "label": "Bundesärztekammer",
+   "camp": "for",
+   "note": "Offener Brief: Herstellerabgabe auf Süßgetränke"
+  },
+  {
+   "id": "R001780",
+   "label": "DANK",
+   "camp": "for",
+   "note": "Herstellerabgabe auf gesüßte Getränke gefordert"
+  },
+  {
+   "id": "R001361",
+   "label": "Bundeszahnärztekammer",
+   "camp": "for",
+   "note": "Setzt sich für Einführung einer Zuckersteuer ein"
+  },
+  {
+   "id": "R001267",
+   "label": "foodwatch",
+   "camp": "for",
+   "note": "Einführung einer Zuckersteuer"
+  },
+  {
+   "id": "R001211",
+   "label": "vzbv",
+   "camp": "for",
+   "note": "Setzt sich für eine Süßgetränkesteuer ein"
+  },
+  {
+   "id": "R001068",
+   "label": "KLUG",
+   "camp": "for",
+   "note": "Herstellerabgabe auf Süßgetränke"
+  },
+  {
+   "id": "R000896",
+   "label": "Deutscher Caritasverband",
+   "camp": "for",
+   "note": "Erhöhung der Zuckersteuer für Prävention"
+  },
+  {
+   "id": "R000931",
+   "label": "Bristol-Myers Squibb (US)",
+   "camp": "for",
+   "note": "Stellungnahme: „zu begrüßenden Einführung einer Zuckerabgabe“"
+  },
+  {
+   "id": "R000073",
+   "label": "PepsiCo Deutschland (US)",
+   "camp": "shape",
+   "note": "Gestaltung einer möglichen Softdrink-Steuer"
+  },
+  {
+   "id": "R001789",
+   "label": "EDEKA",
+   "camp": "shape",
+   "note": "Praxisgerechte Ausgestaltung: Softdrinks, zwei Stufen"
+  },
+  {
+   "id": "R002657",
+   "label": "BVLH",
+   "camp": "shape",
+   "note": "Begrenzung auf Empfehlungen der Finanzkommission"
+  },
+  {
+   "id": "R001783",
+   "label": "ALDI SÜD",
+   "camp": "shape",
+   "note": "Rahmenbedingungen für wirkungsvolle Herstellerabgabe auf Softdrinks"
+  },
+  {
+   "id": "R001099",
+   "label": "Danone",
+   "camp": "shape",
+   "note": "Abgrenzung betroffener Produktkategorien klären"
+  },
+  {
+   "id": "R001376",
+   "label": "Raiffeisenverband",
+   "camp": "shape",
+   "note": "Nur Softdrinks, keine Ausweitung auf Milchprodukte"
+  },
+  {
+   "id": "R000398",
+   "label": "BSI Spirituosen",
+   "camp": "shape",
+   "note": "Liköre und Spirituosen von Zuckersteuer ausnehmen"
+  },
+  {
+   "id": "R001517",
+   "label": "BDKO Kleinbrenner",
+   "camp": "shape",
+   "note": "Ausnahme der Zuckersteuer auf Spirituosen"
+  },
+  {
+   "id": "R001738",
+   "label": "Lidl Dienstleistung",
+   "camp": "shape",
+   "note": "Eintrag „Einführung Zuckersteuer“, keine Position erkennbar"
+  },
+  {
+   "id": "R001726",
+   "label": "Lidl Stiftung",
+   "camp": "shape",
+   "note": "Eintrag „Einführung Zuckersteuer“, keine Position erkennbar"
+  },
+  {
+   "id": "R001733",
+   "label": "Kaufland",
+   "camp": "shape",
+   "note": "Eintrag „Einführung Zuckersteuer“, keine Position erkennbar"
+  },
+  {
+   "id": "R001735",
+   "label": "Schwarz Produktion",
+   "camp": "shape",
+   "note": "Eintrag „Einführung Zuckersteuer“, keine Position erkennbar"
+  },
+  {
+   "id": "R001551",
+   "label": "Schwarz Corporate Affairs",
+   "camp": "shape",
+   "note": "Eintrag „Einführung Zuckersteuer“, keine Position erkennbar"
+  },
+  {
+   "id": "R002385",
+   "label": "AstraZeneca",
+   "camp": "shape",
+   "note": "Rechtsgutachten zu Zulässigkeit einer Zuckersteuer"
+  },
+  {
+   "id": "R004773",
+   "label": "Red Bull",
+   "camp": "shape",
+   "note": "Wendet sich gegen Beschränkungen für Energydrinks"
+  },
+  {
+   "id": "R008146",
+   "label": "FRITZ Public Affairs & Consulting",
+   "camp": "agency",
+   "note": "Austausch zu Anwendungsbereich und Abgrenzung der Zuckersteuer"
+  },
+  {
+   "id": "R006795",
+   "label": "komm.passion",
+   "camp": "agency",
+   "note": "BMF plant Steuer auf zuckergesüßte Erfrischungsgetränke"
+  },
+  {
+   "id": "R002291",
+   "label": "EUTOP Europe",
+   "camp": "agency",
+   "note": "Praxisgerechte Ausgestaltung: Softdrinks, zwei Stufen, 18 Monate Übergang"
+  },
+  {
+   "id": "R002027",
+   "label": "von Beust & Coll. (für Coca-Cola)",
+   "camp": "agency",
+   "note": "Lenkungssteuer nur auf belastbarer wissenschaftlicher Basis prüfen"
+  },
+  {
+   "id": "R001851",
+   "label": "ALP (für PepsiCo)",
+   "camp": "agency",
+   "note": "Sinnhaftigkeit und Gestaltung einer möglichen Softdrink-Steuer"
+  },
+  {
+   "id": "R007660",
+   "label": "(Person)",
+   "camp": "agency",
+   "note": "Praxisgerechte Ausgestaltung: Softdrinks, zwei Stufen, 18 Monate Übergang"
+  },
+  {
+   "id": "R000986",
+   "label": "(Person)",
+   "camp": "agency",
+   "note": "Praxisgerechte Ausgestaltung: Softdrinks, zwei Stufen, 18 Monate Übergang"
+  },
+  {
+   "id": "R000272",
+   "label": "(Person)",
+   "camp": "agency",
+   "note": "Praxisgerechte Ausgestaltung: Softdrinks, zwei Stufen, 18 Monate Übergang"
+  }
+ ]
+}

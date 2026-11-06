@@ -56,7 +56,9 @@ import { SidejobTotalCard } from './profile/SidejobTotalCard';
 import { FilterMenu } from './ui/FilterMenu';
 import { NewsletterSignup, RssLink } from './NewsletterSignup';
 import { SitzungswochenBriefing, StoryDetailPage } from './stories/Briefing';
+import { MobileMenu } from './MobileMenu';
 import { useStoryDetail } from './stories';
+import { DatenstoryListPage, DatenstoryTeaser, DatenstoryView, datenstoryMeta, useDatenstory } from './datenstories/DatenstoryPage';
 
 /** Mirrors scripts/build-sitemap.mjs's SITE_URL — used to build the canonical/OG URL for the page currently on screen. */
 const SITE_URL = 'https://politblick.de';
@@ -83,6 +85,7 @@ function App() {
   const [selectedParty, setSelectedParty] = useState<string | null>(initialRoute.party);
   const [selectedCommitteeId, setSelectedCommitteeId] = useState<string | null>(extractLeadingId(initialRoute.committeeId));
   const [selectedStoryWeek, setSelectedStoryWeek] = useState<string | null>(initialRoute.storyWeek);
+  const [selectedDatenstory, setSelectedDatenstory] = useState<string | null>(initialRoute.datenstorySlug);
   const [orgSearchQuery, setOrgSearchQuery] = useState('');
   const [sectorMetric, setSectorMetric] = useState<SectorMetric>('members');
   const [spendScope, setSpendScope] = useState<'all' | 'linked'>('all');
@@ -335,6 +338,7 @@ function App() {
       setSelectedParty(r.party);
       setSelectedCommitteeId(extractLeadingId(r.committeeId));
       setSelectedStoryWeek(r.storyWeek);
+      setSelectedDatenstory(r.datenstorySlug);
       setProfileTab(r.profileTab);
       setLobbyTab(r.lobbyTab);
       setPartyTab(r.partyTab);
@@ -356,7 +360,7 @@ function App() {
     // (bare id -> full slug) once `snapshot` loads even though the page itself hasn't changed.
     // Unchanged means only a tab switched or the URL got its slug. Null before the first run.
     const prevBasePageKey = basePageKeyRef.current;
-    const basePageKey = [view, selectedMpId, selectedBillId, selectedOrgId, selectedParty, selectedCommitteeId, selectedStoryWeek].join('|');
+    const basePageKey = [view, selectedMpId, selectedBillId, selectedOrgId, selectedParty, selectedCommitteeId, selectedStoryWeek, selectedDatenstory].join('|');
     basePageKeyRef.current = basePageKey;
     const prevTabKey = tabKeyRef.current;
     const tabKey = [profileTab, partyTab, lobbyTab].join('|');
@@ -395,6 +399,7 @@ function App() {
         ? buildSlugParam(selectedCommitteeId, snapshot?.committees.find((c) => String(c.id) === selectedCommitteeId)?.name)
         : null,
       storyWeek: selectedStoryWeek,
+      datenstorySlug: selectedDatenstory,
     });
     const fullPath = withBase(path, import.meta.env.BASE_URL);
     if (window.location.pathname !== fullPath) {
@@ -422,12 +427,14 @@ function App() {
     lobbyTab,
     selectedCommitteeId,
     selectedStoryWeek,
+    selectedDatenstory,
     roster.members,
     pollsState.polls,
     snapshot,
   ]);
   const weekly = useWeeklyResults(pollsState.polls);
   const storyDetail = useStoryDetail(view === 'story' ? selectedStoryWeek : null);
+  const datenstory = useDatenstory(view === 'datenstory' ? selectedDatenstory : null);
   // Shared across the whole app: the search list computes every visible member's alignment
   // from this same fetch (no per-row network calls), and the profile page reuses it too.
   const recentPolls = useRecentPollResults(pollsState.polls);
@@ -478,6 +485,11 @@ function App() {
   const openStory = (week: string) => {
     setView('story');
     setSelectedStoryWeek(week);
+  };
+  const goDatenstoryList = () => setView('datenstoryList');
+  const openDatenstory = (slug: string) => {
+    setView('datenstory');
+    setSelectedDatenstory(slug);
   };
   const openCommittee = (id: string) => {
     setView('committee');
@@ -554,6 +566,17 @@ function App() {
   const committeeListHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'committeeList' }), BASE_URL);
   const pollListHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'pollList' }), BASE_URL);
   const storyHref = (week: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'story', storyWeek: week }), BASE_URL);
+  const datenstoryListHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'datenstoryList' }), BASE_URL);
+  const datenstoryHref = (slug: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'datenstory', datenstorySlug: slug }), BASE_URL);
+  /** In-app navigation to a site path from a Datenstory (org and bill pages; anything else loads normally). */
+  const navigateToPath = (path: string) => {
+    const r = pathToRoute(path);
+    const billId = parseBillId(extractLeadingId(r.billId));
+    const orgId = extractLeadingId(r.orgId);
+    if (r.view === 'bill' && billId !== null) openBill(billId);
+    else if (r.view === 'org' && orgId) openOrg(orgId);
+    else window.location.assign(withBase(indexablePath(path), BASE_URL));
+  };
   const impressumHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'impressum' }), BASE_URL);
   const disclaimerHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'disclaimer' }), BASE_URL);
   const datenschutzHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'datenschutz' }), BASE_URL);
@@ -1054,6 +1077,14 @@ function App() {
           description = t.swSectionSub;
         }
         break;
+      case 'datenstoryList':
+        title = `${t.dsListTitle} – Politblick`;
+        description = t.metaDatenstoryListDescription;
+        break;
+      case 'datenstory':
+        if (datenstory.data) ({ title, description } = datenstoryMeta(datenstory.data));
+        else title = `${t.dsListTitle} – Politblick`;
+        break;
       case 'committee':
         if (committeeDetail.detail) {
           title = `${committeeDetail.detail.committee.name} – Politblick`;
@@ -1134,13 +1165,13 @@ function App() {
     // doesn't count anything itself: that page was already counted by count.js's own on-load
     // beacon moments earlier, however its title read at that point (see index.html) — this only
     // ever fires for a page reached by an in-app navigation, which that beacon could never see.
-    const pageKey = [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek].join('|');
+    const pageKey = [view, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek, selectedDatenstory].join('|');
     if (lastCountedPageKeyRef.current !== null && lastCountedPageKeyRef.current !== pageKey) {
       window.goatcounter?.count?.({ path: window.location.pathname, title });
     }
     lastCountedPageKeyRef.current = pageKey;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek, profile, sidejobs.records, pollDetail.result, orgDetail.org, committeeDetail.detail, storyDetail.issue, resultsQuery]);
+  }, [view, lang, selectedMpId, profileTab, selectedBillId, selectedOrgId, selectedParty, partyTab, lobbyTab, selectedCommitteeId, selectedStoryWeek, selectedDatenstory, profile, sidejobs.records, pollDetail.result, orgDetail.org, committeeDetail.detail, storyDetail.issue, datenstory.data, resultsQuery]);
 
   // Mirrors the results page's query into ?q=. Runs after the address-bar sync above (declared
   // later, so it commits later): that one pushes /suche when the page is entered, this one only
@@ -1325,7 +1356,17 @@ function App() {
           </div>
           <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em' }}>Politblick</span>
         </div>
-        <nav style={{ display: 'flex', gap: 18, fontSize: 13.5, fontWeight: 600, color: 'oklch(40% 0.01 260)' }}>
+        {/* Phones only (index.css): the 3-line button and its dropdown replace the inline nav and the DE/EN pill. */}
+        <MobileMenu
+          t={t}
+          lang={lang}
+          view={view}
+          lobbyTab={lobbyTab}
+          hrefs={{ home: homeHref, mps: searchHref, parties: partyListHref, committees: committeeListHref, polls: pollListHref, datenstories: datenstoryListHref, lobby: crossrefHref }}
+          go={{ home: goHome, mps: goSearch, parties: goPartyList, committees: goCommitteeList, polls: goPollList, datenstories: goDatenstoryList, lobby: goCrossref }}
+          onLang={setLang}
+        />
+        <nav className="pb-nav-desktop" style={{ display: 'flex', gap: 18, fontSize: 13.5, fontWeight: 600, color: 'oklch(40% 0.01 260)' }}>
           <a onClick={stop(goHome)} href={homeHref} style={navStyle(view === 'home')}>
             {t.navHome}
           </a>
@@ -1509,6 +1550,9 @@ function App() {
               </div>
             )}
           </div>
+          <a href={datenstoryListHref} onClick={stop(goDatenstoryList)} style={navStyle(view === 'datenstoryList' || view === 'datenstory')}>
+            {t.navDatenstories}
+          </a>
         </nav>
         <div className="pb-header-collapsible" style={{ flex: 1, minWidth: 160, display: 'flex', justifyContent: 'center' }}>
           {/* On the results page this is that page's search field (live): it shows and edits
@@ -1526,7 +1570,7 @@ function App() {
             t={t}
           />
         </div>
-        <div className="pb-header-collapsible" style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
+        <div className="pb-header-collapsible pb-lang-desktop" style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
           <div
             style={{
               display: 'flex',
@@ -1716,6 +1760,8 @@ function App() {
           )}
 
           <NewsletterSignup t={t} privacyHref={datenschutzHref} onOpenPrivacy={stop(goDatenschutz)} />
+
+          <DatenstoryTeaser t={t} lang={lang} onNavigate={navigateToPath} storyHref={datenstoryHref} onOpenStory={openDatenstory} listHref={datenstoryListHref} onOpenList={stop(goDatenstoryList)} />
 
           <section style={{ maxWidth: 1100, margin: '0 auto', padding: '12px 32px 8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
@@ -5549,6 +5595,19 @@ function App() {
           })()}
         </main>
       )}
+
+      {view === 'datenstoryList' && (
+        <DatenstoryListPage t={t} lang={lang} onNavigate={navigateToPath} storyHref={datenstoryHref} onOpenStory={openDatenstory} />
+      )}
+
+      {view === 'datenstory' &&
+        (datenstory.data ? (
+          <DatenstoryView t={t} lang={lang} onNavigate={navigateToPath} storyHref={datenstoryHref} onOpenStory={openDatenstory} data={datenstory.data} />
+        ) : (
+          <main style={{ flex: 1, maxWidth: 820, margin: '0 auto', padding: '48px 24px', color: 'oklch(48% 0.01 260)' }}>
+            {datenstory.error ? <a href={datenstoryListHref} onClick={stop(goDatenstoryList)}>{t.dsListTitle}</a> : '…'}
+          </main>
+        ))}
 
       {view === 'story' && (
         storyDetail.issue ? (

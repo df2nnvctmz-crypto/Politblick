@@ -1,0 +1,2404 @@
+{
+ "_comment": "Curated: which Lobbyregister entries belong to a US actor. Spending is NOT stored here; scripts/build-datenstories.mjs reads it live from public/data/lobby-directory.json. Source: recherche/us-einfluss-lobbyregister.xlsx (sheets US-Sitz, US-Tochterfirmen, Grenzfälle). zone \"seat\" = US address in the register; \"subsidiary\" = German company controlled by a US-incorporated group. parentShort is the chart label and may be edited by hand.",
+ "checkedOn": "2026-11-06",
+ "counted": [
+  {
+   "id": "R002376",
+   "name": "Gates Foundation",
+   "zone": "seat",
+   "sector": "Stiftung / NGO",
+   "parent": "Gates Foundation",
+   "parentShort": "Gates Foundation",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R002376/78177",
+   "evidenceQuote": "Adresse im Lobbyregister: Seattle, USA"
+  },
+  {
+   "id": "R002245",
+   "name": "Lockheed Martin Overseas Services Corporation",
+   "zone": "seat",
+   "sector": "Rüstung / Luft- und Raumfahrt",
+   "parent": "Lockheed Martin Overseas Services Corporation",
+   "parentShort": "Lockheed Martin",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R002245/82875",
+   "evidenceQuote": "Adresse im Lobbyregister: Maryland, USA"
+  },
+  {
+   "id": "R003183",
+   "name": "The Rotary Foundation",
+   "zone": "seat",
+   "sector": "Stiftung / NGO",
+   "parent": "The Rotary Foundation",
+   "parentShort": "Rotary",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R003183/84016",
+   "evidenceQuote": "Adresse im Lobbyregister: Evanston, IL 60201, USA"
+  },
+  {
+   "id": "R004581",
+   "name": "Honeywell International Inc.",
+   "zone": "seat",
+   "sector": "Rüstung / Luft- und Raumfahrt",
+   "parent": "Honeywell International Inc.",
+   "parentShort": "Honeywell",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R004581/71575",
+   "evidenceQuote": "Adresse im Lobbyregister: Charlotte, NC, USA"
+  },
+  {
+   "id": "R006753",
+   "name": "RTX Corporation",
+   "zone": "seat",
+   "sector": "Rüstung / Luft- und Raumfahrt",
+   "parent": "RTX Corporation",
+   "parentShort": "RTX",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R006753/77972",
+   "evidenceQuote": "Adresse im Lobbyregister: Arlington, VA 22209, USA"
+  },
+  {
+   "id": "R002359",
+   "name": "Apple Inc.",
+   "zone": "seat",
+   "sector": "Tech / Digital",
+   "parent": "Apple Inc.",
+   "parentShort": "Apple",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R002359/87223",
+   "evidenceQuote": "Adresse im Lobbyregister: Cupertino, CA 95014 USA, USA"
+  },
+  {
+   "id": "R004231",
+   "name": "Emergent BioSolutions Inc.",
+   "zone": "seat",
+   "sector": "Pharma / Medizin",
+   "parent": "Emergent BioSolutions Inc.",
+   "parentShort": "Emergent",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R004231/77908",
+   "evidenceQuote": "Adresse im Lobbyregister: Washington, DC 20004, USA"
+  },
+  {
+   "id": "R004551",
+   "name": "Waymo LLC",
+   "zone": "seat",
+   "sector": "Tech / Digital",
+   "parent": "Waymo LLC",
+   "parentShort": "Waymo",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R004551/87885",
+   "evidenceQuote": "Adresse im Lobbyregister: Mountain View, CA 94043, USA"
+  },
+  {
+   "id": "R001790",
+   "name": "Expedia, Inc.",
+   "zone": "seat",
+   "sector": "Tech / Digital",
+   "parent": "Expedia, Inc.",
+   "parentShort": "Expedia",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R001790/52917",
+   "evidenceQuote": "Adresse im Lobbyregister: Seattle, USA"
+  },
+  {
+   "id": "R002338",
+   "name": "BSA Business Software Alliance, Inc. d/b/a BSA | The Software Alliance",
+   "zone": "seat",
+   "sector": "Tech / Digital",
+   "parent": "BSA Business Software Alliance, Inc. d/b/a BSA | The Software Alliance",
+   "parentShort": "BSA",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R002338/74746",
+   "evidenceQuote": "Adresse im Lobbyregister: Washington D.C., USA"
+  },
+  {
+   "id": "R007728",
+   "name": "Solstice Advanced Materials Inc.",
+   "zone": "seat",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Solstice Advanced Materials Inc.",
+   "parentShort": "Solstice",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R007728/80648",
+   "evidenceQuote": "Adresse im Lobbyregister: Morris Plains, NJ 07950, USA"
+  },
+  {
+   "id": "R007590",
+   "name": "Western Digital Technologies, Inc.",
+   "zone": "seat",
+   "sector": "Tech / Digital",
+   "parent": "Western Digital Technologies, Inc.",
+   "parentShort": "Western Digital",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R007590/66898",
+   "evidenceQuote": "Adresse im Lobbyregister: San Jose, California, USA"
+  },
+  {
+   "id": "R006512",
+   "name": "International Information System Security Certification Consortium, Inc.",
+   "zone": "seat",
+   "sector": "Tech / Digital",
+   "parent": "International Information System Security Certification Consortium, Inc.",
+   "parentShort": "ISC2",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R006512/82225",
+   "evidenceQuote": "Adresse im Lobbyregister: Alexandria, USA"
+  },
+  {
+   "id": "R001268",
+   "name": "Iridium Satellite LLC",
+   "zone": "seat",
+   "sector": "Tech / Digital",
+   "parent": "Iridium Satellite LLC",
+   "parentShort": "Iridium",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R001268/84697",
+   "evidenceQuote": "Adresse im Lobbyregister: McLean, Virginia 22102, USA"
+  },
+  {
+   "id": "R006592",
+   "name": "Mozilla Foundation",
+   "zone": "seat",
+   "sector": "Stiftung / NGO",
+   "parent": "Mozilla Foundation",
+   "parentShort": "Mozilla Foundation",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R006592/71767",
+   "evidenceQuote": "Adresse im Lobbyregister: CA 94105 San Francisco, USA"
+  },
+  {
+   "id": "R000823",
+   "name": "Deere & Company",
+   "zone": "seat",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Deere & Company",
+   "parentShort": "John Deere",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R000823/72829",
+   "evidenceQuote": "Adresse im Lobbyregister: Moline, Illinois, USA"
+  },
+  {
+   "id": "R002973",
+   "name": "Raytheon Company",
+   "zone": "seat",
+   "sector": "Rüstung / Luft- und Raumfahrt",
+   "parent": "Raytheon Company",
+   "parentShort": "Raytheon",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R002973/85625",
+   "evidenceQuote": "Adresse im Lobbyregister: Waltham, MA, USA"
+  },
+  {
+   "id": "R007152",
+   "name": "Form Energy",
+   "zone": "seat",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Form Energy",
+   "parentShort": "Form",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R007152/81984",
+   "evidenceQuote": "Adresse im Lobbyregister: Massachusetts, USA"
+  },
+  {
+   "id": "R007096",
+   "name": "ConocoPhillips",
+   "zone": "seat",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "ConocoPhillips",
+   "parentShort": "ConocoPhillips",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R007096/82274",
+   "evidenceQuote": "Adresse im Lobbyregister: 77079 Houston, TX, USA"
+  },
+  {
+   "id": "R003474",
+   "name": "Thorn",
+   "zone": "seat",
+   "sector": "Stiftung / NGO",
+   "parent": "Thorn",
+   "parentShort": "Thorn",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R003474/63229",
+   "evidenceQuote": "Adresse im Lobbyregister: El Segundo, CA, USA"
+  },
+  {
+   "id": "R004052",
+   "name": "Match Group Holdings I, LLC",
+   "zone": "seat",
+   "sector": "Tech / Digital",
+   "parent": "Match Group Holdings I, LLC",
+   "parentShort": "Match",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R004052/79259",
+   "evidenceQuote": "Adresse im Lobbyregister: Dallas, Texas, USA"
+  },
+  {
+   "id": "R000426",
+   "name": "Metrc, LLC",
+   "zone": "seat",
+   "sector": "Tech / Digital",
+   "parent": "Metrc, LLC",
+   "parentShort": "Metrc",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R000426/64685",
+   "evidenceQuote": "Adresse im Lobbyregister: Lakeland, Florida 33811, USA"
+  },
+  {
+   "id": "R003034",
+   "name": "Alliance for Regenerative Medicine",
+   "zone": "seat",
+   "sector": "Stiftung / NGO",
+   "parent": "Alliance for Regenerative Medicine",
+   "parentShort": "ARM",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R003034/77093",
+   "evidenceQuote": "Adresse im Lobbyregister: Washington D.C. 20001 USA, USA"
+  },
+  {
+   "id": "R004722",
+   "name": "Cloudflare Inc.",
+   "zone": "seat",
+   "sector": "Tech / Digital",
+   "parent": "Cloudflare Inc.",
+   "parentShort": "Cloudflare",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R004722/85088",
+   "evidenceQuote": "Adresse im Lobbyregister: San Francisco, California 94107, USA"
+  },
+  {
+   "id": "R007068",
+   "name": "Center for Reproductive Rights",
+   "zone": "seat",
+   "sector": "Stiftung / NGO",
+   "parent": "Center for Reproductive Rights",
+   "parentShort": "Center for Reproductive Rights",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R007068/74745",
+   "evidenceQuote": "Adresse im Lobbyregister: New York, NY 10038, USA"
+  },
+  {
+   "id": "R004346",
+   "name": "Clean Air Task Force (CATF)",
+   "zone": "seat",
+   "sector": "Stiftung / NGO",
+   "parent": "Clean Air Task Force (CATF)",
+   "parentShort": "CATF",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R004346/85485",
+   "evidenceQuote": "Adresse im Lobbyregister: Boston, MA 02109, USA"
+  },
+  {
+   "id": "R006107",
+   "name": "Global Energy Alliance for People and Planet (GEAPP) LLC",
+   "zone": "seat",
+   "sector": "Stiftung / NGO",
+   "parent": "Global Energy Alliance for People and Planet (GEAPP) LLC",
+   "parentShort": "GEAPP",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R006107/62846",
+   "evidenceQuote": "Adresse im Lobbyregister: New York, USA"
+  },
+  {
+   "id": "R000227",
+   "name": "Future of Life Institute",
+   "zone": "seat",
+   "sector": "Stiftung / NGO",
+   "parent": "Future of Life Institute",
+   "parentShort": "Future of Life Institute",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R000227/79795",
+   "evidenceQuote": "Adresse im Lobbyregister: Cambell, CA, USA"
+  },
+  {
+   "id": "R007666",
+   "name": "Rocket Lab Corporation",
+   "zone": "seat",
+   "sector": "Rüstung / Luft- und Raumfahrt",
+   "parent": "Rocket Lab Corporation",
+   "parentShort": "Rocket Lab",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R007666/81642",
+   "evidenceQuote": "Adresse im Lobbyregister: Long Beach, CA, USA"
+  },
+  {
+   "id": "R007672",
+   "name": "Investment Company Institute",
+   "zone": "seat",
+   "sector": "Finanzen",
+   "parent": "Investment Company Institute",
+   "parentShort": "Investment Company Institute",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R007672/67111",
+   "evidenceQuote": "Adresse im Lobbyregister: Washington, DC 20005-2202, USA"
+  },
+  {
+   "id": "R007757",
+   "name": "International Legal Finance Association",
+   "zone": "seat",
+   "sector": "Finanzen",
+   "parent": "International Legal Finance Association",
+   "parentShort": "International Legal Finance Association",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R007757/79478",
+   "evidenceQuote": "Adresse im Lobbyregister: Washington, USA"
+  },
+  {
+   "id": "R007795",
+   "name": "CONTROL AI US INC",
+   "zone": "seat",
+   "sector": "Stiftung / NGO",
+   "parent": "CONTROL AI US INC",
+   "parentShort": "CONTROL AI US",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R007795/73774",
+   "evidenceQuote": "Adresse im Lobbyregister: WASHINGTON, DC 20002-6274, USA"
+  },
+  {
+   "id": "R007925",
+   "name": "Consumer Choice Center",
+   "zone": "seat",
+   "sector": "Stiftung / NGO",
+   "parent": "Consumer Choice Center",
+   "parentShort": "Consumer Choice Center",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R007925/73227",
+   "evidenceQuote": "Adresse im Lobbyregister: Washington, USA"
+  },
+  {
+   "id": "R007956",
+   "name": "Danaher Corporation",
+   "zone": "seat",
+   "sector": "Pharma / Medizin",
+   "parent": "Danaher Corporation",
+   "parentShort": "Danaher",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R007956/80051",
+   "evidenceQuote": "Adresse im Lobbyregister: Washington, DC 20037, USA"
+  },
+  {
+   "id": "R008258",
+   "name": "Excelerate Energy Limited Partnership",
+   "zone": "seat",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Excelerate Energy Limited Partnership",
+   "parentShort": "Excelerate Energy Limited Partnership",
+   "parentIncorporation": "USA (Sitz laut Register)",
+   "evidenceType": "Lobbyregister-Adresse",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R008258/84446",
+   "evidenceQuote": "Adresse im Lobbyregister: The Woodlands, Texas 77381, USA"
+  },
+  {
+   "id": "R002153",
+   "name": "Microsoft Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Microsoft Corporation",
+   "parentShort": "Microsoft",
+   "parentIncorporation": "Washington, US (HQ Redmond)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://news.microsoft.com/de-de/christine-haupt-chief-operating-officer-bei-microsoft-deutschland/",
+   "evidenceQuote": "Die Microsoft Deutschland GmbH ist die 1983 gegründete Tochtergesellschaft der Microsoft Corporation/Redmond — Anmerkung: Microsoft's own press boilerplate (fetched); corroborated by https://www.bitkom.org/Roadshow-Mittelstand/Partner/Microsoft.html ('zweitgrößte Tochtergesellschaft der Microsoft Corporation'). Impressum only says GmbH is not provider of Microsoft services. northdata shows shareholder 'Microsoft Mobile Deutschland GmbH' (publication 07.05.2026), i.e. an indirect group chain; exact percentage not seen. Incorporation state of Microsoft Corp from general knowledge, not from fetched page."
+  },
+  {
+   "id": "R001109",
+   "name": "Janssen-Cilag GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Johnson & Johnson",
+   "parentShort": "J&J",
+   "parentIncorporation": "NJ",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/200406/000020040626000016/ex21-subsidiariesxform10xk.htm",
+   "evidenceQuote": "Eintrag „Janssen-Cilag GmbH“ in der Tochterliste von JOHNSON & JOHNSON (Filing 2026-02-11)"
+  },
+  {
+   "id": "R001675",
+   "name": "McDonald’s Promotions GmbH & Co. KG Werbegesellschaft Deutschland",
+   "zone": "subsidiary",
+   "sector": "Konsum / Lebensmittel",
+   "parent": "McDonald's Corporation",
+   "parentShort": "McDonald's",
+   "parentIncorporation": "Delaware, US (per source: registered in Wilmington, New Castle County, Delaware)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/dc/dd/769223/JA-2024-Unternehmensregister-McDonald-s-Promotions-GmbH-Co-KG-Werbeges-Dtl-_20260414.pdf",
+   "evidenceQuote": "mittelbares Tochterunternehmen der McDonald's Corporation, registriert in Wilmington, New Castle County, Delaware, USA — Anmerkung: Annual report 2024 (Unternehmensregister extract). Also states it runs the advertising community (Werbegemeinschaft) for the German McDonald's group incl. franchisees, who are charged/credited surplus or shortfall (zero-out) - but ownership/control is McDonald's Corporation (consolidated in its accounts), not a franchisee cooperative."
+  },
+  {
+   "id": "R002228",
+   "name": "Facebook Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Meta Platforms, Inc.",
+   "parentShort": "Meta",
+   "parentIncorporation": "Delaware, US",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.northdata.de/Facebook+Germany+GmbH,+Hamburg",
+   "evidenceQuote": "Gesellschafter: Facebook Global Holdings II LLC — Anmerkung: Repeated in northdata publications 2019-2026 (Jahresabschluss 31.12.2024 published 09.02.2026). Meta 10-K Exhibit 21.1 FY2018 (https://www.sec.gov/Archives/edgar/data/1326801/000132680119000009/fb-12312018x10kexhibit211.htm) lists 'Global Holdings II LLC (Delaware)' as a subsidiary; Meta's FY2024 Ex.21.1 shows 'Facebook Holdings, LLC (Delaware)'. Lobbyregister texts also mention Meta Platforms Ireland support contract."
+  },
+  {
+   "id": "R002160",
+   "name": "Amazon Deutschland Services GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Amazon.com, Inc.",
+   "parentShort": "Amazon",
+   "parentIncorporation": "Delaware, US (per northdata business purpose text 'Gesellschaft nach dem Recht des US-Bundesstaats Delaware')",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/0a/ab/629283/Amazon-Jahresabschluss-2024.pdf",
+   "evidenceQuote": "Die Gesellschaft wird in den Konzernabschluss der Amazon.com, Inc., Seattle, WA, USA, einbezogen. — Anmerkung: Second source (FY2025 report https://www.lobbyregister.bundestag.de/media/ab/71/796775/25-Amazon-Deutschland-Services.pdf): 'die alleinige Gesellschafterin Amazon EU S.à r.l.'. northdata also lists Gesellschafter Amazon EU Sàrl. Direct holder is a Luxembourg group company; control rests with Amazon.com, Inc."
+  },
+  {
+   "id": "R001794",
+   "name": "Google Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Alphabet Inc.",
+   "parentShort": "Google",
+   "parentIncorporation": "US (Mountain View, California per source; state of incorporation not stated)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/19/49/633730/Google-DE-Jahresabschluss-2023.pdf",
+   "evidenceQuote": "Das gezeichnete Kapital wird zum Bilanzstichtag zu 100% von der Google Germany Holdings Inc., Mountain View, Kalifornien, USA, gehalten. — Anmerkung: Same report: 'Die Gesellschaft gehört zur weltweiten Alphabet-Gruppe' and 'alleinige Gesellschafterin'. Direct parent is a US Inc. in the Alphabet group."
+  },
+  {
+   "id": "R000144",
+   "name": "Philip Morris GmbH",
+   "zone": "subsidiary",
+   "sector": "Konsum / Lebensmittel",
+   "parent": "Philip Morris International Inc.",
+   "parentShort": "Philip Morris",
+   "parentIncorporation": "VA",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1413329/000162828026005939/pm-ex21_123125xq4.htm",
+   "evidenceQuote": "Eintrag „PHILIP MORRIS GMBH“ in der Tochterliste von Philip Morris International Inc. (Filing 2026-02-06)"
+  },
+  {
+   "id": "R000994",
+   "name": "Lilly Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Eli Lilly and Company",
+   "parentShort": "Lilly",
+   "parentIncorporation": "IN",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/59478/000005947826000013/lly-12312025x10kexhibit21.htm",
+   "evidenceQuote": "Eintrag „Lilly Deutschland GmbH“ in der Tochterliste von ELI LILLY & Co (Filing 2026-02-12)"
+  },
+  {
+   "id": "R000796",
+   "name": "AbbVie Deutschland GmbH & Co. KG",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "AbbVie Inc.",
+   "parentShort": "AbbVie",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1551152/000155115226000008/abbv-20251231xex21.htm",
+   "evidenceQuote": "Eintrag in der aktuellen Tochterliste von AbbVie Inc. (10-K vom 2026-02-20)"
+  },
+  {
+   "id": "R001842",
+   "name": "IBM Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "IBM (International Business Machines Corporation)",
+   "parentShort": "IBM",
+   "parentIncorporation": "NY",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/51143/000005114326000010/ibm-20251231x10kex21.htm",
+   "evidenceQuote": "Eintrag „IBM Deutschland GmbH“ in der Tochterliste von INTERNATIONAL BUSINESS MACHINES CORP (Filing 2026-02-24)"
+  },
+  {
+   "id": "R006924",
+   "name": "Blue Cube Germany Assets GmbH & Co. KG",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Olin Corporation",
+   "parentShort": "Olin",
+   "parentIncorporation": "VA",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/74303/000007430326000027/exhibit21-subsidiariesofol.htm",
+   "evidenceQuote": "Eintrag „Blue Cube Germany Assets GmbH & Co. KG“ in der Tochterliste von OLIN Corp (Filing 2026-02-20)"
+  },
+  {
+   "id": "R000931",
+   "name": "Bristol-Myers Squibb GmbH & Co. KGaA",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Bristol-Myers Squibb Company",
+   "parentShort": "BMS",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/14272/000001427226000004/bmy-20251231exhibit21.htm",
+   "evidenceQuote": "Eintrag „Bristol-Myers Squibb GmbH & Co. KGaA“ in der Tochterliste von BRISTOL MYERS SQUIBB CO (Filing 2026-02-11)"
+  },
+  {
+   "id": "R001142",
+   "name": "Pfizer Pharma GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Pfizer Inc.",
+   "parentShort": "Pfizer",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/78003/000007800326000026/pfe-exh21x12312025x10k.htm",
+   "evidenceQuote": "Eintrag „Pfizer Pharma GmbH“ in der Tochterliste von PFIZER INC (Filing 2026-02-26)"
+  },
+  {
+   "id": "R001066",
+   "name": "MSD Sharp & Dohme GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Merck & Co., Inc.",
+   "parentShort": "MSD",
+   "parentIncorporation": "New Jersey, US (per general knowledge; source says Rahway, N.J./USA)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/06/88/595207/2025-06-20_MSD-Sharp-Dohme-GmbH_HGB-Jahresabschluss-2023.pdf",
+   "evidenceQuote": "ist eine deutsche Tochtergesellschaft des weltweit tätigen US-Konzerns Merck & Co., Inc., Rahway, N.J./USA — Anmerkung: Annual report FY2023. northdata (https://www.northdata.de/MSD+Sharp+%26+Dohme+GmbH,+Haar) shows Gesellschafter MSD Verwaltungs GmbH (27.08.2026), earlier MSD Beteiligungs GmbH & Co. KG - intermediate German holdings within the group."
+  },
+  {
+   "id": "R001158",
+   "name": "Gilead Sciences GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Gilead Sciences, Inc.",
+   "parentShort": "Gilead",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/882095/000088209526000006/gild2025formex211listingof.htm",
+   "evidenceQuote": "Eintrag „Gilead Sciences GmbH“ in der Tochterliste von GILEAD SCIENCES, INC. (Filing 2026-02-24)"
+  },
+  {
+   "id": "R003422",
+   "name": "BlackRock Asset Management Deutschland AG",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "BlackRock, Inc.",
+   "parentShort": "BlackRock",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/2012383/000119312526071966/blk-ex21_1.htm",
+   "evidenceQuote": "Eintrag „BlackRock Asset Management Deutschland AG“ in der Tochterliste von BlackRock, Inc. (Filing 2026-02-25)"
+  },
+  {
+   "id": "R001871",
+   "name": "Ford-Werke GmbH",
+   "zone": "subsidiary",
+   "sector": "Mobilität / Logistik",
+   "parent": "Ford Motor Company",
+   "parentShort": "Ford",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/37996/000003799626000015/f12312025exhibit21.htm",
+   "evidenceQuote": "Eintrag „Ford-Werke GmbH“ in der Tochterliste von FORD MOTOR CO (Filing 2026-02-11)"
+  },
+  {
+   "id": "R002136",
+   "name": "Cisco Systems GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Cisco Systems, Inc.",
+   "parentShort": "Cisco",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/858877/000085887726000132/exh211subsidiariesofthereg.htm",
+   "evidenceQuote": "Eintrag „Cisco Systems GmbH“ in der Tochterliste von CISCO SYSTEMS, INC. (Filing 2026-09-02)"
+  },
+  {
+   "id": "R001773",
+   "name": "Procter & Gamble Service GmbH",
+   "zone": "subsidiary",
+   "sector": "Konsum / Lebensmittel",
+   "parent": "The Procter & Gamble Company",
+   "parentShort": "P&G",
+   "parentIncorporation": "OH",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000103/fy252610-kexhibit21.htm",
+   "evidenceQuote": "Eintrag „Procter & Gamble Service, GmbH“ in der Tochterliste von PROCTER & GAMBLE Co (Filing 2026-08-04)"
+  },
+  {
+   "id": "R002282",
+   "name": "Visa Europe Management Services Limited, German Branch",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "Visa Inc.",
+   "parentShort": "Visa",
+   "parentIncorporation": "Delaware, US (Visa Inc.; not stated in fetched page)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/b1/d7/752164/Visa-Europe-Management-Services-Limited-2025-ALL-SIGNED.pdf",
+   "evidenceQuote": "a subsidiary of a larger global listed company, Visa Inc., our overall parent company and shareholder — Anmerkung: Same report: 'The Company is a wholly owned subsidiary of Visa Europe Limited'. German branch of a wholly-owned foreign subsidiary of a US company -> A per rule."
+  },
+  {
+   "id": "R001236",
+   "name": "Amgen GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Amgen Inc.",
+   "parentShort": "Amgen",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/318154/000031815426000010/amgn-ex21_2025x10xk.htm",
+   "evidenceQuote": "Eintrag „Amgen GmbH Germany“ in der Tochterliste von AMGEN INC (Filing 2026-02-13)"
+  },
+  {
+   "id": "R002043",
+   "name": "Qualcomm Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Qualcomm Incorporated",
+   "parentShort": "Qualcomm",
+   "parentIncorporation": "Delaware, US (San Diego HQ per source; Delaware from general knowledge)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/62/ac/701466/Qualcomm-Germany-GmbH_-Testat-JAP-_2024.pdf",
+   "evidenceQuote": "Mutterunternehmen Qualcomm Incorporated, San Diego, USA — Anmerkung: Annual report FY (Oct 2023-Sep 2024) also says company acts as representation of the 'Mutterunternehmens Qualcomm Incorporated in Deutschland' and refers to 'ihre US-amerikanische Konzernmutter'. Qualcomm legal entity list https://www.qualcomm.com/content/dam/qcomm-martech/dm-assets/documents/Qualcomm-Legal-Entity-List.pdf lists Qualcomm Germany GmbH (fka CDMA Technologies GmbH)."
+  },
+  {
+   "id": "R001740",
+   "name": "ExxonMobil Central Europe Holding",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Exxon Mobil Corporation",
+   "parentShort": "ExxonMobil",
+   "parentIncorporation": "NJ",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000045/xomexhibit21123125.htm",
+   "evidenceQuote": "Eintrag „ExxonMobil Central Europe Holding GmbH“ in der Tochterliste von EXXON MOBIL CORP (Filing 2026-02-18)"
+  },
+  {
+   "id": "R001805",
+   "name": "Abbott Laboratories Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Abbott Laboratories",
+   "parentShort": "Abbott",
+   "parentIncorporation": "IL",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1800/000162828026010185/subsidiariesofabbottlabora.htm",
+   "evidenceQuote": "Eintrag „Abbott Laboratories Deutschland GmbH“ in der Tochterliste von ABBOTT LABORATORIES (Filing 2026-02-20)"
+  },
+  {
+   "id": "R002253",
+   "name": "Mastercard",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "Mastercard Incorporated",
+   "parentShort": "Mastercard",
+   "parentIncorporation": "US (Delaware per background knowledge)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R002253",
+   "evidenceQuote": "Tochtergesellschaft von Mastercard Inc., USA. — Anmerkung: Entity is Belgian-incorporated but within a US group (US-controlled). Ex21: https://www.sec.gov/Archives/edgar/data/1141391/000114139126000013/exb21-12312025.htm lists Mastercard Europe SA / Belgium."
+  },
+  {
+   "id": "R003007",
+   "name": "United Parcel Service Deutschland S.à r.l. & Co. OHG",
+   "zone": "subsidiary",
+   "sector": "Mobilität / Logistik",
+   "parent": "United Parcel Service, Inc.",
+   "parentShort": "UPS",
+   "parentIncorporation": "Delaware, US (source: Atlanta, Georgia; Delaware from general knowledge)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/d6/51/766819/UPS-Deutschland-Sarl-Co-OHG-2024-Jahresabschluss.pdf",
+   "evidenceQuote": "Konzernabschluss der United Parcel Service, Inc., Atlanta, Georgia/USA, (für den größten und kleinsten Kreis von Unternehmen) einbezogen. — Anmerkung: Annual report 2024. Percentage split between the Luxembourg partner and US LLC not itemized, but both are UPS group; managing partner is a US LLC and officers are employed by United Parcel Service of America, Inc., Atlanta."
+  },
+  {
+   "id": "R003198",
+   "name": "Mars GmbH",
+   "zone": "subsidiary",
+   "sector": "Konsum / Lebensmittel",
+   "parent": "Mars, Incorporated",
+   "parentShort": "Mars",
+   "parentIncorporation": "Delaware, US (source gives McLean, Virginia HQ; Wrigley holding LLC Wilmington, Delaware)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/e4/42/788800/Testat-MarsH-KAP-31-12-2024.pdf",
+   "evidenceQuote": "Die Gesellschaften des Mars Konzerns werden in den Konzernabschluss der Mars Inc., McLean, Virginia/USA als größten — Anmerkung: Konzernabschluss 2024 of the former Mars Holding GmbH, Verden (now Effem Germany GmbH). It names 'die Konzerngesellschaft Mars GmbH, Verden' as part of the group and 'die Muttergesellschaft Mars Nederland B.V., Veghel' above the German group. Mars GmbH's own annual report was not opened; the registered entity R003198 'Mars GmbH' is identified with the Verden Mars GmbH by name only. Lobbyregister snippet also says Mars in Germany belongs to Mars, Incorporated (family company)."
+  },
+  {
+   "id": "R001059",
+   "name": "Dow Olefinverbund GmbH",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Dow Inc.",
+   "parentShort": "Dow",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1751788/000175178826000018/dowinc202510kex21.htm",
+   "evidenceQuote": "Eintrag „Dow Olefinverbund GmbH“ in der Tochterliste von DOW INC. (Filing 2026-02-03)"
+  },
+  {
+   "id": "R001060",
+   "name": "Dow Deutschland Anlagengesellschaft mbH",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Dow Inc.",
+   "parentShort": "Dow",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1751788/000175178826000018/dowinc202510kex21.htm",
+   "evidenceQuote": "Eintrag „Dow Deutschland Anlagengesellschaft mbH“ in der Tochterliste von DOW INC. (Filing 2026-02-03)"
+  },
+  {
+   "id": "R001217",
+   "name": "Johnson & Johnson Medical GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Johnson & Johnson",
+   "parentShort": "J&J",
+   "parentIncorporation": "NJ",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/200406/000020040626000016/ex21-subsidiariesxform10xk.htm",
+   "evidenceQuote": "Eintrag „Johnson & Johnson Medical GmbH“ in der Tochterliste von JOHNSON & JOHNSON (Filing 2026-02-11)"
+  },
+  {
+   "id": "R001689",
+   "name": "Coca-Cola GmbH",
+   "zone": "subsidiary",
+   "sector": "Konsum / Lebensmittel",
+   "parent": "The Coca-Cola Company",
+   "parentShort": "Coca-Cola",
+   "parentIncorporation": "Delaware, US (source: Atlanta, USA; Delaware from general knowledge)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/91/a3/770257/Lobbyregister-Registereintraege-Detailansicht-R001689-2026-06-23_13-51-05.pdf",
+   "evidenceQuote": "ist die Coca-Cola GmbH als Tochterunternehmen der The Coca-Cola Company für die Gesamtstrategie, die Wachstumsplanung und die Markenführung verantwortlich — Anmerkung: Annual report 2024 (https://www.lobbyregister.bundestag.de/media/c3/01/770255/Coca-Cola-GmbH_JAP_31-12-24_PB-final_25-001993.pdf): 'Der Jahresabschluss wird in den Konzernabschluss der The Coca-Cola Company, Atlanta/ USA ... einbezogen.' This is the concentrate/brand company, not the bottler Coca-Cola Europacific Partners Deutschland GmbH (separate entity, not examined)."
+  },
+  {
+   "id": "R001671",
+   "name": "McDonald’s Deutschland LLC, Zweigniederlassung München",
+   "zone": "subsidiary",
+   "sector": "Konsum / Lebensmittel",
+   "parent": "McDonald's Corporation",
+   "parentShort": "McDonald's",
+   "parentIncorporation": "Delaware, US",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/63908/000006390826000035/mcd-ex2110xk.htm",
+   "evidenceQuote": "McDonald's Deutschland LLC [Delaware] — Anmerkung: Listed under 'Domestic Subsidiaries' in Exhibit 21 'Subsidiaries of the Registrant' (FY2025 10-K). Lobbyregister entry (https://www.lobbyregister.bundestag.de/media/cf/26/769269/Lobbyregister-Registereintraege-Detailansicht-R001671-2026-06-23_08-36-41.pdf) says 'Gesellschaft mit beschränkter Haftung nach dem Recht des Staates Delaware'. Branch of a US company -> A."
+  },
+  {
+   "id": "R001254",
+   "name": "John Deere GmbH & Co. KG",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Deere & Company",
+   "parentShort": "John Deere",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/315189/000110465925122321/de-20251102xex21.htm",
+   "evidenceQuote": "Eintrag in der aktuellen Tochterliste von DEERE & CO (10-K vom 2025-12-18)"
+  },
+  {
+   "id": "R007542",
+   "name": "Planet Labs",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Planet Labs PBC",
+   "parentShort": "Planet",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1836833/000119312526119957/pl-ex21_1.htm",
+   "evidenceQuote": "Eintrag „Planet Labs Germany GmbH\t\t\t\t\tGermany“ in der Tochterliste von Planet Labs PBC (Filing 2026-03-23)"
+  },
+  {
+   "id": "R002171",
+   "name": "American Express Europe S.A. (Germany branch)",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "American Express Company",
+   "parentShort": "Amex",
+   "parentIncorporation": "New York, US",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/4962/000000496223000006/axp-20221231exx21.htm",
+   "evidenceQuote": "all of the voting securities of these subsidiaries are directly or indirectly owned by the registrant — Anmerkung: Exhibit 21 'Subsidiaries of American Express Company' (as of 31.12.2022) lists 'American Express Europe, S.A.' (Spain) without asterisk. 2025 audit report in Lobbyregister says the Spanish entity is owned 'through its shareholders, American Express de España, S.A.U.' and others. German branch of a Spanish wholly-owned subsidiary of a US company -> A."
+  },
+  {
+   "id": "R001108",
+   "name": "Kenvue Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Kenvue Inc.",
+   "parentShort": "Kenvue",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1944048/000194404826000030/exhibit21-subsidiariesofke.htm",
+   "evidenceQuote": "Eintrag „Kenvue Germany GmbH“ in der Tochterliste von Kenvue Inc. (Filing 2026-02-20)"
+  },
+  {
+   "id": "R001275",
+   "name": "Salesforce.com Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Salesforce, Inc.",
+   "parentShort": "Salesforce",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000060/ex211listofsubsidiariesfy26.htm",
+   "evidenceQuote": "Eintrag „salesforce.com Germany GmbH“ in der Tochterliste von Salesforce, Inc. (Filing 2026-03-02)"
+  },
+  {
+   "id": "R004360",
+   "name": "W. L. Gore & Associates GmbH",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "W. L. Gore & Associates, Inc.",
+   "parentShort": "Gore",
+   "parentIncorporation": "Delaware, US (Newark, Delaware per source)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/46/2f/698800/Lobbyregister-Registereintraege-Detailansicht-R004360-2026-02-25_16-46-12.pdf",
+   "evidenceQuote": "ist die deutsche Tochtergesellschaft der W. L. Gore & Associates, Inc. mit Hauptsitz in Newark, Delaware, USA — Anmerkung: Annual report (https://www.lobbyregister.bundestag.de/media/94/93/626424/Gore-Jahresabschluss.pdf): 'Der Jahresabschluss der Gore GmbH wird in den Konzernabschluss der W. L. Gore & Associates, Inc., Newark, Delaware/USA, einbezogen' and also WLG Equity, Inc., Newark, Delaware."
+  },
+  {
+   "id": "R002997",
+   "name": "Snap Camera GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Snap Inc.",
+   "parentShort": "Snap",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1564408/000156440826000013/snap-20251231xexx211.htm",
+   "evidenceQuote": "Eintrag „Snap Camera GmbH“ in der Tochterliste von Snap Inc (Filing 2026-02-05)"
+  },
+  {
+   "id": "R005433",
+   "name": "Warner Bros. Entertainment GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Skydance Corporation (inkl. Warner Bros. Discovery)",
+   "parentShort": "Warner/Skydance",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1437107/000143710726000020/a20251231-ex21listofsubsid.htm",
+   "evidenceQuote": "Eintrag „Warner Bros. Entertainment GmbH“ in der Tochterliste von Warner Bros. Discovery, Inc. (Filing 2026-02-27)"
+  },
+  {
+   "id": "R001180",
+   "name": "HP Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "HP Inc.",
+   "parentShort": "HP",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/47217/000004721725000071/hp10-31x25ex21subsidiaries.htm",
+   "evidenceQuote": "Eintrag „HP Deutschland GmbH“ in der Tochterliste von HP INC (Filing 2025-12-10)"
+  },
+  {
+   "id": "R002389",
+   "name": "Biogen GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Biogen Inc.",
+   "parentShort": "Biogen",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/875045/000087504526000013/biib-20251231xex21.htm",
+   "evidenceQuote": "Eintrag „Biogen GmbH“ in der Tochterliste von BIOGEN INC. (Filing 2026-02-06)"
+  },
+  {
+   "id": "R003039",
+   "name": "General Atomics Europe GmbH",
+   "zone": "subsidiary",
+   "sector": "Rüstung / Luft- und Raumfahrt",
+   "parent": "General Atomics (STD-Holdings Inc.)",
+   "parentShort": "General Atomics",
+   "parentIncorporation": "US (San Diego, CA); state of incorporation not verified",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/19/1a/789540/GAE-einzel-Digitales-Leseexemplar-Testat-JAP-2025.pdf",
+   "evidenceQuote": "Als verbundene Unternehmen werden neben dem Mutterunternehmen STD-Holdings Inc., San Diego, USA (kurz: STDH), alle Unternehmen angesehen — Anmerkung: Corroboration: esut.de 'übernahm das familiengeführte US-Unternehmen General Atomics die Spezialtechnik Dresden GmbH' (1992). Parent is a holding company, not itself an operating company; the General Atomics group is US-based. Exact % not stated."
+  },
+  {
+   "id": "R003537",
+   "name": "Moderna Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Moderna, Inc.",
+   "parentShort": "Moderna",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1682852/000168285226000033/exhibit211subsidiaries1231.htm",
+   "evidenceQuote": "Eintrag „Moderna Germany GmbH“ in der Tochterliste von Moderna, Inc. (Filing 2026-02-20)"
+  },
+  {
+   "id": "R007210",
+   "name": "Vanguard Group Europe GmbH",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "The Vanguard Group, Inc.",
+   "parentShort": "Vanguard",
+   "parentIncorporation": "Pennsylvania, US (Malvern, Pennsylvania per source; state of incorporation not stated)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/03/bc/832827/VGEG-JAP-2025_FINAL-TESTIERT.pdf",
+   "evidenceQuote": "Gesellschaft ist eine hundertprozentige Tochter der Zealous Inc. Zealous Inc. ist eine hundertprozentige Tochtergesellschaft der The Vanguard Group Inc. — Anmerkung: Annual report 2025. Same report names The Vanguard Group Inc., Malvern, Pennsylvania, USA as preparer of the largest/smallest consolidated accounts. Vanguard Group Inc. is itself owned by its US funds (client-owned structure), but is a US operating company, so A."
+  },
+  {
+   "id": "R001637",
+   "name": "Vertex Pharmaceuticals (Germany) GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Vertex Pharmaceuticals Incorporated",
+   "parentShort": "Vertex",
+   "parentIncorporation": "MA",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/875320/000087532026000056/a10k_2025-exhibit211.htm",
+   "evidenceQuote": "Eintrag „Vertex Pharmaceuticals (Germany) GmbH, a German company“ in der Tochterliste von VERTEX PHARMACEUTICALS INC / MA (Filing 2026-02-13)"
+  },
+  {
+   "id": "R004057",
+   "name": "Hewlett-Packard GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Hewlett Packard Enterprise Company",
+   "parentShort": "HPE",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1645590/000164559025000130/ex-21x10312025.htm",
+   "evidenceQuote": "Eintrag „Hewlett-Packard GmbH“ in der Tochterliste von Hewlett Packard Enterprise Co (Filing 2025-12-18)"
+  },
+  {
+   "id": "R000834",
+   "name": "Intuitive Surgical Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Intuitive Surgical, Inc.",
+   "parentShort": "Intuitive",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1035267/000103526726000010/q425ex-211xsubsidiaries.htm",
+   "evidenceQuote": "Eintrag „Intuitive Surgical Deutschland GmbH“ in der Tochterliste von INTUITIVE SURGICAL INC (Filing 2026-02-03)"
+  },
+  {
+   "id": "R002881",
+   "name": "VMware Global Inc. Zweigniederlassung Deutschland",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Broadcom Inc.",
+   "parentShort": "Broadcom",
+   "parentIncorporation": "Delaware, US",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/e4/52/726803/Lobbyregister-Registereintraege-Detailansicht-R002881-2026-04-23_14-56-07.pdf",
+   "evidenceQuote": "VMware gehört zu Broadcom Inc. ... Broadcom ist eine Gesellschaft nach dem Recht des US-Bundesstaates Delaware — Anmerkung: Source is the entity's own Lobbyregister entry (self-description). Branch of VMware Global, Inc. (US) per name; VMware Global Inc. incorporation not separately opened."
+  },
+  {
+   "id": "R001781",
+   "name": "Corteva Agriscience Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Corteva, Inc.",
+   "parentShort": "Corteva",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1755672/000175567226000004/ctva-12312025xex21.htm",
+   "evidenceQuote": "Eintrag „Corteva Agriscience Germany GmbH“ in der Tochterliste von Corteva, Inc. (Filing 2026-02-12)"
+  },
+  {
+   "id": "R002047",
+   "name": "Thermo Fisher Scientific",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Thermo Fisher Scientific Inc.",
+   "parentShort": "Thermo Fisher",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/97745/000009774526000018/q4202510-kex21sublist.htm",
+   "evidenceQuote": "Eintrag „Thermo Fisher Scientific (DE) Holding S.a.r.l.“ in der Tochterliste von THERMO FISHER SCIENTIFIC INC. (Filing 2026-02-26)"
+  },
+  {
+   "id": "R006686",
+   "name": "Fluence Energy GmbH",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Fluence Energy, Inc.",
+   "parentShort": "Fluence",
+   "parentIncorporation": "Delaware, US",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/b3/f3/842335/Fluence-Energy-GmbH_JAP_30-09-2025_Offenlegung.pdf",
+   "evidenceQuote": "Die oberste Muttergesellschaft ist die Fluence Energy Inc. — Anmerkung: Delaware confirmed in 10-K FY2025 (https://www.sec.gov/Archives/edgar/data/1868941/000186894125000081/flnc-20250930.htm): 'Fluence Energy, Inc., a Delaware corporation'. 10-K calls Siemens Industry, Inc. and AES Grid Stability, LLC the 'Founders' with a non-controlling interest in Fluence Energy LLC; Fluence Energy, Inc. is sole managing member. The GmbH accounts say Fluence Energy, Inc. prepares the consolidated accounts. Siemens/AES shareholding in the Inc. is only indirectly shown (Class A / B-1 tags) - I did not read the beneficial-ownership table, so it is not confirmed that neither holds >50% of the parent; as public-company stockholders they are in any case not controlling parents of the German entity."
+  },
+  {
+   "id": "R002670",
+   "name": "Viessmann Holding International GmbH",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Carrier Global Corporation",
+   "parentShort": "Carrier",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1783180/000178318026000008/a2025-12x3110xkex21xsubsid.htm",
+   "evidenceQuote": "Eintrag „Viessmann Holding International GmbH, Germany“ in der Tochterliste von CARRIER GLOBAL Corp (Filing 2026-02-05)"
+  },
+  {
+   "id": "R001253",
+   "name": "NVIDIA GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "NVIDIA Corporation",
+   "parentShort": "NVIDIA",
+   "parentIncorporation": "US (Santa Clara; Delaware per background knowledge)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/e8/4e/832840/Nvidia-GmbH_SIGNATURE_DEE00160473-1-2_658851_Endexemplar_20260113-Testat-NVIDIA-GmbH-JAP-1-2025.pdf",
+   "evidenceQuote": "NVIDIA Ltd, dem alleinigen Gesellschafter — Anmerkung: Accounts also say obersten Muttergesellschaft NVIDIA Corporation. FY 02/24-01/25. Register address Berlin; accounts say Wuerselen (registered seat)."
+  },
+  {
+   "id": "R002946",
+   "name": "Morgan Stanley Europe SE",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "Morgan Stanley",
+   "parentShort": "Morgan Stanley",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/895421/000089542126000086/exhibit21q42025_10-k.htm",
+   "evidenceQuote": "Eintrag „Morgan Stanley Europe SE“ in der Tochterliste von MORGAN STANLEY (Filing 2026-02-19)"
+  },
+  {
+   "id": "R007554",
+   "name": "Tesla Manufacturing Brandenburg SE",
+   "zone": "subsidiary",
+   "sector": "Mobilität / Logistik",
+   "parent": "Tesla, Inc.",
+   "parentShort": "Tesla",
+   "parentIncorporation": "TX",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/tsla-2025x12x31xex211.htm",
+   "evidenceQuote": "Eintrag „Tesla Manufacturing Brandenburg SE“ in der Tochterliste von Tesla, Inc. (Filing 2026-01-29)"
+  },
+  {
+   "id": "R001782",
+   "name": "Pioneer Hi-Bred Northern Europe Sales Division GmbH",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Corteva, Inc.",
+   "parentShort": "Corteva",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1755672/000175567226000004/ctva-12312025xex21.htm",
+   "evidenceQuote": "Eintrag „Pioneer Hi-Bred Northern Europe Sales Division GmbH“ in der Tochterliste von Corteva, Inc. (Filing 2026-02-12)"
+  },
+  {
+   "id": "R000073",
+   "name": "PepsiCo Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Konsum / Lebensmittel",
+   "parent": "PepsiCo, Inc.",
+   "parentShort": "PepsiCo",
+   "parentIncorporation": "NC",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/77476/000007747626000007/pepsico202510-kexhibit21.htm",
+   "evidenceQuote": "Eintrag „PepsiCo Deutschland GmbH“ in der Tochterliste von PEPSICO INC (Filing 2026-02-03)"
+  },
+  {
+   "id": "R002491",
+   "name": "Organon Healthcare GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Organon & Co.",
+   "parentShort": "Organon",
+   "parentIncorporation": "Delaware (10-K cover, ogn-20251231.htm)",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1821825/000162828026011125/ogn12312025-exhibit211.htm",
+   "evidenceQuote": "Eintrag „Organon Healthcare GmbH“ in der Tochterliste von Organon & Co. (Filing 2026-02-24)"
+  },
+  {
+   "id": "R002771",
+   "name": "PAYBACK GmbH",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "American Express Company",
+   "parentShort": "Amex",
+   "parentIncorporation": "US (American Express Company; New York incorporation not opened)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/ae/28/756115/PAYBACK-DE-Testat-JAP-2025.pdf",
+   "evidenceQuote": "Der Abschluss des Konzernmutterunternehmens, der American Express Company, wird von der Loyalty Partner GmbH an den Betreiber des elektronischen Bundesanzeigers ... übermittelt. — Anmerkung: FY2025 accounts: 'Zwischen der PAYBACK GmbH und ihrer Muttergesellschaft, der Loyalty Partner GmbH, München, besteht ein Beherrschungs- und Ergebnisabführungsvertrag.' Confirms Amex still the group parent in the 2025 accounts. payback.group facts page: 'This company is part of the American Express Group.'"
+  },
+  {
+   "id": "R003454",
+   "name": "Service-now.com GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "ServiceNow, Inc.",
+   "parentShort": "ServiceNow",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1373715/000137371526000007/now-20251231xex211.htm",
+   "evidenceQuote": "Eintrag „Service-now.com GmbH“ in der Tochterliste von ServiceNow, Inc. (Filing 2026-01-29)"
+  },
+  {
+   "id": "R004062",
+   "name": "Global Blue Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "Shift4 Payments, Inc.",
+   "parentShort": "Shift4",
+   "parentIncorporation": "Delaware (company 'mit Sitz in Wilmington, Delaware (USA)' per accounts; Shift4 is a US operating company)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/57/ef/840717/TESTAT_DEE00176210-1-1-PwC-Bericht-Global-Blue-JAP-2025_final_AT.pdf",
+   "evidenceQuote": "Die Shift4 Payments, Inc. ist seither oberstes Mutterunternehmen und mittelbar Alleingesellschafter der Global Blue Deutschland GmbH. — Anmerkung: Also: 'Im Juli 2025 wurde die Global Blue Group durch die Shift4 Payments, Inc. ... übernommen.' Tender offer got ~97.37% per search results (Business Wire page itself returned 403, not opened); Annual accounts say indirect sole shareholder."
+  },
+  {
+   "id": "R004187",
+   "name": "Mondelez Deutschland Services GmbH & Co. KG",
+   "zone": "subsidiary",
+   "sector": "Konsum / Lebensmittel",
+   "parent": "Mondelez International, Inc.",
+   "parentShort": "Mondelez",
+   "parentIncorporation": "IL",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1103982/000162828026005345/ex211_123125.htm",
+   "evidenceQuote": "Eintrag „Mondelez Deutschland Services GmbH & Co. KG“ in der Tochterliste von Mondelez International, Inc. (Filing 2026-02-04)"
+  },
+  {
+   "id": "R002378",
+   "name": "Edwards Lifesciences GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Edwards Lifesciences Corporation",
+   "parentShort": "Edwards",
+   "parentIncorporation": "Delaware, US (Edwards Lifesciences (US) Inc., Wilmington DE); Corp. is Irvine, California",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/02/be/816276/Edwards-2025-Bericht_FV.pdf",
+   "evidenceQuote": "Alleinige Gesellschafterin der Edwards Lifesciences GmbH ... ist die Edwards Lifesciences (US) INC., Wilmington, Delaware, USA. — Anmerkung: Same filing: Edwards Lifesciences Corporation, Irvine, Kalifornien is 'oberste Konzernspitze'. Corporation's own state of incorporation not opened."
+  },
+  {
+   "id": "R000671",
+   "name": "John Deere Walldorf GmbH & Co. KG",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Deere & Company",
+   "parentShort": "John Deere",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/315189/000110465925122321/de-20251102xex21.htm",
+   "evidenceQuote": "Eintrag „John     Deere     Walldorf     GmbH     &     Co.     KG“ in der Tochterliste von DEERE & CO (Filing 2025-12-18)"
+  },
+  {
+   "id": "R001673",
+   "name": "Netflix Services Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Netflix, Inc.",
+   "parentShort": "Netflix",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000034/ex211-q425.htm",
+   "evidenceQuote": "Eintrag „Netflix Services Germany GmbH“ in der Tochterliste von NETFLIX INC (Filing 2026-01-23)"
+  },
+  {
+   "id": "R003019",
+   "name": "MEDA Pharma GmbH & Co. KG (A Viatris Company)",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Viatris Inc.",
+   "parentShort": "Viatris",
+   "parentIncorporation": "Delaware, US (10-K cover: Delaware)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1792044/000179204426000013/ex_21xvtrsx20251231.htm",
+   "evidenceQuote": "Subsidiaries as of December 31, 2025 ... MEDA Pharma GmbH & Co. KG | Germany — Anmerkung: Viatris Delaware confirmed from https://www.sec.gov/Archives/edgar/data/1792044/000179204426000013/vtrs-20251231.htm cover page ('Delaware'). Lobbyregister entry R003019 also uses '(A Viatris Company)'."
+  },
+  {
+   "id": "R004507",
+   "name": "Boeing Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Rüstung / Luft- und Raumfahrt",
+   "parent": "The Boeing Company",
+   "parentShort": "Boeing",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/12927/000162828026004357/a202512dec3110kex21.htm",
+   "evidenceQuote": "Eintrag „Boeing Deutschland GmbH“ in der Tochterliste von BOEING CO (Filing 2026-01-30)"
+  },
+  {
+   "id": "R007184",
+   "name": "Westlake Germany GmbH & Co. KG",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Westlake Corporation",
+   "parentShort": "Westlake",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1262823/000126282326000016/exhibit2112312510-k.htm",
+   "evidenceQuote": "Eintrag „Westlake Germany GmbH & Co. KG“ in der Tochterliste von WESTLAKE CORP (Filing 2026-02-26)"
+  },
+  {
+   "id": "R005858",
+   "name": "Brown-Forman Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Konsum / Lebensmittel",
+   "parent": "Brown-Forman Corporation",
+   "parentShort": "Brown-Forman",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/14693/000001469326000024/bfb-ex21_2026430xevergreen.htm",
+   "evidenceQuote": "Eintrag „Brown-Forman Deutschland GmbH“ in der Tochterliste von BROWN FORMAN CORP (Filing 2026-06-12)"
+  },
+  {
+   "id": "R007609",
+   "name": "Nike Retail B.V. Branch Office Germany",
+   "zone": "subsidiary",
+   "sector": "Konsum / Lebensmittel",
+   "parent": "Nike, Inc.",
+   "parentShort": "Nike",
+   "parentIncorporation": "Oregon, US",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/c8/5b/846016/Suchergebnis-Bundesanzeiger.pdf",
+   "evidenceQuote": "NIKE, Inc., Oregon, USA, is the ultimate parent of the Company. The Company is a wholly owned subsidiary of NIKE Europe Holding B.V. — Anmerkung: Bundesanzeiger-published NIKE Retail B.V. (Hilversum) financial report FY ended 31 May 2022; German entity is its Zweigniederlassung. Nike 10-K Exhibit 21 (FY2015) also lists NIKE Retail B.V., Netherlands. Branch of a wholly-owned foreign subsidiary of a US company = A."
+  },
+  {
+   "id": "R000629",
+   "name": "BECTON DICKINSON Gesellschaft mit beschränkter Haftung (BD)",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Becton, Dickinson and Company",
+   "parentShort": "BD",
+   "parentIncorporation": "US (Franklin Lakes, New Jersey)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/d7/a6/720318/Becton-Dickinson-GmbH_JAP_30-9-2024_TE-final-eSign_24-007744.pdf",
+   "evidenceQuote": "Alle drei Firmen sind Tochtergesellschaften der Becton, Dickinson and Company, Franklin Lakes, New Jersey, USA — Anmerkung: Annual accounts FY 30 Sep 2024. State of incorporation (NJ) inferred from the filing's wording/HQ, not separately opened."
+  },
+  {
+   "id": "R001439",
+   "name": "Dell GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Dell Technologies Inc.",
+   "parentShort": "Dell",
+   "parentIncorporation": "TX",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1571996/000157199626000008/exhibit211fy2610-k.htm",
+   "evidenceQuote": "Eintrag „Dell GmbH“ in der Tochterliste von Dell Technologies Inc. (Filing 2026-03-16)"
+  },
+  {
+   "id": "R002009",
+   "name": "eBay GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "eBay Inc.",
+   "parentShort": "eBay",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1065088/000106508826000027/ebay123125ex2101.htm",
+   "evidenceQuote": "Eintrag „eBay GmbH“ in der Tochterliste von EBAY INC (Filing 2026-02-19)"
+  },
+  {
+   "id": "R001141",
+   "name": "Boston Scientific Medizintechnik GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Boston Scientific Corporation",
+   "parentShort": "Boston Scientific",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/885725/000088572526000010/exhibit21-listofsubsidiari.htm",
+   "evidenceQuote": "Eintrag „Boston Scientific Medizintechnik GmbH (Germany)“ in der Tochterliste von BOSTON SCIENTIFIC CORP (Filing 2026-02-17)"
+  },
+  {
+   "id": "R001364",
+   "name": "Uber Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Uber Technologies, Inc.",
+   "parentShort": "Uber",
+   "parentIncorporation": "Delaware, US",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/07/64/774782/2024-Uber-NL-Holdings-1-B-V-annual-report-Uber-Germany-GmbH.pdf",
+   "evidenceQuote": "The ultimate parent of the Company is Uber Technologies, Inc. (`UTI') which is incorporated in Delaware, USA — Anmerkung: Cover note in same PDF: 'Die Uber Germany GmbH ist als einhundertprozentige Tochtergesellschaft der Uber NL Holdings 1 B.V. in den Konzernabschluss ... einbezogen'. Annual report of the Dutch holding, not of the GmbH itself."
+  },
+  {
+   "id": "R003522",
+   "name": "Airbnb Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Airbnb, Inc.",
+   "parentShort": "Airbnb",
+   "parentIncorporation": "US (San Francisco; Airbnb, Inc. is the US registrant, Delaware)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/cd/0a/782102/Berlin-Charlottenburg-_HRB_154165_21-05-2026.pdf",
+   "evidenceQuote": "Die oberste Muttergesellschaft des Unternehmens ist die Airbnb, Inc., San Francisco (USA). — Anmerkung: Same document: 'Andere hundertprozentige Tochterunternehmen von Airbnb, Inc. werden als verbundene Unternehmen bezeichnet.' Direct shareholder per northdata.de (31.10.2024): 'Gesellschafter: Airbnb Holdings LLC'."
+  },
+  {
+   "id": "R003616",
+   "name": "Kohlberg Kravis Roberts GmbH",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "KKR & Co. Inc.",
+   "parentShort": "KKR",
+   "parentIncorporation": "Delaware (SEC search index inc_states)",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1404912/000140491226000007/kkr-20251231xex211subsidia.htm",
+   "evidenceQuote": "Eintrag „Kohlberg Kravis Roberts GmbH“ in der Tochterliste von KKR & Co. Inc. (Filing 2026-02-27)"
+  },
+  {
+   "id": "R003915",
+   "name": "Goodyear Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Mobilität / Logistik",
+   "parent": "The Goodyear Tire & Rubber Company",
+   "parentShort": "Goodyear",
+   "parentIncorporation": "OH",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/42582/000162828026006708/livecopygt-20251231xexx211.htm",
+   "evidenceQuote": "Eintrag „Goodyear Germany GmbH“ in der Tochterliste von GOODYEAR TIRE & RUBBER CO /OH/ (Filing 2026-02-10)"
+  },
+  {
+   "id": "R005983",
+   "name": "ATC EH GmbH & Co. KG",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "American Tower Corporation",
+   "parentShort": "American Tower",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1053507/000105350726000035/exhibit21fy2025.htm",
+   "evidenceQuote": "Eintrag „ATC EH GmbH & Co KG“ in der Tochterliste von AMERICAN TOWER CORP /MA/ (Filing 2026-02-24)"
+  },
+  {
+   "id": "R001138",
+   "name": "ResMed Germany Inc., Zweigniederlassung Deutschland",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "ResMed Inc.",
+   "parentShort": "ResMed",
+   "parentIncorporation": "Delaware, US (ResMed Germany Inc. per Exhibit 21)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/943819/000094381919000017/rmd-20190630xex21_1.htm",
+   "evidenceQuote": "ResMed Germany Inc. | Delaware — Anmerkung: Entity itself is a Delaware Inc.; German presence is a Zweigniederlassung of a US company, so A regardless. Not listed in the newest Exhibit 21 per search snippets (small subs are omitted); ResMed Inc.'s own incorporation state not opened. Lobbyregister attaches ResMed Inc. 10-K 2025."
+  },
+  {
+   "id": "R003170",
+   "name": "Tesla Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Mobilität / Logistik",
+   "parent": "Tesla, Inc.",
+   "parentShort": "Tesla",
+   "parentIncorporation": "TX",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/tsla-2025x12x31xex211.htm",
+   "evidenceQuote": "Eintrag „Tesla Germany GmbH“ in der Tochterliste von Tesla, Inc. (Filing 2026-01-29)"
+  },
+  {
+   "id": "R004909",
+   "name": "The Walt Disney Company (Germany) GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "The Walt Disney Company",
+   "parentShort": "Disney",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1744489/000174448925000155/fy2025_q4x10kxex21.htm",
+   "evidenceQuote": "Eintrag „The Walt Disney Company (Germany) GmbH“ in der Tochterliste von Walt Disney Co (Filing 2025-11-13)"
+  },
+  {
+   "id": "R006678",
+   "name": "Incyte Biosciences Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Incyte Corporation",
+   "parentShort": "Incyte",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/879169/000087916926000010/exhibit211-12312025.htm",
+   "evidenceQuote": "Eintrag „Incyte Biosciences Germany GmbH“ in der Tochterliste von INCYTE CORP (Filing 2026-02-10)"
+  },
+  {
+   "id": "R000248",
+   "name": "Wolt Enterprises Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "DoorDash, Inc.",
+   "parentShort": "DoorDash",
+   "parentIncorporation": "US (San Francisco; Delaware not separately opened)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/12/cc/783202/Wolt_JAB_2024.pdf",
+   "evidenceQuote": "ist eine 100 %-ige Tochtergesellschaft der Wolt Oy, Helsinki/ Finnland. Oberstes Mutterunternehmen ist die DoorDash Inc. San Francisco/ USA. — Anmerkung: Acquisition closed: DoorDash press release 1 June 2022 (https://press.wolt.com/en-WW/215041-doordash-completes-acquisition-of-wolt): 'completed the acquisition of Wolt Enterprises Oy'. Wolt Oy a 100% DoorDash sub per that deal."
+  },
+  {
+   "id": "R001506",
+   "name": "General Dynamics European Land Systems - Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Rüstung / Luft- und Raumfahrt",
+   "parent": "General Dynamics Corporation",
+   "parentShort": "General Dynamics",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/ex21-20251231.htm",
+   "evidenceQuote": "Eintrag „General Dynamics European Land Systems - Deutschland GmbH“ in der Tochterliste von GENERAL DYNAMICS CORP (Filing 2026-01-30)"
+  },
+  {
+   "id": "R001941",
+   "name": "Enterprise Autovermietung Deutschland B.V. & Co. KG",
+   "zone": "subsidiary",
+   "sector": "Mobilität / Logistik",
+   "parent": "Enterprise Holdings, Inc.",
+   "parentShort": "Enterprise",
+   "parentIncorporation": "US (St. Louis, Missouri); state of incorporation not verified",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/83/52/815977/Enterprise-Autovermietung-D-B-V-Co-KG_JAP_31-07-2025_TE-final_signed_25-003141.pdf",
+   "evidenceQuote": "von der Enterprise Holdings, Inc. (\"US-Muttergesellschaft\") getragen — Anmerkung: Annual accounts FY 31 Jul 2025 call Enterprise Holdings, Inc. the 'US-Muttergesellschaft' and give a Patronatserklärung from it; general partner Enterprise Holdings International B.V., Amsterdam, managed by a St. Louis CFO. Kommanditist's identity/percentage not stated in the text I read. Strong A."
+  },
+  {
+   "id": "R003144",
+   "name": "Discovery Communications Deutschland GmbH & Co KG",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Skydance Corporation (inkl. Warner Bros. Discovery)",
+   "parentShort": "Warner/Skydance",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1437107/000143710726000020/a20251231-ex21listofsubsid.htm",
+   "evidenceQuote": "Eintrag „Discovery Communications Deutschland GmbH & Co. KG“ in der Tochterliste von Warner Bros. Discovery, Inc. (Filing 2026-02-27)"
+  },
+  {
+   "id": "R000469",
+   "name": "Adobe Systems GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Adobe Inc.",
+   "parentShort": "Adobe",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/796343/000079634326000003/adbeex211fy25.htm",
+   "evidenceQuote": "Eintrag „Adobe Systems GmbH“ in der Tochterliste von ADOBE INC. (Filing 2026-01-15)"
+  },
+  {
+   "id": "R000520",
+   "name": "Stryker GmbH & Co. KG",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Stryker Corporation",
+   "parentShort": "Stryker",
+   "parentIncorporation": "MI",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/310764/000031076426000010/ex21i1231202510k.htm",
+   "evidenceQuote": "Eintrag „Stryker GmbH & Co. KG“ in der Tochterliste von STRYKER CORP (Filing 2026-02-11)"
+  },
+  {
+   "id": "R001107",
+   "name": "Illumina GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Illumina, Inc.",
+   "parentShort": "Illumina",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1110803/000111080326000024/ex211subsidiariesfy2510-k.htm",
+   "evidenceQuote": "Eintrag „Illumina GmbH“ in der Tochterliste von ILLUMINA, INC. (Filing 2026-02-12)"
+  },
+  {
+   "id": "R006059",
+   "name": "Digital Realty Germany",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Digital Realty Trust, Inc.",
+   "parentShort": "Digital Realty",
+   "parentIncorporation": "MD",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1297996/000110465926015365/dlr-20251231xex21d2.htm",
+   "evidenceQuote": "Eintrag „Digital Realty Germany GmbH“ in der Tochterliste von DIGITAL REALTY TRUST, INC. (Filing 2026-02-13)"
+  },
+  {
+   "id": "R006441",
+   "name": "Equinix (Germany) GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Equinix, Inc.",
+   "parentShort": "Equinix",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1101239/000110123926000032/eqix-123125xexhibit211.htm",
+   "evidenceQuote": "Eintrag „Equinix (Germany) GmbH“ in der Tochterliste von EQUINIX INC (Filing 2026-02-11)"
+  },
+  {
+   "id": "R006452",
+   "name": "VIMN Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Skydance Corporation (inkl. Warner Bros. Discovery)",
+   "parentShort": "Warner/Skydance",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/2041610/000204161026000011/psky2025q4_ex21-subsidiari.htm",
+   "evidenceQuote": "Eintrag „VIMN Germany GmbH“ in der Tochterliste von Skydance Corp (Filing 2026-02-25)"
+  },
+  {
+   "id": "R007832",
+   "name": "NetApp Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "NetApp, Inc.",
+   "parentShort": "NetApp",
+   "parentIncorporation": "CA",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1002047/000119312526259683/ntap-ex21_1.htm",
+   "evidenceQuote": "Eintrag „NetApp Deutschland GmbH“ in der Tochterliste von NetApp, Inc. (Filing 2026-06-05)"
+  },
+  {
+   "id": "R000831",
+   "name": "3M Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Industrie / Verpackung",
+   "parent": "3M Company",
+   "parentShort": "3M",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/66740/000006674026000014/a2025exhibit2110k.htm",
+   "evidenceQuote": "Eintrag „3M Deutschland GmbH“ in der Tochterliste von 3M CO (Filing 2026-02-03)"
+  },
+  {
+   "id": "R001922",
+   "name": "Citigroup Global Markets Europe AG",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "Citigroup Inc.",
+   "parentShort": "Citigroup",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000011/citi-exh2101x12312025.htm",
+   "evidenceQuote": "Eintrag „Citigroup Global Markets Europe AG“ in der Tochterliste von CITIGROUP INC (Filing 2026-02-20)"
+  },
+  {
+   "id": "R002408",
+   "name": "Intervet Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Merck & Co., Inc.",
+   "parentShort": "MSD",
+   "parentIncorporation": "NJ",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/310158/000031015826000063/exh21-subsidiarylistasof12.htm",
+   "evidenceQuote": "Eintrag „Intervet Deutschland GmbH“ in der Tochterliste von Merck & Co., Inc. (Filing 2026-02-24)"
+  },
+  {
+   "id": "R003264",
+   "name": "FedEx Express Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Mobilität / Logistik",
+   "parent": "FedEx Corporation",
+   "parentShort": "FedEx",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1048911/000104891126000105/fdx-exx21fy2026q4.htm",
+   "evidenceQuote": "Eintrag „FedEx Express Deutschland GmbH“ in der Tochterliste von FEDEX CORP (Filing 2026-07-20)"
+  },
+  {
+   "id": "R003539",
+   "name": "Federal Express Corporation - Deutsche Niederlassung",
+   "zone": "subsidiary",
+   "sector": "Mobilität / Logistik",
+   "parent": "FedEx Corporation",
+   "parentShort": "FedEx",
+   "parentIncorporation": "Delaware, USA",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1048911/000104891125000011/fdx-exx21fy2025q4.htm",
+   "evidenceQuote": "The following is a list of subsidiaries of FedEx Corporation as of May 31, 2025. [row:] Federal Express Corporation | Delaware — Anmerkung: Lobbyregister page https://www.lobbyregister.bundestag.de/suche/R003539 states legal form: 'Corporation nach dem Recht des Staates Delaware/USA'. FedEx 10-K (Annual-Report-FEC-2025.pdf on Lobbyregister): 'FedEx Corporation was incorporated in Delaware on October 2, 1997'. Branch of a US operating company."
+  },
+  {
+   "id": "R005116",
+   "name": "Kennametal Holding GmbH",
+   "zone": "subsidiary",
+   "sector": "Industrie / Verpackung",
+   "parent": "Kennametal Inc.",
+   "parentShort": "Kennametal",
+   "parentIncorporation": "PA",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/55242/000162828026056143/kmt630202610kex21.htm",
+   "evidenceQuote": "Eintrag „Kennametal Holding GmbH“ in der Tochterliste von KENNAMETAL INC (Filing 2026-08-12)"
+  },
+  {
+   "id": "R001504",
+   "name": "General Dynamics European Land Systems - FWW GmbH",
+   "zone": "subsidiary",
+   "sector": "Rüstung / Luft- und Raumfahrt",
+   "parent": "General Dynamics Corporation",
+   "parentShort": "General Dynamics",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/ex21-20251231.htm",
+   "evidenceQuote": "Eintrag „General Dynamics European Land Systems - FWW GmbH“ in der Tochterliste von GENERAL DYNAMICS CORP (Filing 2026-01-30)"
+  },
+  {
+   "id": "R001502",
+   "name": "General Dynamics European Land Systems-Bridge Systems GmbH",
+   "zone": "subsidiary",
+   "sector": "Rüstung / Luft- und Raumfahrt",
+   "parent": "General Dynamics Corporation",
+   "parentShort": "General Dynamics",
+   "parentIncorporation": "US (HQ Reston, Virginia; Delaware per background knowledge)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/e6/92/783063/Jahresabschluss-BS-2025.pdf",
+   "evidenceQuote": "Konzernabschluss für den größten Kreis von Unternehmen erstellt die General Dynamics Corporation, Reston, Virginia/USA — Anmerkung: Consolidation wording implies control; exact percent not stated. Quote lightly trimmed from pdftotext output."
+  },
+  {
+   "id": "R002174",
+   "name": "ZVC Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Zoom Communications, Inc.",
+   "parentShort": "Zoom",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1585521/000158552126000030/listofsubsidiaries_2026.htm",
+   "evidenceQuote": "Eintrag „ZVC Germany GmbH“ in der Tochterliste von Zoom Communications, Inc. (Filing 2026-02-27)"
+  },
+  {
+   "id": "R005710",
+   "name": "Kyndryl Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Kyndryl Holdings, Inc.",
+   "parentShort": "Kyndryl",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1867072/000110465926067881/kd-20260331xex21d1.htm",
+   "evidenceQuote": "Eintrag „Kyndryl Deutschland GmbH“ in der Tochterliste von Kyndryl Holdings, Inc. (Filing 2026-05-29)"
+  },
+  {
+   "id": "R005839",
+   "name": "GE HealthCare",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "GE HealthCare Technologies Inc.",
+   "parentShort": "GE HealthCare",
+   "parentIncorporation": "US (Chicago HQ; Delaware per background knowledge)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/b6/d8/778119/Jahresabschluss-GE-HealthCare_2025.pdf",
+   "evidenceQuote": "Als Tochtergesellschaft von GE HealthCare Technologies Inc. ist die Gesellschaft — Anmerkung: FY2025 Lagebericht, GE Healthcare GmbH, Düsseldorf. Also owns about 99.9 percent of GE Healthcare Information Technologies GmbH & Co. KG."
+  },
+  {
+   "id": "R006552",
+   "name": "Solventum Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Solventum Corporation",
+   "parentShort": "Solventum",
+   "parentIncorporation": "Delaware, USA (HQ Maplewood, Minnesota; NYSE: SOLV)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/8a/22/860171/DEE00144019-1-2-Bericht-Solventum-Germany-GmbH-2025-12-04-1-2.pdf",
+   "evidenceQuote": "Die Solventum Germany GmbH ist in die globalen Strukturen der Solventum Corporation ... eingebunden. — Anmerkung: Same report: Healthcare unit incl. the German company 'vollständig von der 3M Company ab und wurde in die Solventum Corporation überführt'. Delaware per Solventum 10-K cover https://www.sec.gov/Archives/edgar/data/1964738/000196473825000040/final202410-kv2.htm ('Delaware 92-2008841'). SEC Ex-21.1 (Form 10) lists 3M Healthcare Germany GmbH among expected Solventum subsidiaries: https://www.sec.gov/Archives/edgar/data/1964738/000162828024009297/exhibit211-form10x12ba.htm. Exact immediate shareholder not named in text I could read."
+  },
+  {
+   "id": "R007406",
+   "name": "SolarEdge Technologies GmbH",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "SolarEdge Technologies, Inc.",
+   "parentShort": "SolarEdge",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1419612/000117891326001595/exhibit_21-1.htm",
+   "evidenceQuote": "Eintrag „SolarEdge Technologies GmbH“ in der Tochterliste von SOLAREDGE TECHNOLOGIES, INC. (Filing 2026-03-23)"
+  },
+  {
+   "id": "R008200",
+   "name": "The Bank of New York Mellon SA/NV, Asset Servicing, Niederlassung Frankfurt am Main",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "The Bank of New York Mellon Corporation",
+   "parentShort": "BNY",
+   "parentIncorporation": "Delaware, USA (BNY Corporation 10-K cover lists Delaware); SA/NV is Belgian-chartered",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.bny.com/corporate/global/en/about-us/locations/europe-middle-east-africa/belgium.html",
+   "evidenceQuote": "The Bank of New York Mellon SA/NV (our 'European Bank') is a wholly owned subsidiary of the Bank of New York Mellon Group. — Anmerkung: Page says 'Group' not 'Corporation'. BNY 10-K FY2025 https://www.sec.gov/Archives/edgar/data/1390777/000139077726000033/bk-20251231.htm lists 'our principal bank subsidiaries, The Bank of New York Mellon, BNY Mellon, N.A. or The Bank of New York Mellon SA/NV'. German Impressum https://www.bny.com/corporate/de/de/impressum-de.html names SA/NV (Brussels) Asset Servicing Niederlassung Frankfurt. Could not open SA/NV annual report (file >10MB)."
+  },
+  {
+   "id": "R000785",
+   "name": "Hologic Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Hologic, Inc.",
+   "parentShort": "Hologic",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/859737/000085973725000072/ex211-subsidiariesofhologi.htm",
+   "evidenceQuote": "Eintrag „Hologic Deutschland GmbH“ in der Tochterliste von HOLOGIC INC (Filing 2025-11-18)"
+  },
+  {
+   "id": "R001856",
+   "name": "DuPont Deutschland Holding Gmbh & Co. KG",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "DuPont de Nemours, Inc.",
+   "parentShort": "DuPont de Nemours",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1666700/000166670026000013/exhibit21123125.htm",
+   "evidenceQuote": "Eintrag „DuPont Deutschland Holding GmbH & Co. KG“ in der Tochterliste von DuPont de Nemours, Inc. (Filing 2026-02-17)"
+  },
+  {
+   "id": "R002880",
+   "name": "Hertz Autovermietung GmbH",
+   "zone": "subsidiary",
+   "sector": "Mobilität / Logistik",
+   "parent": "Hertz Global Holdings, Inc.",
+   "parentShort": "Hertz Global",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1657853/000165785326000008/hghthcq42025exhibit211.htm",
+   "evidenceQuote": "Eintrag „Hertz Autovermietung  GmbH“ in der Tochterliste von HERTZ GLOBAL HOLDINGS, INC (Filing 2026-02-26)"
+  },
+  {
+   "id": "R003383",
+   "name": "Autodesk GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Autodesk, Inc.",
+   "parentShort": "Autodesk",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/769397/000076939726000015/adsk01312026ex211.htm",
+   "evidenceQuote": "Eintrag „Autodesk GmbH“ in der Tochterliste von Autodesk, Inc. (Filing 2026-03-03)"
+  },
+  {
+   "id": "R006055",
+   "name": "Dexcom Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "DexCom, Inc.",
+   "parentShort": "DexCom",
+   "parentIncorporation": "US (San Diego, California HQ)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/6b/a3/790576/Dexcom-Deutschland-GmbH_JAP_31-12-24_TE_Final_eSign_24-005566.pdf",
+   "evidenceQuote": "Teil der Dexcom Gruppe, deren Muttergesellschaft die Dexcom Inc., San Diego, Kalifornien, USA, ist — Anmerkung: Evidence is FY2024 (latest linked); no sign of divestiture. Absence from 2026 Ex21 likely omission of minor subs."
+  },
+  {
+   "id": "R007599",
+   "name": "Madrigal Pharmaceuticals Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Madrigal Pharmaceuticals, Inc.",
+   "parentShort": "Madrigal",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1157601/000162828026009514/exhibit-211xsubsidiaries.htm",
+   "evidenceQuote": "Eintrag „Madrigal Pharmaceuticals Deutschland GmbH“ in der Tochterliste von MADRIGAL PHARMACEUTICALS, INC. (Filing 2026-02-19)"
+  },
+  {
+   "id": "R002281",
+   "name": "AMD",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Advanced Micro Devices, Inc.",
+   "parentShort": "AMD",
+   "parentIncorporation": "US (Delaware per background knowledge)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/01/26/796559/Jahresabschluss-2025-10-K.pdf",
+   "evidenceQuote": "Advanced Micro Devices GmbH Germany — Anmerkung: Identity of register GmbH with Ex21 Advanced Micro Devices GmbH is by name and by the register attaching the AMD 10-K, not by Handelsregister number. Ex21 does not state percent."
+  },
+  {
+   "id": "R002919",
+   "name": "S&P Global Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "S&P Global Inc.",
+   "parentShort": "S&P",
+   "parentIncorporation": "NY",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/64040/000006404026000013/exhibit21tofy2025formx2025.htm",
+   "evidenceQuote": "Eintrag „S&P Global Germany GmbH“ in der Tochterliste von S&P Global Inc. (Filing 2026-02-11)"
+  },
+  {
+   "id": "R005862",
+   "name": "CrowdStrike GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "CrowdStrike Holdings, Inc.",
+   "parentShort": "CrowdStrike",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1535527/000153552726000010/crwd-20260131xexx211.htm",
+   "evidenceQuote": "Eintrag „CrowdStrike GmbH“ in der Tochterliste von CrowdStrike Holdings, Inc. (Filing 2026-03-05)"
+  },
+  {
+   "id": "R006518",
+   "name": "Palo Alto Networks (Germany) GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Palo Alto Networks, Inc.",
+   "parentShort": "Palo Alto",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1327567/000132756726000023/panwex211fy26.htm",
+   "evidenceQuote": "Eintrag „Palo Alto Networks (Germany) GmbH“ in der Tochterliste von Palo Alto Networks Inc (Filing 2026-09-10)"
+  },
+  {
+   "id": "R000226",
+   "name": "Texas Instruments Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Texas Instruments Incorporated",
+   "parentShort": "TI",
+   "parentIncorporation": "Delaware (well known; not verified in an opened source here)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/97476/000009747626000059/q42025txnex21.htm",
+   "evidenceQuote": "The following are subsidiaries of the Registrant as of December 31, 2025. [row:] Texas Instruments Deutschland GmbH | Germany — Anmerkung: Jahresabschluss 31.12.2021 (https://www.bayern.landtag.de/fileadmin/lobbyregister/DEBYLT0068/230223 - TID_JAP_31.12.2021_eBAnz_RL-Teil.pdf, text extracted locally): 'Der vorliegende Jahresabschluss wird in den Konzernabschluss der Texas Instruments Incorporated, Dallas, Texas, USA, einbezogen.' Also shows 'Forderungen gegen Gesellschafter' (shareholders). Exact shareholder percentage not stated in readable text."
+  },
+  {
+   "id": "R000734",
+   "name": "Cepheid GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Danaher Corporation",
+   "parentShort": "Danaher",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/313616/000031361626000062/dhr-20251231xexx211.htm",
+   "evidenceQuote": "Eintrag „Cepheid GmbH“ in der Tochterliste von DANAHER CORP /DE/ (Filing 2026-02-24)"
+  },
+  {
+   "id": "R003212",
+   "name": "Palantir Technologies GmbH",
+   "zone": "subsidiary",
+   "sector": "Tech / Digital",
+   "parent": "Palantir Technologies Inc.",
+   "parentShort": "Palantir",
+   "parentIncorporation": "Palantir International Inc.: Delaware, U.S. (SEC Ex-21); Palantir Technologies Inc.: Delaware (not independently opened)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/media/a6/ef/709229/Jahresabschluss-2024-Palantir-Technologies-GmbH.pdf",
+   "evidenceQuote": "Die Gesellschaft ist eine hundertprozentige Tochtergesellschaft der Palantir International Inc., die wiederum eine hundertprozentige Tochtergesellschaft der Palantir Technologies Inc. ist — Anmerkung: Same wording in 2022 statements. SEC Ex-21 https://www.sec.gov/Archives/edgar/data/1321655/000119312522050913/d273589dex211.htm lists 'Palantir Technologies GmbH | Germany' and 'Palantir International Inc. | Delaware, U.S.'."
+  },
+  {
+   "id": "R003575",
+   "name": "Via Mobility DE GmbH",
+   "zone": "subsidiary",
+   "sector": "Mobilität / Logistik",
+   "parent": "Via Transportation, Inc.",
+   "parentShort": "Via",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1603015/000160301526000008/exhibit211q425.htm",
+   "evidenceQuote": "Eintrag „Via Mobility DE GmbH“ in der Tochterliste von Via Transportation, Inc. (Filing 2026-03-06)"
+  },
+  {
+   "id": "R004754",
+   "name": "Tilray Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Tilray Brands, Inc.",
+   "parentShort": "Tilray",
+   "parentIncorporation": "Delaware (10-K cover)",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1731348/000143774926024698/ex_946879.htm",
+   "evidenceQuote": "Eintrag „Tilray Deutschland GmbH fka Pining Ventures GmbH“ in der Tochterliste von Tilray Brands, Inc. (Filing 2026-07-28)"
+  },
+  {
+   "id": "R007490",
+   "name": "Goldman Sachs Bank Europe SE",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "The Goldman Sachs Group, Inc.",
+   "parentShort": "Goldman Sachs",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000091/gs-12312025exhibit211.htm",
+   "evidenceQuote": "Eintrag „Goldman Sachs Bank Europe SE“ in der Tochterliste von GOLDMAN SACHS GROUP INC (Filing 2026-02-25)"
+  },
+  {
+   "id": "R007530",
+   "name": "Celanese Services Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Energie / Chemie / Agrar",
+   "parent": "Celanese Corp",
+   "parentShort": "Celanese",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1306830/000130683026000031/ex211-10k123125.htm",
+   "evidenceQuote": "Eintrag „Celanese Services Germany GmbH“ in der Tochterliste von Celanese Corp (Filing 2026-02-24)"
+  },
+  {
+   "id": "R008209",
+   "name": "The Bank of New York Mellon Filiale Frankfurt am Main",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "The Bank of New York Mellon Corporation",
+   "parentShort": "BNY",
+   "parentIncorporation": "Delaware, USA; the bank itself is New York state-chartered",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.bny.com/corporate/de/de/impressum-de.html",
+   "evidenceQuote": "BNY is the corporate brand of The Bank of New York Mellon Corporation and may be used to reference the corporation as a whole or its various subsidiaries — Anmerkung: Impressum describes The Bank of New York Mellon (New York-chartered, 240 Greenwich St) with a Frankfurt Filiale. Lobbyregister https://www.lobbyregister.bundestag.de/suche/R008209 says 'Niederlassungen der Bank of New York Mellon (eine in New York staatlich zugelassene Bank)'. 10-K FY2025 (bk-20251231.htm) lists The Bank of New York Mellon as a principal bank subsidiary; cover page Delaware. Branch of a US operating bank, so A."
+  },
+  {
+   "id": "R002638",
+   "name": "Hasbro Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Konsum / Lebensmittel",
+   "parent": "Hasbro, Inc.",
+   "parentShort": "Hasbro",
+   "parentIncorporation": "RI",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/46080/000004608026000011/has-20251228xex21.htm",
+   "evidenceQuote": "Eintrag „Hasbro Deutschland GmbH“ in der Tochterliste von HASBRO, INC. (Filing 2026-02-25)"
+  },
+  {
+   "id": "R005736",
+   "name": "DaVita Deutschland AG",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "DaVita Inc.",
+   "parentShort": "DaVita",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/927066/000092706626000012/dva-123125ex211.htm",
+   "evidenceQuote": "Eintrag „DaVita Deutschland AG“ in der Tochterliste von DAVITA INC. (Filing 2026-02-11)"
+  },
+  {
+   "id": "R006641",
+   "name": "Sonoco Consumer Products Europe",
+   "zone": "subsidiary",
+   "sector": "Industrie / Verpackung",
+   "parent": "Sonoco Products Company",
+   "parentShort": "Sonoco Products",
+   "parentIncorporation": "SC",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/91767/000009176726000008/sonexhibit212025.htm",
+   "evidenceQuote": "Eintrag „Sonoco Consumer Products Europe GmbH (fka Weidenhammer Packaging Group GmbH), a 100%-owned foreign subsidiary, incorporated in Germany“ in der Tochterliste von SONOCO PRODUCTS CO (Filing 2026-02-26)"
+  },
+  {
+   "id": "R001183",
+   "name": "Pfizer Manufacturing Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Pfizer Inc.",
+   "parentShort": "Pfizer",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/78003/000007800326000026/pfe-exh21x12312025x10k.htm",
+   "evidenceQuote": "Eintrag „Pfizer Manufacturing Deutschland GmbH“ in der Tochterliste von PFIZER INC (Filing 2026-02-26)"
+  },
+  {
+   "id": "R004831",
+   "name": "Moody's Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Finanzen",
+   "parent": "Moody's Corporation",
+   "parentShort": "Moody's",
+   "parentIncorporation": "US (NYC HQ; Delaware per background knowledge)",
+   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
+   "evidenceUrl": "https://www.moodys.com/web/en/us/legal/majority-owned-affiliates-moodys-corp.html",
+   "evidenceQuote": "Majority-Owned Affiliates of Moody's Corporation — Anmerkung: Page lists Moody's Deutschland GmbH / Germany under that heading (heading used as the quote). Same list at https://www.moodys.com/web/en/us/legal/moodys-group-affiliates.html. Older Ex21 listings seen only in search results."
+  },
+  {
+   "id": "R004972",
+   "name": "Apellis Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Apellis Pharmaceuticals, Inc.",
+   "parentShort": "Apellis",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1492422/000119312526065179/apls-ex21_1.htm",
+   "evidenceQuote": "Eintrag „Apellis Germany GmbH“ in der Tochterliste von Apellis Pharmaceuticals, Inc. (Filing 2026-02-24)"
+  },
+  {
+   "id": "R004979",
+   "name": "Zoetis Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Zoetis Inc.",
+   "parentShort": "Zoetis",
+   "parentIncorporation": "Delaware (10-K cover)",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1555280/000155528026000011/ex211-20251231.htm",
+   "evidenceQuote": "Eintrag „Zoetis Deutschland GmbH“ in der Tochterliste von Zoetis Inc. (Filing 2026-02-12)"
+  },
+  {
+   "id": "R006352",
+   "name": "Zimmer Biomet Deutschland GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Zimmer Biomet Holdings, Inc.",
+   "parentShort": "Zimmer Biomet",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1136869/000119312526059853/zbh-ex21.htm",
+   "evidenceQuote": "Eintrag „Zimmer Biomet Deutschland GmbH“ in der Tochterliste von ZIMMER BIOMET HOLDINGS, INC. (Filing 2026-02-20)"
+  },
+  {
+   "id": "R002661",
+   "name": "Viatris Healthcare GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Viatris Inc.",
+   "parentShort": "Viatris",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1792044/000179204426000013/ex_21xvtrsx20251231.htm",
+   "evidenceQuote": "Eintrag „Viatris Healthcare GmbH“ in der Tochterliste von Viatris Inc (Filing 2026-02-26)"
+  },
+  {
+   "id": "R008139",
+   "name": "Insulet Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Insulet Corporation",
+   "parentShort": "Insulet",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1145197/000114519726000028/podd-exx211_20251231x10k.htm",
+   "evidenceQuote": "Eintrag „Insulet Germany GmbH“ in der Tochterliste von INSULET CORP (Filing 2026-02-18)"
+  },
+  {
+   "id": "R008169",
+   "name": "Glaukos Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Glaukos Corporation",
+   "parentShort": "Glaukos",
+   "parentIncorporation": "DE",
+   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
+   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1192448/000119312526061944/gkos-ex21.htm",
+   "evidenceQuote": "Eintrag „Glaukos Germany GmbH“ in der Tochterliste von GLAUKOS Corp (Filing 2026-02-23)"
+  }
+ ],
+ "excluded": [
+  {
+   "id": "R001655",
+   "name": "RWE",
+   "reason": "Fehltreffer der Namenssuche (anderes Unternehmen)"
+  },
+  {
+   "id": "R002565",
+   "name": "FGS Global (Europe) GmbH",
+   "reason": "Agentur/Kanzlei (lobbyiert für Kunden)"
+  },
+  {
+   "id": "R002341",
+   "name": "FTI Consulting SC GmbH",
+   "reason": "Agentur/Kanzlei (lobbyiert für Kunden)"
+  },
+  {
+   "id": "R002812",
+   "name": "Teneo Germany",
+   "reason": "Agentur/Kanzlei (lobbyiert für Kunden)"
+  },
+  {
+   "id": "R007833",
+   "name": "The Boston Consulting Group GmbH",
+   "reason": "Agentur/Kanzlei (lobbyiert für Kunden)"
+  },
+  {
+   "id": "R003045",
+   "name": "AIDA Cruises German Branch of Costa Crociere S.p.A.",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R001576",
+   "name": "NXP Semiconductors Germany GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R005987",
+   "name": "Basell Polyolefine GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R000145",
+   "name": "Sky Deutschland",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R002330",
+   "name": "APCO Worldwide GmbH",
+   "reason": "Agentur/Kanzlei (lobbyiert für Kunden)"
+  },
+  {
+   "id": "R002108",
+   "name": "Edelman GmbH",
+   "reason": "Agentur/Kanzlei (lobbyiert für Kunden)"
+  },
+  {
+   "id": "R003378",
+   "name": "IPG DXTRA (Germany) GmbH",
+   "reason": "Agentur/Kanzlei (lobbyiert für Kunden)"
+  },
+  {
+   "id": "R000894",
+   "name": "H & K",
+   "reason": "Fehltreffer der Namenssuche (anderes Unternehmen)"
+  },
+  {
+   "id": "R002057",
+   "name": "Aareal Bank AG",
+   "reason": "Deutsche/nicht-US-Firma mit US-Investoren"
+  },
+  {
+   "id": "R007129",
+   "name": "idealo internet GmbH",
+   "reason": "Deutsche/nicht-US-Firma mit US-Investoren"
+  },
+  {
+   "id": "R001784",
+   "name": "Axel Springer SE",
+   "reason": "Deutsche/nicht-US-Firma mit US-Investoren"
+  },
+  {
+   "id": "R002782",
+   "name": "Linde GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R003003",
+   "name": "Jazz Pharmaceuticals Germany GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R001450",
+   "name": "TikTok Germany GmbH",
+   "reason": "Deutsche/nicht-US-Firma mit US-Investoren"
+  },
+  {
+   "id": "R002574",
+   "name": "ARAG",
+   "reason": "Fehltreffer der Namenssuche (anderes Unternehmen)"
+  },
+  {
+   "id": "R003051",
+   "name": "Alexion Pharma Germany GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R002073",
+   "name": "Flix SE",
+   "reason": "Deutsche/nicht-US-Firma mit US-Investoren"
+  },
+  {
+   "id": "R002725",
+   "name": "Alliance Healthcare Deutschland GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R001734",
+   "name": "ViiV Healthcare GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R002472",
+   "name": "Vantage Towers AG",
+   "reason": "Kein belastbarer Beleg"
+  },
+  {
+   "id": "R002474",
+   "name": "Accenture GmbH",
+   "reason": "Agentur/Kanzlei (lobbyiert für Kunden)"
+  },
+  {
+   "id": "R004382",
+   "name": "BeOne Medicines Germany",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R000991",
+   "name": "CSL Behring",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R005202",
+   "name": "Motorola Solutions Germany GmbH",
+   "reason": "Agentur/Kanzlei (lobbyiert für Kunden)"
+  },
+  {
+   "id": "R001171",
+   "name": "Hays",
+   "reason": "Fehltreffer der Namenssuche (anderes Unternehmen)"
+  },
+  {
+   "id": "R002317",
+   "name": "CNC - Communications & Network Consulting AG",
+   "reason": "Agentur/Kanzlei (lobbyiert für Kunden)"
+  },
+  {
+   "id": "R006163",
+   "name": "ADS-TEC Energy",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R002310",
+   "name": "Medtronic GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R005487",
+   "name": "Hansgrohe SE",
+   "reason": "Deutsche/nicht-US-Firma mit US-Investoren"
+  },
+  {
+   "id": "R007702",
+   "name": "La Famiglia GmbH",
+   "reason": "Kein belastbarer Beleg"
+  },
+  {
+   "id": "R000975",
+   "name": "Northrop Grumman LITEF GmbH",
+   "reason": "Kein belastbarer Beleg"
+  },
+  {
+   "id": "R004654",
+   "name": "Perrigo Deutschland GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R000808",
+   "name": "NVL",
+   "reason": "Fehltreffer der Namenssuche (anderes Unternehmen)"
+  },
+  {
+   "id": "R000935",
+   "name": "MT Aerospace AG",
+   "reason": "Deutsche/nicht-US-Firma mit US-Investoren"
+  },
+  {
+   "id": "R002074",
+   "name": "Continental AG",
+   "reason": "Fehltreffer der Namenssuche (anderes Unternehmen)"
+  },
+  {
+   "id": "R000992",
+   "name": "LEONINE Holding GmbH",
+   "reason": "Deutsche/nicht-US-Firma mit US-Investoren"
+  },
+  {
+   "id": "R001182",
+   "name": "OHB Digital Connect GmbH",
+   "reason": "Deutsche/nicht-US-Firma mit US-Investoren"
+  },
+  {
+   "id": "R005187",
+   "name": "Sherwin-Williams Deutschland GmbH",
+   "reason": "Kein belastbarer Beleg"
+  },
+  {
+   "id": "R006038",
+   "name": "Suntory Global Spirits Deutschland GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R006074",
+   "name": "Dedrone",
+   "reason": "Kein belastbarer Beleg"
+  },
+  {
+   "id": "R007055",
+   "name": "GAIA",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R005415",
+   "name": "NovoCure GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R006489",
+   "name": "GlobalFoundries Dresden Module One LLC & Co. KG",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R007980",
+   "name": "Leica Microsystems GmbH",
+   "reason": "Kein belastbarer Beleg"
+  },
+  {
+   "id": "R005279",
+   "name": "LivaNova Deutschland GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R007378",
+   "name": "FRITZ! GmbH",
+   "reason": "Fehltreffer der Namenssuche (anderes Unternehmen)"
+  },
+  {
+   "id": "R008262",
+   "name": "Dyneon GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R006596",
+   "name": "Gauss Fusion GmbH",
+   "reason": "Kein belastbarer Beleg"
+  },
+  {
+   "id": "R006243",
+   "name": "Smurfit Westrock Deutschland GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R006426",
+   "name": "RPC Verpackungen Kutenholz GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R006920",
+   "name": "Electronic Arts",
+   "reason": "Deutsche/nicht-US-Firma mit US-Investoren"
+  },
+  {
+   "id": "R007515",
+   "name": "Vantive Health Germany GmbH",
+   "reason": "Deutsche/nicht-US-Firma mit US-Investoren"
+  },
+  {
+   "id": "R007570",
+   "name": "Wolf",
+   "reason": "Fehltreffer der Namenssuche (anderes Unternehmen)"
+  },
+  {
+   "id": "R008001",
+   "name": "Greenberg Traurig, P.A.",
+   "reason": "Agentur/Kanzlei (lobbyiert für Kunden)"
+  },
+  {
+   "id": "R005729",
+   "name": "Teva Health GmbH",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R007726",
+   "name": "RPC Bramlage Division GmbH & Co. KG",
+   "reason": "Mutterkonzern nicht US"
+  },
+  {
+   "id": "R007964",
+   "name": "steep",
+   "reason": "Fehltreffer der Namenssuche (anderes Unternehmen)"
+  },
+  {
+   "id": "R007973",
+   "name": "ginkgo",
+   "reason": "Fehltreffer der Namenssuche (anderes Unternehmen)"
+  },
+  {
+   "id": "R008164",
+   "name": "Mistral",
+   "reason": "Mutterkonzern nicht US"
+  }
+ ]
+}

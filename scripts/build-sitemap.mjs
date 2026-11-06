@@ -10,7 +10,7 @@
 // that actually get prerendered to real static files never drift apart — see that script for why
 // that matters (GitHub Pages 404s any path this list doesn't cover, sitemap or not).
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { slugify } from './lib/common.mjs';
 
@@ -77,6 +77,21 @@ export function buildRoutes() {
     add(`/sitzungswoche/${s.week}`, { changefreq: 'monthly', priority: '0.4' });
   }
 
+  // Datenstories — /datenstories/ plus one page per built story (public/data/datenstories/<slug>.json).
+  // waitFor: the story's charts load from their own JSON after the title is set.
+  const datenstorySlugs = existsSync(`${DATA_DIR}/datenstories`)
+    ? readdirSync(`${DATA_DIR}/datenstories`).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)).sort()
+    : [];
+  if (datenstorySlugs.length) add('/datenstories', { changefreq: 'weekly', priority: '0.6' });
+  // Org pages a Datenstory links to (its orgPaths). Most of them are directory-only orgs that the
+  // lobby-links loop below does not build; without a prerendered page their links would 404 for
+  // crawlers and fail scripts/audit-links.mjs. Paths already built by that loop are skipped there.
+  const datenstoryOrgPaths = new Set();
+  for (const slug of datenstorySlugs) {
+    add(`/datenstories/${slug}`, { changefreq: 'weekly', priority: '0.6', waitFor: '[data-datenstory-ready]' });
+    for (const p of readJson(`datenstories/${slug}.json`)?.orgPaths ?? []) datenstoryOrgPaths.add(p);
+  }
+
   // Committee pages — /ausschuesse/<committee id>-<name-slug>.
   const committees = readJson('committees.json');
   for (const c of committees?.committees ?? []) {
@@ -96,8 +111,11 @@ export function buildRoutes() {
 
   // Organisation pages — /organisationen/<org id>-<name-slug>.
   for (const org of Object.values(lobbyLinks?.orgs ?? {})) {
-    add(`/organisationen/${slugParam(org.id, org.name)}`, { changefreq: 'monthly', priority: '0.4' });
+    const path = `/organisationen/${slugParam(org.id, org.name)}`;
+    datenstoryOrgPaths.delete(path);
+    add(path, { changefreq: 'monthly', priority: '0.4' });
   }
+  for (const path of [...datenstoryOrgPaths].sort()) add(path, { changefreq: 'monthly', priority: '0.3' });
 
   return routes;
 }

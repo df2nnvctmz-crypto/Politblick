@@ -2,6 +2,7 @@ export type Lang = 'de' | 'en';
 
 export interface Translation {
   navHome: string; navParliament: string; navMps: string; navMpsSearch: string; navParties: string; navCommittees: string; navPolls: string; navLobbyFinance: string;
+  navDatenstories: string; dsKicker: string; dsShows: string; dsNotShows: string; dsSourcesCountTemplate: string; dsMethod: string; dsDownloadCsv: string; dsLiveNoteTemplate: string; dsAsOfTemplate: string; dsListTitle: string; dsListIntro: string; dsGermanOnly: string; dsRead: string; dsAll: string; dsTeaserSub: string; dsRegisterEntry: string; dsEvidence: string; metaDatenstoryListDescription: string; dsPartnerWith: string; dsPartnerMoreTemplate: string; menuOpen: string; menuClose: string; menuOverview: string; menuLanguage: string; dsPrev: string; dsNext: string;
   searchPlaceholder: string;
   heroKicker: string; heroTitle: string; heroSub: string; metaHomeTitle: string;
   heroCta: string; heroCta2: string;
@@ -281,6 +282,7 @@ export interface Translation {
 export const TRANSLATIONS: Record<Lang, Translation> = {
   de: {
     navHome: 'Start', navParliament: 'Parlament', navMps: 'Abgeordnete', navMpsSearch: 'Abgeordnete durchsuchen', navParties: 'Parteien', navCommittees: 'Ausschüsse', navPolls: 'Abstimmungen', navLobbyFinance: 'Lobby & Finanzen',
+    navDatenstories: 'Datenstories', dsKicker: 'Datenstory', dsShows: 'Was die Daten zeigen', dsNotShows: 'Was sie nicht zeigen', dsSourcesCountTemplate: 'Quellen ({n} Einträge)', dsMethod: 'Methode', dsDownloadCsv: 'Daten herunterladen (CSV)', dsLiveNoteTemplate: 'Zahlen live aus dem Lobbyregister, Datenstand {date}. Zitate, Zuordnungen und Einordnungen: Stand {asOf}.', dsAsOfTemplate: 'Stand {date}', dsListTitle: 'Datenstories', dsListIntro: 'Ein Befund pro Seite, erzählt mit Diagrammen aus den Daten von Politblick. Die Zahlen aktualisieren sich mit jedem Datenabruf; was nur zu einem Zeitpunkt galt, steht mit Datum da.', dsGermanOnly: '', dsRead: 'Lesen', dsAll: 'Alle Datenstories', dsTeaserSub: 'Ein Befund pro Seite, erzählt mit Diagrammen aus den Daten von Politblick. Jede Zahl führt zur Quelle.', dsRegisterEntry: 'Registereintrag', dsEvidence: 'Beleg US-Zuordnung', metaDatenstoryListDescription: 'Datenstories von Politblick: ein Befund pro Seite, mit Live-Diagrammen und Quellen.', dsPartnerWith: 'Gemeinsame Recherche mit', menuOpen: 'Menü öffnen', menuClose: 'Menü schließen', menuOverview: 'Übersicht', menuLanguage: 'Sprache', dsPrev: 'Vorherige Datenstory', dsNext: 'Nächste Datenstory', dsPartnerMoreTemplate: 'Mehr von {name}: {link}',
     searchPlaceholder: 'Abgeordnete, Themen, Gesetze suchen…',
     heroKicker: 'Öffentliche Daten, an einem Ort',
     heroTitle: 'Jede Abstimmung. Jede Verbindung.',
@@ -847,6 +849,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
   },
   en: {
     navHome: 'Home', navParliament: 'Parliament', navMps: 'MPs', navMpsSearch: 'Search MPs', navParties: 'Parties', navCommittees: 'Committees', navPolls: 'Votes', navLobbyFinance: 'Lobby & Finance',
+    navDatenstories: 'Data stories', dsKicker: 'Data story', dsShows: 'What the data shows', dsNotShows: 'What it does not show', dsSourcesCountTemplate: 'Sources ({n} entries)', dsMethod: 'Method', dsDownloadCsv: 'Download data (CSV)', dsLiveNoteTemplate: 'Numbers live from the Lobbyregister, data as of {date}. Quotes, attributions and classifications: as of {asOf}.', dsAsOfTemplate: 'As of {date}', dsListTitle: 'Data stories', dsListIntro: 'One finding per page, told with charts built from Politblick data. Numbers update with every data refresh; anything that was only true at one point in time carries its date.', dsGermanOnly: 'This story is only available in German so far.', dsRead: 'Read', dsAll: 'All data stories', dsTeaserSub: 'One finding per page, told with charts from Politblick’s data. Every number leads to its source.', dsRegisterEntry: 'Register entry', dsEvidence: 'US attribution evidence', metaDatenstoryListDescription: 'Politblick data stories: one finding per page, with live charts and sources.', dsPartnerWith: 'Researched together with', menuOpen: 'Open menu', menuClose: 'Close menu', menuOverview: 'Overview', menuLanguage: 'Language', dsPrev: 'Previous data story', dsNext: 'Next data story', dsPartnerMoreTemplate: 'More from {name}: {link}',
     searchPlaceholder: 'Search MPs, topics, bills…',
     heroKicker: 'Public data, one place',
     heroTitle: 'Every vote. Every connection.',

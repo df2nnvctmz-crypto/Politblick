@@ -1,0 +1,12 @@
+{
+ "_comment": "Curated: the former office holders shown by name in the Datenstory 'US-Lobby in Berlin' (revolving door). Only people with a public function (federal government, MPs) are named; former Bundestag staff are private persons and only counted. Everything that can change — end of office, position, the mandate and its spending range — is read live from public/data/lobby-mandates.json by scripts/build-datenstories.mjs. Here: who, which US register entries (usIds) the register names them for, via which agency, and the short labels for the chart. roleLabel/note/cardNote are frozen editorial text as of checkedOn. Source: recherche/slides-us-lobby/quellen.md (Folie 2).",
+ "checkedOn": "2026-11-06",
+ "people": [
+  { "name": "Wolfgang Büchner", "roleLabel": "Stv. Regierungssprecher", "note": "davor „Spiegel“-Chefredakteur, 2021 schon bei MSL", "usIds": ["R003198"], "viaId": "R000756", "viaName": "MSLGROUP", "cardLabel": "Mars" },
+  { "name": "Jens Teutrine", "roleLabel": "Bundestagsabgeordneter (FDP)", "usIds": ["R007925"], "viaId": null, "viaName": null, "cardLabel": "Consumer Choice Center", "cardNote": "meldet 0 € Lobbyausgaben, aber 5,5 Mio. € Spenden an den Verband" },
+  { "name": "Valentin Abel", "roleLabel": "Bundestagsabgeordneter (FDP)", "usIds": ["R001781"], "viaId": "R001413", "viaName": "Rud Pedersen", "cardLabel": "Corteva (Agrar)" },
+  { "name": "Gunnar Stumpe", "roleLabel": "Büroleiter des Wirtschaftsministers", "usIds": ["R001794"], "viaId": "R001824", "viaName": "365 Sherpas", "cardLabel": "Google" },
+  { "name": "Frank Sitta", "roleLabel": "Bundestagsabgeordneter (FDP)", "usIds": ["R003039"], "viaId": null, "viaName": null, "cardLabel": "General Atomics", "cardNote": "Drohnenhersteller" },
+  { "name": "Marc Degen", "roleLabel": "Stv. Leiter der Leitungsabteilung, Gesundheitsministerium", "usIds": ["R001142", "R001066"], "viaId": null, "viaName": "vaxxio", "cardLabel": "Pfizer · MSD u. a." }
+ ]
+}

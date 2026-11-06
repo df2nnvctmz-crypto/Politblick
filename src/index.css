@@ -541,3 +541,29 @@ button {
     margin-top: 8px !important;
   }
 }
+
+/* Phone navigation (src/MobileMenu.tsx): on phones a 3-line button right of the logo opens a dropdown
+   with every nav link, its sub-items and the language switch, so the inline nav and the DE/EN pill
+   go away there. Above 720px the button and the panel stay hidden: desktop is unchanged. The
+   search row below the logo takes the full width again once the pill is gone. */
+.pb-burger,
+.pb-mobile-menu {
+  display: none;
+}
+@media (max-width: 720px) {
+  .pb-burger {
+    display: block;
+    margin-left: auto;
+    margin-right: -8px;
+  }
+  .pb-mobile-menu {
+    display: block;
+  }
+  .pb-nav-desktop,
+  .pb-lang-desktop {
+    display: none !important;
+  }
+  .pb-header-collapsible:not(.pb-lang-desktop) {
+    flex: 1 1 100% !important;
+  }
+}
