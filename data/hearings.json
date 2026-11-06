@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-05T22:11:36.225Z",
+ "generatedAt": "2026-11-06T16:06:54.905Z",
  "fullCrawlAt": "2026-10-30T21:02:01.549Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -50,6 +50,18 @@
    "statements": []
   },
   {
+   "id": "1224834",
+   "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1224834-1224834",
+   "title": "Anhörung „Infrastrukturgesellschafts-Finanzierungs-Änderungsgesetz“",
+   "committee": "Verkehr",
+   "date": "2026-11-23",
+   "drucksachen": [
+    "21/8868"
+   ],
+   "expertListUrl": null,
+   "statements": []
+  },
+  {
    "id": "1223022",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1223022-1223022",
    "title": "Anhörung „Luftverkehrsgesetz“",
@@ -59,7 +71,18 @@
     "21/7403"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1223024/Liste-der-Auskunftspersonen.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Stellungnahme der Arbeitsgemeinschaft Deutscher Fluglärmkommissionen (ADF)",
+     "url": "https://www.bundestag.de/resource/blob/1231680/Stellungnahme-ADF.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme der Bundesvereinigung gegen Fluglärm (BVF) e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1223026/Stellungnahme-BVF.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1224108",
@@ -142,6 +165,11 @@
      "label": "Stellungnahme des Sachverständigen Oberst a.D. Peter Haupt",
      "url": "https://www.bundestag.de/resource/blob/1231286/SV-Haupt_ResStG.pdf",
      "number": null
+    },
+    {
+     "label": "Stellungnahme des Sachverständigen Herrn Prof. Dr. Thomas Brockmeier (IHK Halle-Dessau)",
+     "url": "https://www.bundestag.de/resource/blob/1231578/Stellungnahme-Prof-Dr-Thomas-Brockmeier.pdf",
+     "number": null
     }
    ]
   },
@@ -201,6 +229,11 @@
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230800/SV-Liste-051.pdf",
    "statements": [
     {
+     "label": "01 - BDZ - Deutsche Zoll- und Finanzgewerkschaft (noch nicht barrierefrei)",
+     "url": "https://www.bundestag.de/resource/blob/1231714/01-BDZ.pdf",
+     "number": null
+    },
+    {
      "label": "02 - Feinbrennerei Sasse",
      "url": "https://www.bundestag.de/resource/blob/1231412/02-Feinbrennerei-Sasse.pdf",
      "number": null
@@ -208,6 +241,11 @@
     {
      "label": "03 - Gewerkschaft Nahrung-Genuss-Gaststätten (noch nicht barrierefrei)",
      "url": "https://www.bundestag.de/resource/blob/1231420/03-NGG.pdf",
+     "number": null
+    },
+    {
+     "label": "06 - Lebensmittelverband Deutschland e.V.",
+     "url": "https://www.bundestag.de/resource/blob/1231750/06-Lebensmittelverband-Deutschland.pdf",
      "number": null
     },
     {
@@ -229,8 +267,7 @@
    "committee": "Wirtschaft und Energie",
    "date": "2026-11-06",
    "drucksachen": [
-    "21/8236",
-    "21/8826"
+    "21/8236"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230568/Sachverstaendigenliste.pdf",
    "statements": [
@@ -1024,12 +1061,12 @@
      "number": "21(13)61"
     },
     {
-     "label": "21(13)61d -Leon Ries - Deutsche Sportjugend (dsj) im Deutschen Olympischen Sportbund e.V., Vorstandsmitglied Geschäftsführung (dsj) & Vorstand Jugendsport (DOSB)",
+     "label": "21(13)61d - Leon Ries - Deutsche Sportjugend (dsj) im Deutschen Olympischen Sportbund e.V., Vorstandsmitglied Geschäftsführung (dsj) & Vorstand Jugendsport (DOSB)",
      "url": "https://www.bundestag.de/resource/blob/1229998/Ausschussdrucksache-21-13-61d.pdf",
      "number": "21(13)61"
     },
     {
-     "label": "21(13)61e - Stefan Spieker - FRÖBEL Bildung und Erziehung gemeinnütziger GmbH, Vorsitzender des Vorstands und Geschäftsführer",
+     "label": "21(13)61e - Stefan Spieker - FRÖBEL Bildung und Erziehung gemeinnützige GmbH, Vorsitzender des Vorstands und Geschäftsführer",
      "url": "https://www.bundestag.de/resource/blob/1230056/Ausschussdrucksache-21-13-61e.pdf",
      "number": "21(13)61"
     },
@@ -12682,7 +12719,9 @@
   "1223676",
   "1224910",
   "1229464",
+  "1229930",
   "1230686",
+  "1231408",
   "20250625"
  ]
 }
