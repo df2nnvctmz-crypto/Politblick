@@ -45,6 +45,9 @@ export function buildRoutes() {
   add('/ausschuesse', { changefreq: 'weekly', priority: '0.6' });
   add('/lobby-finanzen', { changefreq: 'daily', priority: '0.8' });
   add('/lobby-finanzen/verflechtungen', { changefreq: 'weekly', priority: '0.6' });
+  // The other two tabs: the Datenstories link to them, and audit-links.mjs fails on a link without a built page.
+  add('/lobby-finanzen/organisationen', { changefreq: 'weekly', priority: '0.5' });
+  add('/lobby-finanzen/spenden', { changefreq: 'weekly', priority: '0.5' });
   add('/daten', { changefreq: 'monthly', priority: '0.3' });
   add('/hinweis-zu-den-daten', { changefreq: 'monthly', priority: '0.3' });
   add('/impressum', { changefreq: 'yearly', priority: '0.1' });
