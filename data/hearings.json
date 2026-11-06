@@ -1,6 +1,6 @@
 {
- "generatedAt": "2026-11-06T16:06:54.905Z",
- "fullCrawlAt": "2026-10-30T21:02:01.549Z",
+ "generatedAt": "2026-11-06T21:46:20.748Z",
+ "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
   {
@@ -80,6 +80,21 @@
     {
      "label": "Stellungnahme der Bundesvereinigung gegen Fluglärm (BVF) e. V.",
      "url": "https://www.bundestag.de/resource/blob/1223026/Stellungnahme-BVF.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme der DRF Stiftung Luftrettung gGmbH",
+     "url": "https://www.bundestag.de/resource/blob/1231794/Stellungnahme-DFL.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme der ADAC Luftrettung gGmbH",
+     "url": "https://www.bundestag.de/resource/blob/1231796/Stellungnahme-ADAC.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme des Deutschen Hubschrauber Verbandes e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1231800/Stellungnahme-DHV.pdf",
      "number": null
     }
    ]
@@ -285,6 +300,42 @@
      "label": "21(9)446 Stellungnahme der vzbv Verbraucherzentrale Bundesverband e. V.",
      "url": "https://www.bundestag.de/resource/blob/1231204/Stellungnahme_vzbv_eV.pdf",
      "number": "21(9)446"
+    }
+   ]
+  },
+  {
+   "id": "1222514",
+   "url": "https://www.bundestag.de/ausschuesse/a22_kultur/oeffentliche_sitzungen/1222514-1222514",
+   "title": "30. Sitzung – Buch- und Verlagsbranche, EU",
+   "committee": "Kultur und Medien",
+   "date": "2026-11-04",
+   "drucksachen": [],
+   "expertListUrl": null,
+   "statements": [
+    {
+     "label": "Stellungnahme Jeannette Bauroth, Second Chances Verlag & IG Unabhängige Verlage beim Börsenverein des Deutschen Buchhandels",
+     "url": "https://www.bundestag.de/resource/blob/1229914/Stellungnahme-Jeannette-Bauroth.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Daniel Beskos, Kurt Wolff Stiftung",
+     "url": "https://www.bundestag.de/resource/blob/1229918/Stellungnahme-Daniel-Beskos.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Sebastian Guggolz, Börsenverein des Deutschen Buchhandels",
+     "url": "https://www.bundestag.de/resource/blob/1229928/Stellungnahme-Sebastian-Guggolz.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Dr. Christian Kopp, Verlag C.H.Beck",
+     "url": "https://www.bundestag.de/resource/blob/1229922/Stellungnahme-Dr-Christian-Kopp.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Olaf Zimmermann, Deutscher Kulturrat",
+     "url": "https://www.bundestag.de/resource/blob/1229924/Stellungnahme-Olaf-Zimmermann.pdf",
+     "number": null
     }
    ]
   },
@@ -12715,7 +12766,6 @@
   "1217012",
   "1222042",
   "1222476",
-  "1222514",
   "1223676",
   "1224910",
   "1229464",
