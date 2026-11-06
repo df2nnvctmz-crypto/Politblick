@@ -54,7 +54,7 @@ import { MIN_QUERY_LENGTH, isoWeekOf, searchAll, type SearchSources } from './se
 import { LongTermDivergenceList, LongTermRecordCard } from './profile/LongTermRecord';
 import { SidejobTotalCard } from './profile/SidejobTotalCard';
 import { FilterMenu } from './ui/FilterMenu';
-import { NewsletterSignup } from './NewsletterSignup';
+import { NewsletterSignup, RssLink } from './NewsletterSignup';
 import { SitzungswochenBriefing, StoryDetailPage } from './stories/Briefing';
 import { useStoryDetail } from './stories';
 
@@ -5761,6 +5761,7 @@ function App() {
             <a href={datenHref} onClick={stop(goDaten)} style={{ color: 'oklch(52% 0.01 260)' }}>
               {t.datenTitle}
             </a>
+            <RssLink t={t} color="oklch(52% 0.01 260)" />
           </div>
           <span>
             {t.footerSources}

@@ -87,6 +87,8 @@ export interface Translation {
   newsletterBodyShort: string; newsletterSubmitShort: string;
   newsletterUnsubLink: string; newsletterBackToSubscribe: string; newsletterUnsubLabel: string; newsletterUnsubSubmit: string;
   newsletterUnsubHint: string; newsletterUnsubSuccess: string; newsletterUnsubFallbackLink: string;
+  /** The RSS link (src/NewsletterSignup.tsx RssLink): beside the sign-up form, in the footer, and the toast after copying. */
+  rssLinkLong: string; rssLinkShort: string; rssCopied: string;
   alignmentTrendRealTemplate: string; photoCredit: string;
   dataAsOfTemplate: string; sidejobsAsOfTemplate: string;
   lobbyAffiliationsTitle: string; lobbyAffiliationsSub: string; lobbyNoAffiliations: string;
@@ -478,6 +480,9 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     newsletterUnsubHint: 'Deine Adresse wird aus der Verteilerliste entfernt. Abmelden kannst du dich auch über den Link am Ende jeder Ausgabe.',
     newsletterUnsubSuccess: 'Du bist abgemeldet. Deine E-Mail-Adresse wurde aus der Verteilerliste entfernt.',
     newsletterUnsubFallbackLink: 'oder melde dich direkt bei Brevo ab',
+    rssLinkLong: 'Lieber per RSS? Feed-Link kopieren',
+    rssLinkShort: 'RSS-Feed',
+    rssCopied: 'Feed-Link kopiert – füge ihn in deinen Feed-Reader ein.',
     alignmentTrendRealTemplate: 'Parteitreue der letzten {n} Abstimmungen',
     photoCredit: 'Foto: Wikimedia Commons',
     dataAsOfTemplate: 'Abgeordnete, Abstimmungen: Stand {date}',
@@ -1041,6 +1046,9 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     newsletterUnsubHint: 'Your address will be removed from the mailing list. You can also unsubscribe via the link at the end of every issue.',
     newsletterUnsubSuccess: 'You are unsubscribed. Your email address has been removed from the mailing list.',
     newsletterUnsubFallbackLink: 'or unsubscribe directly at Brevo',
+    rssLinkLong: 'Prefer RSS? Copy the feed link',
+    rssLinkShort: 'RSS feed',
+    rssCopied: 'Feed link copied – paste it into your feed reader.',
     alignmentTrendRealTemplate: 'Party alignment over the last {n} votes',
     photoCredit: 'Photo: Wikimedia Commons',
     dataAsOfTemplate: 'MPs, votes: as of {date}',

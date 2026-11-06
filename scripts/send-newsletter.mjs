@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Sends the Sitzungswochen-Briefing as an email campaign via Brevo.
  *
@@ -105,18 +104,20 @@ const FONT = "'IBM Plex Sans',-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sa
 
 // ── helpers ──────────────────────────────────────────────────────────────────────────────────
 
-const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const int = (n) => n.toLocaleString('de-DE');
+// esc/int/shortDay/range/fill, the lead sentences and the subject are exported for
+// scripts/build-feed.mjs, so the RSS item says exactly what the email says.
+export const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+export const int = (n) => n.toLocaleString('de-DE');
 const pct = (n) => n.toLocaleString('de-DE', { maximumFractionDigits: 1 });
 const euro = (n) => `${n.toLocaleString('de-DE', { maximumFractionDigits: 0 })}&nbsp;€`;
 const day = (iso, opts) => new Intl.DateTimeFormat('de-DE', { timeZone: 'UTC', ...opts }).format(new Date(`${iso}T00:00:00Z`));
-const shortDay = (iso) => day(iso, { day: 'numeric', month: 'short' });
-const range = (start, end) => `${shortDay(start)} – ${day(end, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+export const shortDay = (iso) => day(iso, { day: 'numeric', month: 'short' });
+export const range = (start, end) => `${shortDay(start)} – ${day(end, { day: 'numeric', month: 'short', year: 'numeric' })}`;
 const dateTime = (iso) =>
   new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
 
 /** Fills `{slot}`s; values are already-escaped HTML, the template text itself gets escaped. */
-function fill(template, values) {
+export function fill(template, values) {
   return template
     .split(/(\{\w+\})/g)
     .map((part) => {
@@ -127,7 +128,8 @@ function fill(template, values) {
 }
 
 const link = (href, html, style = '') => `<a href="${esc(href)}" style="color:${C.accent};text-decoration:underline;${style}">${html}</a>`;
-const billUrl = (p) => `${SITE_URL}/gesetze/${encodeURIComponent(p.slug)}`;
+// Slash form: the only one GitHub Pages serves without a 301 (src/router.ts indexablePath).
+export const billUrl = (p) => `${SITE_URL}/gesetze/${encodeURIComponent(p.slug)}/`;
 const billLink = (p) => link(billUrl(p), esc(p.title), 'font-weight:600;');
 
 /** Collects party → hex colour from the colour fields already in the briefing JSON. */
@@ -162,7 +164,7 @@ function mondayOf(date) {
 
 // ── sentences (mirror the lead helpers in src/stories/Briefing.tsx) ─────────────────────────
 
-function votesLead(issue, t) {
+export function votesLead(issue, t) {
   const solo = issue.pollCount === 1;
   const out = [];
   if (solo && issue.polls[0]) out.push(fill(t.swVotesOne, { title: billLink(issue.polls[0]) }));
@@ -182,7 +184,7 @@ function votesLead(issue, t) {
   return out.join(' ');
 }
 
-function moneyHeadline(issue, t) {
+export function moneyHeadline(issue, t) {
   if (issue.donations.count === 0) return esc(t.swMoneyNone);
   const d = issue.donations.largest;
   return fill(issue.donations.count === 1 ? t.swMoneyOne : t.swMoneySome, {
@@ -425,14 +427,19 @@ function jahresstand(issue, t, colorOf) {
 
 // ── the email ────────────────────────────────────────────────────────────────────────────────
 
+/** The campaign subject — also the RSS item title, so feed and inbox read the same. */
+export function briefingSubject(issue, t) {
+  return `Sitzungswochen-Briefing KW ${issue.isoWeek}: ${
+    issue.pollCount === 1 ? t.swOverviewVotesOne : t.swOverviewVotes.replace('{n}', issue.pollCount)
+  }, ${issue.divergingTotal === 0 ? t.swOverviewDivergenceNone : t.swOverviewDivergence.replace('{n}', int(issue.divergingTotal))}`;
+}
+
 export function buildEmail(issue, t) {
   const year = issue.dateRange.start.slice(0, 4);
   const briefingUrl = `${SITE_URL}/sitzungswoche/${issue.week}`;
   const colorOf = partyColors(issue);
 
-  const subject = `Sitzungswochen-Briefing KW ${issue.isoWeek}: ${
-    issue.pollCount === 1 ? t.swOverviewVotesOne : t.swOverviewVotes.replace('{n}', issue.pollCount)
-  }, ${issue.divergingTotal === 0 ? t.swOverviewDivergenceNone : t.swOverviewDivergence.replace('{n}', int(issue.divergingTotal))}`;
+  const subject = briefingSubject(issue, t);
   const previewText = range(issue.dateRange.start, issue.dateRange.end);
 
   const absenceLead = issue.absence.topParty

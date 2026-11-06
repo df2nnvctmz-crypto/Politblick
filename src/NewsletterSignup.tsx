@@ -9,7 +9,7 @@
  * honeypot check all stay on Brevo's side. A link in the box switches it to Brevo's
  * unsubscribe form, which is posted the same way.
  */
-import { Fragment, useState, type FormEvent, type MouseEvent } from 'react';
+import { Fragment, useEffect, useState, type FormEvent, type MouseEvent } from 'react';
 import type { Translation } from './data';
 
 const BREVO_SUBSCRIBE_URL =
@@ -21,6 +21,48 @@ type Status = 'idle' | 'sending' | 'success' | 'invalid' | 'error';
 
 const MUTED = 'oklch(48% 0.01 260)';
 const ACCENT = 'oklch(45% 0.16 265)';
+
+/** Built by scripts/build-feed.mjs; also announced in index.html's <link rel="alternate">. */
+export const FEED_URL = 'https://politblick.de/feed.xml';
+
+/**
+ * Link to the briefing's RSS feed. A click copies the feed address instead of opening it: a
+ * browser shows a raw .xml file as code, which looks broken to anyone who doesn't already know
+ * RSS — and those who do just need the address for their reader. If the clipboard is unavailable
+ * the click falls through to the file itself; right-click → copy link works either way.
+ */
+export function RssLink({ t, long = false, color = MUTED }: { t: Translation; long?: boolean; color?: string }) {
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const id = setTimeout(() => setCopied(false), 4000);
+    return () => clearTimeout(id);
+  }, [copied]);
+
+  function onClick(e: MouseEvent<HTMLAnchorElement>) {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0 || !navigator.clipboard) return;
+    e.preventDefault();
+    navigator.clipboard.writeText(FEED_URL).then(
+      () => setCopied(true),
+      () => window.location.assign(FEED_URL),
+    );
+  }
+
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      <a href={FEED_URL} type="application/rss+xml" onClick={onClick} style={{ color, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+        <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true" style={{ flex: 'none' }}>
+          <circle cx="3" cy="13" r="2" fill="currentColor" />
+          <path d="M1 7a8 8 0 0 1 8 8M1 2a13 13 0 0 1 13 13" stroke="currentColor" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+        </svg>
+        {long ? t.rssLinkLong : t.rssLinkShort}
+      </a>
+      <span role="status" style={{ color: 'oklch(38% 0.09 155)' }}>
+        {copied ? t.rssCopied : ''}
+      </span>
+    </span>
+  );
+}
 
 export function NewsletterSignup({
   t,
@@ -101,6 +143,10 @@ export function NewsletterSignup({
               <p className="pb-nl-body-short" style={{ fontSize: 14, color: 'oklch(38% 0.01 260)', lineHeight: 1.5, margin: 0 }}>{t.newsletterBodyShort}</p>
             </>
           )}
+          {/* Left column, under the pitch: the form side is already the taller one. */}
+          <div style={{ marginTop: compact ? 8 : 14, fontSize: 13 }}>
+            <RssLink t={t} long />
+          </div>
         </div>
 
         <div style={{ flex: '1 1 340px', minWidth: 0 }}>
