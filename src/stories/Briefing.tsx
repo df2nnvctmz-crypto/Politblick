@@ -17,6 +17,7 @@ import type { Lang, Translation } from '../data';
 import { formatDateTime } from '../format';
 import { formatEuro } from '../lobby';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS } from '../bundestag';
+import { ShareBar } from '../ShareBar';
 import type { StoryIndexEntry, StoryIssue, StoryPartyTally, StoryPoll } from '../stories';
 
 const MAX_TILES = 3;
@@ -355,6 +356,10 @@ export function StoryDetailPage(props: DetailPageProps) {
         </a>
       </div>
 
+      <div style={{ margin: '-6px 0 24px' }}>
+        <ShareBar t={t} where="top" title={`${t.swSectionTitle} ${fmt.range(issue.dateRange.start, issue.dateRange.end)}`} image={`/og/sitzungswoche-${issue.week}.png`} />
+      </div>
+
       {/* Lead summary + the week's key numbers */}
       <section className="sw-hero" style={{ paddingBottom: 30, borderBottom: HAIR }}>
         <div>
@@ -422,6 +427,10 @@ export function StoryDetailPage(props: DetailPageProps) {
           {issue.donationYearToDate.length > 0 && <Jahresstand fmt={fmt} {...props} />}
         </div>
       </section>
+
+      <div style={{ marginTop: 40 }}>
+        <ShareBar t={t} where="end" title={`${t.swSectionTitle} ${fmt.range(issue.dateRange.start, issue.dateRange.end)}`} image={`/og/sitzungswoche-${issue.week}.png`} />
+      </div>
 
       <footer style={{ marginTop: 44, borderTop: RULE, paddingTop: 12, fontSize: 11.5, color: FAINT, lineHeight: 1.5, maxWidth: '52em' }}>
         {t.swSectionSub}

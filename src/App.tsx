@@ -1155,6 +1155,10 @@ function App() {
     const canonicalUrl = `${SITE_URL}${indexablePath(window.location.pathname)}`;
     setMeta('link[rel="canonical"]', 'href', canonicalUrl);
     setMeta('meta[property="og:url"]', 'content', canonicalUrl);
+    // Share preview: a picture per Datenstory and per Briefing (scripts/build-og-images.mjs), else the site's own.
+    const ogName = view === 'datenstory' && selectedDatenstory ? `datenstories-${selectedDatenstory}` : view === 'story' && selectedStoryWeek ? `sitzungswoche-${selectedStoryWeek}` : 'default';
+    setMeta('meta[property="og:image"]', 'content', `${SITE_URL}/og/${ogName}.png`);
+    setMeta('meta[name="twitter:image"]', 'content', `${SITE_URL}/og/${ogName}.png`);
     // Search results pages are endless and thin; search engines should index the pages they link
     // to, not the result lists themselves.
     let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');

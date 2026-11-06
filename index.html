@@ -24,7 +24,12 @@
     />
     <meta property="og:url" content="https://politblick.de/" />
     <meta property="og:locale" content="de_DE" />
-    <meta name="twitter:card" content="summary" />
+    <!-- Default share preview; App.tsx swaps in the Datenstory / Briefing image on those pages (scripts/build-og-images.mjs makes them). -->
+    <meta property="og:image" content="https://politblick.de/og/default.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://politblick.de/og/default.png" />
     <meta name="twitter:title" content="Politblick — Abstimmungen, Nebeneinkünfte und Lobbykontakte im Bundestag" />
     <meta
       name="twitter:description"

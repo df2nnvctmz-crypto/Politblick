@@ -11,6 +11,7 @@
  */
 import { Fragment, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { FilterMenu } from '../ui/FilterMenu';
+import { ShareBar } from '../ShareBar';
 import type { Lang, Translation } from '../data';
 import { fetchLocalJson } from '../snapshot';
 import { ShowMoreButton } from '../ShowMoreButton';
@@ -425,6 +426,9 @@ function StoryShell({ t, lang, nav, listing, data, text, slots: s, nodeSlots, se
         </p>
         {listing.partner && <PartnerByline p={listing.partner} t={t} />}
       </header>
+      <div style={{ marginTop: 18 }}>
+        <ShareBar t={t} where="top" title={`${fill(text.title, s)}: ${fill(text.titleAccent, s)}`} url={`https://politblick.de/datenstories/${listing.slug}/`} image={`/og/datenstories-${listing.slug}.png`} />
+      </div>
       <div style={{ marginTop: 20 }}>
         <PrevNextLinks listing={listing} nav={nav} t={t} />
       </div>
@@ -497,6 +501,9 @@ function StoryShell({ t, lang, nav, listing, data, text, slots: s, nodeSlots, se
           </a>
         </p>
       )}
+      <div style={{ marginTop: 36 }}>
+        <ShareBar t={t} where="end" title={`${fill(text.title, s)}: ${fill(text.titleAccent, s)}`} url={`https://politblick.de/datenstories/${listing.slug}/`} image={`/og/datenstories-${listing.slug}.png`} />
+      </div>
       <PrevNextCards listing={listing} nav={nav} t={t} />
     </main>
   );
