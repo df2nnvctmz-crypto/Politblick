@@ -58,7 +58,7 @@ import { NewsletterSignup, RssLink } from './NewsletterSignup';
 import { SitzungswochenBriefing, StoryDetailPage } from './stories/Briefing';
 import { MobileMenu } from './MobileMenu';
 import { useStoryDetail } from './stories';
-import { DatenstoryListPage, DatenstoryTeaser, DatenstoryView, datenstoryMeta, useDatenstory } from './datenstories/DatenstoryPage';
+import { DATENSTORIES, DatenstoryListPage, DatenstoryTeaser, DatenstoryView, datenstoryMeta, useDatenstory } from './datenstories/DatenstoryPage';
 
 /** Mirrors scripts/build-sitemap.mjs's SITE_URL — used to build the canonical/OG URL for the page currently on screen. */
 const SITE_URL = 'https://politblick.de';
@@ -594,6 +594,8 @@ function App() {
     onCommittee: (id) => stop(() => openCommittee(id)),
     storyHref: (week) => storyHref(week),
     onStory: (week) => stop(() => openStory(week)),
+    datenstoryHref: (slug) => datenstoryHref(slug),
+    onDatenstory: (slug) => stop(() => openDatenstory(slug)),
   };
   const resultsHref = (q: string) => `${withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'results' }), BASE_URL)}?q=${encodeURIComponent(q.trim())}`;
   const crossrefHref = (tab: LobbyTab = 'overview') => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'crossref', lobbyTab: tab }), BASE_URL);
@@ -984,6 +986,16 @@ function App() {
         donationSumEuro: s.donationSumEuro,
         pollTotals: s.pollTotals,
         closestTitle: s.closest?.title ?? null,
+      })),
+      datenstories: DATENSTORIES.map((d) => ({
+        slug: d.slug,
+        title: d.title,
+        kicker: d.kicker,
+        seriesName: d.series?.name ?? null,
+        partLabel: d.series ? `Teil ${d.series.part}: ${d.series.partLabel}` : null,
+        teaser: d.teaser,
+        keywords: d.keywords,
+        publishedOn: d.publishedOn,
       })),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -40,9 +40,14 @@ jobs:
       - name: Rebuild Sitzungswochen-Briefing
         run: node scripts/build-stories.mjs
 
+      # The Datenstories join the curated research files with the live register, polls and lobby
+      # links. No network; deploy-pages.yml re-verifies every claim in the story text.
+      - name: Rebuild Datenstories
+        run: node scripts/build-datenstories.mjs
+
       - uses: ./.github/actions/commit-data
         with:
           message: Update committee assignment data
           paths: >-
             public/data/committees.json public/data/lobby-links.json
-            public/data/stories.json public/data/stories public/data/meta.json
+            public/data/stories.json public/data/stories public/data/datenstories public/data/meta.json

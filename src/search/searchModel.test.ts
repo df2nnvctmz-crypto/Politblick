@@ -8,6 +8,7 @@ const src = (over: Partial<SearchSources> = {}): SearchSources => ({
   parties: [],
   committees: [],
   briefings: [],
+  datenstories: [],
   ...over,
 });
 
@@ -125,5 +126,33 @@ describe('isoWeekOf', () => {
     expect(isoWeekOf('2026-10-05')).toBe(41);
     expect(isoWeekOf('2025-12-29')).toBe(1);
     expect(isoWeekOf('2027-01-01')).toBe(53);
+  });
+});
+
+describe('searchAll: Datenstories', () => {
+  const story = (over: Partial<SearchSources['datenstories'][number]> = {}) => ({
+    slug: 'a',
+    title: 'Wer finanziert die Parteien?',
+    kicker: 'Geld und Einfluss',
+    seriesName: 'Geld und Einfluss',
+    partLabel: 'Teil 2: Wer finanziert die Parteien?',
+    teaser: 'Großspenden pro Partei und ein Unternehmen, das am selben Tag vier Parteien bedachte.',
+    keywords: ['Bitpanda', 'BSW'],
+    publishedOn: '2026-09-01',
+    ...over,
+  });
+
+  it('finds a story by title, keyword and teaser, best match first', () => {
+    const a = story();
+    const b = story({ slug: 'b', title: 'Zuckerabgabe', kicker: 'US-Lobby', seriesName: 'US-Lobby', keywords: ['Coca-Cola'], teaser: 'Bitpanda taucht hier nicht auf, nur im Text: Unternehmen.', publishedOn: '2026-11-06' });
+    expect(searchAll('finanziert', src({ datenstories: [a, b] })).datenstories.map((d) => d.slug)).toEqual(['a']);
+    expect(searchAll('coca', src({ datenstories: [a, b] })).datenstories.map((d) => d.slug)).toEqual(['b']);
+    expect(searchAll('Bitpanda', src({ datenstories: [a, b] })).datenstories.map((d) => d.slug)).toEqual(['a', 'b']);
+  });
+
+  it('counts stories in the total and offers the group', () => {
+    const r = searchAll('bsw', src({ datenstories: [story()] }));
+    expect(r.total).toBe(1);
+    expect(r.groupOrder).toEqual(['datenstories']);
   });
 });

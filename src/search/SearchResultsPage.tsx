@@ -30,9 +30,11 @@ export interface SearchResultsLinks {
   onCommittee: (id: string) => Click;
   storyHref: (week: string) => string;
   onStory: (week: string) => Click;
+  datenstoryHref: (slug: string) => string;
+  onDatenstory: (slug: string) => Click;
 }
 
-type TypeKey = 'all' | 'mps' | 'bills' | 'orgs' | 'parties' | 'committees' | 'briefings';
+type TypeKey = 'all' | 'mps' | 'bills' | 'orgs' | 'parties' | 'committees' | 'briefings' | 'datenstories';
 type OrgScope = 'all' | 'linked';
 type OrgSort = 'relevance' | 'spend';
 type BillScope = 'all' | 'current' | 'archive';
@@ -160,6 +162,7 @@ export function SearchResultsPage({
     parties: results.parties.length,
     committees: results.committees.length,
     briefings: results.briefings.length,
+    datenstories: results.datenstories.length,
   };
   const labels: Record<Exclude<TypeKey, 'all'>, string> = {
     mps: t.searchGroupMps,
@@ -168,6 +171,7 @@ export function SearchResultsPage({
     parties: t.searchGroupParties,
     committees: t.searchGroupCommittees,
     briefings: t.searchGroupBriefings,
+    datenstories: t.searchGroupDatenstories,
   };
   // Best-matching type first (e.g. the party for "afd"), see searchAll's groupOrder.
   const order: Exclude<TypeKey, 'all'>[] = results.groupOrder;
@@ -301,6 +305,15 @@ export function SearchResultsPage({
       </a>
     );
 
+  const datenstoryCard = (d: SearchResults['datenstories'][number]) => (
+    <a key={`datenstory-${d.slug}`} href={links.datenstoryHref(d.slug)} onClick={links.onDatenstory(d.slug)} style={cardStyle}>
+      <div style={{ ...metaStyle, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: ACCENT }}>{[d.seriesName ?? d.kicker, d.partLabel].filter(Boolean).join(' · ')}</div>
+      <div style={{ ...titleStyle, marginTop: 4 }}>{d.title}</div>
+      <div style={{ ...metaStyle, marginTop: 6 }}>{d.teaser}</div>
+      <div style={{ ...metaStyle, marginTop: 8 }}>{day(d.publishedOn)}</div>
+    </a>
+  );
+
   const render: Record<Exclude<TypeKey, 'all'>, () => ReactNode[]> = {
     mps: () => mps.map(mpCard),
     bills: () => bills.map(billCard),
@@ -308,6 +321,7 @@ export function SearchResultsPage({
     parties: () => results.parties.map(partyCard),
     committees: () => results.committees.map(committeeCard),
     briefings: () => results.briefings.map(briefingCard),
+    datenstories: () => results.datenstories.map(datenstoryCard),
   };
 
   // How many cards a type previews inside "All". Briefing cards are tall (a band per vote), so on

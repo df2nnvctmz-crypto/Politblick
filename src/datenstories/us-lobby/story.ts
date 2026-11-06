@@ -19,6 +19,9 @@ export const listing: DatenstoryListing = {
   title: 'Fast 50 Mio. € im Jahr, aber nur ein kleiner Teil ist als amerikanisch erkennbar',
   teaser:
     'US-Konzerne lobbyieren in Berlin vor allem über deutsche Tochterfirmen, oft mit früheren Abgeordneten und Regierungsleuten. Wir haben die Tochterfirmen den Mutterkonzernen zugeordnet.',
+  topics: ["Lobbyregister","Drehtür"],
+  keywords: ["USA","Tochterfirmen","Treemap","Gates Foundation","Microsoft","Google","Meta","Amazon","Mars","Wolfgang Büchner","Jens Teutrine","Seitenwechsel"],
+  publishedOn: '2026-11-06',
   researchedOn: RESEARCHED_ON,
   partner: RES_PUBLICA,
   series: { name: 'US-Lobby in Berlin', part: 1, partLabel: 'Das Geld und die Drehtür' },

@@ -142,7 +142,79 @@ export interface UsGesetzeData {
   orgPaths: string[];
 }
 
-export type DatenstoryData = UsLobbyData | UsGesetzeData;
+/** Register spending range of an organisation (euro), or null when it declares none. */
+export type SpendRange = { from: number; to: number } | null;
+
+export interface LobbyGeldData {
+  slug: 'lobby-geld';
+  generatedAt: string | null;
+  /** No frozen findings in this story, so there is no research date. */
+  curatedCheckedOn: null;
+  spend: {
+    totalEuro: number;
+    orgCount: number;
+    declaringCount: number;
+    byType: { label: string; orgCount: number; midEuro: number; top: { id: string; name: string; midEuro: number; orgPath: string | null; registerUrl: string }[] }[];
+  };
+  donations: { totalEuro: number; count: number; firstDate: string | null; firstYear: number | null; lastDate: string | null; years: number };
+  overlap: {
+    memberCount: number;
+    withFunction: number;
+    topOrgs: { id: string; name: string; mdbCount: number; orgPath: string | null; registerUrl: string }[];
+    donors: {
+      id: string;
+      name: string;
+      orgPath: string | null;
+      registerUrl: string;
+      donatedEuro: number;
+      donationCount: number;
+      parties: { party: string; euro: number }[];
+      budget: SpendRange;
+    }[];
+  };
+  /** Donation page of each sitting fraction, keyed by party name; other parties have none. */
+  partyPaths: Record<string, string>;
+  orgPaths: string[];
+}
+
+export interface PartyDonationRow {
+  party: string;
+  color: string;
+  sumEuro: number;
+  donorCount: number;
+  donationCount: number;
+  top3Share: number;
+  topDonors: { name: string; euro: number; orgPath: string | null }[];
+}
+
+export interface ParteispendenData {
+  slug: 'parteispenden';
+  generatedAt: string | null;
+  curatedCheckedOn: null;
+  totalEuro: number;
+  count: number;
+  firstDate: string | null;
+  firstYear: number | null;
+  lastDate: string | null;
+  parties: PartyDonationRow[];
+  partyPaths: Record<string, string>;
+  others: { partyCount: number; sumEuro: number };
+  bitpanda: {
+    orgId: string;
+    name: string;
+    orgPath: string | null;
+    registerUrl: string;
+    dates: string[];
+    sameDay: boolean;
+    partyNames: string[];
+    totalEuro: number;
+    parts: { party: string; color: string; euro: number }[];
+    budget: SpendRange;
+  } | null;
+  orgPaths: string[];
+}
+
+export type DatenstoryData = UsLobbyData | UsGesetzeData | LobbyGeldData | ParteispendenData;
 
 /** A quote or register wording that was true on `asOf` and is shown with that date. */
 export interface FrozenQuote {
@@ -182,9 +254,17 @@ export interface DatenstoryListing {
   kicker: string;
   title: string;
   teaser: string;
+  /** Topic filter on the index page, e.g. "Lobbyregister". */
+  topics: string[];
+  /** Extra words the site search matches (names and subjects the story is about); the title, kicker and teaser are searched anyway. */
+  keywords: string[];
+  /** Date the story was published (ISO). Shown on the cards and the page; decides which stories are "newest". */
+  publishedOn: string;
   /** Date the research was done (ISO). The page shows live numbers; this dates the frozen parts. */
   researchedOn: string;
   partner?: StoryPartner;
+  /** Public discussion of the story (e.g. the Reddit thread), linked at the end of the page. Not a partner. */
+  discussion?: { name: string; url: string };
   /** Stories that belong together ("US-Lobby in Berlin", part 1 and 2) get a series bar. */
   series?: { name: string; part: number; partLabel: string };
 }

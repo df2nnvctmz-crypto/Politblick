@@ -9,18 +9,22 @@
  * Each story module (src/datenstories/<slug>/story.ts) supplies the text; this file supplies the
  * chart and source list per section.
  */
-import { Fragment, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Fragment, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import { FilterMenu } from '../ui/FilterMenu';
 import type { Lang, Translation } from '../data';
 import { fetchLocalJson } from '../snapshot';
 import { ShowMoreButton } from '../ShowMoreButton';
 import { LevyUnitChart, RevolvingDoorTimeline, TREEMAP_SOURCES_ID, UsTreemap, VoteRows, amountLabel, euroRangeLabel, SEAT_C, SUB_C, useNarrow } from './charts';
 import { InternalLink, ext, shortEvidence } from './links';
 import { StoryPreview } from './previews';
-import type { DatenstoryData, DatenstoryListing, FrozenQuote, LevyCamp, StoryPartner, SugarLevy, UsGesetzeData, UsLobbyData } from './types';
+import { BitpandaChart, OverlapChart, PartyBars, SpendDonationsChart } from './geld-charts';
+import type { DatenstoryData, DatenstoryListing, FrozenQuote, LevyCamp, LobbyGeldData, ParteispendenData, StoryPartner, SugarLevy, UsGesetzeData, UsLobbyData } from './types';
 import * as usLobby from './us-lobby/story';
 import * as usGesetze from './us-gesetze/story';
+import * as lobbyGeld from './lobby-geld/story';
+import * as parteispenden from './parteispenden/story';
 
-export const DATENSTORIES: DatenstoryListing[] = [usLobby.listing, usGesetze.listing];
+export const DATENSTORIES: DatenstoryListing[] = [usLobby.listing, usGesetze.listing, lobbyGeld.listing, parteispenden.listing];
 
 const HAIR = '1px solid oklch(92% 0.006 260)';
 const MUTED = 'oklch(48% 0.01 260)';
@@ -161,7 +165,8 @@ function neighbours(listing: DatenstoryListing) {
   return { prev: DATENSTORIES[i - 1] ?? null, next: DATENSTORIES[i + 1] ?? null };
 }
 
-const partName = (x: DatenstoryListing) => (x.series ? `Teil ${x.series.part}: ${x.series.partLabel}` : x.kicker);
+const partName = (x: DatenstoryListing, from?: DatenstoryListing) =>
+  x.series ? `${from?.series?.name === x.series.name ? '' : `${x.series.name}, `}Teil ${x.series.part}: ${x.series.partLabel}` : x.kicker;
 
 /** "← Vorherige Datenstory · Nächste Datenstory →" under the headline, like the weekly briefing. */
 function PrevNextLinks({ listing, nav, t }: { listing: DatenstoryListing; nav: StoryNav; t: Translation }) {
@@ -169,8 +174,8 @@ function PrevNextLinks({ listing, nav, t }: { listing: DatenstoryListing; nav: S
   if (!prev && !next) return null;
   return (
     <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: 13, fontWeight: 600, margin: '0 0 22px' }}>
-      {prev && storyLink(nav, prev.slug, `← ${t.dsPrev}: ${partName(prev)}`)}
-      {next && storyLink(nav, next.slug, `${t.dsNext}: ${partName(next)} →`)}
+      {prev && storyLink(nav, prev.slug, `← ${t.dsPrev}: ${partName(prev, listing)}`)}
+      {next && storyLink(nav, next.slug, `${t.dsNext}: ${partName(next, listing)} →`)}
     </div>
   );
 }
@@ -189,7 +194,7 @@ function PrevNextCards({ listing, nav, t }: { listing: DatenstoryListing; nav: S
           {label}
           {arrowBefore ? '' : ' →'}
         </div>
-        <div style={{ fontSize: 13, color: MUTED, marginTop: 4 }}>{partName(x)}</div>
+        <div style={{ fontSize: 13, color: MUTED, marginTop: 4 }}>{partName(x, listing)}</div>
         <div style={{ fontSize: 17, fontWeight: 800, marginTop: 2, lineHeight: 1.3 }}>{x.title}</div>
       </>,
       { display: 'block', padding: '16px 18px', border: HAIR, borderRadius: 10, background: 'white', color: 'inherit', textDecoration: 'none', height: '100%', boxSizing: 'border-box' },
@@ -204,15 +209,102 @@ function PrevNextCards({ listing, nav, t }: { listing: DatenstoryListing; nav: S
 
 // ---- Index ---------------------------------------------------------------------------------------
 
+type DsSort = 'newest' | 'oldest' | 'az';
+
+/**
+ * Index of all Datenstories. Filtering by series and topic and sorting work like the MP list and
+ * the search results: a sidebar on wide screens, the pinned menu-button bar on phones (the same
+ * FilterMenu). Free-text search is the site search in the header, which finds Datenstories too.
+ */
 export function DatenstoryListPage({ t, lang, storyHref, onOpenStory }: PageProps & StoryNav) {
-  return (
-    <main style={{ flex: 1, maxWidth: 1100, margin: '0 auto', padding: 32, width: '100%', boxSizing: 'border-box' }}>
-      <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{t.dsListTitle}</h1>
-      <p style={{ color: 'oklch(45% 0.01 260)', fontSize: 14, lineHeight: 1.5, margin: '0 0 20px', maxWidth: 640 }}>{t.dsListIntro}</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 440px), 1fr))', gap: 20 }}>
-        {DATENSTORIES.map((s) => (
-          <StoryCard key={s.slug} s={s} t={t} lang={lang} nav={{ storyHref, onOpenStory }} />
+  const [series, setSeries] = useState('');
+  const [topic, setTopic] = useState('');
+  const [sort, setSort] = useState<DsSort>('newest');
+  const seriesOptions = useMemo(() => [...new Set(DATENSTORIES.map((s) => s.series?.name).filter((x): x is string => Boolean(x)))], []);
+  const topicOptions = useMemo(() => [...new Set(DATENSTORIES.flatMap((s) => s.topics))].sort((a, b) => a.localeCompare(b, 'de')), []);
+  const shown = useMemo(() => {
+    const rows = DATENSTORIES.map((s, i) => ({ s, i }))
+      .filter((x) => !series || x.s.series?.name === series)
+      .filter((x) => !topic || x.s.topics.includes(topic));
+    const byDate = (a: (typeof rows)[number], b: (typeof rows)[number]) => b.s.publishedOn.localeCompare(a.s.publishedOn) || b.i - a.i;
+    if (sort === 'az') rows.sort((a, b) => a.s.title.localeCompare(b.s.title, 'de'));
+    else if (sort === 'oldest') rows.sort((a, b) => -byDate(a, b));
+    else rows.sort(byDate);
+    return rows.map((x) => x.s);
+  }, [series, topic, sort]);
+
+  const heading: CSSProperties = { fontSize: 12, fontWeight: 700, color: 'oklch(45% 0.01 260)', marginBottom: 10 };
+  const seriesList = [{ key: '', label: t.dsFilterAll }, ...seriesOptions.map((n) => ({ key: n, label: n }))];
+  const topicList = [{ key: '', label: t.dsFilterAll }, ...topicOptions.map((n) => ({ key: n, label: n }))];
+  const sortList = [
+    { key: 'newest', label: t.dsSortNewest },
+    { key: 'oldest', label: t.dsSortOldest },
+    { key: 'az', label: t.dsSortAz },
+  ];
+  const seriesGroup = { label: t.dsFilterSeries, options: seriesList, active: series, onChange: setSeries };
+  const topicGroup = { label: t.dsFilterTopic, options: topicList, active: topic, onChange: setTopic };
+  const sortGroup = { label: t.dsFilterSort, options: sortList, active: sort, onChange: (k: string) => setSort(k as DsSort) };
+  const radios = (g: { label: string; options: { key: string; label: string }[]; active: string; onChange: (k: string) => void }) => (
+    <div>
+      <div style={heading}>{g.label}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {g.options.map((o) => (
+          <label key={o.key} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, cursor: 'pointer' }}>
+            <input type="radio" name={`ds-${g.label}`} checked={g.active === o.key} onChange={() => g.onChange(o.key)} style={{ accentColor: ACCENT, margin: 0 }} />
+            {o.label}
+          </label>
         ))}
+      </div>
+    </div>
+  );
+  // Same frame as the MP list and the search results: filters in a sidebar at the far left, and
+  // title, count and cards in the column beside it (phones: the pinned menu-button bar instead).
+  return (
+    <main style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: 32, boxSizing: 'border-box', display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      <aside className="pb-search-sidebar" style={{ width: 220, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 22 }}>
+        {radios(seriesGroup)}
+        {radios(topicGroup)}
+        <div>
+          <div style={heading}>{sortGroup.label}</div>
+          <select
+            value={sort}
+            onChange={(e) => sortGroup.onChange(e.target.value)}
+            aria-label={sortGroup.label}
+            style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid oklch(90% 0.006 260)', fontSize: 13.5, background: 'white', fontFamily: 'inherit' }}
+          >
+            {sortList.map((o) => (
+              <option key={o.key} value={o.key}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </aside>
+
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>{t.dsListTitle}</h1>
+          <span style={{ fontSize: 13.5, color: MUTED }}>{fill(t.dsCountTemplate, { n: String(shown.length) })}</span>
+        </div>
+        <p style={{ color: 'oklch(45% 0.01 260)', fontSize: 14, lineHeight: 1.5, margin: '0 0 20px', maxWidth: 640 }}>{t.dsListIntro}</p>
+
+        {/* Phones: the sidebar is hidden (index.css) and these menu buttons stay pinned under the header. */}
+        <div className="pb-mobile-sticky pb-results-mobile-bar">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', padding: '8px 0' }}>
+            <FilterMenu buttonLabel={t.resultsFilterButton} groups={[seriesGroup, topicGroup]} />
+            <FilterMenu icon="sort" buttonLabel={t.dsFilterSort} groups={[sortGroup]} />
+          </div>
+        </div>
+
+        {shown.length === 0 ? (
+          <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)' }}>{t.dsNoMatch}</p>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: 20 }}>
+            {shown.map((s) => (
+              <StoryCard key={s.slug} s={s} t={t} lang={lang} nav={{ storyHref, onOpenStory }} />
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );
@@ -235,7 +327,7 @@ function StoryCard({ s, t, lang, nav, compact = false }: { s: DatenstoryListing;
         <div style={{ fontSize: compact ? 16 : 17, fontWeight: 800, margin: '5px 0 6px', lineHeight: 1.3 }}>{s.title}</div>
         {!compact && <div style={{ color: MUTED, fontSize: 13.5, lineHeight: 1.5 }}>{s.teaser}</div>}
         <div style={{ marginTop: compact ? 8 : 12, fontSize: 12.5, color: MUTED, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span>{fill(t.dsAsOfTemplate, { date: dateDe(s.researchedOn, lang) })}</span>
+          <span>{fill(t.dsPublishedTemplate, { date: dateDe(s.publishedOn, lang) })}</span>
           {!compact && s.partner && (
             <>
               <span>·</span>
@@ -252,6 +344,16 @@ function StoryCard({ s, t, lang, nav, compact = false }: { s: DatenstoryListing;
   );
 }
 
+/** How many stories the landing page shows; the full list is on the index page. */
+const TEASER_MAX = 2;
+
+/** Newest first: by publication date, and among equal dates the one added last (DATENSTORIES is in the order stories were added). */
+const newestStories = () =>
+  DATENSTORIES.map((s, i) => ({ s, i }))
+    .sort((a, b) => b.s.publishedOn.localeCompare(a.s.publishedOn) || b.i - a.i)
+    .slice(0, TEASER_MAX)
+    .map((x) => x.s);
+
 /** Landing-page section after the Sitzungswochen-Briefing: same header and grid, one compact card per story. */
 export function DatenstoryTeaser({ t, lang, storyHref, onOpenStory, listHref, onOpenList }: PageProps & StoryNav & { listHref: string; onOpenList: (e: React.MouseEvent) => void }) {
   return (
@@ -264,7 +366,7 @@ export function DatenstoryTeaser({ t, lang, storyHref, onOpenStory, listHref, on
       </div>
       <p style={{ fontSize: 13.5, color: MUTED, margin: '0 0 18px', maxWidth: 680 }}>{t.dsTeaserSub}</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: 14 }}>
-        {DATENSTORIES.map((s) => (
+        {newestStories().map((s) => (
           <StoryCard key={s.slug} s={s} t={t} lang={lang} nav={{ storyHref, onOpenStory }} compact />
         ))}
       </div>
@@ -307,6 +409,7 @@ function StoryShell({ t, lang, nav, listing, data, text, slots: s, nodeSlots, se
       <header style={{ maxWidth: 820 }}>
         <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: ACCENT }}>
           {t.dsKicker} · {text.kicker}
+          <span style={{ color: MUTED, fontWeight: 600, letterSpacing: 0, textTransform: 'none' }}> · {fill(t.dsPublishedTemplate, { date: dateDe(listing.publishedOn, lang) })}</span>
         </div>
         <h1 style={{ fontSize: 'clamp(26px, 4.4vw, 40px)', lineHeight: 1.15, fontWeight: 800, margin: '10px 0 14px', textWrap: 'balance' }}>
           {fill(text.title, s)}: <span style={{ color: WARM }}>{fill(text.titleAccent, s)}</span>
@@ -317,7 +420,7 @@ function StoryShell({ t, lang, nav, listing, data, text, slots: s, nodeSlots, se
           </p>
         ))}
         <p style={{ fontSize: 13, color: MUTED, margin: '14px 0 10px' }}>
-          {fill(t.dsLiveNoteTemplate, { date: dateDe(data.generatedAt, lang), asOf: dateDe(data.curatedCheckedOn, lang) })}
+          {data.curatedCheckedOn ? fill(t.dsLiveNoteTemplate, { date: dateDe(data.generatedAt, lang), asOf: dateDe(data.curatedCheckedOn, lang) }) : fill(t.dsLiveOnlyTemplate, { date: dateDe(data.generatedAt, lang) })}
           {lang === 'en' && <> · {t.dsGermanOnly}</>}
         </p>
         {listing.partner && <PartnerByline p={listing.partner} t={t} />}
@@ -386,6 +489,14 @@ function StoryShell({ t, lang, nav, listing, data, text, slots: s, nodeSlots, se
       </section>
 
       {listing.partner && <PartnerCredit p={listing.partner} t={t} />}
+      {listing.discussion && (
+        <p style={{ marginTop: 28, fontSize: 15 }}>
+          <a href={listing.discussion.url} target="_blank" rel="noopener" style={{ color: ACCENT, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <img src={withBaseAsset('/images/reddit.svg')} alt="" width={22} height={22} style={{ display: 'block' }} />
+            <span>{fill(t.dsDiscussion, { name: listing.discussion.name })} →</span>
+          </a>
+        </p>
+      )}
       <PrevNextCards listing={listing} nav={nav} t={t} />
     </main>
   );
@@ -403,7 +514,10 @@ function ShowsBox({ title, text, tone }: { title: string; text: string; tone: 'p
 // ---- The two stories -----------------------------------------------------------------------------
 
 export function DatenstoryView({ data, ...props }: PageProps & StoryNav & { data: DatenstoryData }) {
-  return data.slug === 'us-lobby' ? <UsLobbyStoryPage {...props} data={data} /> : <UsGesetzeStoryPage {...props} data={data} />;
+  if (data.slug === 'us-lobby') return <UsLobbyStoryPage {...props} data={data} />;
+  if (data.slug === 'lobby-geld') return <LobbyGeldStoryPage {...props} data={data} />;
+  if (data.slug === 'parteispenden') return <ParteispendenStoryPage {...props} data={data} />;
+  return <UsGesetzeStoryPage {...props} data={data} />;
 }
 
 function UsLobbyStoryPage({ t, lang, onNavigate, storyHref, onOpenStory, data }: PageProps & StoryNav & { data: UsLobbyData }) {
@@ -732,6 +846,93 @@ function LevySources({ levy, t, lang, onNavigate }: { levy: SugarLevy; t: Transl
 
 // ---- Downloads -----------------------------------------------------------------------------------
 
+
+function LobbyGeldStoryPage({ t, lang, onNavigate, storyHref, onOpenStory, data }: PageProps & StoryNav & { data: LobbyGeldData }) {
+  const s = lobbyGeld.slots(data);
+  const asOf = dateDe(data.generatedAt, lang);
+  const sections: ShellSection[] = lobbyGeld.story.sections.map((sec) => ({
+    ...sec,
+    chart: sec.chart === 'spendDonations' ? <SpendDonationsChart data={data} onNavigate={onNavigate} /> : <OverlapChart data={data} onNavigate={onNavigate} />,
+    sources:
+      sec.chart === 'spendDonations' ? (
+        <LinkSources t={t} asOf={asOf} items={[REGISTER_SOURCE, DONATIONS_SOURCE]} />
+      ) : (
+        <LinkSources
+          t={t}
+          asOf={asOf}
+          onNavigate={onNavigate}
+          items={[
+            ...data.overlap.topOrgs.map((o) => ({ label: o.name, url: o.registerUrl, path: o.orgPath, note: `${o.mdbCount} Abgeordnete mit Funktion` })),
+            ...data.overlap.donors.map((d) => ({ label: d.name, url: d.registerUrl, path: d.orgPath, note: `Spender, ${Math.round(d.donatedEuro).toLocaleString('de-DE')} €` })),
+            DONATIONS_SOURCE,
+          ]}
+        />
+      ),
+  }));
+  return (
+    <StoryShell t={t} lang={lang} onNavigate={onNavigate} nav={{ storyHref, onOpenStory }} listing={lobbyGeld.listing} data={data} text={lobbyGeld.story} slots={s} nodeSlots={s} sections={sections} onDownload={() => downloadLobbyGeldCsv(data)} />
+  );
+}
+
+function ParteispendenStoryPage({ t, lang, onNavigate, storyHref, onOpenStory, data }: PageProps & StoryNav & { data: ParteispendenData }) {
+  const s = parteispenden.slots(data);
+  const asOf = dateDe(data.generatedAt, lang);
+  const sections: ShellSection[] = parteispenden.story.sections.map((sec) => ({
+    ...sec,
+    chart: sec.chart === 'partyBars' ? <PartyBars data={data} onNavigate={onNavigate} /> : <BitpandaChart data={data} onNavigate={onNavigate} />,
+    sources:
+      sec.chart === 'partyBars' ? (
+        <LinkSources t={t} asOf={asOf} items={[DONATIONS_SOURCE]} />
+      ) : (
+        <LinkSources
+          t={t}
+          asOf={asOf}
+          onNavigate={onNavigate}
+          items={[
+            ...(data.bitpanda ? [{ label: data.bitpanda.name, url: data.bitpanda.registerUrl, path: data.bitpanda.orgPath, note: 'Lobbyregister-Eintrag' }] : []),
+            DONATIONS_SOURCE,
+          ]}
+        />
+      ),
+  }));
+  return (
+    <StoryShell t={t} lang={lang} onNavigate={onNavigate} nav={{ storyHref, onOpenStory }} listing={parteispenden.listing} data={data} text={parteispenden.story} slots={s} nodeSlots={s} sections={sections} onDownload={() => downloadPartyDonationsCsv(data)} />
+  );
+}
+
+const REGISTER_SOURCE = { label: 'Lobbyregister des Bundestags', url: 'https://www.lobbyregister.bundestag.de/', path: null, note: 'alle aktiven Einträge mit Angaben zu den Ausgaben' };
+const DONATIONS_SOURCE = { label: 'Bundestag: Parteispenden über 35.000 €', url: 'https://www.bundestag.de/parlament/praesidium/parteienfinanzierung/fundstellen50000', path: null, note: 'veröffentlichte Großspenden' };
+
+/** Collapsed list of source links for stories whose evidence is a few register entries and one list. */
+function LinkSources({ t, asOf, items, onNavigate }: { t: Translation; asOf: string; items: { label: string; url: string; path: string | null; note: string }[]; onNavigate?: (p: string) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ maxWidth: 900 }}>
+      <SourcesToggle open={open} onToggle={() => setOpen(!open)}>
+        {fill(t.dsSourcesCountTemplate, { n: String(items.length) })} · <span style={{ fontWeight: 400, color: MUTED }}>{fill(t.dsAsOfTemplate, { date: asOf })}</span>
+      </SourcesToggle>
+      {open && (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: 14 }}>
+          {items.map((i) => (
+            <li key={i.url + i.label} style={{ padding: '8px 0', borderBottom: HAIR }}>
+              {i.path && onNavigate ? orgLink(i.path, i.label, onNavigate) : <a href={i.url} {...ext}>{i.label}</a>}
+              {i.path && (
+                <>
+                  {' '}
+                  <a href={i.url} {...ext} style={{ color: MUTED, fontSize: 12 }}>
+                    Register
+                  </a>
+                </>
+              )}
+              <span style={{ color: MUTED }}> · {i.note}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function downloadCsv(name: string, header: string[], rows: (string | number | boolean | null)[][]) {
   const q = (v: string | number | boolean | null) => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const lines = [header.join(','), ...rows.map((r) => r.map(q).join(','))];
@@ -762,10 +963,33 @@ function downloadVotesCsv(data: UsGesetzeData) {
 }
 
 /** <head> title/description for a story once its data is loaded. */
+
+function downloadLobbyGeldCsv(data: LobbyGeldData) {
+  const rows: (string | number | null)[][] = [
+    ...data.spend.byType.map((t) => ['lobbyausgaben_nach_art', t.label, t.orgCount, t.midEuro]),
+    ['grossspenden_gesamt', `seit ${data.donations.firstYear}`, data.donations.count, data.donations.totalEuro],
+    ...data.overlap.topOrgs.map((o) => ['abgeordnete_mit_funktion', o.name, o.mdbCount, null]),
+    ...data.overlap.donors.map((d) => ['spender_im_register', d.name, d.donationCount, d.donatedEuro]),
+  ];
+  downloadCsv(`politblick-lobby-geld-${(data.generatedAt ?? '').slice(0, 10)}.csv`, ['block', 'name', 'anzahl', 'betrag_eur'], rows);
+}
+function downloadPartyDonationsCsv(data: ParteispendenData) {
+  const rows = data.parties.flatMap((p) => p.topDonors.map((d) => [p.party, p.sumEuro, p.donorCount, p.top3Share, d.name, d.euro]));
+  downloadCsv(`politblick-parteispenden-${(data.generatedAt ?? '').slice(0, 10)}.csv`, ['partei', 'summe_eur', 'spender', 'anteil_top3', 'grosser_spender', 'betrag_eur'], rows);
+}
+
 export function datenstoryMeta(data: DatenstoryData) {
   if (data.slug === 'us-lobby') {
     const s = usLobby.slots(data);
     return { title: fill(usLobby.story.metaTitle, s), description: fill(usLobby.story.metaDescription, s) };
+  }
+  if (data.slug === 'lobby-geld') {
+    const s = lobbyGeld.slots(data);
+    return { title: fill(lobbyGeld.story.metaTitle, s), description: fill(lobbyGeld.story.metaDescription, s) };
+  }
+  if (data.slug === 'parteispenden') {
+    const s = parteispenden.slots(data);
+    return { title: fill(parteispenden.story.metaTitle, s), description: fill(parteispenden.story.metaDescription, s) };
   }
   const s = usGesetze.slots(data);
   return { title: fill(usGesetze.story.metaTitle, s), description: fill(usGesetze.story.metaDescription, s) };

@@ -73,6 +73,12 @@ jobs:
       - name: Verify Sitzungswochen-Rückblick
         run: node scripts/verify-stories.mjs
 
+      # The Datenstories make claims in prose ("Coca-Cola dagegen", "fast 50 Mio. €") that live data
+      # can break. This recounts the totals independently and checks every claim in
+      # src/datenstories/*/claims.ts; a broken claim blocks the deploy instead of publishing it.
+      - name: Verify Datenstories
+        run: node scripts/verify-datenstories.mjs
+
       # scripts/prerender.mjs (part of `npm run build`) drives a headless Chromium to snapshot
       # every route to a real static file — see that script for why. --with-deps pulls in the
       # system libraries Chromium needs on a bare Ubuntu runner, not just the browser binary.

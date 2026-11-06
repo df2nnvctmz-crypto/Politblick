@@ -186,8 +186,130 @@ async function verifyUsGesetze() {
   }
 }
 
+// ---- lobby-geld + parteispenden ------------------------------------------------------------------
+
+const donations = await readJsonFile('party-donations.json', []);
+const roster = await readJsonFile('roster.json', { members: [] });
+
+/** Largest-first sums per key, restated here without any code from the builder. */
+function sumBy(rows, keyOf, valueOf) {
+  const m = new Map();
+  for (const r of rows) m.set(keyOf(r), (m.get(keyOf(r)) ?? 0) + valueOf(r));
+  return m;
+}
+
+async function verifyLobbyGeld() {
+  const built = await readJsonFile('datenstories/lobby-geld.json', null);
+  if (!built) return fail('[lobby-geld] public/data/datenstories/lobby-geld.json missing; run node scripts/build-datenstories.mjs');
+  const { claims } = await import('../src/datenstories/lobby-geld/claims.ts');
+
+  // 1. Recount.
+  const declaring = directory.orgs.filter((o) => o.expensesEuro && o.expensesEuro.to > 0);
+  const spend = declaring.reduce((s, o) => s + midpoint(o), 0);
+  if (!close(built.spend.totalEuro, spend)) fail(`[lobby-geld] spending total ${built.spend.totalEuro} != recount ${spend}`);
+  if (built.spend.declaringCount !== declaring.length) fail(`[lobby-geld] declaring count ${built.spend.declaringCount} != ${declaring.length}`);
+  const typeSums = sumBy(declaring, (o) => o.actorType, midpoint);
+  const typeSum = [...typeSums.values()].reduce((a, b) => a + b, 0);
+  if (!close(typeSum, spend)) fail('[lobby-geld] actor types do not add up to the total');
+  const shownType = built.spend.byType.reduce((s, t) => s + t.midEuro, 0);
+  if (shownType > spend + 0.01) fail('[lobby-geld] shown actor types exceed the total');
+  const don = donations.reduce((s, d) => s + d.amountEuro, 0);
+  if (!close(built.donations.totalEuro, don) || built.donations.count !== donations.length) fail(`[lobby-geld] donations ${built.donations.totalEuro}/${built.donations.count} != recount ${don}/${donations.length}`);
+  const mandateIds = new Set((roster.members ?? []).map((m) => String(m.mandateId)));
+  const withFn = Object.keys(lobbyLinks?.affiliations ?? {}).filter((k) => mandateIds.has(k)).length;
+  if (built.overlap.withFunction !== withFn || built.overlap.memberCount !== (roster.members ?? []).length) fail(`[lobby-geld] MdB with function ${built.overlap.withFunction}/${built.overlap.memberCount} != recount ${withFn}/${(roster.members ?? []).length}`);
+  const links = lobbyLinks?.donorLinks ?? {};
+  const linked = new Set(donations.map((d) => links[d.donor]).filter(Boolean));
+  if (built.overlap.donors.length !== linked.size) fail(`[lobby-geld] donors in the register ${built.overlap.donors.length} != recount ${linked.size}`);
+  for (const d of built.overlap.donors) {
+    const own = donations.filter((x) => links[x.donor] === d.id).reduce((s, x) => s + x.amountEuro, 0);
+    if (!close(d.donatedEuro, own)) fail(`[lobby-geld] donor ${d.id} ${d.donatedEuro} != recount ${own}`);
+  }
+
+  // 2. Claims.
+  for (const c of claims) {
+    const tag = `[lobby-geld:${c.id}]`;
+    if (c.kind === 'ratioAtLeast') {
+      const ratio = spend / don;
+      if (ratio < c.min) fail(`${tag} ${c.says}: yearly lobby spending is only ${ratio.toFixed(1)}x the donations (need ${c.min}x)`);
+      else ok(`${tag} lobby spending is ${ratio.toFixed(1)}x the donations`);
+    } else if (c.kind === 'topType') {
+      const labels = { 'Sonstiges Unternehmen': 'Unternehmen' };
+      const top = [...typeSums.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+      if ((labels[top] ?? top) !== c.label) fail(`${tag} ${c.says}: the largest actor type is now "${top}"`);
+      else ok(`${tag} largest actor type is still ${c.label}`);
+    } else fail(`${tag} unknown claim kind ${c.kind}`);
+  }
+}
+
+async function verifyParteispenden() {
+  const built = await readJsonFile('datenstories/parteispenden.json', null);
+  if (!built) return fail('[parteispenden] public/data/datenstories/parteispenden.json missing; run node scripts/build-datenstories.mjs');
+  const { claims } = await import('../src/datenstories/parteispenden/claims.ts');
+
+  // 1. Recount per party.
+  const parties = new Map();
+  for (const d of donations) {
+    const p = parties.get(d.fraction) ?? { sum: 0, donors: new Map() };
+    p.sum += d.amountEuro;
+    p.donors.set(d.donor, (p.donors.get(d.donor) ?? 0) + d.amountEuro);
+    parties.set(d.fraction, p);
+  }
+  const stats = (name) => {
+    const p = parties.get(name);
+    if (!p) return null;
+    const donors = [...p.donors.values()].sort((a, b) => b - a);
+    return { sum: p.sum, donors: donors.length, top3: donors.slice(0, 3).reduce((a, b) => a + b, 0) / p.sum };
+  };
+  const total = donations.reduce((s, d) => s + d.amountEuro, 0);
+  if (!close(built.totalEuro, total)) fail(`[parteispenden] total ${built.totalEuro} != recount ${total}`);
+  for (const row of built.parties) {
+    const s = stats(row.party);
+    if (!s) fail(`[parteispenden] ${row.party} has no donations any more`);
+    else if (!close(row.sumEuro, s.sum) || row.donorCount !== s.donors || Math.abs(row.top3Share - s.top3) > 0.001) fail(`[parteispenden] ${row.party}: ${row.sumEuro}/${row.donorCount}/${row.top3Share} != recount ${s.sum}/${s.donors}/${s.top3.toFixed(3)}`);
+  }
+  const shown = new Set(built.parties.map((p) => p.party));
+  const othersSum = [...parties.entries()].filter(([k]) => !shown.has(k)).reduce((s, [, v]) => s + v.sum, 0);
+  if (!close(built.others.sumEuro, othersSum)) fail(`[parteispenden] other parties ${built.others.sumEuro} != recount ${othersSum}`);
+
+  // Bitpanda, by register id through the donor-name links.
+  const links = lobbyLinks?.donorLinks ?? {};
+  const bp = donations.filter((d) => links[d.donor] === 'R007203');
+  const bpSum = bp.reduce((s, d) => s + d.amountEuro, 0);
+  const bpDates = new Set(bp.map((d) => d.receivedOn ?? d.publishedOn));
+  if (built.bitpanda && !close(built.bitpanda.totalEuro, bpSum)) fail(`[parteispenden] Bitpanda ${built.bitpanda.totalEuro} != recount ${bpSum}`);
+
+  // 2. Claims.
+  for (const c of claims) {
+    const tag = `[parteispenden:${c.id}]`;
+    if (c.kind === 'fewDonors') {
+      const s = stats(c.party);
+      if (!s || s.donors > c.max) fail(`${tag} ${c.says}: ${c.party} now has ${s?.donors ?? 0} donors (max ${c.max})`);
+      else ok(`${tag} ${c.party} has ${s.donors} donors`);
+    } else if (c.kind === 'manyDonors') {
+      const s = stats(c.party);
+      if (!s || s.donors < c.min) fail(`${tag} ${c.says}: ${c.party} has only ${s?.donors ?? 0} donors (need ${c.min})`);
+      else ok(`${tag} ${c.party} has ${s.donors} donors`);
+    } else if (c.kind === 'top3AtLeast') {
+      const s = stats(c.party);
+      if (!s || s.top3 < c.min) fail(`${tag} ${c.says}: top-3 share of ${c.party} is ${s ? (s.top3 * 100).toFixed(1) : 0} % (need ${c.min * 100} %)`);
+      else ok(`${tag} top-3 share of ${c.party} is ${(s.top3 * 100).toFixed(1)} %`);
+    } else if (c.kind === 'bitpandaOneDay') {
+      if (bp.length === 0 || bpDates.size !== 1) fail(`${tag} ${c.says}: Bitpanda donations carry ${bpDates.size} different dates`);
+      else ok(`${tag} all Bitpanda donations on ${[...bpDates][0]}`);
+    } else if (c.kind === 'bitpandaRatio') {
+      const budget = midpoint(byId.get('R007203'));
+      const ratio = budget ? bpSum / budget : 0;
+      if (ratio < c.min) fail(`${tag} ${c.says}: donations are ${ratio.toFixed(1)}x the lobby budget (need ${c.min}x)`);
+      else ok(`${tag} donations are ${ratio.toFixed(1)}x the lobby budget`);
+    } else fail(`${tag} unknown claim kind ${c.kind}`);
+  }
+}
+
 await verifyUsLobby();
 await verifyUsGesetze();
+await verifyLobbyGeld();
+await verifyParteispenden();
 for (const w of warns) console.warn(`  WARN ${w}`);
 if (fails.length) {
   console.error(`${fails.length} FAIL(S):`);

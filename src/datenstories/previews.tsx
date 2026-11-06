@@ -4,7 +4,7 @@
  * with their vote result). Decorative (aria-hidden); the real, linked chart is on the story page.
  */
 import { SEAT_C, SUB_C, amountLabel, squarify } from './charts';
-import type { DatenstoryData, UsGesetzeData, UsLobbyData } from './types';
+import type { DatenstoryData, LobbyGeldData, ParteispendenData, UsGesetzeData, UsLobbyData } from './types';
 import { pollNotes } from './us-gesetze/notes';
 
 const AMBER_INK = 'oklch(28% 0.05 70)';
@@ -112,8 +112,74 @@ function UsGesetzePreview({ data }: { data: UsGesetzeData | null }) {
   );
 }
 
+
+const LOBBY_C = 'oklch(72% 0.14 75)';
+const DON_C = 'oklch(45% 0.16 265)';
+const eu = (euro: number) => (euro >= 1e6 ? `${(euro / 1e6).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Mio. €` : `${Math.round(euro / 1e3).toLocaleString('de-DE')} Tsd. €`);
+
+/** Lobby spending against donations as two bars, then the biggest actor types. */
+function LobbyGeldPreview({ data }: { data: LobbyGeldData | null }) {
+  if (!data) return <svg viewBox={`0 0 ${W} ${H}`} style={frame} aria-hidden />;
+  const BW = 448;
+  const types = data.spend.byType.slice(0, 4);
+  const maxType = types[0]?.midEuro || 1;
+  const don = data.donations.totalEuro / data.spend.totalEuro;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" style={frame} aria-hidden>
+      <text x={16} y={30} fontSize={20} fontWeight={800} fill={LOBBY_C}>
+        {eu(data.spend.totalEuro)}
+        <tspan dx={10} fontSize={12} fill={INK}>Lobbyausgaben im Jahr</tspan>
+      </text>
+      <rect x={16} y={38} width={BW} height={12} fill={LOBBY_C} />
+      <text x={16} y={82} fontSize={20} fontWeight={800} fill={DON_C}>
+        {eu(data.donations.totalEuro)}
+        <tspan dx={10} fontSize={12} fill={INK}>Großspenden seit {data.donations.firstYear}</tspan>
+      </text>
+      <rect x={16} y={90} width={BW} height={12} fill="oklch(95% 0.004 260)" />
+      <rect x={16} y={90} width={Math.max(BW * don, 3)} height={12} fill={DON_C} />
+      {types.map((t, i) => {
+        const y = 128 + i * 25;
+        return (
+          <g key={t.label}>
+            <text x={16} y={y + 9} fontSize={11} fontWeight={700} fill={INK}>{t.label.length > 24 ? `${t.label.slice(0, 23)}…` : t.label}</text>
+            <rect x={196} y={y} width={(t.midEuro / maxType) * 200} height={11} fill={LOBBY_C} opacity={0.85} />
+            <text x={196 + (t.midEuro / maxType) * 200 + 6} y={y + 9} fontSize={11} fill={MUTED}>{eu(t.midEuro)}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/** Donations per party with the donor count and the share of the three biggest donors. */
+function ParteispendenPreview({ data }: { data: ParteispendenData | null }) {
+  if (!data) return <svg viewBox={`0 0 ${W} ${H}`} style={frame} aria-hidden />;
+  const rows = data.parties.slice(0, 5);
+  const max = rows[0]?.sumEuro || 1;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" style={frame} aria-hidden>
+      {rows.map((p, i) => {
+        const y = 14 + i * 43;
+        const w = (p.sumEuro / max) * 250;
+        return (
+          <g key={p.party}>
+            <rect x={16} y={y} width={58} height={18} rx={3} fill={p.color} />
+            <text x={45} y={y + 13} fontSize={11.5} fontWeight={800} textAnchor="middle" fill={p.party === 'FDP' ? 'oklch(25% 0.05 90)' : 'white'}>{p.party}</text>
+            <text x={464} y={y + 14} fontSize={13} fontWeight={800} textAnchor="end" fill={INK}>{eu(p.sumEuro)}</text>
+            <rect x={84} y={y + 3} width={w} height={12} fill="oklch(80% 0.1 75)" />
+            <rect x={84} y={y + 3} width={w * p.top3Share} height={12} fill="oklch(62% 0.15 60)" />
+            <text x={84} y={y + 33} fontSize={10.5} fill={MUTED}>{p.donorCount} Spender · {Math.floor(p.top3Share * 100 + 1e-9)} % von den drei größten</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 export function StoryPreview({ slug, data }: { slug: string; data: DatenstoryData | null }) {
   if (slug === 'us-lobby') return <UsLobbyPreview data={data && 'treemap' in data ? data : null} />;
   if (slug === 'us-gesetze') return <UsGesetzePreview data={data && 'votes' in data ? data : null} />;
+  if (slug === 'lobby-geld') return <LobbyGeldPreview data={data && 'spend' in data ? data : null} />;
+  if (slug === 'parteispenden') return <ParteispendenPreview data={data && 'parties' in data ? data : null} />;
   return null;
 }

@@ -374,7 +374,7 @@ const segBtn = (active: boolean): CSSProperties => ({
   cursor: 'pointer',
 });
 
-function orgA(path: string | null, children: ReactNode, onNavigate: (p: string) => void, style?: CSSProperties) {
+export function orgA(path: string | null, children: ReactNode, onNavigate: (p: string) => void, style?: CSSProperties) {
   if (!path) return <span style={style}>{children}</span>;
   return (
     <a

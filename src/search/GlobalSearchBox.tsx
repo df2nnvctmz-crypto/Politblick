@@ -161,6 +161,17 @@ export function GlobalSearchBox({
               </a>
             )),
           ),
+    datenstories: group(
+      t.searchGroupDatenstories,
+      results.datenstories.slice(0, 2).map((d) => (
+        <a key={d.slug} href={links.datenstoryHref(d.slug)} onClick={pick(links.onDatenstory(d.slug))} style={rowStyle}>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={titleStyle}>{d.title}</div>
+            <div style={subStyle}>{[d.seriesName, d.partLabel].filter(Boolean).join(' · ') || d.kicker}</div>
+          </div>
+        </a>
+      )),
+    ),
   };
 
   return (

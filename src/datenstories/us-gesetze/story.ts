@@ -22,6 +22,9 @@ export const listing: DatenstoryListing = {
   title: 'Zuckerabgabe, Heizungsgesetz, CO₂-Preis: hier lobbyierten US-Konzerne mit',
   teaser:
     'Zu welchen Bundestagsabstimmungen US-Konzerne Lobbyarbeit gemeldet haben, mit Ergebnis und Anliegen im Wortlaut. Dazu: wer für und wer gegen die Zuckerabgabe lobbyiert.',
+  topics: ["Abstimmungen","Lobbyregister"],
+  keywords: ["USA","Zuckerabgabe","Zuckersteuer","GKV-Reform","Heizungsgesetz","Gebäudemodernisierungsgesetz","CO₂-Preis","Coca-Cola","PepsiCo","Bristol-Myers Squibb","Krankenkassen"],
+  publishedOn: '2026-11-06',
   researchedOn: RESEARCHED_ON,
   partner: RES_PUBLICA,
   series: { name: 'US-Lobby in Berlin', part: 2, partLabel: 'Die Gesetze' },

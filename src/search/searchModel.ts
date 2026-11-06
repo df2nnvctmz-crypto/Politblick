@@ -1,6 +1,6 @@
 /**
  * The site-wide search: one function that matches a query against every kind of page the site
- * has (MPs, votes, organisations, parties, committees, Sitzungswochen-Briefings) and ranks the
+ * has (MPs, votes, organisations, parties, committees, Sitzungswochen-Briefings, Datenstories) and ranks the
  * hits. Shared by the header dropdown and the /suche results page, so both always agree on what
  * matches and in which order.
  *
@@ -90,6 +90,18 @@ export interface SearchBriefing {
   closestTitle: string | null;
 }
 
+export interface SearchDatenstory {
+  slug: string;
+  title: string;
+  kicker: string;
+  /** "Teil 2: Die Gesetze" for stories in a series, else null. */
+  partLabel: string | null;
+  seriesName: string | null;
+  teaser: string;
+  keywords: string[];
+  publishedOn: string;
+}
+
 export interface SearchSources {
   mps: SearchMp[];
   bills: SearchBill[];
@@ -97,10 +109,11 @@ export interface SearchSources {
   parties: SearchParty[];
   committees: SearchCommittee[];
   briefings: SearchBriefing[];
+  datenstories: SearchDatenstory[];
 }
 
-export type SearchGroup = 'mps' | 'bills' | 'orgs' | 'parties' | 'committees' | 'briefings';
-export const SEARCH_GROUPS: SearchGroup[] = ['mps', 'bills', 'orgs', 'parties', 'committees', 'briefings'];
+export type SearchGroup = 'mps' | 'bills' | 'orgs' | 'parties' | 'committees' | 'briefings' | 'datenstories';
+export const SEARCH_GROUPS: SearchGroup[] = ['mps', 'bills', 'orgs', 'parties', 'committees', 'briefings', 'datenstories'];
 
 export interface SearchResults {
   mps: SearchMp[];
@@ -110,6 +123,7 @@ export interface SearchResults {
   committees: SearchCommittee[];
   /** Briefings matched by their week ("KW 41", a date) or because one of their votes matched. */
   briefings: SearchBriefing[];
+  datenstories: SearchDatenstory[];
   total: number;
   /** Groups with hits, best-matching first: typing "afd" leads with the party, "springer" with the MP. */
   groupOrder: SearchGroup[];
@@ -127,9 +141,18 @@ export function isoWeekOf(iso: string): number {
 
 const byRankThen = <T>(rank: Map<T, number>, then: (a: T, b: T) => number) => (a: T, b: T) => rank.get(a)! - rank.get(b)! || then(a, b);
 
+/** How well a query matches a Datenstory (lower is better, null = no match); also used by the filter on the Datenstories index. */
+export function storyMatchRank(d: Pick<SearchDatenstory, 'title' | 'kicker' | 'seriesName' | 'keywords' | 'teaser'>, q: string): number | null {
+  const own = bestRank([d.title, d.kicker, d.seriesName], q);
+  const kw = bestRank(d.keywords, q);
+  const teaser = matchRank(d.teaser, q);
+  const candidates = [own, kw !== null ? kw + 0.5 : null, teaser !== null && teaser < 4 ? teaser + 5 : null].filter((r): r is number => r !== null);
+  return candidates.length ? Math.min(...candidates) : null;
+}
+
 export function searchAll(query: string, src: SearchSources): SearchResults {
   const q = query.trim();
-  const empty: SearchResults = { mps: [], bills: [], orgs: [], parties: [], committees: [], briefings: [], total: 0, groupOrder: [] };
+  const empty: SearchResults = { mps: [], bills: [], orgs: [], parties: [], committees: [], briefings: [], datenstories: [], total: 0, groupOrder: [] };
   if (q.length < MIN_QUERY_LENGTH) return empty;
 
   const rankAll = <T>(items: T[], fields: (item: T) => (string | null | undefined)[]) => {
@@ -186,6 +209,15 @@ export function searchAll(query: string, src: SearchSources): SearchResults {
   }
   const briefings = [...briefingRanks.keys()].sort(byRankThen(briefingRanks, (a, b) => b.week.localeCompare(a.week)));
 
+  // A Datenstory matches on its title, kicker or series, on a keyword (a name or subject it is about,
+  // a little behind a title hit) and, last, on a word in its teaser.
+  const storyRanks = new Map<SearchDatenstory, number>();
+  for (const d of src.datenstories) {
+    const rank = storyMatchRank(d, q);
+    if (rank !== null) storyRanks.set(d, rank);
+  }
+  const datenstories = [...storyRanks.keys()].sort(byRankThen(storyRanks, (a, b) => b.publishedOn.localeCompare(a.publishedOn)));
+
   const best = (ranks: Map<unknown, number>) => (ranks.size ? Math.min(...ranks.values()) : Infinity);
   const groupRank: Record<SearchGroup, number> = {
     mps: best(mpRanks),
@@ -194,6 +226,7 @@ export function searchAll(query: string, src: SearchSources): SearchResults {
     parties: best(partyRanks),
     committees: best(committeeRanks),
     briefings: best(briefingRanks),
+    datenstories: best(storyRanks),
   };
   // Stable sort: equally good groups keep the default order above.
   const groupOrder = SEARCH_GROUPS.filter((g) => groupRank[g] !== Infinity).sort((a, b) => groupRank[a] - groupRank[b]);
@@ -206,6 +239,7 @@ export function searchAll(query: string, src: SearchSources): SearchResults {
     parties,
     committees,
     briefings,
-    total: mps.length + bills.length + orgs.length + parties.length + committees.length + briefings.length,
+    datenstories,
+    total: mps.length + bills.length + orgs.length + parties.length + committees.length + briefings.length + datenstories.length,
   };
 }
