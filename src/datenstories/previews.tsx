@@ -4,7 +4,7 @@
  * with their vote result). Decorative (aria-hidden); the real, linked chart is on the story page.
  */
 import { SEAT_C, SUB_C, amountLabel, squarify } from './charts';
-import type { DatenstoryData, LobbyGeldData, ParteispendenData, UsGesetzeData, UsLobbyData } from './types';
+import type { DatenstoryData, LobbyGeldData, MietenData, ParteispendenData, UsGesetzeData, UsLobbyData } from './types';
 import { pollNotes } from './us-gesetze/notes';
 
 const AMBER_INK = 'oklch(28% 0.05 70)';
@@ -176,10 +176,56 @@ function ParteispendenPreview({ data }: { data: ParteispendenData | null }) {
   );
 }
 
+// ---- Slide-style thumbnails (Nebeneinkünfte, AfD/Linke): one headline figure, a short ranked list, one highlighted detail ----
+
+const GOLD = 'oklch(58% 0.14 70)';
+const GOLD_BG = 'oklch(97% 0.03 80)';
+const GOLD_LINE = 'oklch(85% 0.07 80)';
+const CARD_LINE = 'oklch(90% 0.006 260)';
+const euroDe = (n: number) => `${Math.round(n).toLocaleString('de-DE')} €`;
+
+/** Rental income: just the list of places of the biggest landlord, the single foreign tenancy highlighted, and the total. No headline. */
+function MietenPreview({ data }: { data: MietenData | null }) {
+  const top = data?.landlords[0];
+  if (!data || !top) return <svg viewBox={`0 0 ${W} ${H}`} style={frame} aria-hidden />;
+  const places = top.places.slice(0, 6);
+  const ROW = 27;
+  const y0 = 14;
+  const rowY = (i: number) => y0 + i * ROW;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={frame} aria-hidden>
+      {places.map((p, i) => {
+        const hl = Boolean(p.note);
+        return (
+          <g key={p.place}>
+            {hl && <rect x={20} y={rowY(i) - 1} width={440} height={ROW - 3} rx={5} fill={GOLD_BG} stroke={GOLD_LINE} />}
+            <text x={32} y={rowY(i) + 17} fontSize={14.5} fontWeight={hl ? 800 : 500} fill={INK}>
+              {clip(p.place, 24)}
+              <tspan fontSize={11} fontWeight={hl ? 700 : 400} fill={hl ? GOLD : MUTED} dx={8}>
+                {hl ? `${p.tenants === 1 ? 'nur 1 Mieter' : `${p.tenants} Mieter`} · ${p.note?.split(', ').at(-1)}` : `${p.tenants} Mieter`}
+              </tspan>
+            </text>
+            <text x={448} y={rowY(i) + 17} fontSize={14.5} fontWeight={800} textAnchor="end" fill={GOLD}>{euroDe(p.sumEuro)}</text>
+            {!hl && i < places.length - 1 && !places[i + 1].note && <line x1={32} x2={448} y1={rowY(i) + ROW - 2} y2={rowY(i) + ROW - 2} stroke={CARD_LINE} />}
+          </g>
+        );
+      })}
+      <line x1={32} x2={448} y1={rowY(places.length) + 4} y2={rowY(places.length) + 4} stroke={INK} strokeWidth={1.2} />
+      <text x={32} y={rowY(places.length) + 26} fontSize={14.5} fontWeight={800} fill={INK}>
+        {top.name}
+        <tspan fontSize={11} fontWeight={500} fill={MUTED} dx={8}>{top.tenantCount} Mieter, pro Jahr, brutto</tspan>
+      </text>
+      <text x={448} y={rowY(places.length) + 26} fontSize={16} fontWeight={800} textAnchor="end" fill={GOLD}>{euroDe(top.annualEuro)}</text>
+    </svg>
+  );
+}
+
 export function StoryPreview({ slug, data }: { slug: string; data: DatenstoryData | null }) {
-  if (slug === 'us-lobby') return <UsLobbyPreview data={data && 'treemap' in data ? data : null} />;
-  if (slug === 'us-gesetze') return <UsGesetzePreview data={data && 'votes' in data ? data : null} />;
-  if (slug === 'lobby-geld') return <LobbyGeldPreview data={data && 'spend' in data ? data : null} />;
-  if (slug === 'parteispenden') return <ParteispendenPreview data={data && 'parties' in data ? data : null} />;
+  const is = <S extends DatenstoryData['slug']>(s: S) => (data?.slug === s ? (data as Extract<DatenstoryData, { slug: S }>) : null);
+  if (slug === 'us-lobby') return <UsLobbyPreview data={is('us-lobby')} />;
+  if (slug === 'us-gesetze') return <UsGesetzePreview data={is('us-gesetze')} />;
+  if (slug === 'lobby-geld') return <LobbyGeldPreview data={is('lobby-geld')} />;
+  if (slug === 'parteispenden') return <ParteispendenPreview data={is('parteispenden')} />;
+  if (slug === 'mieteinnahmen') return <MietenPreview data={is('mieteinnahmen')} />;
   return null;
 }

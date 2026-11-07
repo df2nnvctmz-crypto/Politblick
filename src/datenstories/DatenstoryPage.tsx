@@ -19,13 +19,15 @@ import { LevyUnitChart, RevolvingDoorTimeline, TREEMAP_SOURCES_ID, UsTreemap, Vo
 import { InternalLink, ext, shortEvidence } from './links';
 import { StoryPreview } from './previews';
 import { BitpandaChart, OverlapChart, PartyBars, SpendDonationsChart } from './geld-charts';
-import type { DatenstoryData, DatenstoryListing, FrozenQuote, LevyCamp, LobbyGeldData, ParteispendenData, StoryPartner, SugarLevy, UsGesetzeData, UsLobbyData } from './types';
+import { LandlordsChart, PlacesChart, ProgrammeChart } from './nebeneinkuenfte-charts';
+import type { DatenstoryData, DatenstoryListing, FrozenQuote, LevyCamp, LobbyGeldData, MietenData, ParteispendenData, StoryPartner, SugarLevy, UsGesetzeData, UsLobbyData } from './types';
 import * as usLobby from './us-lobby/story';
 import * as usGesetze from './us-gesetze/story';
 import * as lobbyGeld from './lobby-geld/story';
 import * as parteispenden from './parteispenden/story';
+import * as mieteinnahmen from './mieteinnahmen/story';
 
-export const DATENSTORIES: DatenstoryListing[] = [usLobby.listing, usGesetze.listing, lobbyGeld.listing, parteispenden.listing];
+export const DATENSTORIES: DatenstoryListing[] = [usLobby.listing, usGesetze.listing, lobbyGeld.listing, parteispenden.listing, mieteinnahmen.listing];
 
 const HAIR = '1px solid oklch(92% 0.006 260)';
 const MUTED = 'oklch(48% 0.01 260)';
@@ -421,7 +423,11 @@ function StoryShell({ t, lang, nav, listing, data, text, slots: s, nodeSlots, se
           </p>
         ))}
         <p style={{ fontSize: 13, color: MUTED, margin: '14px 0 10px' }}>
-          {data.curatedCheckedOn ? fill(t.dsLiveNoteTemplate, { date: dateDe(data.generatedAt, lang), asOf: dateDe(data.curatedCheckedOn, lang) }) : fill(t.dsLiveOnlyTemplate, { date: dateDe(data.generatedAt, lang) })}
+          {data.curatedCheckedOn
+            ? listing.liveSource
+              ? `Zahlen live aus ${listing.liveSource}, Datenstand ${dateDe(data.generatedAt, lang)}. Zitate, Zuordnungen und Einordnungen: Stand ${dateDe(data.curatedCheckedOn, lang)}.`
+              : fill(t.dsLiveNoteTemplate, { date: dateDe(data.generatedAt, lang), asOf: dateDe(data.curatedCheckedOn, lang) })
+            : fill(t.dsLiveOnlyTemplate, { date: dateDe(data.generatedAt, lang) })}
           {lang === 'en' && <> · {t.dsGermanOnly}</>}
         </p>
         {listing.partner && <PartnerByline p={listing.partner} t={t} />}
@@ -524,6 +530,7 @@ export function DatenstoryView({ data, ...props }: PageProps & StoryNav & { data
   if (data.slug === 'us-lobby') return <UsLobbyStoryPage {...props} data={data} />;
   if (data.slug === 'lobby-geld') return <LobbyGeldStoryPage {...props} data={data} />;
   if (data.slug === 'parteispenden') return <ParteispendenStoryPage {...props} data={data} />;
+  if (data.slug === 'mieteinnahmen') return <MietenStoryPage {...props} data={data} />;
   return <UsGesetzeStoryPage {...props} data={data} />;
 }
 
@@ -907,11 +914,30 @@ function ParteispendenStoryPage({ t, lang, onNavigate, storyHref, onOpenStory, d
   );
 }
 
+const BUNDESTAG_ANGABEN_SOURCE = { label: 'Bundestag: Abgeordnete, veröffentlichungspflichtige Angaben', url: 'https://www.bundestag.de/abgeordnete', path: null, note: 'Pflichtangaben zu Nebentätigkeiten, Stand der Prüfung siehe oben' };
+
+function MietenStoryPage({ t, lang, onNavigate, storyHref, onOpenStory, data }: PageProps & StoryNav & { data: MietenData }) {
+  const s = mieteinnahmen.slots(data);
+  const asOf = dateDe(data.generatedAt, lang);
+  const mpItems = data.landlords.map((l) => ({ label: `${l.name}: Nebentätigkeiten`, url: l.profileUrl, path: `${l.mpPath}/finanzen`, note: 'Profil auf abgeordnetenwatch', urlLabel: 'abgeordnetenwatch' }));
+  const sections: ShellSection[] = mieteinnahmen.story.sections.map((sec) => ({
+    ...sec,
+    chart: sec.chart === 'landlords' ? <LandlordsChart data={data} onNavigate={onNavigate} /> : sec.chart === 'places' ? <PlacesChart data={data} onNavigate={onNavigate} /> : <ProgrammeChart data={data} onNavigate={onNavigate} />,
+    sources:
+      sec.chart === 'programme' ? (
+        <LinkSources t={t} asOf={dateDe(data.programme.checkedOn, lang)} onNavigate={onNavigate} items={[{ label: data.programme.sourceLabel, url: data.programme.sourceUrl, path: null, note: `${data.programme.programme}, ${data.programme.page}` }, ...mpItems.slice(0, 1)]} />
+      ) : (
+        <LinkSources t={t} asOf={asOf} onNavigate={onNavigate} items={[BUNDESTAG_ANGABEN_SOURCE, ...mpItems]} />
+      ),
+  }));
+  return <StoryShell t={t} lang={lang} onNavigate={onNavigate} nav={{ storyHref, onOpenStory }} listing={mieteinnahmen.listing} data={data} text={mieteinnahmen.story} slots={s} nodeSlots={s} sections={sections} onDownload={() => downloadMietenCsv(data)} />;
+}
+
 const REGISTER_SOURCE = { label: 'Lobbyregister des Bundestags', url: 'https://www.lobbyregister.bundestag.de/', path: null, note: 'alle aktiven Einträge mit Angaben zu den Ausgaben' };
 const DONATIONS_SOURCE = { label: 'Bundestag: Parteispenden über 35.000 €', url: 'https://www.bundestag.de/parlament/praesidium/parteienfinanzierung/fundstellen50000', path: null, note: 'veröffentlichte Großspenden' };
 
 /** Collapsed list of source links for stories whose evidence is a few register entries and one list. */
-function LinkSources({ t, asOf, items, onNavigate }: { t: Translation; asOf: string; items: { label: string; url: string; path: string | null; note: string }[]; onNavigate?: (p: string) => void }) {
+function LinkSources({ t, asOf, items, onNavigate }: { t: Translation; asOf: string; items: { label: string; url: string; path: string | null; note: string; urlLabel?: string }[]; onNavigate?: (p: string) => void }) {
   const [open, setOpen] = useState(false);
   return (
     <div style={{ maxWidth: 900 }}>
@@ -927,7 +953,7 @@ function LinkSources({ t, asOf, items, onNavigate }: { t: Translation; asOf: str
                 <>
                   {' '}
                   <a href={i.url} {...ext} style={{ color: MUTED, fontSize: 12 }}>
-                    Register
+                    {i.urlLabel ?? 'Register'}
                   </a>
                 </>
               )}
@@ -985,6 +1011,10 @@ function downloadPartyDonationsCsv(data: ParteispendenData) {
   downloadCsv(`politblick-parteispenden-${(data.generatedAt ?? '').slice(0, 10)}.csv`, ['partei', 'summe_eur', 'spender', 'anteil_top3', 'grosser_spender', 'betrag_eur'], rows);
 }
 
+function downloadMietenCsv(data: MietenData) {
+  const rows = data.landlords.flatMap((l) => l.places.flatMap((p) => p.amounts.map((a, i) => [l.name, l.party, p.place, i + 1, a])));
+  downloadCsv(`politblick-mieteinnahmen-${(data.generatedAt ?? '').slice(0, 10)}.csv`, ['abgeordnete', 'partei', 'ort', 'mietverhaeltnis_nr_im_ort', 'betrag_jahr_brutto_eur'], rows);
+}
 export function datenstoryMeta(data: DatenstoryData) {
   if (data.slug === 'us-lobby') {
     const s = usLobby.slots(data);
@@ -997,6 +1027,10 @@ export function datenstoryMeta(data: DatenstoryData) {
   if (data.slug === 'parteispenden') {
     const s = parteispenden.slots(data);
     return { title: fill(parteispenden.story.metaTitle, s), description: fill(parteispenden.story.metaDescription, s) };
+  }
+  if (data.slug === 'mieteinnahmen') {
+    const s = mieteinnahmen.slots(data);
+    return { title: fill(mieteinnahmen.story.metaTitle, s), description: fill(mieteinnahmen.story.metaDescription, s) };
   }
   const s = usGesetze.slots(data);
   return { title: fill(usGesetze.story.metaTitle, s), description: fill(usGesetze.story.metaDescription, s) };

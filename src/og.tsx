@@ -54,6 +54,28 @@ function DatenstoryCard({ slug }: { slug: string }) {
       .then(setData);
   }, [slug]);
   if (!listing || !data) return null;
+  const kicker = [listing.series?.name ?? listing.kicker, listing.series ? `Teil ${listing.series.part}` : null].filter(Boolean).join(' · ');
+  // Slide-style previews carry their own headline: they fill the card like the Reddit slides, the title goes out as og:title.
+  if (listing.previewStyle === 'slide') {
+    return (
+      <div id="og-card" data-og-ready="" style={{ width: 1200, height: 630, boxSizing: 'border-box', background: 'oklch(99% 0.003 260)', padding: '30px 52px 22px 64px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 14, background: ACCENT }} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <img src="/favicon.svg" alt="" width={34} height={34} />
+            <span style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.01em' }}>Politblick</span>
+          </div>
+          <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: ACCENT }}>{kicker}</span>
+        </div>
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '8px 0' }}>
+          <div style={{ height: '100%', aspectRatio: '480 / 230' }}>
+            <StoryPreview slug={slug} data={data} />
+          </div>
+        </div>
+        <div style={{ fontSize: 17, color: MUTED, textAlign: 'center' }}>{`Datenstory · politblick.de · ${de(listing.publishedOn)} · Zahlen live aus öffentlichen Daten`}</div>
+      </div>
+    );
+  }
   return (
     <Frame
       kicker={[listing.series?.name ?? listing.kicker, listing.series ? `Teil ${listing.series.part}` : null].filter(Boolean).join(' · ')}

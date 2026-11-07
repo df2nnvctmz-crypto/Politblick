@@ -1,0 +1,13 @@
+{
+ "_comment": "Curated: the one frozen quote of the Datenstory 'Mieteinnahmen im Bundestag'. Everything else (who reports rental income, amounts, places, tenants) is read live from public/data/sidejobs.json. Source: AfD-Bundestagswahlprogramm 2025 'Zeit für Deutschland', printed page 38 (PDF page 39). Do NOT link afd.de/wahlprogramm-bauen-wohnen-mieten: that page is the 2020/21 programme with the same sentence. Research: remotion-slides/src/SlideMaack.tsx header, Reddit post r/mediasres 1wzepu5.",
+ "checkedOn": "2026-10-06",
+ "party": "AfD",
+ "partyProgramme": "Bundestagswahlprogramm 2025",
+ "page": "S. 38",
+ "quote": "Die AfD steht für ein ausgewogenes Mietrecht und lehnt staatliche Überregulierungen sowie Investitionshemmnisse wie die Mietpreisbremse oder den Mietendeckel ab.",
+ "sourceLabel": "AfD-Bundestagswahlprogramm 2025 (PDF)",
+ "sourceUrl": "https://www.afd.de/wp-content/uploads/2025/02/AfD_Bundestagswahlprogramm2025_web.pdf",
+ "placeNotes": {
+  "Schruns/Tschagguns": "Vorarlberg, Österreich"
+ }
+}

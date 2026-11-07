@@ -32,6 +32,7 @@
 import { pathToFileURL } from 'node:url';
 import { mkdir, readFile } from 'node:fs/promises';
 import { REAL_PARTY_COLORS, FALLBACK_PARTY_COLOR, readJsonFile, slugify, writeJsonFile } from './lib/common.mjs';
+import { buildMieteinnahmen } from './lib/ds-extra-builders.mjs';
 
 const GKV_POLL_ID = 6601;
 const REGISTER_ENTRY_URL = (id) => `https://www.lobbyregister.bundestag.de/suche/${id}`;
@@ -69,7 +70,7 @@ async function readRegisterById() {
 }
 
 async function loadContext() {
-  const [directory, mandates, polls, pollResults, lobbyLinks, parents, registerById, donations, roster] = await Promise.all([
+  const [directory, mandates, polls, pollResults, lobbyLinks, parents, registerById, donations, roster, sidejobs, committees, meta] = await Promise.all([
     readJsonFile('lobby-directory.json', null),
     readJsonFile('lobby-mandates.json', null),
     readJsonFile('polls.json', []),
@@ -79,6 +80,9 @@ async function loadContext() {
     readRegisterById(),
     readJsonFile('party-donations.json', []),
     readJsonFile('roster.json', { members: [] }),
+    readJsonFile('sidejobs.json', {}),
+    readJsonFile('committees.json', { committees: [], memberships: [] }),
+    readJsonFile('meta.json', {}),
   ]);
   if (!directory?.orgs?.length) throw new Error('lobby-directory.json missing — run fetch-lobbyregister first');
   return {
@@ -92,6 +96,9 @@ async function loadContext() {
     registerById,
     donations,
     roster,
+    sidejobs,
+    committees,
+    meta,
     byId: new Map(directory.orgs.map((o) => [o.id, o])),
     lobbyOrgs: new Map(Object.values(lobbyLinks?.orgs ?? {}).map((o) => [o.id, o])),
     usById: new Map(parents.counted.map((r) => [r.id, r])),
@@ -523,6 +530,9 @@ function buildParteispenden(ctx) {
   };
 }
 
+/** Helpers handed to the builders in lib/ds-extra-builders.mjs. */
+const extraHelpers = { orgPathFor, readCurated, roundEuro, collectOrgPaths, partyPaths, registerUrl: REGISTER_ENTRY_URL };
+
 async function main() {
   const ctx = await loadContext();
   await mkdir('public/data/datenstories', { recursive: true });
@@ -542,6 +552,9 @@ async function main() {
   const parteispenden = buildParteispenden(ctx);
   await writeJsonFile('datenstories/parteispenden.json', parteispenden);
   console.log(`datenstories/parteispenden.json: ${parteispenden.parties.length} Parteien, Bitpanda ${parteispenden.bitpanda ? parteispenden.bitpanda.totalEuro : '-'} €`);
+  const mieteinnahmen = await buildMieteinnahmen(ctx, extraHelpers);
+  await writeJsonFile('datenstories/mieteinnahmen.json', mieteinnahmen);
+  console.log(`datenstories/mieteinnahmen.json: ${mieteinnahmen.landlords.length} Abgeordnete mit Mieteinnahmen, ${mieteinnahmen.landlords[0]?.name} ${mieteinnahmen.landlords[0]?.annualEuro} €`);
   console.log(`datenstories/us-gesetze.json: ${usGesetze.votes.length} votes with US lobbyists, ${usGesetze.sugarLevy.entries.length} sugar-levy entries`);
 }
 

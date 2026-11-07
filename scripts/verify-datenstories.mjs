@@ -306,10 +306,57 @@ async function verifyParteispenden() {
   }
 }
 
+// ---- mieteinnahmen -------------------------------------------------
+
+const sidejobs = await readJsonFile('sidejobs.json', {});
+const yearly = (j) => j.income * (j.interval === 'monthly' ? 12 : 1);
+
+async function verifyMieteinnahmen() {
+  const built = await readJsonFile('datenstories/mieteinnahmen.json', null);
+  if (!built) return fail('[mieteinnahmen] public/data/datenstories/mieteinnahmen.json missing; run node scripts/build-datenstories.mjs');
+  const { claims } = await import('../src/datenstories/mieteinnahmen/claims.ts');
+
+  // 1. Recount: every paid entry titled "Vermietung" with an amount, summed per mandate.
+  const byMandate = new Map(roster.members.map((m) => [String(m.mandateId), m]));
+  const recount = new Map();
+  for (const [id, list] of Object.entries(sidejobs)) {
+    const m = byMandate.get(id);
+    if (!m) continue;
+    const rows = list.filter((j) => j.categoryLabel === 'Vergütete Tätigkeit neben dem Mandat' && j.income > 0 && /vermietung/i.test(j.title ?? ''));
+    if (rows.length) recount.set(m.name, { sum: rows.reduce((s, j) => s + yearly(j), 0), n: rows.length, rows });
+  }
+  if (built.landlords.length !== recount.size) fail(`[mieteinnahmen] ${built.landlords.length} landlords != recount ${recount.size}`);
+  for (const l of built.landlords) {
+    const r = recount.get(l.name);
+    if (!r) fail(`[mieteinnahmen] ${l.name} has no rental entries any more`);
+    else if (!close(l.annualEuro, r.sum) || l.tenantCount !== r.n) fail(`[mieteinnahmen] ${l.name}: ${l.annualEuro}/${l.tenantCount} != recount ${r.sum}/${r.n}`);
+    else if (!close(l.places.reduce((s, p) => s + p.sumEuro, 0), r.sum) || l.places.reduce((s, p) => s + p.tenants, 0) !== r.n) fail(`[mieteinnahmen] ${l.name}: places do not add up to the total`);
+  }
+
+  // 2. Claims.
+  const ranked = [...recount.entries()].sort((a, b) => b[1].sum - a[1].sum);
+  for (const c of claims) {
+    const tag = `[mieteinnahmen:${c.id}]`;
+    if (c.kind === 'topLandlord') {
+      if (ranked[0]?.[0] !== c.name) fail(`${tag} ${c.says}: ${ranked[0]?.[0]} reports more than ${c.name} now`);
+      else ok(`${tag} ${c.name} reports ${Math.round(ranked[0][1].sum)} €, the most`);
+    } else if (c.kind === 'tenantsAtLeast') {
+      const n = recount.get(c.name)?.n ?? 0;
+      if (n < c.min) fail(`${tag} ${c.says}: ${c.name} lists only ${n} tenancies (need ${c.min})`);
+      else ok(`${tag} ${c.name} lists ${n} tenancies`);
+    } else if (c.kind === 'singleTenantPlace') {
+      const n = (recount.get(c.name)?.rows ?? []).filter((j) => j.title.endsWith(`, ${c.place}`)).length;
+      if (n !== 1) fail(`${tag} ${c.says}: ${c.place} has ${n} tenancies for ${c.name}, not exactly one`);
+      else ok(`${tag} ${c.place} has exactly one tenancy`);
+    } else fail(`${tag} unknown claim kind ${c.kind}`);
+  }
+}
+
 await verifyUsLobby();
 await verifyUsGesetze();
 await verifyLobbyGeld();
 await verifyParteispenden();
+await verifyMieteinnahmen();
 for (const w of warns) console.warn(`  WARN ${w}`);
 if (fails.length) {
   console.error(`${fails.length} FAIL(S):`);

@@ -214,7 +214,35 @@ export interface ParteispendenData {
   orgPaths: string[];
 }
 
-export type DatenstoryData = UsLobbyData | UsGesetzeData | LobbyGeldData | ParteispendenData;
+/** One MP with rental income in the side-job disclosures. Amounts are per year, gross (monthly entries x 12). */
+export interface Landlord {
+  name: string;
+  party: string;
+  color: string;
+  mandateId: number;
+  /** Prerendered politblick profile page of the MP. */
+  mpPath: string;
+  profileUrl: string;
+  constituency: string | null;
+  annualEuro: number;
+  /** Number of individually listed tenancies ("Mieter 1, ..."). */
+  tenantCount: number;
+  monthlyBased: boolean;
+  places: { place: string; note: string | null; tenants: number; sumEuro: number; amounts: number[] }[];
+}
+
+export interface MietenData {
+  slug: 'mieteinnahmen';
+  generatedAt: string | null;
+  /** Date the party-programme quote was checked against the PDF. */
+  curatedCheckedOn: string;
+  memberCount: number;
+  landlords: Landlord[];
+  programme: { party: string; programme: string; page: string; quote: string; sourceLabel: string; sourceUrl: string; checkedOn: string };
+  orgPaths: string[];
+}
+
+export type DatenstoryData = UsLobbyData | UsGesetzeData | LobbyGeldData | ParteispendenData | MietenData;
 
 /** A quote or register wording that was true on `asOf` and is shown with that date. */
 export interface FrozenQuote {
@@ -263,8 +291,12 @@ export interface DatenstoryListing {
   /** Date the research was done (ISO). The page shows live numbers; this dates the frozen parts. */
   researchedOn: string;
   partner?: StoryPartner;
+  /** What the live numbers are read from, for the note under the lede ("Zahlen live aus <liveSource>"); default: the Lobbyregister. */
+  liveSource?: string;
   /** Public discussion of the story (e.g. the Reddit thread), linked at the end of the page. Not a partner. */
   discussion?: { name: string; url: string };
+  /** 'slide': the preview is a self-contained slide with its own headline (like the Reddit posts), so the share image shows it full size instead of next to the title. */
+  previewStyle?: 'slide';
   /** Stories that belong together ("US-Lobby in Berlin", part 1 and 2) get a series bar. */
   series?: { name: string; part: number; partLabel: string };
 }

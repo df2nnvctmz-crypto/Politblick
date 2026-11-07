@@ -23,14 +23,14 @@ const PARTY_C: Record<string, string> = {
   Linke: 'oklch(45% 0.15 340)',
   BSW: 'oklch(45% 0.08 290)',
 };
-const partyColor = (p: string) => PARTY_C[p] ?? 'oklch(55% 0.01 260)';
+export const partyColor = (p: string) => PARTY_C[p] ?? 'oklch(55% 0.01 260)';
 
 const de1 = (n: number) => n.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const mioLabel = (euro: number) => (euro >= 1e6 ? `${de1(euro / 1e6)} Mio. €` : `${Math.round(euro / 1e3).toLocaleString('de-DE')} Tsd. €`);
-const euroFull = (n: number) => `${Math.round(n).toLocaleString('de-DE')} €`;
+export const euroFull = (n: number) => `${Math.round(n).toLocaleString('de-DE')} €`;
 const range = (r: SpendRange) => (r ? euroRangeLabel(r) : null);
 
-function PartyChip({ party }: { party: string }) {
+export function PartyChip({ party }: { party: string }) {
   const light = party === 'FDP';
   return (
     <span style={{ display: 'inline-block', padding: '1px 7px', borderRadius: 4, fontSize: 11.5, fontWeight: 700, background: partyColor(party), color: light ? 'oklch(25% 0.05 90)' : 'white', whiteSpace: 'nowrap' }}>
@@ -39,10 +39,10 @@ function PartyChip({ party }: { party: string }) {
   );
 }
 
-const caps: CSSProperties = { fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: MUTED };
+export const caps: CSSProperties = { fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: MUTED };
 
 /** A row that opens its details on click (button semantics, collapsed by default). */
-function OpenRow({ head, children }: { head: ReactNode; children: ReactNode }) {
+export function OpenRow({ head, children }: { head: ReactNode; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <div style={{ borderTop: RULE }}>
