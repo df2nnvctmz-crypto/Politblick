@@ -10,7 +10,7 @@
  * "<stanceTopic>: Coca-Cola dagegen". Nothing else on the site may claim a direction.
  */
 export const pollNotes: Record<number, { short: string; context?: string; stanceTopic?: string }> = {
-  6601: { short: 'GKV-Reform', context: 'stabilisiert die Krankenkassenbeiträge und kündigt eine Zuckerabgabe ab 2028 an', stanceTopic: 'Zuckerabgabe' },
+  6601: { short: 'GKV-Reform', context: 'stabilisiert die Krankenkassenbeiträge und kündigt eine Zuckerabgabe an', stanceTopic: 'Zuckerabgabe' },
   6605: { short: 'Gebäudemodernisierungsgesetz', context: 'ersetzt das Heizungsgesetz, die 65-%-Pflicht für erneuerbare Heizungen entfällt' },
   6733: { short: 'CO₂-Preis 2027', context: 'der CO₂-Preis für Sprit, Heizöl und Gas steigt nicht weiter' },
   6715: { short: 'Bluttest auf Trisomien (NIPT): Monitoring', context: 'Kassenzulassung des Bluttests überwachen' },

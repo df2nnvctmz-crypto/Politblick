@@ -23,7 +23,7 @@ export const listing: DatenstoryListing = {
   teaser:
     'Zu welchen Bundestagsabstimmungen US-Konzerne Lobbyarbeit gemeldet haben, mit Ergebnis und Anliegen im Wortlaut. Dazu: wer für und wer gegen die Zuckerabgabe lobbyiert.',
   topics: ["Abstimmungen","Lobbyregister"],
-  keywords: ["USA","Zuckerabgabe","Zuckersteuer","GKV-Reform","Heizungsgesetz","Gebäudemodernisierungsgesetz","CO₂-Preis","Coca-Cola","PepsiCo","Bristol-Myers Squibb","Krankenkassen"],
+  keywords: ["USA","Zuckerabgabe","Zuckersteuer","GKV-Reform","Heizungsgesetz","Gebäudemodernisierungsgesetz","CO₂-Preis","Coca-Cola","PepsiCo","Consumer Choice Center","Krankenkassen"],
   publishedOn: '2026-11-06',
   researchedOn: RESEARCHED_ON,
   partner: RES_PUBLICA,
@@ -54,10 +54,10 @@ export function slots(d: UsGesetzeData) {
 
 export const story = {
   kicker: 'US-Lobby in Berlin',
-  title: 'Zuckerabgabe ab 2028',
-  titleAccent: 'Coca-Cola dagegen, Bristol-Myers Squibb dafür',
+  title: 'Zuckersteuer ab Juli 2027',
+  titleAccent: 'Coca-Cola und Consumer Choice Center dagegen',
   lede: [
-    'Die GKV-Reform kündigt eine Zuckerabgabe an: Coca-Cola lobbyiert dagegen, Bristol-Myers Squibb dafür. Insgesamt haben US-Konzerne laut Lobbyregister zu {voteCount} namentlichen Abstimmungen dieser Wahlperiode Lobbyarbeit gemeldet. Bei der GKV-Reform allein gehören {gkvUs} von {gkvTotal} Lobbyakteuren zu US-Konzernen.',
+    'Die GKV-Reform hat eine Zuckerabgabe angekündigt, das Kabinett hat sie am 14.10.2026 als Steuer ab Juli 2027 beschlossen. Coca-Cola und das Consumer Choice Center aus Washington lobbyieren dagegen. Insgesamt haben US-Konzerne laut Lobbyregister zu {voteCount} namentlichen Abstimmungen dieser Wahlperiode Lobbyarbeit gemeldet. Bei der GKV-Reform allein gehören {gkvUs} von {gkvTotal} Lobbyakteuren zu US-Konzernen.',
   ],
   metaTitle: 'Zuckerabgabe, Heizungsgesetz, CO₂-Preis: hier lobbyierten US-Konzerne mit – Politblick',
   metaDescription:
@@ -70,7 +70,7 @@ export const story = {
       headingAccent: 'hier lobbyierten US-Konzerne mit',
       body: [
         'Jede Zeile ist eine namentliche Abstimmung, zu der ein US-Konzern laut Register Lobbyarbeit gemeldet hat: worum es im Gesetz geht, das Ergebnis und die US-Konzerne unter allen Lobbyakteuren. Aufklappen zeigt die Zusammenfassung des Gesetzes, das Ergebnis nach Fraktion und die Anliegen im Wortlaut des Registers.',
-        'Ob ein Konzern ein Gesetz wollte oder verhindern wollte, sagt das Register nicht. Wo wir den Wortlaut des Eintrags gelesen haben, steht es dabei: bei der Zuckerabgabe in der GKV-Reform ist Coca-Cola dagegen, Bristol-Myers Squibb dafür.',
+        'Ob ein Konzern ein Gesetz wollte oder verhindern wollte, sagt das Register nicht. Wo wir den Wortlaut des Eintrags gelesen haben, steht es dabei: bei der Zuckerabgabe in der GKV-Reform ist Coca-Cola dagegen.',
         'Nicht jeder US-Konzern ist am Namen zu erkennen: Viessmann gehört seit 2024 zum US-Konzern Carrier, Intervet ist die Tiersparte von MSD.',
       ],
       shows: 'Zu welchen Gesetzen US-Konzerne Lobbyarbeit gemeldet haben und wie der Bundestag abgestimmt hat.',
@@ -80,11 +80,12 @@ export const story = {
     {
       id: 'zuckerabgabe',
       chart: 'levy',
-      heading: 'Zuckerabgabe ab 2028:',
+      heading: 'Zuckersteuer ab Juli 2027:',
       headingAccent: '{levyAgainst} Organisationen dagegen, {levyFor} dafür',
       body: [
-        'Mit der {gkvBill} kündigt der Bundestag eine Abgabe auf zuckergesüßte Getränke ab 2028 an. {levyTotal} Registereinträge nennen eine Zuckersteuer oder -abgabe. Ohne Agenturen und Einzelpersonen sind es {levyOrgs} Organisationen: {levyAgainst} dagegen, {levyFor} dafür, {levyShape} wollen sie gestalten, begrenzen oder lassen keine Position erkennen.',
-        '{levyUs} davon sind US-Akteure. Coca-Cola und das Consumer Choice Center sind dagegen, PepsiCo will die Steuer mitgestalten, Bristol-Myers Squibb begrüßt sie.',
+        'Mit der {gkvBill} hat der Bundestag eine Abgabe auf zuckergesüßte Getränke angekündigt. Am 14.10.2026 hat das Kabinett sie als Steuer ab 1.7.2027 beschlossen: 26 Cent pro Liter ab 5 g Zucker je 100 ml, 32 Cent ab 8 g. Der Bundestag muss noch zustimmen. {levyTotal} Registereinträge nennen eine Zuckersteuer oder -abgabe. Ohne Agenturen und Einzelpersonen sind es {levyOrgs} Organisationen: {levyAgainst} dagegen, {levyFor} dafür, {levyShape} wollen sie gestalten, begrenzen oder lassen keine Position erkennen.',
+        '{levyUs} davon sind US-Akteure. Coca-Cola und das Consumer Choice Center sind dagegen, PepsiCo will die Steuer mitgestalten. Bristol-Myers Squibb nennt die Abgabe nur nebenbei begrüßenswert, in einem Brief zu Impfungen: Das zählen wir als „dafür“, Lobbyarbeit für die Steuer ist es nicht.',
+        'Die meisten Gegner sind keine US-Akteure, sondern vor allem Zuckerhersteller, Getränkeindustrie, Brauer und Bäcker aus Deutschland. Coca-Cola Europacific Partners ist ein eigenständiger Abfüller mit Sitz in Großbritannien und zählt hier nicht als US-Akteur.',
       ],
       shows: 'Wer im Register Lobbyarbeit zur Zuckerabgabe meldet und in welche Richtung.',
       notShows:
@@ -98,11 +99,11 @@ export const story = {
           sourceUrl: 'https://www.lobbyregister.bundestag.de/suche/R001689',
         },
         {
-          who: 'Bristol-Myers Squibb',
-          role: 'dafür · Pharma',
-          text: 'der aus meiner Sicht zu begrüßenden Einführung einer Zuckerabgabe',
+          who: 'Consumer Choice Center',
+          role: 'dagegen · US-Lobbyverband mit Sitz in Washington',
+          text: 'Verhinderung der Einführung einer speziellen Steuer auf zuckerhaltige Lebensmittel oder Getränke',
           asOf: RESEARCHED_ON,
-          sourceUrl: 'https://www.lobbyregister.bundestag.de/suche/R000931',
+          sourceUrl: 'https://www.lobbyregister.bundestag.de/suche/R007925',
         },
       ],
     },
@@ -110,7 +111,7 @@ export const story = {
   method: [
     'Abstimmungen und Ergebnisse: abgeordnetenwatch.de (CC0). Welche Organisation zu welchem Gesetz lobbyiert hat, leitet Politblick aus den im Lobbyregister genannten Gesetzesvorhaben und Drucksachen ab. Beides aktualisiert sich mit jedem Datenabruf.',
     ...US_METHOD,
-    'Die Lager zur Zuckerabgabe beruhen auf einer Suche im Register am 6.11.2026 und werden nicht automatisch aktualisiert.',
+    'Die Lager zur Zuckerabgabe beruhen auf einer Suche im Register am 6.11.2026 und werden nicht automatisch aktualisiert. Kabinettsbeschluss zur Zuckersteuer: 14.10.2026 (Stand 7.11.2026).',
   ],
 };
 

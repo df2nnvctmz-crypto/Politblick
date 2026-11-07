@@ -301,7 +301,8 @@ export async function buildUsGesetze(ctx) {
   // The only direction the site may claim is a curated one (see data/lobby-positions.json's README).
   // Here: the hand-read sugar-levy camps (register wording, 6.11.2026), applied to the GKV-Reform
   // because that law announces the levy. Other votes carry no direction, only the register's headline.
-  const campById = new Map(levy.entries.filter((e) => e.camp !== 'agency').map((e) => [e.id, e]));
+  // `sideRemark`: the entry names the levy only in passing (counted in its camp, but no tag on the vote).
+  const campById = new Map(levy.entries.filter((e) => e.camp !== 'agency' && !e.sideRemark).map((e) => [e.id, e]));
   for (const v of votes) {
     const poll = ctx.polls.find((p) => p.id === v.id);
     const result = ctx.pollResults[String(v.id)];

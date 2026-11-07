@@ -157,7 +157,8 @@ async function verifyUsGesetze() {
     const rawParties = JSON.stringify((r.partyBreakdown ?? []).map((b) => [b.party, b.yes, b.no, b.abstain, b.noShow]));
     if (JSON.stringify(v.parties.map((b) => [b.party, b.yes, b.no, b.abstain, b.noShow])) !== rawParties) fail(`[us-gesetze] vote ${v.id}: party breakdown != poll-results.json`);
     // A direction (dafür/dagegen) may only be shown where the curated camps give one, and only on the GKV-Reform.
-    const campById = new Map(levy.entries.filter((e) => e.camp !== 'agency').map((e) => [e.id, e.camp]));
+    // Entries marked sideRemark (the levy named only in passing) count in their camp but get no tag.
+    const campById = new Map(levy.entries.filter((e) => e.camp !== 'agency' && !e.sideRemark).map((e) => [e.id, e.camp]));
     for (const o of v.usOrgs) {
       const want = v.id === 6601 ? campById.get(o.id) ?? null : null;
       if ((o.stance?.camp ?? null) !== want) fail(`[us-gesetze] vote ${v.id}: ${o.name} shows stance ${o.stance?.camp ?? 'none'}, curated camps say ${want ?? 'none'}`);

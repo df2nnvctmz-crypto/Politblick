@@ -18,11 +18,10 @@ export const claims = [
   },
   {
     id: 'levy-us-actors',
-    says: 'Zuckerabgabe: „Coca-Cola und das Consumer Choice Center sind dagegen, PepsiCo will die Steuer mitgestalten, Bristol-Myers Squibb begrüßt sie.“',
+    says: 'Zuckerabgabe: „Coca-Cola und das Consumer Choice Center sind dagegen, PepsiCo will die Steuer mitgestalten. Bristol-Myers Squibb nennt die Abgabe nur nebenbei begrüßenswert …“',
     kind: 'usEntries',
     ids: ['R001689', 'R007925', 'R000073', 'R000931'],
   },
-  { id: 'gkv-coca-cola', says: 'Überschrift und Lede: „Coca-Cola dagegen“ bei der Zuckerabgabe', kind: 'stanceOnVote', pollId: 6601, orgId: 'R001689', camp: 'against' },
-  { id: 'gkv-bms', says: 'Überschrift und Lede: „Bristol-Myers Squibb dafür“ bei der Zuckerabgabe', kind: 'stanceOnVote', pollId: 6601, orgId: 'R000931', camp: 'for' },
+  { id: 'gkv-coca-cola', says: 'Überschrift, Lede und Abstimmungen: „Coca-Cola dagegen“ bei der Zuckerabgabe', kind: 'stanceOnVote', pollId: 6601, orgId: 'R001689', camp: 'against' },
   { id: 'carrier-intervet', says: 'Abstimmungen: „Viessmann gehört seit 2024 zum US-Konzern Carrier, Intervet ist die Tiersparte von MSD.“', kind: 'usEntries', ids: ['R002670', 'R002408'] },
 ] as const;
