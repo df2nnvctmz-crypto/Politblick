@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-06T21:46:20.748Z",
+ "generatedAt": "2026-11-07T15:00:54.327Z",
  "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -271,6 +271,11 @@
     {
      "label": "08 - Rotkäppchen-Mumm-Sektkellereien GmbH (noch nicht barrierefrei)",
      "url": "https://www.bundestag.de/resource/blob/1231456/08-Rotkaeppchen-GmbH.pdf",
+     "number": null
+    },
+    {
+     "label": "09 - Söllner, Prof. Dr. Fritz, TU Ilmenau",
+     "url": "https://www.bundestag.de/resource/blob/1231804/09-Soellner-Prof-Dr-Fritz.pdf",
      "number": null
     }
    ]
