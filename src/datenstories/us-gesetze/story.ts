@@ -26,7 +26,11 @@ export const listing: DatenstoryListing = {
   keywords: ["USA","Zuckerabgabe","Zuckersteuer","GKV-Reform","Heizungsgesetz","Gebäudemodernisierungsgesetz","CO₂-Preis","Coca-Cola","PepsiCo","Consumer Choice Center","Krankenkassen"],
   publishedOn: '2026-11-06',
   researchedOn: RESEARCHED_ON,
-  partner: RES_PUBLICA,
+  partner: {
+    ...RES_PUBLICA,
+    article: { title: 'Zuckersteuer: 51 Organisationen lobbyieren, die Zuckerbranche geschlossen dagegen', url: 'https://respublica.media/zuckersteuer-lobby/' },
+  },
+  discussion: { name: 'r/mediasres', url: 'https://www.reddit.com/r/mediasres/comments/1xqbpam/zuckersteuer_51_organisationen_lobbyieren_dazu_im/' },
   series: { name: 'US-Lobby in Berlin', part: 2, partLabel: 'Die Gesetze' },
 };
 

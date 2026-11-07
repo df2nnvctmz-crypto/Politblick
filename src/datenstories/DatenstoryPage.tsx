@@ -9,7 +9,7 @@
  * Each story module (src/datenstories/<slug>/story.ts) supplies the text; this file supplies the
  * chart and source list per section.
  */
-import { Fragment, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import { createContext, Fragment, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { FilterMenu } from '../ui/FilterMenu';
 import { ShareBar } from '../ShareBar';
 import type { Lang, Translation } from '../data';
@@ -87,6 +87,31 @@ interface StoryNav {
   onOpenStory: (slug: string) => void;
 }
 
+/** "← Zurück zu den Datenstories" on top of every story (like the MP profile's back link). */
+interface StoryBack {
+  listHref: string;
+  onBack: () => void;
+}
+const StoryBackContext = createContext<StoryBack | null>(null);
+
+function BackLink({ t }: { t: Translation }) {
+  const back = useContext(StoryBackContext);
+  if (!back) return null;
+  return (
+    <a
+      href={back.listHref}
+      onClick={(e) => {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        back.onBack();
+      }}
+      style={{ display: 'inline-block', fontSize: 13, color: 'oklch(48% 0.01 260)', marginBottom: 16 }}
+    >
+      ← {t.backToDatenstories}
+    </a>
+  );
+}
+
 function storyLink(nav: StoryNav, slug: string, children: ReactNode, style?: CSSProperties) {
   return (
     <a
@@ -114,6 +139,11 @@ function PartnerByline({ p, t }: { p: StoryPartner; t: Translation }) {
       <a href={p.url} target="_blank" rel="noopener" style={{ display: 'inline-flex', alignItems: 'center' }} title={p.name}>
         <img src={withBaseAsset(p.logo)} alt={p.name} width={110} height={24} style={{ height: 24, width: 'auto', display: 'block' }} />
       </a>
+      {p.article && (
+        <a href={p.article.url} target="_blank" rel="noopener" style={{ color: ACCENT, fontWeight: 600 }}>
+          {fill(t.dsPartnerArticleLink, { name: p.name })} →
+        </a>
+      )}
     </div>
   );
 }
@@ -126,6 +156,19 @@ function PartnerCredit({ p, t }: { p: StoryPartner; t: Translation }) {
       </a>
       <div style={{ fontSize: 14, lineHeight: 1.55, flex: '1 1 260px' }}>
         {p.credit}{' '}
+        {p.article && (
+          <>
+            {fillNodes(t.dsPartnerArticleTemplate, {
+              name: p.name,
+              link: (
+                <a href={p.article.url} target="_blank" rel="noopener" style={{ fontWeight: 600 }}>
+                  „{p.article.title}“
+                </a>
+              ),
+            })}
+            {'. '}
+          </>
+        )}
         {fillNodes(t.dsPartnerMoreTemplate, {
           name: p.name,
           link: (
@@ -408,6 +451,7 @@ interface ShellProps extends PageProps {
 function StoryShell({ t, lang, nav, listing, data, text, slots: s, nodeSlots, sections, onDownload }: ShellProps) {
   return (
     <main data-datenstory-ready="" style={{ flex: 1, width: '100%', boxSizing: 'border-box', maxWidth: 1040, margin: '0 auto', padding: '28px 24px 64px' }}>
+      <BackLink t={t} />
       <SeriesBar listing={listing} nav={nav} />
       <header style={{ maxWidth: 820 }}>
         <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: ACCENT }}>
@@ -526,12 +570,15 @@ function ShowsBox({ title, text, tone }: { title: string; text: string; tone: 'p
 
 // ---- The two stories -----------------------------------------------------------------------------
 
-export function DatenstoryView({ data, ...props }: PageProps & StoryNav & { data: DatenstoryData }) {
-  if (data.slug === 'us-lobby') return <UsLobbyStoryPage {...props} data={data} />;
-  if (data.slug === 'lobby-geld') return <LobbyGeldStoryPage {...props} data={data} />;
-  if (data.slug === 'parteispenden') return <ParteispendenStoryPage {...props} data={data} />;
-  if (data.slug === 'mieteinnahmen') return <MietenStoryPage {...props} data={data} />;
-  return <UsGesetzeStoryPage {...props} data={data} />;
+export function DatenstoryView({ data, listHref, onBack, ...props }: PageProps & StoryNav & StoryBack & { data: DatenstoryData }) {
+  const back = useMemo(() => ({ listHref, onBack }), [listHref, onBack]);
+  const page =
+    data.slug === 'us-lobby' ? <UsLobbyStoryPage {...props} data={data} />
+    : data.slug === 'lobby-geld' ? <LobbyGeldStoryPage {...props} data={data} />
+    : data.slug === 'parteispenden' ? <ParteispendenStoryPage {...props} data={data} />
+    : data.slug === 'mieteinnahmen' ? <MietenStoryPage {...props} data={data} />
+    : <UsGesetzeStoryPage {...props} data={data} />;
+  return <StoryBackContext.Provider value={back}>{page}</StoryBackContext.Provider>;
 }
 
 function UsLobbyStoryPage({ t, lang, onNavigate, storyHref, onOpenStory, data }: PageProps & StoryNav & { data: UsLobbyData }) {

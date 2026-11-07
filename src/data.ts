@@ -24,7 +24,7 @@ export interface Translation {
   filterActorType: string; filterFieldOfInterest: string; filterAllLabel: string;
   filterCountry: string; orgCountryNote: string;
   filterSelectedCountTemplate: string; clearAllFilters: string; filterSearchPlaceholder: string;
-  flagsLabel: string; backToSearch: string; backToHome: string;
+  flagsLabel: string; backToSearch: string; backToHome: string; backToDatenstories: string; backToDatenstory: string; dsPartnerArticleTemplate: string; dsPartnerArticleLink: string;
   divergencesHeading: string; divergencesBaseRate: string;
   historyHeading: string; historyBaseRate: string; historyFractionAverage: string;
   historyTopicsLabel: string; historyTopicTemplate: string; historyTermTemplate: string;
@@ -339,7 +339,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     filterCountry: 'Land (Sitz)',
     orgCountryNote: 'Land = Sitz laut Lobbyregister, nicht die Herkunft der Eigentümer. Deutsche Tochterfirmen ausländischer Konzerne zählen als Deutschland.',
     filterSelectedCountTemplate: '{n} ausgewählt', clearAllFilters: 'Filter zurücksetzen', filterSearchPlaceholder: 'Suchen…',
-    flagsLabel: 'Hinweise', backToSearch: 'Zurück zur Suche', backToHome: 'Zurück zur Startseite',
+    flagsLabel: 'Hinweise', backToSearch: 'Zurück zur Suche', backToHome: 'Zurück zur Startseite', backToDatenstories: 'Zurück zu den Datenstories', backToDatenstory: 'Zurück zur Datenstory', dsPartnerArticleTemplate: 'Artikel bei {name}: {link}', dsPartnerArticleLink: 'Zum Artikel bei {name}',
     divergencesHeading: 'Abweichungen von der Fraktionslinie',
     divergencesBaseRate: '{count} von {total} bewerteten Abstimmungen — Fraktionstreue {pct}%',
     historyHeading: 'Langzeit-Bilanz',
@@ -906,7 +906,7 @@ export const TRANSLATIONS: Record<Lang, Translation> = {
     filterCountry: 'Country (seat)',
     orgCountryNote: 'Country = registered seat per the Lobbyregister, not where the owners are from. German subsidiaries of foreign groups count as Germany.',
     filterSelectedCountTemplate: '{n} selected', clearAllFilters: 'Clear filters', filterSearchPlaceholder: 'Search…',
-    flagsLabel: 'flags', backToSearch: 'Back to search', backToHome: 'Back to home',
+    flagsLabel: 'flags', backToSearch: 'Back to search', backToHome: 'Back to home', backToDatenstories: 'Back to data stories', backToDatenstory: 'Back to the data story', dsPartnerArticleTemplate: 'Article at {name} (German): {link}', dsPartnerArticleLink: 'Read the article at {name} (German)',
     divergencesHeading: "Votes against their own fraction’s line",
     divergencesBaseRate: '{count} of {total} rated votes — {pct}% aligned with the fraction',
     historyHeading: 'Long-term record',

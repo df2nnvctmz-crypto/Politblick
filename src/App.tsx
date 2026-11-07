@@ -86,6 +86,8 @@ function App() {
   const [selectedCommitteeId, setSelectedCommitteeId] = useState<string | null>(extractLeadingId(initialRoute.committeeId));
   const [selectedStoryWeek, setSelectedStoryWeek] = useState<string | null>(initialRoute.storyWeek);
   const [selectedDatenstory, setSelectedDatenstory] = useState<string | null>(initialRoute.datenstorySlug);
+  /** Slug of the Datenstory a profile/bill/org page was opened from; its back link then returns there. */
+  const [storyOrigin, setStoryOrigin] = useState<string | null>(null);
   const [orgSearchQuery, setOrgSearchQuery] = useState('');
   const [sectorMetric, setSectorMetric] = useState<SectorMetric>('members');
   const [spendScope, setSpendScope] = useState<'all' | 'linked'>('all');
@@ -506,6 +508,7 @@ function App() {
   const goDatenschutz = () => setView('datenschutz');
   const goDaten = () => setView('daten');
   const openMp = (id: string) => {
+    setStoryOrigin(null);
     if (view === 'search') searchScrollYRef.current = window.scrollY;
     setView('profile');
     setSelectedMpId(id);
@@ -518,6 +521,7 @@ function App() {
     setHistoryTopicFilter(null);
   };
   const openBill = (id: BillId) => {
+    setStoryOrigin(null);
     setView('bill');
     setSelectedBillId(id);
     setFlaggedVotesShown(10);
@@ -531,6 +535,7 @@ function App() {
     setPollLobbyingSearch('');
   };
   const openOrg = (id: string) => {
+    setStoryOrigin(null);
     setView('org');
     setSelectedOrgId(id);
     setOrgDescExpanded(false);
@@ -573,10 +578,24 @@ function App() {
     const r = pathToRoute(path);
     const billId = parseBillId(extractLeadingId(r.billId));
     const orgId = extractLeadingId(r.orgId);
+    // Remember the story we leave, so the next page's back link says "Zurück zur Datenstory".
+    // Set after openX(), which resets it.
+    const from = view === 'datenstory' ? selectedDatenstory : null;
     if (r.view === 'bill' && billId !== null) openBill(billId);
     else if (r.view === 'org' && orgId) openOrg(orgId);
-    else window.location.assign(withBase(indexablePath(path), BASE_URL));
+    else if (r.view === 'profile' && r.mpId) {
+      openMp(r.mpId);
+      setProfileTab(r.profileTab);
+    } else {
+      window.location.assign(withBase(indexablePath(path), BASE_URL));
+      return;
+    }
+    setStoryOrigin(from);
   };
+  /** Back link to the Datenstory this page was opened from, or null (then the page's usual back link). */
+  const storyBack = storyOrigin
+    ? { href: datenstoryHref(storyOrigin), onClick: stop(() => goBack(() => openDatenstory(storyOrigin))), label: t.backToDatenstory }
+    : null;
   const impressumHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'impressum' }), BASE_URL);
   const disclaimerHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'disclaimer' }), BASE_URL);
   const datenschutzHref = withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'datenschutz' }), BASE_URL);
@@ -2137,8 +2156,8 @@ function App() {
 
       {view === 'profile' && (
         <main style={{ flex: 1, maxWidth: 980, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href={searchHref} onClick={stop(() => goBack(goSearch))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
-            ← {t.backToSearch}
+          <a href={storyBack?.href ?? searchHref} onClick={storyBack?.onClick ?? stop(() => goBack(goSearch))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+            ← {storyBack?.label ?? t.backToSearch}
           </a>
 
           {profile.kind === 'loading' && <p style={{ fontSize: 14, color: 'oklch(48% 0.01 260)', marginTop: 20 }}>{t.loadingProfile}</p>}
@@ -2869,8 +2888,8 @@ function App() {
 
       {view === 'bill' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href={homeHref} onClick={stop(() => goBack(goHome))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
-            ← {t.backToHome}
+          <a href={storyBack?.href ?? homeHref} onClick={storyBack?.onClick ?? stop(() => goBack(goHome))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+            ← {storyBack?.label ?? t.backToHome}
           </a>
 
           {realPollId !== null && (
@@ -4244,8 +4263,8 @@ function App() {
 
       {view === 'org' && (
         <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: 32 }}>
-          <a href={crossrefHref()} onClick={stop(() => goBack(goCrossref))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
-            ← {t.backToLobbyFinance}
+          <a href={storyBack?.href ?? crossrefHref()} onClick={storyBack?.onClick ?? stop(() => goBack(goCrossref))} style={{ fontSize: 13, color: 'oklch(48% 0.01 260)' }}>
+            ← {storyBack?.label ?? t.backToLobbyFinance}
           </a>
           {!orgDetail.org ? (
             <p style={{ fontSize: 13.5, color: 'oklch(48% 0.01 260)', marginTop: 20 }}>{t.orgNotFound}</p>
@@ -5618,7 +5637,7 @@ function App() {
 
       {view === 'datenstory' &&
         (datenstory.data ? (
-          <DatenstoryView t={t} lang={lang} onNavigate={navigateToPath} storyHref={datenstoryHref} onOpenStory={openDatenstory} data={datenstory.data} />
+          <DatenstoryView t={t} lang={lang} onNavigate={navigateToPath} storyHref={datenstoryHref} onOpenStory={openDatenstory} listHref={datenstoryListHref} onBack={() => goBack(goDatenstoryList)} data={datenstory.data} />
         ) : (
           <main style={{ flex: 1, maxWidth: 820, margin: '0 auto', padding: '48px 24px', color: 'oklch(48% 0.01 260)' }}>
             {datenstory.error ? <a href={datenstoryListHref} onClick={stop(goDatenstoryList)}>{t.dsListTitle}</a> : '…'}

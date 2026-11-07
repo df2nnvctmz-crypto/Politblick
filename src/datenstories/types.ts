@@ -274,6 +274,8 @@ export interface StoryPartner {
   logo: string;
   /** One sentence on what the partner contributed. */
   credit: string;
+  /** The partner's own article on this story, linked in the byline and the credit box. */
+  article?: { title: string; url: string };
 }
 
 /** Entry in the Datenstories index page. Static text only — the numbers live on the story page. */
