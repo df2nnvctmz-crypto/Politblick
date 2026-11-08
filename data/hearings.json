@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-07T15:00:54.327Z",
+ "generatedAt": "2026-11-08T15:29:42.444Z",
  "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -244,7 +244,7 @@
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230800/SV-Liste-051.pdf",
    "statements": [
     {
-     "label": "01 - BDZ - Deutsche Zoll- und Finanzgewerkschaft (noch nicht barrierefrei)",
+     "label": "01 - BDZ - Deutsche Zoll- und Finanzgewerkschaft",
      "url": "https://www.bundestag.de/resource/blob/1231714/01-BDZ.pdf",
      "number": null
     },
