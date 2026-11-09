@@ -1,12 +1,12 @@
 {
- "generatedAt": "2026-11-09T06:59:47.944Z",
+ "generatedAt": "2026-11-09T19:00:21.826Z",
  "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
   {
    "id": "1224840",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1224840-1224840",
-   "title": "Anhörung „Ausbau-/Neubaustrecke Brennernordzulauf“",
+   "title": "Anhörung zur „Ausbau-/Neubaustrecke Brennernordzulauf“",
    "committee": "Verkehr",
    "date": "2027-01-25",
    "drucksachen": [
@@ -28,7 +28,7 @@
   {
    "id": "1222698",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1222698-1222698",
-   "title": "Anhörung „Neubaustrecke Frankfurt – Mannheim“",
+   "title": "Anhörung zur „Neubaustrecke Frankfurt – Mannheim“",
    "committee": "Verkehr",
    "date": "2026-12-07",
    "drucksachen": [
@@ -52,7 +52,7 @@
   {
    "id": "1224834",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1224834-1224834",
-   "title": "Anhörung „Infrastrukturgesellschafts-Finanzierungs-Änderungsgesetz“",
+   "title": "Anhörung zur „Finanzierung der Infrastrukturgesellschaft“",
    "committee": "Verkehr",
    "date": "2026-11-23",
    "drucksachen": [
@@ -64,7 +64,7 @@
   {
    "id": "1223022",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1223022-1223022",
-   "title": "Anhörung „Luftverkehrsgesetz“",
+   "title": "Anhörung zum „Luftverkehrsgesetz“",
    "committee": "Verkehr",
    "date": "2026-11-11",
    "drucksachen": [
@@ -88,6 +88,11 @@
      "number": null
     },
     {
+     "label": "überarbeitete Stellungnahme der DRF Stiftung Luftrettung gGmbH",
+     "url": "https://www.bundestag.de/resource/blob/1231954/Stellungnahme-DFLneu.pdf",
+     "number": null
+    },
+    {
      "label": "Stellungnahme der ADAC Luftrettung gGmbH",
      "url": "https://www.bundestag.de/resource/blob/1231796/Stellungnahme-ADAC.pdf",
      "number": null
@@ -95,6 +100,11 @@
     {
      "label": "Stellungnahme des Deutschen Hubschrauber Verbandes e. V.",
      "url": "https://www.bundestag.de/resource/blob/1231800/Stellungnahme-DHV.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme der Arbeitsgemeinschaft Deutscher Verkehrsflughäfen (ADV) e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1232108/Stellungnahme-ADV.pdf",
      "number": null
     }
    ]
@@ -125,7 +135,23 @@
     "21/8866"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1231264/SV-Liste-11-11-2026.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Stellungnahme Dr. Olaf Kropp, SAM Sonderabfall-Management-Gesellschaft Rheinland-Pfalz mbH, A-Drs. 21(16)170-A",
+     "url": "https://www.bundestag.de/resource/blob/1231472/21-16-170-A_Stellungnahme-Dr-Olaf-Kropp.pdf",
+     "number": "21(16)170"
+    },
+    {
+     "label": "Stellungnahme bvse-Bundesverband Sekundärrohstoffe und Entsorgung e.V, A-Drs. 21(16)170-B",
+     "url": "https://www.bundestag.de/resource/blob/1232158/21-16-170-B_Stellungnahme-bvse.pdf",
+     "number": "21(16)170"
+    },
+    {
+     "label": "Stellungnahme Dr. Anno Oexle okl & partner Rechtsanwälte PartG mbB, A-Drs. 21(16)170-C",
+     "url": "https://www.bundestag.de/resource/blob/1232160/21-16-170-C_Stellungnahme-Dr-Oexle.pdf",
+     "number": "21(16)170"
+    }
+   ]
   },
   {
    "id": "1229742",
@@ -150,7 +176,37 @@
     },
     {
      "label": "Fokus Behandlungsfehler",
-     "url": "https://www.bundestag.de/resource/blob/1231868/21-14-00123-3-Fokus-Patientenrechtegesetz-nicht-barrierefrei.pdf",
+     "url": "https://www.bundestag.de/resource/blob/1232058/21-14-00123-3-FOKUS-Patientenrechtegesetz.pdf",
+     "number": null
+    },
+    {
+     "label": "GKV Spitzenverband",
+     "url": "https://www.bundestag.de/resource/blob/1232052/21-14-00123-4-GKV-Spitzenverband-Patientenrechtegesetz.pdf",
+     "number": null
+    },
+    {
+     "label": "Marburger Bund",
+     "url": "https://www.bundestag.de/resource/blob/1232054/21-14-00123-5-Marburger-Bund-Patientenrechtegesetz-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Aktionsbündnis Patientensicherheit (APS)",
+     "url": "https://www.bundestag.de/resource/blob/1232056/21-14-00123-6-APS-Patientenrechtegesetz-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Sozialverband Deutschland (SoVD)",
+     "url": "https://www.bundestag.de/resource/blob/1232060/21-14-00123-7-SoVD-Patientenrechtegesetz-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "BAG Selbsthilfe",
+     "url": "https://www.bundestag.de/resource/blob/1232162/21-14-00123-8-BAG-Selbsthilfe-Patientenrechtegesetz.pdf",
+     "number": null
+    },
+    {
+     "label": "Medizinischer Dienst Bund",
+     "url": "https://www.bundestag.de/resource/blob/1232164/21-14-00123-9-MD-Bund-Patientenrechtegesetz.pdf",
      "number": null
     }
    ]
@@ -158,7 +214,7 @@
   {
    "id": "1231314",
    "url": "https://www.bundestag.de/ausschuesse/forschung/sitzungen/1231314-1231314",
-   "title": "Öffentliche Anhörung zum BAföGÄndG",
+   "title": "Anhörung zur Änderung des BAfög-Gesetzes",
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2026-11-11",
    "drucksachen": [],
@@ -184,7 +240,7 @@
   {
    "id": "1224784",
    "url": "https://www.bundestag.de/ausschuesse/verteidigung/sitzungen/1224784-1224784",
-   "title": "Reservestärkungsgesetz – ResStG",
+   "title": "Anhörung zum Reservestärkungsgesetz",
    "committee": "Verteidigung",
    "date": "2026-11-09",
    "drucksachen": [
@@ -201,13 +257,23 @@
      "label": "Stellungnahme des Sachverständigen Herrn Prof. Dr. Thomas Brockmeier (IHK Halle-Dessau)",
      "url": "https://www.bundestag.de/resource/blob/1231578/Stellungnahme-Prof-Dr-Thomas-Brockmeier.pdf",
      "number": null
+    },
+    {
+     "label": "Stellungnahme des Sachverständigen Lennart Armbrust, Rechtsanwalt",
+     "url": "https://www.bundestag.de/resource/blob/1231874/stellungnahme-sv-armbrust.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme des Sachverständigen André Wüstner, Deutscher BundeswehrVerband",
+     "url": "https://www.bundestag.de/resource/blob/1231966/DBwV-Stellungnahme.pdf",
+     "number": null
     }
    ]
   },
   {
    "id": "1225570",
    "url": "https://www.bundestag.de/ausschuesse/a13_Bildung-Familie-Senioren-Frauen-und-Jugend/OeffentlicheSitzungen/1225570-1225570",
-   "title": "Öffentliche Anhörung zum Aufstiegs-BAföG",
+   "title": "Reform des Aufstiegs-BAföG: Experten fordern Nachbesserungen",
    "committee": "Bildung, Familie, Senioren, Frauen und Jugend",
    "date": "2026-11-09",
    "drucksachen": [
@@ -244,18 +310,22 @@
      "label": "21(13)66f - Dr. Sandra Garbade, Präsidentin des Bundesinstituts für Berufsbildung (BIBB)",
      "url": "https://www.bundestag.de/resource/blob/1231398/21-13-66f.pdf",
      "number": "21(13)66"
+    },
+    {
+     "label": "21(13)66g - Dirk Werner - Institut der deutschen Wirtschaft Köln e. V. (IW), Leiter des Themenclusters Berufliche Qualifizierung und Fachkräfte",
+     "url": "https://www.bundestag.de/resource/blob/1231998/21-13-66g.pdf",
+     "number": "21(13)66"
     }
    ]
   },
   {
    "id": "1230794",
    "url": "https://www.bundestag.de/ausschuesse/a07_finanzen/wp21_a07_Anhoerungen/1230794-1230794",
-   "title": "Öffentliche Anhörung zum Haushaltsbegleitgesetz - Zuckergetränkesteuer",
+   "title": "Anhörung zum Haushaltsbegleitgesetz und zur Zuckergetränkesteuer",
    "committee": "Finanzen",
    "date": "2026-11-09",
    "drucksachen": [
-    "21/7860",
-    "21/8637"
+    "21/7860"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230800/SV-Liste-051.pdf",
    "statements": [
@@ -272,6 +342,11 @@
     {
      "label": "03 - Gewerkschaft Nahrung-Genuss-Gaststätten (noch nicht barrierefrei)",
      "url": "https://www.bundestag.de/resource/blob/1231420/03-NGG.pdf",
+     "number": null
+    },
+    {
+     "label": "05 - Laxy, Prof. Dr. Michael, TU München",
+     "url": "https://www.bundestag.de/resource/blob/1231906/05-Laxy-Prof-Dr-Michael-TU-Muenchen.pdf",
      "number": null
     },
     {
@@ -292,6 +367,11 @@
     {
      "label": "09 - Söllner, Prof. Dr. Fritz, TU Ilmenau",
      "url": "https://www.bundestag.de/resource/blob/1231804/09-Soellner-Prof-Dr-Fritz.pdf",
+     "number": null
+    },
+    {
+     "label": "10 - Wuppermann, Prof. Dr. Amelie, Universität Bayreuth (noch nicht barrierefrei)",
+     "url": "https://www.bundestag.de/resource/blob/1231990/10-Wuppermann-Prof-Dr-Amelie.pdf",
      "number": null
     }
    ]
