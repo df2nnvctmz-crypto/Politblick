@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-08T15:29:42.444Z",
+ "generatedAt": "2026-11-09T06:59:47.944Z",
  "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -107,7 +107,13 @@
    "date": "2026-11-11",
    "drucksachen": [],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1224110/261111_sv_liste.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Teamsport Deutschland",
+     "url": "https://www.bundestag.de/resource/blob/1231862/261111_teamsport_d.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1229702",
@@ -135,6 +141,16 @@
     {
      "label": "AOK Bundesverband",
      "url": "https://www.bundestag.de/resource/blob/1230134/21-14-00123-1-AOK-Patientenrechtegesetz-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesärztekammer",
+     "url": "https://www.bundestag.de/resource/blob/1231866/21-14-00123-2-BAeK-Patientenrechtegesetz-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Fokus Behandlungsfehler",
+     "url": "https://www.bundestag.de/resource/blob/1231868/21-14-00123-3-Fokus-Patientenrechtegesetz-nicht-barrierefrei.pdf",
      "number": null
     }
    ]
@@ -12777,6 +12793,7 @@
   "1229930",
   "1230686",
   "1231408",
+  "1231864",
   "20250625"
  ]
 }
