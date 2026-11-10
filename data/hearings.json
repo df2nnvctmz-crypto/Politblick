@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-10T12:52:36.274Z",
+ "generatedAt": "2026-11-10T21:53:33.416Z",
  "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -62,6 +62,18 @@
    "statements": []
   },
   {
+   "id": "1232622",
+   "url": "https://www.bundestag.de/ausschuesse/inneres/anhoerungen/1232622-1232622",
+   "title": "Anhörung zum KI-Migrationsverwaltungsgesetz",
+   "committee": "Inneres",
+   "date": "2026-11-23",
+   "drucksachen": [
+    "21/8275"
+   ],
+   "expertListUrl": null,
+   "statements": []
+  },
+  {
    "id": "1223022",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1223022-1223022",
    "title": "Anhörung zum „Luftverkehrsgesetz“",
@@ -73,13 +85,13 @@
    "expertListUrl": "https://www.bundestag.de/resource/blob/1223024/Liste-der-Auskunftspersonen.pdf",
    "statements": [
     {
-     "label": "Stellungnahme der Arbeitsgemeinschaft Deutscher Fluglärmkommissionen (ADF)",
-     "url": "https://www.bundestag.de/resource/blob/1231680/Stellungnahme-ADF.pdf",
+     "label": "Stellungnahme der Bundesvereinigung gegen Fluglärm (BVF) e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1223026/Stellungnahme-BVF.pdf",
      "number": null
     },
     {
-     "label": "Stellungnahme der Bundesvereinigung gegen Fluglärm (BVF) e. V.",
-     "url": "https://www.bundestag.de/resource/blob/1223026/Stellungnahme-BVF.pdf",
+     "label": "Stellungnahme der Arbeitsgemeinschaft Deutscher Fluglärmkommissionen (ADF)",
+     "url": "https://www.bundestag.de/resource/blob/1231680/Stellungnahme-ADF.pdf",
      "number": null
     },
     {
@@ -149,6 +161,11 @@
     {
      "label": "Stellungnahme Dr. Anno Oexle okl & partner Rechtsanwälte PartG mbB, A-Drs. 21(16)170-C",
      "url": "https://www.bundestag.de/resource/blob/1232160/21-16-170-C_Stellungnahme-Dr-Oexle.pdf",
+     "number": "21(16)170"
+    },
+    {
+     "label": "Stellungnahme Health and Environment Justice Support e.V. (HejSupport), A-Drs. 21(16)170-D",
+     "url": "https://www.bundestag.de/resource/blob/1232634/21-16-170-D_Stellungnahme-HEJSupport.pdf",
      "number": "21(16)170"
     }
    ]
