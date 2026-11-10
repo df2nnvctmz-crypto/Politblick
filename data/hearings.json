@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-09T19:00:21.826Z",
+ "generatedAt": "2026-11-10T12:52:36.274Z",
  "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -207,6 +207,31 @@
     {
      "label": "Medizinischer Dienst Bund",
      "url": "https://www.bundestag.de/resource/blob/1232164/21-14-00123-9-MD-Bund-Patientenrechtegesetz.pdf",
+     "number": null
+    },
+    {
+     "label": "Prof. Dr. Gerhard Wagner",
+     "url": "https://www.bundestag.de/resource/blob/1232258/21-14-00123-10-Prof-Dr-Gerhard-Wagner-Patientenrechtegesetz-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Verband der Privaten Krankenversicherung (PKV)",
+     "url": "https://www.bundestag.de/resource/blob/1232248/21-14-00123-11-PKV-Patientenrechtegesetz-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "BKK Dachverband",
+     "url": "https://www.bundestag.de/resource/blob/1232250/21-14-00123-12-BKK-Patientenrechtegesetz-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Prof. Dr. Christian Katzenmeier",
+     "url": "https://www.bundestag.de/resource/blob/1232252/21-14-00123-13-Prof-Dr-Katzenmeier-Patientenrechtegesetz-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Deutscher Berufsverband für Pflegeberufe",
+     "url": "https://www.bundestag.de/resource/blob/1232254/21-14-00123-14-DBfK-Patientenrechtegesetz-nicht-barrierefrei.pdf",
      "number": null
     }
    ]
