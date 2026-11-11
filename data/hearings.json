@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-10T21:53:33.416Z",
+ "generatedAt": "2026-11-11T16:27:51.920Z",
  "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -16,12 +16,36 @@
    "statements": []
   },
   {
+   "id": "1232920",
+   "url": "https://www.bundestag.de/ausschuesse/recht-verbraucherschutz/sitzungen/1232920-1232920",
+   "title": "Anhörung zur Stärkung der genossenschaftlichen Rechtsform",
+   "committee": "Recht und Verbraucherschutz",
+   "date": "2026-12-14",
+   "drucksachen": [
+    "21/8410"
+   ],
+   "expertListUrl": null,
+   "statements": []
+  },
+  {
    "id": "1231414",
    "url": "https://www.bundestag.de/ausschuesse/a20_tourismus/anhoerungen/1231414-1231414",
    "title": "Anhörung „Denkmalschutz und Tourismus im Spannungsfeld“",
    "committee": "Tourismus",
    "date": "2026-12-09",
    "drucksachen": [],
+   "expertListUrl": null,
+   "statements": []
+  },
+  {
+   "id": "1232914",
+   "url": "https://www.bundestag.de/ausschuesse/recht-verbraucherschutz/sitzungen/1232914-1232914",
+   "title": "Anhörung zur Modernisierung des Schiedsverfahrensrecht",
+   "committee": "Recht und Verbraucherschutz",
+   "date": "2026-12-09",
+   "drucksachen": [
+    "21/8414"
+   ],
    "expertListUrl": null,
    "statements": []
   },
@@ -259,7 +283,9 @@
    "title": "Anhörung zur Änderung des BAfög-Gesetzes",
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2026-11-11",
-   "drucksachen": [],
+   "drucksachen": [
+    "21/8405"
+   ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1231434/Liste_der_Sachverstaendigen.pdf",
    "statements": [
     {
