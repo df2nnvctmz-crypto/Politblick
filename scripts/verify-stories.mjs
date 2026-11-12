@@ -205,7 +205,11 @@ for (let i = 0; i < weekKeys.length; i++) {
   if (issue.donations.largest) check(issue.donations.largest.amountEuro === Math.max(...bucket.map((d) => d.amountEuro)), `${w} largest donation != real max`);
   else check(bucket.length === 0, `${w} no largest but ${bucket.length} donations`);
 
-  if (i > 0) check(issue.donations.count > 0, `${w} no donations, but only the term's first sitting week may be donation-less`);
+  // The newest week is exempt too: large donations are published with a lag of days to weeks, so
+  // a week that is still running (or just ended) is routinely empty. The recount above still
+  // checks its count and sum exactly.
+  const isNewestWeek = i === weekKeys.length - 1;
+  if (i > 0 && !isNewestWeek) check(issue.donations.count > 0,`${w} no donations, but only the term's first sitting week may be donation-less`);
 }
 
 console.log(`${weekKeys.length} weeks cross-checked against an independent recount of ${polls.length} polls and ${donations.length} donations`);
