@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-12T07:30:53.385Z",
+ "generatedAt": "2026-11-12T16:58:44.936Z",
  "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -13,6 +13,16 @@
     "21/7165"
    ],
    "expertListUrl": null,
+   "statements": []
+  },
+  {
+   "id": "1233002",
+   "url": "https://www.bundestag.de/ausschuesse/sport_und_ehrenamt/anhoerungen/1233002-1233002",
+   "title": "36. Sitzung",
+   "committee": "Sport und Ehrenamt",
+   "date": "2026-12-16",
+   "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1233004/261216_liste_sv.pdf",
    "statements": []
   },
   {
@@ -50,6 +60,16 @@
    "statements": []
   },
   {
+   "id": "1232918",
+   "url": "https://www.bundestag.de/ausschuesse/sport_und_ehrenamt/anhoerungen/1232918-1232918",
+   "title": "35. Sitzung",
+   "committee": "Sport und Ehrenamt",
+   "date": "2026-12-09",
+   "drucksachen": [],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1232998/261209_sv_liste.pdf",
+   "statements": []
+  },
+  {
    "id": "1222698",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1222698-1222698",
    "title": "Anhörung zur „Neubaustrecke Frankfurt – Mannheim“",
@@ -71,6 +91,26 @@
     "21/2803"
    ],
    "expertListUrl": null,
+   "statements": []
+  },
+  {
+   "id": "1232420",
+   "url": "https://www.bundestag.de/ausschuesse/gesundheit/anhoerungen/1232420-1232420",
+   "title": "Anhörung „Pflegeneuordnungsgesetz“",
+   "committee": "Gesundheit",
+   "date": "2026-11-25",
+   "drucksachen": [
+    "21/8869",
+    "21/8553",
+    "21/8918",
+    "21/6344",
+    "21/8398",
+    "21/5828",
+    "21/6361",
+    "21/8927",
+    "21/8928"
+   ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1233098/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": []
   },
   {
@@ -711,6 +751,7 @@
    "committee": "Wirtschaft und Energie",
    "date": "2026-11-04",
    "drucksachen": [
+    "21/6279",
     "21/8285"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230034/Sachverstaendigenliste.pdf",
