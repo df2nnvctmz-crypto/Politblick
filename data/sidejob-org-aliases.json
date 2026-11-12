@@ -1,0 +1,18 @@
+{
+  "comment": [
+    "Organisation names from the Bundestag's published side-job declarations that are the same body",
+    "as a Lobbyregister entry but cannot be matched automatically: build-lobby-links.mjs links only",
+    "on the exact normalised name, or on the same name with every bracketed part removed.",
+    "",
+    "Every entry is an assertion of identity, so add one only after opening both the declaration and",
+    "the register entry and confirming they are the same legal body - not a member, branch or sister",
+    "organisation. An unknown register id fails the build."
+  ],
+  "aliases": [
+    {
+      "organization": "Der Deutsche Forstwirtschaftsrat (DFWR) e.V.",
+      "orgId": "R002126",
+      "evidence": "Register entry R002126 lists Christian Haase as Präsident and legal representative; his declaration names the same office (Präsident ab 17.06.2025). Checked 2026-11-12."
+    }
+  ]
+}

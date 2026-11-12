@@ -10,6 +10,7 @@
 // Inputs   data/lobby-register.json     full register snapshot   (fetch-lobbyregister.mjs)
 //          data/lobby-positions.json    hand-curated stances     (edited by humans)
 //          data/lobby-topic-map.json    hand-curated topic map   (edited by humans)
+//          data/sidejob-org-aliases.json hand-checked name aliases (edited by humans)
 //          public/data/roster.json      members + party          (fetch-core.mjs)
 //          public/data/polls.json       polls + their Drucksachen (fetch-core.mjs)
 //          public/data/poll-results.json per-mandate votes        (fetch-core.mjs)
@@ -18,6 +19,10 @@
 // Output   public/data/lobby-links.json
 import { normalizeOrgName, readJsonFile, readSourceFile, writeJsonFile } from './lib/common.mjs';
 import { buildMandates } from './lib/lobby-mandates.mjs';
+
+const AMBIGUOUS = Symbol('ambiguous');
+/** Normalised name with every "( … )" part removed — see orgByBareName. */
+const bareOrgKey = (name) => normalizeOrgName(String(name || '').replace(/\([^)]*\)/g, ' '));
 
 /** 'Fraktionslos' independents share no whip, so no majority computed across them is a real fraction line. See both usages below. */
 const NO_FRACTION = 'Fraktionslos';
@@ -80,6 +85,19 @@ async function main() {
     // here would attach a lobbying tie to the wrong member, which is far worse than a miss.
     if (key.length > 4 && !orgByName.has(key)) orgByName.set(key, org);
   }
+  // Second index with every bracketed part removed. The two sources put an organisation's acronym
+  // in different places or leave it out ("Deutscher Feuerwehrverband e.V. (DFV)" in a declaration,
+  // "Deutscher Feuerwehrverband" in the register; "Wirtschaftspolitischer Club Deutschland e.V."
+  // against "… Deutschland (WPCD) e.V."), and declarations add "(vormals …)". Dropping only the
+  // brackets is still an exact match on every remaining word. A key two register entries share is
+  // marked ambiguous and never links.
+  const orgByBareName = new Map();
+  for (const org of register) {
+    const key = bareOrgKey(org.name);
+    if (key.length <= 4) continue;
+    const prev = orgByBareName.get(key);
+    orgByBareName.set(key, prev && prev !== org ? AMBIGUOUS : org);
+  }
 
   // ---- which orgs lobbied which poll ---------------------------------------------------------
   const pollLobbying = {};
@@ -105,15 +123,35 @@ async function main() {
   console.log(`${pollsWithLobbying}/${polls.length} polls have at least one registered lobbyist on record`);
 
   // ---- which members hold a role at a registered lobbyist --------------------------------------
+  //
+  // Hand-checked aliases (data/sidejob-org-aliases.json) cover names the two sources write in
+  // genuinely different forms — "Der Deutsche Forstwirtschaftsrat (DFWR) e.V." in the Bundestag's
+  // declaration against the register's "Deutscher Forstwirtschaftsrat e.V. (DFWR)" — which exact
+  // matching on the normalised name cannot reach. Same rule as the donor and hearing aliases: no
+  // fuzzy matching, every link a human confirmed, and an unknown register id fails the build.
+  const { aliases: sidejobAliasList = [] } = await readSourceFile('sidejob-org-aliases.json', { aliases: [] });
+  const sidejobAliases = new Map();
+  for (const alias of sidejobAliasList) {
+    if (!alias?.organization || !alias?.orgId) continue;
+    if (!orgById.has(alias.orgId)) {
+      throw new Error(`data/sidejob-org-aliases.json: "${alias.organization}" points at unknown register id ${alias.orgId}`);
+    }
+    sidejobAliases.set(normalizeOrgName(alias.organization), orgById.get(alias.orgId));
+  }
   const affiliations = {};
   for (const [mandateId, records] of Object.entries(sidejobs)) {
     const seen = new Map();
     for (const record of records) {
       if (!record.organization || !AFFILIATION_CATEGORIES.has(record.categoryLabel)) continue;
-      const org = orgByName.get(normalizeOrgName(record.organization));
+      const key = normalizeOrgName(record.organization);
+      const bare = orgByBareName.get(bareOrgKey(record.organization));
+      const org = sidejobAliases.get(key) ?? orgByName.get(key) ?? (bare === AMBIGUOUS ? undefined : bare);
       if (!org) continue;
       const entry = seen.get(org.id) ?? { orgId: org.id, roles: [], categories: [] };
-      const role = record.jobTitleExtra || record.title;
+      // `title` is the role ("Präsident (ab 17.06.2025)"). `jobTitleExtra` is nearly always a note on
+      // the payment period ("Einkommen ab Januar 2026", "Mandate 21. Wahlperiode"), so it is only a
+      // fallback — preferring it showed the period note instead of the role on the lobby tab.
+      const role = record.title || record.jobTitleExtra;
       if (role && !entry.roles.includes(role)) entry.roles.push(role);
       if (!entry.categories.includes(record.categoryLabel)) entry.categories.push(record.categoryLabel);
       seen.set(org.id, entry);
