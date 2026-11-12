@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-11T22:55:47.173Z",
+ "generatedAt": "2026-11-12T07:30:53.385Z",
  "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -711,7 +711,6 @@
    "committee": "Wirtschaft und Energie",
    "date": "2026-11-04",
    "drucksachen": [
-    "21/6279",
     "21/8285"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230034/Sachverstaendigenliste.pdf",
