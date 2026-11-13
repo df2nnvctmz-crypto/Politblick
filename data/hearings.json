@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-13T12:29:19.688Z",
+ "generatedAt": "2026-11-13T19:58:31.440Z",
  "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -123,7 +123,13 @@
     "21/8868"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1224836/Liste-der-Auskunftspersonen.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "Stellungnahme von Pro Mobilität – Initiative für Verkehrsinfrastruktur e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1224838/Stellungnahme-ProMobilitaet.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1232622",
