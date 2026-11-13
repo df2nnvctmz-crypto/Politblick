@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-12T16:58:44.936Z",
+ "generatedAt": "2026-11-13T12:29:19.688Z",
  "fullCrawlAt": "2026-11-06T21:46:20.748Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -44,7 +44,7 @@
    "committee": "Tourismus",
    "date": "2026-12-09",
    "drucksachen": [],
-   "expertListUrl": null,
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1233168/SV-Liste-angefragt.pdf",
    "statements": []
   },
   {
@@ -804,6 +804,11 @@
     {
      "label": "01 - Arbeitnehmerkammer Bremen",
      "url": "https://www.bundestag.de/resource/blob/1230048/01-Arbeitnehmerkammer-Bremen.pdf",
+     "number": null
+    },
+    {
+     "label": "Bach, Dr. Stefan - Deutsches Institut für Wirtschaftsforschung (DIW)",
+     "url": "https://www.bundestag.de/resource/blob/1233166/Bach-Dr-Stefan.pdf",
      "number": null
     },
     {
