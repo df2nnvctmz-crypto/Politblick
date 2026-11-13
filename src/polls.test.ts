@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeAllAlignments, computeDivergences, computeMemberAlignment, isoWeekRange } from './polls';
+import { computeAllAlignments, computeDivergences, computeMemberAlignment, isoWeekRange, pickFeaturedResult } from './polls';
 import type { MemberVote, PartyTally, PollResult, RealPoll, VoteChoice } from './polls';
 
 /**
@@ -199,5 +199,40 @@ describe('isoWeekRange', () => {
     const { start, end } = isoWeekRange('2025-01-01'); // a Wednesday
     expect(start.toISOString().slice(0, 10)).toBe('2024-12-30');
     expect(end.toISOString().slice(0, 10)).toBe('2025-01-03');
+  });
+});
+
+describe('pickFeaturedResult', () => {
+  const withTitle = (id: number, title: string, yes: number, no: number, rebels: number, date = '2026-11-12') => {
+    const p = { ...poll(id, date), title };
+    const votes: MemberVote[] = [
+      ...Array.from({ length: 10 }, (_, i) => member(id * 100 + i, 'SPD', 'yes')),
+      ...Array.from({ length: rebels }, (_, i) => member(id * 100 + 50 + i, 'SPD', 'no')),
+    ];
+    return { ...result(p, [tally('SPD', 'yes')], votes), totalYes: yes, totalNo: no };
+  };
+
+  it('returns null for an empty week', () => {
+    expect(pickFeaturedResult([])).toBeNull();
+  });
+
+  it('prefers a bill over a more contested amendment', () => {
+    const amendment = withTitle(1, 'Schutz von X (Änderungsantrag)', 200, 210, 5);
+    const bill = withTitle(2, 'Reform des X-Gesetzes', 400, 150, 0);
+    expect(pickFeaturedResult([amendment, bill])?.poll.id).toBe(2);
+  });
+
+  it('ranks bills by dissent, then by closest margin', () => {
+    const calm = withTitle(1, 'Gesetz A', 300, 290, 0);
+    const rebellious = withTitle(2, 'Gesetz B', 400, 100, 3);
+    expect(pickFeaturedResult([calm, rebellious])?.poll.id).toBe(2);
+    const wide = withTitle(3, 'Gesetz C', 400, 100, 0);
+    expect(pickFeaturedResult([wide, calm])?.poll.id).toBe(1);
+  });
+
+  it('falls back to amendments when the week has nothing else', () => {
+    const a = withTitle(1, 'A (Entschließungsantrag)', 100, 400, 0);
+    const b = withTitle(2, 'B (Änderungsantrag)', 100, 400, 2);
+    expect(pickFeaturedResult([a, b])?.poll.id).toBe(2);
   });
 });

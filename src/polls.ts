@@ -316,3 +316,34 @@ export function useAllPollResults(polls: RealPoll[]): AllPollResultsState {
     .filter((r): r is PollResult => r !== undefined);
   return { results, loading, error };
 }
+
+/**
+ * Motions that only amend or comment on a bill (Änderungs-/Entschließungsanträge, mostly from the
+ * opposition and nearly always rejected). They are real roll-calls, but the bill they attach to is
+ * the week's actual decision, so they make a poor headline.
+ */
+const SECONDARY_MOTION = /Änderungsantrag|Entschließungsantrag/i;
+
+export function isSecondaryMotion(poll: RealPoll): boolean {
+  return SECONDARY_MOTION.test(poll.title);
+}
+
+/**
+ * The home page's "Im Fokus" vote for a sitting week: bills and main motions before amendments,
+ * then the vote where most members broke with their own fraction, then the closest margin, then
+ * the newest. Every criterion is a count from the roll-call records, never an editorial judgement.
+ */
+export function pickFeaturedResult(results: PollResult[]): PollResult | null {
+  if (results.length === 0) return null;
+  const primary = results.filter((r) => !isSecondaryMotion(r.poll));
+  const pool = primary.length > 0 ? primary : results;
+  const ranked = pool.map((r) => ({
+    r,
+    dissent: computeDivergences(r).length,
+    margin: Math.abs(r.totalYes - r.totalNo),
+  }));
+  ranked.sort(
+    (a, b) => b.dissent - a.dissent || a.margin - b.margin || b.r.poll.date.localeCompare(a.r.poll.date),
+  );
+  return ranked[0].r;
+}

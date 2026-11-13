@@ -2,7 +2,7 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState, type MouseEvent
 import { TRANSLATIONS, type Lang } from './data';
 import { fuzzyIncludes } from './helpers';
 import { FALLBACK_PARTY_COLOR, REAL_PARTY_COLORS, useBundestagRoster, type RealMp } from './bundestag';
-import { computeAllAlignments, computeDivergences, computeMemberAlignment, isoWeekRange, useAllPollResults, useAllPolls, useMandateVotes, usePartyVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult } from './polls';
+import { computeAllAlignments, computeDivergences, computeMemberAlignment, isoWeekRange, pickFeaturedResult, useAllPollResults, useAllPolls, useMandateVotes, usePartyVotes, usePollResult, useRecentPollResults, useWeeklyResults, type PollResult } from './polls';
 import { buildMemberIncomeScores, buildMpMetaDescription, formatIncomeEuro, summarizeSidejobIncome, useSidejobs } from './sidejobs';
 import { useSnapshot, type MemberHistorySummary } from './snapshot';
 import { useArchivedPollResult, useMemberVoteHistory, usePartyVoteHistory, type DivergenceKind } from './voteHistory';
@@ -62,6 +62,14 @@ import { DATENSTORIES, DatenstoryListPage, DatenstoryTeaser, DatenstoryView, dat
 
 /** Mirrors scripts/build-sitemap.mjs's SITE_URL — used to build the canonical/OG URL for the page currently on screen. */
 const SITE_URL = 'https://politblick.de';
+
+/** Ja / Nein / Enthaltung / nicht abgestimmt — the same palette as the party breakdown chart. */
+const FEATURED_SEGMENT_COLORS = {
+  yes: 'oklch(50% 0.14 155)',
+  no: 'oklch(55% 0.16 40)',
+  abstain: 'oklch(78% 0.02 260)',
+  noShow: 'oklch(90% 0.006 260)',
+} as const;
 
 declare global {
   interface Window {
@@ -719,7 +727,9 @@ function App() {
     }
     return Array.from(byWeek.values()).sort((a, b) => b.range.start.getTime() - a.range.start.getTime());
   })();
-  const weeklyFeedItems = weekly.results.map((r) => {
+  const featuredResult: PollResult | null = pickFeaturedResult(weekly.results);
+  // The focused vote has its own box above the grid, so the grid lists the rest of the week.
+  const weeklyFeedItems = weekly.results.filter((r) => r !== featuredResult).map((r) => {
     const divergence = weekly.divergences.find((d) => d.poll.id === r.poll.id);
     return {
       result: r,
@@ -749,7 +759,6 @@ function App() {
       onOpen: rm ? () => openMp(String(rm.id)) : undefined,
     };
   });
-  const featuredResult: PollResult | null = weekly.results[0] ?? null;
 
   // A profile is either one of the 8 illustrative demo MPs (full sample analysis content)
   // or a real, live-fetched Bundestag member (factual name/party/constituency only — no
@@ -1884,22 +1893,65 @@ function App() {
               <div style={{ fontSize: 12, fontWeight: 700, color: 'oklch(45% 0.16 265)', marginBottom: 6 }}>{t.featuredKicker}</div>
               {featuredResult ? (
                 <>
-                  <h3 style={{ fontSize: 19, fontWeight: 800, margin: '0 0 16px' }}>{featuredResult.poll.title}</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 10 }}>
+                  <h3 style={{ fontSize: 19, fontWeight: 800, margin: '0 0 6px' }}>{featuredResult.poll.title}</h3>
+                  {/* Outcome, count and day: the three facts a reader wants before the party detail. */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 10px', fontSize: 13, color: 'oklch(48% 0.01 260)', marginBottom: 10 }}>
+                    <span style={{ fontWeight: 700, color: featuredResult.poll.accepted ? 'oklch(45% 0.14 155)' : 'oklch(48% 0.16 40)' }}>
+                      {featuredResult.poll.accepted ? t.pollAccepted : t.pollRejected}
+                    </span>
+                    <span>
+                      {featuredResult.totalYes} {t.voteYes} : {featuredResult.totalNo} {t.voteNo}
+                      {featuredResult.totalAbstain > 0 ? ` · ${featuredResult.totalAbstain} ${t.voteAbstain}` : ''}
+                    </span>
+                    <span>
+                      {new Date(`${featuredResult.poll.date}T12:00:00`).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
+                  {featuredResult.poll.summary && (
+                    <p
+                      style={{
+                        fontSize: 14,
+                        lineHeight: 1.55,
+                        margin: '0 0 16px',
+                        maxWidth: 760,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {firstParagraph(featuredResult.poll.summary)}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
                     {featuredResult.partyBreakdown.map((pb) => {
                       const total = pb.yes + pb.no + pb.abstain + pb.noShow || 1;
-                      const yesPct = Math.round((pb.yes / total) * 100);
+                      const pct = (n: number) => (n / total) * 100;
                       return (
                         <div key={pb.party} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           <span style={{ width: 70, fontSize: 11.5, fontWeight: 600, flexShrink: 0 }}>{pb.party}</span>
-                          <div style={{ flex: 1, height: 10, borderRadius: 5, overflow: 'hidden', display: 'flex', background: 'oklch(90% 0.006 260)' }}>
-                            <div style={{ width: `${yesPct}%`, background: 'oklch(50% 0.14 155)' }} />
-                            <div style={{ width: `${100 - yesPct}%`, background: 'oklch(55% 0.16 40)' }} />
+                          <div
+                            style={{ flex: 1, height: 10, borderRadius: 5, overflow: 'hidden', display: 'flex', background: FEATURED_SEGMENT_COLORS.noShow }}
+                            title={`${pb.yes} ${t.voteYes} · ${pb.no} ${t.voteNo} · ${pb.abstain} ${t.voteAbstain} · ${pb.noShow} ${t.swColNoShow}`}
+                          >
+                            <div style={{ width: `${pct(pb.yes)}%`, background: FEATURED_SEGMENT_COLORS.yes }} />
+                            <div style={{ width: `${pct(pb.no)}%`, background: FEATURED_SEGMENT_COLORS.no }} />
+                            <div style={{ width: `${pct(pb.abstain)}%`, background: FEATURED_SEGMENT_COLORS.abstain }} />
                           </div>
-                          <span style={{ width: 60, fontSize: 11, color: 'oklch(48% 0.01 260)', textAlign: 'right', flexShrink: 0 }}>{yesPct}%</span>
+                          <span style={{ width: 60, fontSize: 11, color: 'oklch(48% 0.01 260)', textAlign: 'right', flexShrink: 0 }}>
+                            {Math.round(pct(pb.yes))}% {t.voteYes}
+                          </span>
                         </div>
                       );
                     })}
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 14px', fontSize: 11.5, color: 'oklch(48% 0.01 260)', marginBottom: 12 }}>
+                    {([['yes', t.voteYes], ['no', t.voteNo], ['abstain', t.voteAbstain], ['noShow', t.swColNoShow]] as const).map(([key, label]) => (
+                      <span key={key} style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                        <span style={{ width: 9, height: 9, borderRadius: 2, background: FEATURED_SEGMENT_COLORS[key] }} />
+                        {label}
+                      </span>
+                    ))}
                   </div>
                   <a href={billHref(featuredResult.poll.id)} onClick={stop(() => openBill(featuredResult.poll.id))} style={{ fontSize: 12.5, fontWeight: 700 }}>
                     {t.readMore} →
