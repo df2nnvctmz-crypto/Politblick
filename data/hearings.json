@@ -1,6 +1,6 @@
 {
- "generatedAt": "2026-11-13T19:58:31.440Z",
- "fullCrawlAt": "2026-11-06T21:46:20.748Z",
+ "generatedAt": "2026-11-14T01:01:57.090Z",
+ "fullCrawlAt": "2026-11-14T01:01:57.090Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
   {
@@ -208,6 +208,47 @@
    ]
   },
   {
+   "id": "1224910",
+   "url": "https://www.bundestag.de/ausschuesse/a17_menschenrechte/anhoerungen/1224910-1224910",
+   "title": "Angriffe auf Demokratie, Meinungsfreiheit und Menschenrechte",
+   "committee": "Menschenrechte und humanitäre Hilfe",
+   "date": "2026-11-11",
+   "drucksachen": [],
+   "expertListUrl": null,
+   "statements": [
+    {
+     "label": "Stellungnahme der Sachverständigen Josephine Ballon",
+     "url": "https://www.bundestag.de/resource/blob/1231384/Stellungnahme-SVe-Ballon.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme der Sachverständigen Cathryn Clüver Ashbrook",
+     "url": "https://www.bundestag.de/resource/blob/1231382/Stellungnahme-SVe-Cluever-Ashbrook.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme der Sachverständigen Dr. Sabine Fischer",
+     "url": "https://www.bundestag.de/resource/blob/1231380/Stellungnahme-SVe-Dr-Fischer.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme des Sachverständigen Dr. Wolfram Lacher",
+     "url": "https://www.bundestag.de/resource/blob/1231386/Stellungnahme-SV-Dr-Lacher.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme des Sachverständigen Prof. Dr. Michael Meyen",
+     "url": "https://www.bundestag.de/resource/blob/1231388/Stellungnahme-SV-Prof-Meyen.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme des Sachverständigen Kai Müller",
+     "url": "https://www.bundestag.de/resource/blob/1231390/Stellungnahme-SV-Mueller.pdf",
+     "number": null
+    }
+   ]
+  },
+  {
    "id": "1229702",
    "url": "https://www.bundestag.de/ausschuesse/umwelt/sitzungen/1229702-1229702",
    "title": "Anhörung zum Abfallverbringungsgesetz",
@@ -324,6 +365,42 @@
    ]
   },
   {
+   "id": "1229930",
+   "url": "https://www.bundestag.de/ausschuesse/a22_kultur/oeffentliche_sitzungen/1229930-1229930",
+   "title": "31. Sitzung – Jüdisches Leben, Antisemitismus; SED-Aufarbeitung",
+   "committee": "Kultur und Medien",
+   "date": "2026-11-11",
+   "drucksachen": [],
+   "expertListUrl": null,
+   "statements": [
+    {
+     "label": "Stellungnahme Dr. Elio Adler, WerteInitiative – jüdisch-deutsche Positionen",
+     "url": "https://www.bundestag.de/resource/blob/1231660/Stellungnahme-Dr-Elio-Adler.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Dr. Daniel Botmann, Zentralrat der Juden in Deutschland",
+     "url": "https://www.bundestag.de/resource/blob/1232044/Stellungnahme-Zentralrat-der-Juden-in-Deutschland.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Deborah Hartmann, Gedenk- und Bildungsstätte Haus der Wannsee-Konferenz",
+     "url": "https://www.bundestag.de/resource/blob/1232048/Stellungnahme-Deborah-Hartmann.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Chaim Noll",
+     "url": "https://www.bundestag.de/resource/blob/1232046/Stellungnahme-Chaim-Noll.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Prof. Dr. Stefanie Schüler-Springorum, Zentrum für Antisemitismusforschung, Technische Universität Berlin",
+     "url": "https://www.bundestag.de/resource/blob/1232050/Stellungnahme-Prof-Dr-Stefanie-Schueler-Springorum.pdf",
+     "number": null
+    }
+   ]
+  },
+  {
    "id": "1231314",
    "url": "https://www.bundestag.de/ausschuesse/forschung/sitzungen/1231314-1231314",
    "title": "Anhörung zur Änderung des BAfög-Gesetzes",
@@ -347,6 +424,42 @@
     {
      "label": "Stellungnahme des Sachverständigen Matthias Anbuhl, Vorstandsvorsitzender des Deutschen Studierendenwerks",
      "url": "https://www.bundestag.de/resource/blob/1231330/21-18-97.pdf",
+     "number": null
+    }
+   ]
+  },
+  {
+   "id": "1231408",
+   "url": "https://www.bundestag.de/ausschuesse/europa/sitzungen/1231408-1231408",
+   "title": "Zur Mitteilung der EU-Kommission „Bereit für eine größere Union“",
+   "committee": "Europäische Union",
+   "date": "2026-11-11",
+   "drucksachen": [],
+   "expertListUrl": null,
+   "statements": [
+    {
+     "label": "Stellungnahme Prof. Dr. Martin Nettesheim",
+     "url": "https://www.bundestag.de/resource/blob/1231946/stellungnahme_sv_nettesheim.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Prof. Dr. Funda Tekin",
+     "url": "https://www.bundestag.de/resource/blob/1231948/stellungnahme_sv_tekin.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Dr. Thu Nguyen",
+     "url": "https://www.bundestag.de/resource/blob/1232290/Stellungnahme-SV_Nguyen.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Prof. Dr. Franz Mayer",
+     "url": "https://www.bundestag.de/resource/blob/1232704/stellungnahme_sv_mayer.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme Prof. Dr. Daniela Schwarzer",
+     "url": "https://www.bundestag.de/resource/blob/1232960/stellungnahme_sv_schwarzer.pdf",
      "number": null
     }
    ]
@@ -2795,7 +2908,7 @@
   {
    "id": "1215508",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1215508-1215508",
-   "title": "Anhörung „Führerscheinreform“",
+   "title": "Anhörung zur „Führerscheinreform“",
    "committee": "Verkehr",
    "date": "2026-10-05",
    "drucksachen": [
@@ -5739,7 +5852,7 @@
   {
    "id": "1150874",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1150874-1150874",
-   "title": "Anhörung „Ausbaustrecke/Neubaustrecke Hannover – Hamburg“",
+   "title": "Anhörung zur „Ausbaustrecke/Neubaustrecke Hannover – Hamburg“",
    "committee": "Verkehr",
    "date": "2026-04-20",
    "drucksachen": [
@@ -6728,7 +6841,7 @@
   {
    "id": "1139982",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1139982-1139982",
-   "title": "Anhörung „Infrastruktur-Zukunftsgesetz“",
+   "title": "Anhörung zum „Infrastruktur-Zukunftsgesetz“",
    "committee": "Verkehr",
    "date": "2026-03-16",
    "drucksachen": [
@@ -7635,7 +7748,7 @@
   {
    "id": "1135916",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1135916-1135916",
-   "title": "Anhörung „Straßenverkehrsgesetz“",
+   "title": "Anhörung zum „Straßenverkehrsgesetz“",
    "committee": "Verkehr",
    "date": "2026-02-23",
    "drucksachen": [
@@ -8179,7 +8292,7 @@
   {
    "id": "1135370",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1135370-1135370",
-   "title": "Anhörung „Intelligente-Verkehrssysteme-Gesetz (IVS)“",
+   "title": "Anhörung zum „Intelligente-Verkehrssysteme-Gesetz (IVS)“",
    "committee": "Verkehr",
    "date": "2026-01-26",
    "drucksachen": [
@@ -12005,7 +12118,7 @@
   {
    "id": "1110038",
    "url": "https://www.bundestag.de/ausschuesse/verkehr/sitzungen/1110038-1110038",
-   "title": "Anhörung „Regionalisierungsgesetz“",
+   "title": "Anhörung zum „Regionalisierungsgesetz“",
    "committee": "Verkehr",
    "date": "2025-10-06",
    "drucksachen": [
@@ -12987,11 +13100,8 @@
   "1222042",
   "1222476",
   "1223676",
-  "1224910",
   "1229464",
-  "1229930",
   "1230686",
-  "1231408",
   "1231864",
   "20250625"
  ]
