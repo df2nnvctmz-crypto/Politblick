@@ -2053,6 +2053,18 @@
    "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
    "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1192448/000119312526061944/gkos-ex21.htm",
    "evidenceQuote": "Eintrag „Glaukos Germany GmbH“ in der Tochterliste von GLAUKOS Corp (Filing 2026-02-23)"
+  },
+  {
+   "id": "R002660",
+   "name": "Viatris Germany GmbH",
+   "zone": "subsidiary",
+   "sector": "Pharma / Medizin",
+   "parent": "Viatris Inc.",
+   "parentShort": "Viatris",
+   "parentIncorporation": "Delaware, US (10-K cover: Delaware)",
+   "evidenceType": "Lobbyregister-Beschreibung",
+   "evidenceUrl": "https://www.lobbyregister.bundestag.de/suche/R002660/88464",
+   "evidenceQuote": "Registerbeschreibung: „Dies umfasst auch die Produktinteressen der Konzerngesellschaften Viatris Healthcare und MEDA Pharma.“ Website laut Register: www.viatris.de. Anmerkung (2026-11-15): Nicht unter diesem Namen in der Tochterliste (10-K Exhibit 21, Stand 31.12.2025); dort stehen u. a. VIATRIS GmbH und Mylan Germany GmbH (Germany). Gezählt, weil Viatris seine Einträge R002661 und R003019 im November 2026 aufgegeben hat und R002660 nun deren Interessen mitvertritt."
   }
  ],
  "excluded": [

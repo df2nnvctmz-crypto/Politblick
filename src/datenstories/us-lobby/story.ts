@@ -16,7 +16,7 @@ export const RESEARCHED_ON = '2026-11-06';
 export const listing: DatenstoryListing = {
   slug: 'us-lobby',
   kicker: 'US-Lobby in Berlin',
-  title: 'Fast 50 Mio. € im Jahr, aber nur ein kleiner Teil ist als amerikanisch erkennbar',
+  title: 'Rund 50 Mio. € im Jahr, aber nur ein kleiner Teil ist als amerikanisch erkennbar',
   teaser:
     'US-Konzerne lobbyieren in Berlin vor allem über deutsche Tochterfirmen, oft mit früheren Abgeordneten und Regierungsleuten. Wir haben die Tochterfirmen den Mutterkonzernen zugeordnet.',
   topics: ["Lobbyregister","Drehtür"],
@@ -84,7 +84,7 @@ export function slots(d: UsLobbyData) {
 
 export const story = {
   kicker: 'US-Lobby in Berlin',
-  title: 'Fast {totalMioRounded} Mio. € im Jahr für US-Lobbyarbeit in Berlin',
+  title: 'Rund {totalMioRounded} Mio. € im Jahr für US-Lobbyarbeit in Berlin',
   titleAccent: 'nur {visibleFraction} davon ist als USA erkennbar',
   lede: [
     'Im Lobbyregister des Bundestags stehen {seatCount} Einträge mit Sitz in den USA. Dazu kommen {subCount} deutsche Tochterfirmen von US-Konzernen, die dort als deutsche Gesellschaft geführt werden. Zusammen melden sie {totalMio} Mio. € Lobbyausgaben im Jahr, {registerSharePct} % aller Lobbyausgaben im Register.',

@@ -109,6 +109,12 @@ async function verifyUsLobby() {
       if (!(v < rounded)) fail(`${tag} ${c.says}: total ${(v / c.unit).toFixed(2)} is not below ${rounded / c.unit}, so "Fast" is wrong`);
       else if ((rounded - v) / rounded > c.maxGap) fail(`${tag} ${c.says}: total ${(v / c.unit).toFixed(2)} is too far below ${rounded / c.unit} for "Fast"`);
       else ok(`${tag} ${(v / c.unit).toFixed(2)} Mio. -> „Fast ${rounded / c.unit}“`);
+    } else if (c.kind === 'nearRound') {
+      const v = metrics[c.metric];
+      const rounded = Math.round(v / c.unit) * c.unit;
+      if (c.expect != null && rounded / c.unit !== c.expect) fail(`${tag} ${c.says}: total ${(v / c.unit).toFixed(2)} now rounds to ${rounded / c.unit}, but the listing title says ${c.expect}`);
+      else if (Math.abs(rounded - v) / rounded > c.maxGap) fail(`${tag} ${c.says}: total ${(v / c.unit).toFixed(2)} is too far from ${rounded / c.unit} for "Rund"`);
+      else ok(`${tag} ${(v / c.unit).toFixed(2)} Mio. -> „Rund ${rounded / c.unit}“`);
     } else if (c.kind === 'fractionWord') {
       const v = metrics[c.metric];
       const [word, value] = Object.entries(FRACTIONS).reduce((b, f) => (Math.abs(f[1] - v) < Math.abs(b[1] - v) ? f : b));

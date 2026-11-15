@@ -9,6 +9,8 @@
  * kind:
  *  - justBelowRound: "Fast 50 Mio." is only honest while the total sits just below the round
  *    figure it is rounded to (within maxGap).
+ *  - nearRound: "Rund 50 Mio." is only honest while the total is within maxGap of the round
+ *    figure, on either side. `expect` is the figure hard-coded in the listing title.
  *  - fractionWord: the headline's "ein Sechstel" is picked live; fail if the share is no longer
  *    close to any plain fraction, warn when the word differs from the one the research (and the
  *    Reddit slides) used.
@@ -16,7 +18,7 @@
  *    must still be listed there as a former office holder.
  */
 export const claims = [
-  { id: 'fast-total', says: 'Überschrift: „Fast {totalMioRounded} Mio. € im Jahr“', kind: 'justBelowRound', metric: 'usTotalEuro', unit: 1e6, maxGap: 0.05 },
+  { id: 'rund-total', says: 'Überschrift: „Rund {totalMioRounded} Mio. € im Jahr“', kind: 'nearRound', metric: 'usTotalEuro', unit: 1e6, maxGap: 0.05, expect: 50 },
   { id: 'visible-fraction', says: 'Überschrift: „nur {visibleFraction} davon ist als USA erkennbar“', kind: 'fractionWord', metric: 'usVisibleShare', maxRelError: 0.12, researchWord: 'ein Sechstel' },
   { id: 'buechner-mars', says: 'Drehtür: „Gestern Vize-Regierungssprecher, heute Lobbyarbeit u. a. für Mars“', kind: 'officialNamed', name: 'Wolfgang Büchner', usId: 'R003198' },
 ] as const;
