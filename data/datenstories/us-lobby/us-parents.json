@@ -1215,18 +1215,6 @@
    "evidenceQuote": "Eintrag „Netflix Services Germany GmbH“ in der Tochterliste von NETFLIX INC (Filing 2026-01-23)"
   },
   {
-   "id": "R003019",
-   "name": "MEDA Pharma GmbH & Co. KG (A Viatris Company)",
-   "zone": "subsidiary",
-   "sector": "Pharma / Medizin",
-   "parent": "Viatris Inc.",
-   "parentShort": "Viatris",
-   "parentIncorporation": "Delaware, US (10-K cover: Delaware)",
-   "evidenceType": "Geöffnete Quelle (Jahresabschluss/Impressum/SEC)",
-   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1792044/000179204426000013/ex_21xvtrsx20251231.htm",
-   "evidenceQuote": "Subsidiaries as of December 31, 2025 ... MEDA Pharma GmbH & Co. KG | Germany — Anmerkung: Viatris Delaware confirmed from https://www.sec.gov/Archives/edgar/data/1792044/000179204426000013/vtrs-20251231.htm cover page ('Delaware'). Lobbyregister entry R003019 also uses '(A Viatris Company)'."
-  },
-  {
    "id": "R004507",
    "name": "Boeing Deutschland GmbH",
    "zone": "subsidiary",
@@ -2041,18 +2029,6 @@
    "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
    "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1136869/000119312526059853/zbh-ex21.htm",
    "evidenceQuote": "Eintrag „Zimmer Biomet Deutschland GmbH“ in der Tochterliste von ZIMMER BIOMET HOLDINGS, INC. (Filing 2026-02-20)"
-  },
-  {
-   "id": "R002661",
-   "name": "Viatris Healthcare GmbH",
-   "zone": "subsidiary",
-   "sector": "Pharma / Medizin",
-   "parent": "Viatris Inc.",
-   "parentShort": "Viatris",
-   "parentIncorporation": "DE",
-   "evidenceType": "SEC 10-K Exhibit 21 (Tochterliste)",
-   "evidenceUrl": "https://www.sec.gov/Archives/edgar/data/1792044/000179204426000013/ex_21xvtrsx20251231.htm",
-   "evidenceQuote": "Eintrag „Viatris Healthcare GmbH“ in der Tochterliste von Viatris Inc (Filing 2026-02-26)"
   },
   {
    "id": "R008139",
