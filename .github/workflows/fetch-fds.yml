@@ -1,0 +1,54 @@
+name: Fetch FragDenStaat mentions
+
+on:
+  schedule:
+    # Weekly, Monday 03:30 UTC. Only documents not seen before are read (one request per
+    # second), so a normal run is a few dozen requests. Nothing is published here: new matches
+    # go into a review issue assigned to the repo owner; apply-fds-review.yml publishes them.
+    - cron: '30 3 * * 1'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: fds
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Match new documents against the lobby register
+        id: fetch
+        env:
+          FDS_ISSUE_FILE: ${{ runner.temp }}/fds-issue.md
+        run: node scripts/fetch-fds.mjs
+
+      - uses: ./.github/actions/commit-data
+        with:
+          message: Update FragDenStaat candidates
+          paths: data/fds-state.json data/fds-candidates.json
+
+      - name: Open review issue
+        if: steps.fetch.outputs.new_candidates != '0' || steps.fetch.outputs.new_collections != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          COUNT: ${{ steps.fetch.outputs.new_candidates }}
+        run: |
+          gh label create fds-review --color 5319e7 --description "FragDenStaat-Treffer prüfen" --force
+          gh issue create \
+            --title "FragDenStaat: ${COUNT} neue Treffer prüfen ($(date -u +%F))" \
+            --body-file "${{ runner.temp }}/fds-issue.md" \
+            --label fds-review \
+            --assignee "$OWNER"

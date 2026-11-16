@@ -1,0 +1,53 @@
+name: Apply FragDenStaat review
+
+# Runs when a review issue from fetch-fds.yml is closed as "completed" by the repo owner:
+# ticked candidates become confirmed mentions on the organisation pages, unticked ones are
+# rejected. Closing as "not planned" (or anyone else closing it) changes nothing.
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: fds
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: >-
+      contains(github.event.issue.labels.*.name, 'fds-review') &&
+      github.event.issue.state_reason == 'completed' &&
+      github.event.sender.login == github.repository_owner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Apply decisions
+        env:
+          # Passed via env, never interpolated into the script: the body is user-editable text.
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          FDS_SUMMARY_FILE: ${{ runner.temp }}/fds-summary.md
+        run: node scripts/apply-fds-review.mjs
+
+      - name: Rebuild organisation-page mentions
+        run: node scripts/build-fds-mentions.mjs
+
+      - uses: ./.github/actions/commit-data
+        with:
+          message: Apply FragDenStaat review
+          paths: data/fds-decisions.json data/fds-candidates.json public/data/fds-mentions.json
+
+      - name: Report back on the issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: gh issue comment "$ISSUE" --body-file "${{ runner.temp }}/fds-summary.md"

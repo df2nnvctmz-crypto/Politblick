@@ -1,0 +1,7 @@
+{
+  "_comment": "Extra spellings for matching FragDenStaat documents to lobby-register orgs. Key: register id. Group-level aliases (holding/firm group -> registered entity) are deliberate and should be labelled as such on review.",
+  "R003901": ["Haribo Holding GmbH & Co. KG", "Haribo Holding"],
+  "R000697": ["TRUMPF SE + Co. KG", "Trumpf SE & Co. KG"],
+  "R006460": ["Firmengruppe Max Bögl", "Max Bögl Gruppe"],
+  "R001551": ["Schwarz Dienstleistung KG", "Schwarz Unternehmenskommunikation GmbH & Co. KG", "Schwarz Gruppe"]
+}

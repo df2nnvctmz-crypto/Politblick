@@ -57,6 +57,7 @@ import { FilterMenu } from './ui/FilterMenu';
 import { NewsletterSignup, RssLink } from './NewsletterSignup';
 import { SitzungswochenBriefing, StoryDetailPage } from './stories/Briefing';
 import { MobileMenu } from './MobileMenu';
+import { OrgDocuments } from './OrgDocuments';
 import { useStoryDetail } from './stories';
 import { DATENSTORIES, DatenstoryListPage, DatenstoryTeaser, DatenstoryView, datenstoryMeta, useDatenstory } from './datenstories/DatenstoryPage';
 
@@ -4536,6 +4537,8 @@ function App() {
                   lang={lang}
                 />
               )}
+
+              <OrgDocuments orgId={orgDetail.org.id} lang={lang} />
 
               {orgDetail.conflicts.length > 0 && (
                 <>
