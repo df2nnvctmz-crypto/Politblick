@@ -17,6 +17,7 @@ on:
       - Fetch sidejobs data (Nebeneinkünfte)
       - Fetch committee assignments
       - Fetch committee hearings
+      - Apply FragDenStaat review
     types: [completed]
   workflow_dispatch:
 
