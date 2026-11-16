@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-14T01:01:57.090Z",
+ "generatedAt": "2026-11-16T18:46:32.401Z",
  "fullCrawlAt": "2026-11-14T01:01:57.090Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -94,6 +94,18 @@
    "statements": []
   },
   {
+   "id": "1233338",
+   "url": "https://www.bundestag.de/ausschuesse/a07_finanzen/wp21_a07_Anhoerungen/1233338-1233338",
+   "title": "Anhörung zur Fortentwicklung von Kassenaufzeichnungen",
+   "committee": "Finanzen",
+   "date": "2026-12-07",
+   "drucksachen": [
+    "21/8867"
+   ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1233352/SV-Liste-054.pdf",
+   "statements": []
+  },
+  {
    "id": "1232420",
    "url": "https://www.bundestag.de/ausschuesse/gesundheit/anhoerungen/1232420-1232420",
    "title": "Anhörung „Pflegeneuordnungsgesetz“",
@@ -128,6 +140,11 @@
      "label": "Stellungnahme von Pro Mobilität – Initiative für Verkehrsinfrastruktur e. V.",
      "url": "https://www.bundestag.de/resource/blob/1224838/Stellungnahme-ProMobilitaet.pdf",
      "number": null
+    },
+    {
+     "label": "Stellungnahme des Hauptverbandes der Deutschen Bauindustrie (HDB) e. V.",
+     "url": "https://www.bundestag.de/resource/blob/1233492/Stellungnahme-HDB.pdf",
+     "number": null
     }
    ]
   },
@@ -140,7 +157,7 @@
    "drucksachen": [
     "21/8275"
    ],
-   "expertListUrl": null,
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1233364/SV-Liste-Anhoerung-KI-Migrationsverwaltung-23-11-2026.pdf",
    "statements": []
   },
   {
