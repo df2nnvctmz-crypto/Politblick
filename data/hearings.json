@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-17T13:43:58.105Z",
+ "generatedAt": "2026-11-17T23:37:32.835Z",
  "fullCrawlAt": "2026-11-14T01:01:57.090Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -159,7 +159,13 @@
     "21/8275"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1233364/SV-Liste-Anhoerung-KI-Migrationsverwaltung-23-11-2026.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "21(4)258 A - Stellungnahme Franziska Görlitz, Gesellschaft für Freiheitsrechte e .v., Berlin - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
+     "url": "https://www.bundestag.de/resource/blob/1233690/21-4-258-A-Stellungnahme-F-Goerlitz-GFF-KI-MIgrationsverwaltung-21-8275.pdf",
+     "number": "21(4)258"
+    }
+   ]
   },
   {
    "id": "1223022",
