@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-16T18:46:32.401Z",
+ "generatedAt": "2026-11-17T13:43:58.105Z",
  "fullCrawlAt": "2026-11-14T01:01:57.090Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -32,7 +32,8 @@
    "committee": "Recht und Verbraucherschutz",
    "date": "2026-12-14",
    "drucksachen": [
-    "21/8410"
+    "21/8410",
+    "21/8539"
    ],
    "expertListUrl": null,
    "statements": []
