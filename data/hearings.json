@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-17T23:37:32.835Z",
+ "generatedAt": "2026-11-18T17:26:47.202Z",
  "fullCrawlAt": "2026-11-14T01:01:57.090Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -145,6 +145,11 @@
     {
      "label": "Stellungnahme des Hauptverbandes der Deutschen Bauindustrie (HDB) e. V.",
      "url": "https://www.bundestag.de/resource/blob/1233492/Stellungnahme-HDB.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme von Prof. Dr. Stefan Korioth, Ludwig-Maximilians-Universität München",
+     "url": "https://www.bundestag.de/resource/blob/1233762/Stellungnahme-Korioth.pdf",
      "number": null
     }
    ]
