@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-19T13:41:53.131Z",
+ "generatedAt": "2026-11-19T23:10:14.263Z",
  "fullCrawlAt": "2026-11-14T01:01:57.090Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -178,6 +178,21 @@
     {
      "label": "21(4)258 A - Stellungnahme Franziska Görlitz, Gesellschaft für Freiheitsrechte e .v., Berlin - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
      "url": "https://www.bundestag.de/resource/blob/1233690/21-4-258-A-Stellungnahme-F-Goerlitz-GFF-KI-MIgrationsverwaltung-21-8275.pdf",
+     "number": "21(4)258"
+    },
+    {
+     "label": "21(4)258 B - Stellungnahme Prof. Dr. Matthias Friehe, EBS Universität für Wirtschaft und Recht, Oestrich-Winkel - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
+     "url": "https://www.bundestag.de/resource/blob/1237388/21-4-258-B-Stellungnahme-Prof-Dr-M-Friehe-EBS-Uni-KI-Migrationsverwaltung-21-8275.pdf",
+     "number": "21(4)258"
+    },
+    {
+     "label": "21(4)258 C - Stellungnahme Yana Gospodinova, Deutscher Caritasverband e. V., Berlin - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
+     "url": "https://www.bundestag.de/resource/blob/1237386/21-4-258-C-Stellungnahme-Y-Gospodinova-Dt-Caritasverband-KI-Migrationsverwaltung-21-8275.pdf",
+     "number": "21(4)258"
+    },
+    {
+     "label": "21(4)258 D - Stellungnahme Bundesvereinigung der kommunalen Spitzenverbände, Berlin - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
+     "url": "https://www.bundestag.de/resource/blob/1237392/21-4-258-D-Stellungnahme-BVg-komm-Spitzenverbaende-KI-Migrationsverwaltung-21-8275.pdf",
      "number": "21(4)258"
     }
    ]
