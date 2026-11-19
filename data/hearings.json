@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-18T17:26:47.202Z",
+ "generatedAt": "2026-11-19T13:41:53.131Z",
  "fullCrawlAt": "2026-11-14T01:01:57.090Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -123,7 +123,7 @@
     "21/8927",
     "21/8928"
    ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1233098/Anlage-2-Liste-Auskunftspersonen.pdf",
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1237312/Anlage-2-Liste-Auskunftspersonen-neu-1-.pdf",
    "statements": []
   },
   {
@@ -150,6 +150,16 @@
     {
      "label": "Stellungnahme von Prof. Dr. Stefan Korioth, Ludwig-Maximilians-Universität München",
      "url": "https://www.bundestag.de/resource/blob/1233762/Stellungnahme-Korioth.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme von Prof. Dr. Thorsten Beckers, Bauhaus-Universität Weimar",
+     "url": "https://www.bundestag.de/resource/blob/1237306/Stellungnahme-Beckers.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme von Philippa Sigl-Glöckner, Dezernat Zukunft",
+     "url": "https://www.bundestag.de/resource/blob/1237304/Stellungnahme-Sigl-Gloeckner.pdf",
      "number": null
     }
    ]
