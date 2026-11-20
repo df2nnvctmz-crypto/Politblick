@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-19T23:10:14.263Z",
+ "generatedAt": "2026-11-20T07:36:49.673Z",
  "fullCrawlAt": "2026-11-14T01:01:57.090Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -124,7 +124,28 @@
     "21/8928"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1237312/Anlage-2-Liste-Auskunftspersonen-neu-1-.pdf",
-   "statements": []
+   "statements": [
+    {
+     "label": "GKV-Spitzenverband",
+     "url": "https://www.bundestag.de/resource/blob/1237396/21-14-00129-1-GKV-Spitzenverband-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "AOK Bundesverband",
+     "url": "https://www.bundestag.de/resource/blob/1237398/21-14-00129-2-AOK-Bundesverband-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesverband für körper- und mehrfachbehinderte Menschen (bvkm)",
+     "url": "https://www.bundestag.de/resource/blob/1237400/21-14-00129-3-bvkm-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Allgemeiner Behindertenverband in Deutschland (ABiD)",
+     "url": "https://www.bundestag.de/resource/blob/1237402/21-14-00129-4-ABiD-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    }
+   ]
   },
   {
    "id": "1224834",
