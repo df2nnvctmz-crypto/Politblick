@@ -636,6 +636,11 @@ function App() {
   const mpTabHref = (id: string, tab: ProfileTab) =>
     withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'profile', mpId: buildMpUrlParam(id, roster.members), profileTab: tab }), BASE_URL);
   const billHref = (id: BillId) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'bill', billId: buildBillUrlParam(id, pollsState.polls) }), BASE_URL);
+  // The Sitzungswochen-Briefing carries each poll's title itself, so its links don't wait on
+  // polls.json: buildBillUrlParam drops the slug while polls are still loading, and a prerender
+  // snapshot taken in that window publishes a slugless /gesetze/<id>/ link with no built page
+  // (fails audit-links.mjs and the deploy).
+  const storyBillHref = (id: number, title: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'bill', billId: buildSlugParam(id, title) }), BASE_URL);
   const orgHref = (id: string) => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'org', orgId: buildSlugParam(id, snapshot?.lobbyLinks.orgs[id]?.name) }), BASE_URL);
   const partyHref = (party: string, tab: PartyTab = 'overview') => withBase(routeToPath({ ...DEFAULT_ROUTE, view: 'party', party, partyTab: tab }), BASE_URL);
   const committeeHref = (id: string) =>
@@ -1798,7 +1803,7 @@ function App() {
               onOpenStory={openStory}
               pollListHref={pollListHref}
               onOpenPollList={goPollList}
-              billHref={billHref}
+              billHref={storyBillHref}
               onOpenBill={openBill}
               stop={stop}
             />
@@ -5712,7 +5717,7 @@ function App() {
             onOpenPollList={goPollList}
             onBack={() => goBack(goHome)}
             backHref={homeHref}
-            billHref={billHref}
+            billHref={storyBillHref}
             onOpenBill={openBill}
             orgHref={orgHref}
             onOpenOrg={openOrg}

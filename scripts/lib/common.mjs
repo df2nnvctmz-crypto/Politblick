@@ -156,6 +156,8 @@ export function initialsOf(name) {
  * failure mode fetchLobbyPage() already guards against with AbortSignal.timeout.
  */
 export async function fetchJson(url, attempts = 5, init = {}) {
+  // `timeoutMs` is ours, not a fetch() option — split it off so it isn't passed through.
+  const { timeoutMs = 20_000, ...fetchInit } = init;
   let lastError;
   // 429s get their own, more generous budget: rate-limiting is an expected, recoverable
   // condition on a 630-request run, not a hard failure — exhausting the same small `attempts`
@@ -164,7 +166,7 @@ export async function fetchJson(url, attempts = 5, init = {}) {
   let rateLimitRetries = 0;
   for (let attempt = 0; attempt < attempts; attempt++) {
     try {
-      const res = await fetch(url, { ...init, signal: AbortSignal.timeout(20_000) });
+      const res = await fetch(url, { ...fetchInit, signal: AbortSignal.timeout(timeoutMs) });
       if (res.status === 429) {
         rateLimitRetries++;
         lastError = new Error(`HTTP 429 (rate limited) for ${url}`);
@@ -207,13 +209,14 @@ export async function fetchCurrentLegislaturePeriod() {
   return legislature;
 }
 
-export async function fetchAllPaginated(urlBuilder, pace) {
+/** `fetchInit` is forwarded to fetchJson (e.g. `{ timeoutMs }` for a slow endpoint). */
+export async function fetchAllPaginated(urlBuilder, pace, fetchInit = {}) {
   const pageSize = 1000;
   let rangeStart = 0;
   const all = [];
   for (;;) {
     await pace();
-    const json = await fetchJson(urlBuilder(rangeStart, rangeStart + pageSize));
+    const json = await fetchJson(urlBuilder(rangeStart, rangeStart + pageSize), 5, fetchInit);
     all.push(...json.data);
     const total = json.meta?.result?.total ?? all.length;
     rangeStart += pageSize;

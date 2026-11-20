@@ -75,7 +75,8 @@ interface SectionProps {
   onOpenStory: (week: string) => void;
   pollListHref: string;
   onOpenPollList: () => void;
-  billHref: (pollId: number) => string;
+  /** Builds the slug from the story's own title, not polls.json — see App.tsx's storyBillHref. */
+  billHref: (pollId: number, title: string) => string;
   onOpenBill: (pollId: number) => void;
   stop: (fn: () => void) => (e: React.MouseEvent) => void;
 }
@@ -176,7 +177,7 @@ export function SitzungswochenBriefing({ issues, t, lang, storyHref, onOpenStory
                 <div>
                   <div style={caps}>{t.swTileClosest}</div>
                   <a
-                    href={billHref(issue.closest.id)}
+                    href={billHref(issue.closest.id, issue.closest.title)}
                     onClick={stop(() => onOpenBill(issue.closest!.id))}
                     style={{ display: 'block', fontSize: 15.5, fontWeight: 700, margin: '5px 0 3px', color: 'inherit', lineHeight: 1.3, overflowWrap: 'anywhere' }}
                   >
@@ -292,7 +293,8 @@ interface DetailPageProps {
   /** Returns to wherever the reader came from (in-app history), falling back to `backHref`. */
   onBack: () => void;
   backHref: string;
-  billHref: (pollId: number) => string;
+  /** Builds the slug from the story's own title, not polls.json — see App.tsx's storyBillHref. */
+  billHref: (pollId: number, title: string) => string;
   onOpenBill: (pollId: number) => void;
   orgHref: (orgId: string) => string;
   onOpenOrg: (orgId: string) => void;
@@ -307,7 +309,7 @@ export function StoryDetailPage(props: DetailPageProps) {
   const fmt = makeFmt(lang);
   const year = issue.dateRange.start.slice(0, 4);
   const billLink = (poll: { id: number; title: string }) => (
-    <a href={billHref(poll.id)} onClick={props.stop(() => onOpenBill(poll.id))} style={{ fontWeight: 600 }}>
+    <a href={billHref(poll.id, poll.title)} onClick={props.stop(() => onOpenBill(poll.id))} style={{ fontWeight: 600 }}>
       {poll.title}
     </a>
   );
@@ -568,7 +570,7 @@ function PollRow({ poll, index, last, t, fmt, billHref, onOpenBill, orgHref, onO
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 18, flexWrap: 'wrap' }}>
           <a
-            href={billHref(poll.id)}
+            href={billHref(poll.id, poll.title)}
             onClick={stop(() => onOpenBill(poll.id))}
             style={{ margin: 0, ...DISPLAY, fontWeight: 700, fontSize: 16, lineHeight: 1.3, color: 'inherit', overflowWrap: 'anywhere' }}
           >
@@ -635,11 +637,11 @@ function PollRow({ poll, index, last, t, fmt, billHref, onOpenBill, orgHref, onO
                 )}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginTop: 16, alignItems: 'flex-start', fontSize: 12.5, fontWeight: 600 }}>
                   {poll.lobbyingOrgCount > poll.lobbyingOrgs.length && (
-                    <a href={billHref(poll.id)} onClick={stop(() => onOpenBill(poll.id))}>
+                    <a href={billHref(poll.id, poll.title)} onClick={stop(() => onOpenBill(poll.id))}>
                       {fillStr(t.swAllOrgs, { n: poll.lobbyingOrgCount })} →
                     </a>
                   )}
-                  <a href={billHref(poll.id)} onClick={stop(() => onOpenBill(poll.id))}>
+                  <a href={billHref(poll.id, poll.title)} onClick={stop(() => onOpenBill(poll.id))}>
                     {t.swToBillPage}: {poll.title} →
                   </a>
                 </div>
