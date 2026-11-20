@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-20T07:36:49.673Z",
+ "generatedAt": "2026-11-20T17:06:52.172Z",
  "fullCrawlAt": "2026-11-14T01:01:57.090Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -136,6 +136,46 @@
      "number": null
     },
     {
+     "label": "AOK Bundesverband",
+     "url": "https://www.bundestag.de/resource/blob/1237442/21-14-00129-2-1-AOK-Bundesverband-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "AOK Bundesverband",
+     "url": "https://www.bundestag.de/resource/blob/1237444/21-14-00129-2-2-AOK-Bundesverband-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "AOK Bundesverband",
+     "url": "https://www.bundestag.de/resource/blob/1237446/21-14-00129-2-3-AOK-Bundesverband-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "AOK Bundesverband",
+     "url": "https://www.bundestag.de/resource/blob/1237448/21-14-00129-2-4-AOK-Bundesverband-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "AOK Bundesverband",
+     "url": "https://www.bundestag.de/resource/blob/1237450/21-14-00129-2-5-AOK-Bundesverband-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "AOK Bundesverband",
+     "url": "https://www.bundestag.de/resource/blob/1237452/21-14-00129-2-6-AOK-Bundesverband-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "AOK Bundesverband",
+     "url": "https://www.bundestag.de/resource/blob/1237454/21-14-00129-2-7-AOK-Bundesverband-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "AOK Bundesverband",
+     "url": "https://www.bundestag.de/resource/blob/1237456/21-14-00129-2-8-AOK-Bundesverband-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
      "label": "Bundesverband für körper- und mehrfachbehinderte Menschen (bvkm)",
      "url": "https://www.bundestag.de/resource/blob/1237400/21-14-00129-3-bvkm-PNOG-nicht-barrierefrei.pdf",
      "number": null
@@ -143,6 +183,16 @@
     {
      "label": "Allgemeiner Behindertenverband in Deutschland (ABiD)",
      "url": "https://www.bundestag.de/resource/blob/1237402/21-14-00129-4-ABiD-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesverband Medizinrechnologie (BVMed)",
+     "url": "https://www.bundestag.de/resource/blob/1237438/21-14-00129-5-BVMed-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Verband der Ersatzkassen (vdek)",
+     "url": "https://www.bundestag.de/resource/blob/1237440/21-14-00129-6-vdek-PNOG-nicht-barrierefrei.pdf",
      "number": null
     }
    ]
@@ -182,6 +232,16 @@
      "label": "Stellungnahme von Philippa Sigl-Glöckner, Dezernat Zukunft",
      "url": "https://www.bundestag.de/resource/blob/1237304/Stellungnahme-Sigl-Gloeckner.pdf",
      "number": null
+    },
+    {
+     "label": "Stellungnahme von Prof. Dr. Georg Hermes",
+     "url": "https://www.bundestag.de/resource/blob/1237466/Stellungnahme-Hermes.pdf",
+     "number": null
+    },
+    {
+     "label": "Stellungnahme von Herbert Kasser, ASFiNAG",
+     "url": "https://www.bundestag.de/resource/blob/1237468/Stellungnahme-Kasser.pdf",
+     "number": null
     }
    ]
   },
@@ -215,6 +275,16 @@
      "label": "21(4)258 D - Stellungnahme Bundesvereinigung der kommunalen Spitzenverbände, Berlin - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
      "url": "https://www.bundestag.de/resource/blob/1237392/21-4-258-D-Stellungnahme-BVg-komm-Spitzenverbaende-KI-Migrationsverwaltung-21-8275.pdf",
      "number": "21(4)258"
+    },
+    {
+     "label": "21(4)258 E - Stellungnahme Prof. Dr. Alexander Steen, Gesellschaft für Informatik, Universität Greifswald - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
+     "url": "https://www.bundestag.de/resource/blob/1237412/21-4-258-E-Stellungnahme-Prof-Dr-A-Steen-Uni-Greifswald-KI-Migrationsverwaltung-21-8275.pdf",
+     "number": "21(4)258"
+    },
+    {
+     "label": "21(4)260 - Stellungnahme Der Paritätische Gesamtverband, Berlin - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
+     "url": "https://www.bundestag.de/resource/blob/1237472/21-4-260-Stellungnahme-Paritaetischer-Gesamtverband-KI-Migrationsverwaltung-21-8275.pdf",
+     "number": "21(4)260"
     }
    ]
   },
