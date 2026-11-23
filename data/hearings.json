@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-20T17:06:52.172Z",
+ "generatedAt": "2026-11-23T20:27:29.673Z",
  "fullCrawlAt": "2026-11-21T01:43:33.744Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -194,6 +194,121 @@
      "label": "Verband der Ersatzkassen (vdek)",
      "url": "https://www.bundestag.de/resource/blob/1237440/21-14-00129-6-vdek-PNOG-nicht-barrierefrei.pdf",
      "number": null
+    },
+    {
+     "label": "Deutscher Kinderhospitzverein",
+     "url": "https://www.bundestag.de/resource/blob/1237572/21-14-00129-7-Deutscher-Kinderhospitzverein-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Deutscher Landkreistag",
+     "url": "https://www.bundestag.de/resource/blob/1237574/21-14-00129-8-Deutscher-Landkreistag-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Kindernetzwerk",
+     "url": "https://www.bundestag.de/resource/blob/1237576/21-14-00129-9-Kindernetzwerk-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Medicproof – Der medizinische Dienst der Privaten",
+     "url": "https://www.bundestag.de/resource/blob/1237578/21-14-00129-10-Medicproof-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesvereinigung Lebenshilfe",
+     "url": "https://www.bundestag.de/resource/blob/1237654/21-14-00129-11-Bundesvereinigung-Lebenshilfe-PNOG.pdf",
+     "number": null
+    },
+    {
+     "label": "Deutscher Berufsverband für Pflegeberufe (DBfK)",
+     "url": "https://www.bundestag.de/resource/blob/1237656/21-14-00129-12-DBfK-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Allianz Chronischer Seltener Erkrankungen (achse)",
+     "url": "https://www.bundestag.de/resource/blob/1237658/21-14-00129-13-achse-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "BKK Dachverband",
+     "url": "https://www.bundestag.de/resource/blob/1237660/21-14-00129-14-BKK-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Verband der Privaten Krankenversicherung (PKV)",
+     "url": "https://www.bundestag.de/resource/blob/1237662/21-14-00129-15-PKV-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Deutscher Städtetag",
+     "url": "https://www.bundestag.de/resource/blob/1237664/21-14-00129-16-Deutscher-Staedtetag-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Verbraucherzentrale Bundesverband",
+     "url": "https://www.bundestag.de/resource/blob/1237666/21-14-00129-17-vzbv-PNOG.pdf",
+     "number": null
+    },
+    {
+     "label": "Deutsche Alzheimer Gesellschaft",
+     "url": "https://www.bundestag.de/resource/blob/1237700/21-14-00129-18-Deutsche-Alzheimer-Gesellschaft-PNOG.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesarbeitsgemeinschaft Selbsthilfe von Menschen mit Behinderung, chronischer Erkrankung und ihren Angehörigen (BAG Selbsthilfe)",
+     "url": "https://www.bundestag.de/resource/blob/1237702/21-14-00129-19-BAG-Selbsthilfe-PNOG.pdf",
+     "number": null
+    },
+    {
+     "label": "Deutsche Rentenversicherung",
+     "url": "https://www.bundestag.de/resource/blob/1237704/21-14-00129-20-Deutsche-Rentenversicherung-PNOG.pdf",
+     "number": null
+    },
+    {
+     "label": "Medizinischer Dienst Bund",
+     "url": "https://www.bundestag.de/resource/blob/1237706/21-14-00129-21-MD-Bund-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Pflegende Angehörige",
+     "url": "https://www.bundestag.de/resource/blob/1237708/21-14-00129-22-Pflegende-Angehoerige-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Sozialverband VdK Deutschland",
+     "url": "https://www.bundestag.de/resource/blob/1237710/21-14-00129-23-Sozialverband-VdK-Deutschland-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesarbeitsgemeinschaft der Freien Wohlfahrtspflege (BAGFW)",
+     "url": "https://www.bundestag.de/resource/blob/1237718/21-14-00129-24-BAGFW-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesarbeitsgemeinschaft der Freien Wohlfahrtspflege (BAGFW)",
+     "url": "https://www.bundestag.de/resource/blob/1237720/21-14-00129-25-bvitg-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesvereinigung der Deutschen Arbeitgeberverbände (BDA)",
+     "url": "https://www.bundestag.de/resource/blob/1237722/21-14-00129-26-BDA-PNOG.pdf",
+     "number": null
+    },
+    {
+     "label": "Deutscher Gewerkschaftsbund (DGB)",
+     "url": "https://www.bundestag.de/resource/blob/1237724/21-14-00129-27-DGB-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Deutscher Pflegerat",
+     "url": "https://www.bundestag.de/resource/blob/1237726/21-14-00129-28-Deutscher-Pflegerat-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesverband Kinderhospiz",
+     "url": "https://www.bundestag.de/resource/blob/1237728/21-14-00129-29-Bundesverband-Kinderhospiz-PNOG-nicht-barrierefrei.pdf",
+     "number": null
     }
    ]
   },
@@ -214,7 +329,7 @@
      "number": null
     },
     {
-     "label": "Stellungnahme des Hauptverbandes der Deutschen Bauindustrie (HDB) e. V.",
+     "label": "Stellungnahme des Hauptverbandes der Deutschen Bauindustrie e. V. (HDB)",
      "url": "https://www.bundestag.de/resource/blob/1233492/Stellungnahme-HDB.pdf",
      "number": null
     },
@@ -282,6 +397,21 @@
      "number": "21(4)258"
     },
     {
+     "label": "21(4)258 F - Stellungnahme Prof. Dr. Sarah Rachut, Technische Universität Braunschweig - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
+     "url": "https://www.bundestag.de/resource/blob/1237594/21-4-258-F-Stellungnahme-Prof-Dr-S-Rachut-Techn-Universitaet-KI-Migrationsverwaltung-21-8275.pdf",
+     "number": "21(4)258"
+    },
+    {
+     "label": "21(4)258 G - Stellungnahme Joscha Rasch, Hessisches Ministerium des Innern, für Sicherheit und Heimatschutz, Wiesbaden - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
+     "url": "https://www.bundestag.de/resource/blob/1237618/21-4-258-G-Stellungnahme-Joscha-Rasch-Hessisches-Innenministerium-KI-Migrationsverwaltung-21-8275.pdf",
+     "number": "21(4)258"
+    },
+    {
+     "label": "21(4)258 H - Stellungnahme Eric Töpfer, Deutsches Institut für Menschenrechte - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
+     "url": "https://www.bundestag.de/resource/blob/1237670/21-4-258-H-Stellungnahme-Eric-Toepfer-DI-fuer-Menschenrechte-KI-Migrationsverwaltung-21-8275.pdf",
+     "number": "21(4)258"
+    },
+    {
      "label": "21(4)260 - Stellungnahme Der Paritätische Gesamtverband, Berlin - KI in der Migrationsverwaltung - BT-Drucksache 21/8275",
      "url": "https://www.bundestag.de/resource/blob/1237472/21-4-260-Stellungnahme-Paritaetischer-Gesamtverband-KI-Migrationsverwaltung-21-8275.pdf",
      "number": "21(4)260"
@@ -300,7 +430,7 @@
    "expertListUrl": "https://www.bundestag.de/resource/blob/1223024/Liste-der-Auskunftspersonen.pdf",
    "statements": [
     {
-     "label": "Stellungnahme der Bundesvereinigung gegen Fluglärm (BVF) e. V.",
+     "label": "Stellungnahme der Bundesvereinigung gegen Fluglärm e. V. (BVF)",
      "url": "https://www.bundestag.de/resource/blob/1223026/Stellungnahme-BVF.pdf",
      "number": null
     },
@@ -325,12 +455,12 @@
      "number": null
     },
     {
-     "label": "Stellungnahme des Deutschen Hubschrauber Verbandes e. V.",
+     "label": "Stellungnahme des Deutschen Hubschrauber Verbandes e. V. (DHV)",
      "url": "https://www.bundestag.de/resource/blob/1231800/Stellungnahme-DHV.pdf",
      "number": null
     },
     {
-     "label": "Stellungnahme der Arbeitsgemeinschaft Deutscher Verkehrsflughäfen (ADV) e. V.",
+     "label": "Stellungnahme der Arbeitsgemeinschaft Deutscher Verkehrsflughäfen e. V. (ADV)",
      "url": "https://www.bundestag.de/resource/blob/1232108/Stellungnahme-ADV.pdf",
      "number": null
     }
@@ -626,8 +756,8 @@
      "number": null
     },
     {
-     "label": "Stellungnahme des Sachverständigen Herrn Prof. Dr. Thomas Brockmeier (IHK Halle-Dessau)",
-     "url": "https://www.bundestag.de/resource/blob/1231578/Stellungnahme-Prof-Dr-Thomas-Brockmeier.pdf",
+     "label": "Stellungnahme des Sachverständigen Prof. Dr. Thomas Brockmeier, IHK Halle-Dessau",
+     "url": "https://www.bundestag.de/resource/blob/1237678/Stellungnahme-Brockmeier.pdf",
      "number": null
     },
     {
@@ -13247,6 +13377,7 @@
   "1223676",
   "1229464",
   "1230686",
+  "1231378",
   "1231864",
   "20250625"
  ]
