@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-23T20:27:29.673Z",
+ "generatedAt": "2026-11-24T04:55:39.632Z",
  "fullCrawlAt": "2026-11-21T01:43:33.744Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -1397,9 +1397,7 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2026-11-04",
    "drucksachen": [
-    "21/6345",
-    "21/8281",
-    "21/8384"
+    "21/6345"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230184/Liste_der_Sachverstaendigen.pdf",
    "statements": [
