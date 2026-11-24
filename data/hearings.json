@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-24T04:55:39.632Z",
+ "generatedAt": "2026-11-24T19:38:57.746Z",
  "fullCrawlAt": "2026-11-21T01:43:33.744Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -103,7 +103,7 @@
    "drucksachen": [
     "21/8867"
    ],
-   "expertListUrl": "https://www.bundestag.de/resource/blob/1233352/SV-Liste-054.pdf",
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1233352/SV-Liste-055.pdf",
    "statements": []
   },
   {
@@ -114,6 +114,7 @@
    "date": "2026-11-25",
    "drucksachen": [
     "21/8869",
+    "21/9361",
     "21/8553",
     "21/8918",
     "21/6344",
@@ -308,6 +309,46 @@
     {
      "label": "Bundesverband Kinderhospiz",
      "url": "https://www.bundestag.de/resource/blob/1237728/21-14-00129-29-Bundesverband-Kinderhospiz-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Arbeitgeberverband Pflege (AGVP)",
+     "url": "https://www.bundestag.de/resource/blob/1237760/21-14-00129-30-AGVP-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Deutsche Gesellschaft für Pflegewissenschaft",
+     "url": "https://www.bundestag.de/resource/blob/1237762/21-14-00129-31-DGP-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "ver.di - Vereinte Dienstleistungsgewerkschaft",
+     "url": "https://www.bundestag.de/resource/blob/1237766/21-14-00129-33-wir-pflegen-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesverband privater Anbieter sozialer Dienste (bpa)",
+     "url": "https://www.bundestag.de/resource/blob/1237768/21-14-00129-34-bpa-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Sozialverband Deutschland",
+     "url": "https://www.bundestag.de/resource/blob/1237770/21-14-00129-35-Sozialverband-Deutschland-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Bundesarbeitsgemeinschaft der Seniorenorganisationen (BAGSO)",
+     "url": "https://www.bundestag.de/resource/blob/1237772/21-14-00129-36-BAGSO-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Internationaler Bund Berlin-Brandenburg",
+     "url": "https://www.bundestag.de/resource/blob/1237774/21-14-00129-37-Internationaler-Bund-Berlin-Brandenburg-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "Herbert Temmes",
+     "url": "https://www.bundestag.de/resource/blob/1237924/21-14-00129-38-Herbert-Temmes-PNOG-nicht-barrierefrei.pdf",
      "number": null
     }
    ]
@@ -1397,7 +1438,9 @@
    "committee": "Forschung, Technologie, Raumfahrt und Technikfolgenabschätzung",
    "date": "2026-11-04",
    "drucksachen": [
-    "21/6345"
+    "21/6345",
+    "21/8281",
+    "21/8384"
    ],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1230184/Liste_der_Sachverstaendigen.pdf",
    "statements": [
