@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-24T19:38:57.746Z",
+ "generatedAt": "2026-11-25T14:46:13.138Z",
  "fullCrawlAt": "2026-11-21T01:43:33.744Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -68,6 +68,18 @@
    "date": "2026-12-09",
    "drucksachen": [],
    "expertListUrl": "https://www.bundestag.de/resource/blob/1232998/261209_sv_liste.pdf",
+   "statements": []
+  },
+  {
+   "id": "1238198",
+   "url": "https://www.bundestag.de/ausschuesse/gesundheit/anhoerungen/1238198-1238198",
+   "title": "Anhörung „Ambulantisierung in der psychiatrischen Versorgung“",
+   "committee": "Gesundheit",
+   "date": "2026-12-09",
+   "drucksachen": [
+    "21/7853"
+   ],
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1238216/Anlage-2-Liste-Auskunftspersonen.pdf",
    "statements": []
   },
   {
@@ -323,6 +335,11 @@
     },
     {
      "label": "ver.di - Vereinte Dienstleistungsgewerkschaft",
+     "url": "https://www.bundestag.de/resource/blob/1238164/21-14-00129-32-ver-di-PNOG-nicht-barrierefrei.pdf",
+     "number": null
+    },
+    {
+     "label": "wir pflegen",
      "url": "https://www.bundestag.de/resource/blob/1237766/21-14-00129-33-wir-pflegen-PNOG-nicht-barrierefrei.pdf",
      "number": null
     },
@@ -13420,6 +13437,8 @@
   "1230686",
   "1231378",
   "1231864",
+  "1238222",
+  "1238256",
   "20250625"
  ]
 }
