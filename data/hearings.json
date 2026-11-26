@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-26T00:35:37.463Z",
+ "generatedAt": "2026-11-26T14:10:23.537Z",
  "fullCrawlAt": "2026-11-21T01:43:33.744Z",
  "source": "https://www.bundestag.de/ausschuesse",
  "hearings": [
@@ -35,7 +35,7 @@
     "21/8410",
     "21/8539"
    ],
-   "expertListUrl": null,
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1238412/SV-Liste.pdf",
    "statements": []
   },
   {
@@ -51,13 +51,13 @@
   {
    "id": "1232914",
    "url": "https://www.bundestag.de/ausschuesse/recht-verbraucherschutz/sitzungen/1232914-1232914",
-   "title": "Anhörung zur Modernisierung des Schiedsverfahrensrecht",
+   "title": "Anhörung zur Modernisierung des Schiedsverfahrensrechts",
    "committee": "Recht und Verbraucherschutz",
    "date": "2026-12-09",
    "drucksachen": [
     "21/8414"
    ],
-   "expertListUrl": null,
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1238408/SV-Liste.pdf",
    "statements": []
   },
   {
@@ -103,7 +103,7 @@
    "drucksachen": [
     "21/2803"
    ],
-   "expertListUrl": null,
+   "expertListUrl": "https://www.bundestag.de/resource/blob/1238472/Sachverstaendigenliste.pdf",
    "statements": []
   },
   {
